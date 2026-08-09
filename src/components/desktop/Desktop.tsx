@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import RetroWindow from "@/components/windows/RetroWindow";
 
 const apps = [
   { id: "mundos", name: "Explora mundo", icon: "🌎" },
@@ -50,23 +51,12 @@ export default function Desktop() {
       </div>
 
       {selectedApp && (
-        <section className="absolute left-1/2 top-1/2 z-20 w-[calc(100%-32px)] max-w-lg -translate-x-1/2 -translate-y-1/2 border-2 border-[#425b8c] bg-white shadow-[8px_8px_0_#425b8c]">
-          <header className="flex items-center justify-between border-b-2 border-[#425b8c] bg-[#dce4f2] px-3 py-2">
-            <p className="font-mono text-sm font-bold">
-              {selectedApp.icon} {selectedApp.name}.exe
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setActiveApp(null)}
-              aria-label="Cerrar ventana"
-              className="flex h-6 w-6 items-center justify-center border-2 border-[#425b8c] bg-white font-mono font-bold hover:bg-[#425b8c] hover:text-white"
-            >
-              ×
-            </button>
-          </header>
-
-          <div className="p-8 text-center">
+        <RetroWindow
+          title={selectedApp.name}
+          icon={selectedApp.icon}
+          onClose={() => setActiveApp(null)}
+        >
+          <div className="text-center">
             <p className="font-mono text-sm uppercase tracking-wider">
               Aplicación en construcción
             </p>
@@ -75,7 +65,7 @@ export default function Desktop() {
               Aquí construiremos la experiencia de {selectedApp.name}.
             </p>
           </div>
-        </section>
+        </RetroWindow>
       )}
 
       <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center justify-between border-t-2 border-[#425b8c] bg-[#dce4f2] px-2">
