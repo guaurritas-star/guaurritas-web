@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const tokenHash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
   const code = requestUrl.searchParams.get("code");
+  const flowId = requestUrl.searchParams.get("sb_flow_id");
   const next = requestUrl.searchParams.get("next") ?? "/";
   const safeNext = next.startsWith("/") ? next : "/";
   const supabase = await createClient();
@@ -23,7 +24,10 @@ export async function GET(request: NextRequest) {
   }
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(
+      code,
+      flowId ? { flowId } : undefined,
+    );
 
     if (!error) {
       return NextResponse.redirect(new URL(safeNext, requestUrl.origin));
@@ -31,6 +35,6 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.redirect(
-    new URL("/?auth_error=confirmation_failed", requestUrl.origin),
+    new URL("/?auth_notice=confirmation_requires_sign_in", requestUrl.origin),
   );
 }
