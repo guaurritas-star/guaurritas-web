@@ -50,6 +50,18 @@ export default function GuaurrinotasAuthGate() {
   useEffect(() => {
     let isMounted = true;
 
+    const searchParams = new URLSearchParams(window.location.search);
+    const authNotice = searchParams.get("auth_notice");
+
+    if (authNotice === "confirmation_requires_sign_in") {
+      setMode("signin");
+      setFeedbackKind("success");
+      setFeedback(
+        "Tu correo ya recibió la confirmación, pero el enlace se abrió fuera del navegador original. Inicia sesión con tu correo y contraseña.",
+      );
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
     const loadUser = async () => {
       const {
         data: { user: currentUser },
@@ -125,7 +137,7 @@ export default function GuaurrinotasAuthGate() {
 
       setFeedbackKind("success");
       setFeedback(
-        "Cuenta creada. Revisa tu correo y confirma el enlace para entrar a Guaurrinotas.",
+        "Cuenta creada. Abre el enlace de confirmación en este mismo navegador y dispositivo. Si se abre en otra app, vuelve aquí e inicia sesión.",
       );
       setPassword("");
       setPasswordConfirmation("");
