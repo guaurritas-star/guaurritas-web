@@ -4,6 +4,19 @@ import { useState } from "react";
 
 type FeedView = "inicio" | "siguiendo" | "perfil";
 
+type PetProfile = {
+  petName: string;
+  username: string;
+  avatar: string;
+  bio: string;
+  location: string;
+  joined: string;
+  followers: number;
+  following: number;
+  isFollowing: boolean;
+  isCurrentUser: boolean;
+};
+
 type NoteComment = {
   id: number;
   petName: string;
@@ -22,9 +35,49 @@ type Note = {
   time: string;
   likes: number;
   liked: boolean;
-  following: boolean;
   comments: NoteComment[];
 };
+
+const currentUsername = "@robbie.guaurritas";
+
+const initialProfiles: PetProfile[] = [
+  {
+    petName: "Robbie",
+    username: "@robbie.guaurritas",
+    avatar: "🐶",
+    bio: "Experto en GuaurriCookies, paseos largos y hacer amigos en cualquier lugar.",
+    location: "León, Guanajuato",
+    joined: "Desde 2024",
+    followers: 128,
+    following: 44,
+    isFollowing: false,
+    isCurrentUser: true,
+  },
+  {
+    petName: "Milo",
+    username: "@miloexplora",
+    avatar: "🐕",
+    bio: "Explorador profesional de parques, rutas nuevas y olores importantes.",
+    location: "León, Guanajuato",
+    joined: "Desde 2025",
+    followers: 86,
+    following: 31,
+    isFollowing: true,
+    isCurrentUser: false,
+  },
+  {
+    petName: "Nina",
+    username: "@ninalacuriosa",
+    avatar: "🐾",
+    bio: "Defensora oficial de las siestas, los sillones y los planes tranquilos.",
+    location: "Guanajuato, México",
+    joined: "Desde 2025",
+    followers: 59,
+    following: 22,
+    isFollowing: false,
+    isCurrentUser: false,
+  },
+];
 
 const initialNotes: Note[] = [
   {
@@ -37,7 +90,6 @@ const initialNotes: Note[] = [
     time: "Hace 12 min",
     likes: 24,
     liked: false,
-    following: true,
     comments: [
       {
         id: 101,
@@ -67,7 +119,6 @@ const initialNotes: Note[] = [
     time: "Hace 38 min",
     likes: 17,
     liked: false,
-    following: true,
     comments: [
       {
         id: 201,
@@ -89,7 +140,6 @@ const initialNotes: Note[] = [
     time: "Hace 1 h",
     likes: 31,
     liked: false,
-    following: false,
     comments: [],
   },
 ];
@@ -98,9 +148,16 @@ export default function GuaurrinotasApp() {
   const [activeView, setActiveView] =
     useState<FeedView>("inicio");
 
+  const [profiles, setProfiles] =
+    useState<PetProfile[]>(initialProfiles);
+
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+
+  const [openedProfileUsername, setOpenedProfileUsername] =
+    useState<string | null>(null);
+
   const [openCommentsId, setOpenCommentsId] =
     useState<number | null>(null);
 
@@ -108,14 +165,89 @@ export default function GuaurrinotasApp() {
     Record<number, string>
   >({});
 
-  const visibleNotes =
-    activeView === "siguiendo"
-      ? notes.filter((note) => note.following)
-      : activeView === "perfil"
-        ? notes.filter(
-            (note) => note.username === "@robbie.guaurritas",
-          )
-        : notes;
+  const selectedProfileUsername =
+    openedProfileUsername ??
+    (activeView === "perfil" ? currentUsername : null);
+
+  const selectedProfile = selectedProfileUsername
+    ? profiles.find(
+        (profile) =>
+          profile.username === selectedProfileUsername,
+      )
+    : undefined;
+
+  const visibleNotes = selectedProfileUsername
+    ? notes.filter(
+        (note) => note.username === selectedProfileUsername,
+      )
+    : activeView === "siguiendo"
+      ? notes.filter((note) =>
+          profiles.some(
+            (profile) =>
+              profile.username === note.username &&
+              profile.isFollowing,
+          ),
+        )
+      : notes;
+
+  const selectedProfileNoteCount = selectedProfile
+    ? notes.filter(
+        (note) => note.username === selectedProfile.username,
+      ).length
+    : 0;
+
+  const changeView = (view: FeedView) => {
+    setActiveView(view);
+    setOpenedProfileUsername(null);
+    setOpenCommentsId(null);
+  };
+
+  const openProfile = (username: string) => {
+    setOpenedProfileUsername(username);
+    setOpenCommentsId(null);
+    setIsComposerOpen(false);
+  };
+
+  const toggleFollow = (username: string) => {
+    if (username === currentUsername) return;
+
+    setProfiles((currentProfiles) => {
+      const targetProfile = currentProfiles.find(
+        (profile) => profile.username === username,
+      );
+
+      if (!targetProfile) return currentProfiles;
+
+      const followingChange = targetProfile.isFollowing
+        ? -1
+        : 1;
+
+      return currentProfiles.map((profile) => {
+        if (profile.username === username) {
+          return {
+            ...profile,
+            isFollowing: !profile.isFollowing,
+            followers: Math.max(
+              0,
+              profile.followers + followingChange,
+            ),
+          };
+        }
+
+        if (profile.username === currentUsername) {
+          return {
+            ...profile,
+            following: Math.max(
+              0,
+              profile.following + followingChange,
+            ),
+          };
+        }
+
+        return profile;
+      });
+    });
+  };
 
   const toggleLike = (noteId: number) => {
     setNotes((currentNotes) =>
@@ -138,22 +270,26 @@ export default function GuaurrinotasApp() {
 
     if (!cleanMessage) return;
 
+    const robbieProfile = profiles.find(
+      (profile) => profile.username === currentUsername,
+    );
+
     const newNote: Note = {
       id: Date.now(),
-      petName: "Robbie",
-      username: "@robbie.guaurritas",
-      avatar: "🐶",
+      petName: robbieProfile?.petName ?? "Robbie",
+      username: currentUsername,
+      avatar: robbieProfile?.avatar ?? "🐶",
       message: cleanMessage,
       time: "Ahora",
       likes: 0,
       liked: false,
-      following: true,
       comments: [],
     };
 
     setNotes((currentNotes) => [newNote, ...currentNotes]);
     setNewMessage("");
     setIsComposerOpen(false);
+    setOpenedProfileUsername(null);
     setActiveView("inicio");
   };
 
@@ -164,15 +300,21 @@ export default function GuaurrinotasApp() {
   };
 
   const publishComment = (noteId: number) => {
-    const cleanComment = (commentDrafts[noteId] ?? "").trim();
+    const cleanComment = (
+      commentDrafts[noteId] ?? ""
+    ).trim();
 
     if (!cleanComment) return;
 
+    const robbieProfile = profiles.find(
+      (profile) => profile.username === currentUsername,
+    );
+
     const newComment: NoteComment = {
       id: Date.now(),
-      petName: "Robbie",
-      username: "@robbie.guaurritas",
-      avatar: "🐶",
+      petName: robbieProfile?.petName ?? "Robbie",
+      username: currentUsername,
+      avatar: robbieProfile?.avatar ?? "🐶",
       message: cleanComment,
       time: "Ahora",
     };
@@ -283,10 +425,11 @@ export default function GuaurrinotasApp() {
             key={view.id}
             type="button"
             onClick={() =>
-              setActiveView(view.id as FeedView)
+              changeView(view.id as FeedView)
             }
             className={`border-r-2 border-[#425b8c] px-2 py-3 font-mono text-xs font-bold last:border-r-0 ${
-              activeView === view.id
+              activeView === view.id &&
+              !openedProfileUsername
                 ? "bg-[#425b8c] text-white"
                 : "bg-white hover:bg-[#dce4f2]"
             }`}
@@ -295,6 +438,104 @@ export default function GuaurrinotasApp() {
           </button>
         ))}
       </nav>
+
+      {selectedProfile && (
+        <section className="mt-5 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 shadow-[4px_4px_0_#425b8c]">
+          {openedProfileUsername && (
+            <button
+              type="button"
+              onClick={() =>
+                setOpenedProfileUsername(null)
+              }
+              className="mb-4 font-mono text-xs font-bold text-[#425b8c] hover:underline"
+            >
+              ← Volver
+            </button>
+          )}
+
+          <div className="flex items-start gap-4">
+            <div
+              aria-hidden="true"
+              className="flex h-20 w-20 shrink-0 items-center justify-center border-2 border-[#425b8c] bg-[#dce4f2] text-4xl shadow-[3px_3px_0_#425b8c]"
+            >
+              {selectedProfile.avatar}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xl font-bold text-[#263650]">
+                {selectedProfile.petName}
+              </h3>
+
+              <p className="font-mono text-xs text-[#637497]">
+                {selectedProfile.username}
+              </p>
+
+              {selectedProfile.isCurrentUser ? (
+                <span className="mt-3 inline-block border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold">
+                  Este es tu perfil
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    toggleFollow(selectedProfile.username)
+                  }
+                  aria-pressed={
+                    selectedProfile.isFollowing
+                  }
+                  className={`mt-3 border-2 border-[#425b8c] px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c] ${
+                    selectedProfile.isFollowing
+                      ? "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
+                      : "bg-[#425b8c] text-white hover:bg-[#263650]"
+                  }`}
+                >
+                  {selectedProfile.isFollowing
+                    ? "✓ Siguiendo"
+                    : "+ Seguir"}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <p className="mt-4 text-sm leading-6 text-[#263650]">
+            {selectedProfile.bio}
+          </p>
+
+          <div className="mt-3 space-y-1 font-mono text-[11px] text-[#637497]">
+            <p>📍 {selectedProfile.location}</p>
+            <p>🗓 {selectedProfile.joined}</p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 border-2 border-[#425b8c] bg-white text-center">
+            <div className="border-r-2 border-[#425b8c] p-3">
+              <p className="font-bold text-[#263650]">
+                {selectedProfileNoteCount}
+              </p>
+              <p className="font-mono text-[10px] text-[#637497]">
+                Notas
+              </p>
+            </div>
+
+            <div className="border-r-2 border-[#425b8c] p-3">
+              <p className="font-bold text-[#263650]">
+                {selectedProfile.followers}
+              </p>
+              <p className="font-mono text-[10px] text-[#637497]">
+                Seguidores
+              </p>
+            </div>
+
+            <div className="p-3">
+              <p className="font-bold text-[#263650]">
+                {selectedProfile.following}
+              </p>
+              <p className="font-mono text-[10px] text-[#637497]">
+                Siguiendo
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <main className="mt-5 space-y-5">
         {visibleNotes.map((note) => {
@@ -310,16 +551,26 @@ export default function GuaurrinotasApp() {
               className="border-2 border-[#425b8c] bg-white p-4 shadow-[4px_4px_0_#425b8c]"
             >
               <div className="flex items-start gap-3">
-                <div
-                  aria-hidden="true"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-[#425b8c] bg-[#dce4f2] text-2xl"
+                <button
+                  type="button"
+                  onClick={() =>
+                    openProfile(note.username)
+                  }
+                  aria-label={`Ver perfil de ${note.petName}`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-[#425b8c] bg-[#dce4f2] text-2xl hover:bg-[#cbd8ed]"
                 >
                   {note.avatar}
-                </div>
+                </button>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openProfile(note.username)
+                      }
+                      className="text-left hover:underline"
+                    >
                       <h3 className="font-bold">
                         {note.petName}
                       </h3>
@@ -327,7 +578,7 @@ export default function GuaurrinotasApp() {
                       <p className="font-mono text-xs text-[#637497]">
                         {note.username}
                       </p>
-                    </div>
+                    </button>
 
                     <span className="font-mono text-[11px] text-[#637497]">
                       {note.time}
@@ -348,7 +599,8 @@ export default function GuaurrinotasApp() {
                           : "text-[#637497] hover:text-[#425b8c]"
                       }`}
                     >
-                      {note.liked ? "♥" : "♡"} {note.likes}
+                      {note.liked ? "♥" : "♡"}{" "}
+                      {note.likes}
                     </button>
 
                     <button
@@ -361,7 +613,9 @@ export default function GuaurrinotasApp() {
                       className="font-mono text-xs font-bold text-[#637497] hover:text-[#425b8c]"
                     >
                       💬 {note.comments.length}{" "}
-                      {commentsAreOpen ? "Cerrar" : "Comentar"}
+                      {commentsAreOpen
+                        ? "Cerrar"
+                        : "Comentar"}
                     </button>
                   </div>
                 </div>
@@ -382,16 +636,30 @@ export default function GuaurrinotasApp() {
                         key={comment.id}
                         className="flex gap-3 border-2 border-[#cbd4e4] bg-[#f8f8f8] p-3"
                       >
-                        <div
-                          aria-hidden="true"
-                          className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#425b8c] bg-white text-lg"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openProfile(
+                              comment.username,
+                            )
+                          }
+                          aria-label={`Ver perfil de ${comment.petName}`}
+                          className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#425b8c] bg-white text-lg hover:bg-[#dce4f2]"
                         >
                           {comment.avatar}
-                        </div>
+                        </button>
 
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-start justify-between gap-2">
-                            <div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openProfile(
+                                  comment.username,
+                                )
+                              }
+                              className="text-left hover:underline"
+                            >
                               <p className="text-sm font-bold">
                                 {comment.petName}
                               </p>
@@ -399,7 +667,7 @@ export default function GuaurrinotasApp() {
                               <p className="font-mono text-[10px] text-[#637497]">
                                 {comment.username}
                               </p>
-                            </div>
+                            </button>
 
                             <span className="font-mono text-[10px] text-[#637497]">
                               {comment.time}
@@ -416,8 +684,8 @@ export default function GuaurrinotasApp() {
                     {note.comments.length === 0 && (
                       <div className="border-2 border-dashed border-[#cbd4e4] p-4 text-center">
                         <p className="text-sm text-[#637497]">
-                          Todavía no hay comentarios. Robbie
-                          puede ser el primero.
+                          Todavía no hay comentarios.
+                          Robbie puede ser el primero.
                         </p>
                       </div>
                     )}
@@ -477,7 +745,9 @@ export default function GuaurrinotasApp() {
         {visibleNotes.length === 0 && (
           <div className="border-2 border-dashed border-[#425b8c] bg-white p-8 text-center">
             <p className="font-mono text-sm font-bold">
-              Todavía no hay notas aquí.
+              {activeView === "siguiendo"
+                ? "Todavía no hay publicaciones de mascotas que sigues."
+                : "Este perfil todavía no tiene publicaciones."}
             </p>
           </div>
         )}
