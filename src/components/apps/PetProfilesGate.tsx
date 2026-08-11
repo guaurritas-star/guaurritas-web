@@ -162,6 +162,7 @@ export default function PetProfilesGate({
     }
 
     if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
+      setDraft((currentDraft) => ({ ...currentDraft, avatar: null }));
       setFeedbackKind("error");
       setFeedback("La foto debe ser JPEG, PNG o WebP.");
       setFileInputKey((currentKey) => currentKey + 1);
@@ -169,6 +170,7 @@ export default function PetProfilesGate({
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
+      setDraft((currentDraft) => ({ ...currentDraft, avatar: null }));
       setFeedbackKind("error");
       setFeedback("La foto debe pesar máximo 5 MB.");
       setFileInputKey((currentKey) => currentKey + 1);
