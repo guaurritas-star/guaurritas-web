@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import GuaurrinotasApp from "@/components/apps/GuaurrinotasApp";
 import RetroWindow from "@/components/windows/RetroWindow";
 
 const apps = [
@@ -23,8 +24,8 @@ export default function Desktop() {
           <button
             key={app.id}
             type="button"
-            onDoubleClick={() => setActiveApp(app.id)}
             onClick={() => setActiveApp(app.id)}
+            onDoubleClick={() => setActiveApp(app.id)}
             className="group flex w-28 flex-col items-center gap-2 rounded-md p-2 text-center hover:bg-[#dce4f2]"
           >
             <span className="flex h-16 w-16 items-center justify-center border-2 border-[#425b8c] bg-white text-3xl shadow-[4px_4px_0_#425b8c] transition-transform group-hover:-translate-y-1">
@@ -56,15 +57,19 @@ export default function Desktop() {
           icon={selectedApp.icon}
           onClose={() => setActiveApp(null)}
         >
-          <div className="text-center">
-            <p className="font-mono text-sm uppercase tracking-wider">
-              Aplicación en construcción
-            </p>
+          {selectedApp.id === "notas" ? (
+            <GuaurrinotasApp />
+          ) : (
+            <div className="text-center">
+              <p className="font-mono text-sm uppercase tracking-wider">
+                Aplicación en construcción
+              </p>
 
-            <p className="mt-3 text-sm leading-6 text-[#53627a]">
-              Aquí construiremos la experiencia de {selectedApp.name}.
-            </p>
-          </div>
+              <p className="mt-3 text-sm leading-6 text-[#53627a]">
+                Aquí construiremos la experiencia de {selectedApp.name}.
+              </p>
+            </div>
+          )}
         </RetroWindow>
       )}
 
