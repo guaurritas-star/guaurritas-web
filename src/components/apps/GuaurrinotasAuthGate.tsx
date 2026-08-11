@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import GuaurrinotasApp from "@/components/apps/GuaurrinotasApp";
+import PetProfilesGate from "@/components/apps/PetProfilesGate";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthMode = "signup" | "signin";
@@ -182,35 +182,11 @@ export default function GuaurrinotasAuthGate() {
 
   if (user) {
     return (
-      <div className="space-y-5">
-        <section className="border-2 border-[#425b8c] bg-[#dce4f2] p-5 shadow-[4px_4px_0_#425b8c]">
-          <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-            Cuenta conectada ✓
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold text-[#263650]">
-            Ya puedes crear el perfil de tu mascota
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-[#53627a]">
-            Iniciaste sesión como <strong>{user.email}</strong>. En el siguiente
-            bloque vincularemos esta cuenta con uno o varios perfiles de mascota.
-          </p>
-
-          <button
-            type="button"
-            onClick={signOut}
-            disabled={isSubmitting}
-            className="mt-4 border-2 border-[#425b8c] bg-white px-4 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#f0f3f8] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Cerrar sesión
-          </button>
-        </section>
-
-        <div className="pointer-events-none opacity-40" aria-hidden="true">
-          <GuaurrinotasApp />
-        </div>
-      </div>
+      <PetProfilesGate
+        user={user}
+        isSigningOut={isSubmitting}
+        onSignOut={signOut}
+      />
     );
   }
 
