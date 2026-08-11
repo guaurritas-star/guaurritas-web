@@ -71,7 +71,7 @@ type LocationSuggestion = {
 const NOMINATIM_BASE_URL =
   "https://nominatim.openstreetmap.org";
 
-const PHOTON_BASE_URL = "https://photon.komoot.io";
+const LOCATION_SEARCH_URL = "/api/locations/search";
 
 const buildLocationValue = (
   address?: LocationAddress,
@@ -541,7 +541,7 @@ export default function GuaurrinotasApp() {
         params.append("layer", "locality");
 
         const response = await fetch(
-          PHOTON_BASE_URL + "/api?" + params.toString(),
+          LOCATION_SEARCH_URL + "?" + params.toString(),
           {
             signal: controller.signal,
             headers: {
