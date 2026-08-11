@@ -40,38 +40,188 @@ type NominatimPlace = {
   address?: LocationAddress;
 };
 
-type PhotonProperties = {
-  name?: string;
-  city?: string;
-  town?: string;
-  village?: string;
-  municipality?: string;
-  county?: string;
-  state?: string;
-  country?: string;
-  countrycode?: string;
-  osm_id?: number;
-  osm_type?: string;
-};
-
-type PhotonFeature = {
-  properties?: PhotonProperties;
-};
-
-type PhotonResponse = {
-  features?: PhotonFeature[];
-};
-
 type LocationSuggestion = {
   id: string;
   label: string;
   value: string;
 };
 
+type CityOption = {
+  city: string;
+  state: string;
+};
+
 const NOMINATIM_BASE_URL =
   "https://nominatim.openstreetmap.org";
 
-const LOCATION_SEARCH_URL = "/api/locations/search";
+const MEXICAN_CITIES: CityOption[] = [
+  { city: "Aguascalientes", state: "Aguascalientes" },
+  { city: "San Francisco de los Romo", state: "Aguascalientes" },
+  { city: "Mexicali", state: "Baja California" },
+  { city: "Tijuana", state: "Baja California" },
+  { city: "Ensenada", state: "Baja California" },
+  { city: "Tecate", state: "Baja California" },
+  { city: "Playas de Rosarito", state: "Baja California" },
+  { city: "La Paz", state: "Baja California Sur" },
+  { city: "Cabo San Lucas", state: "Baja California Sur" },
+  { city: "San José del Cabo", state: "Baja California Sur" },
+  { city: "Campeche", state: "Campeche" },
+  { city: "Ciudad del Carmen", state: "Campeche" },
+  { city: "Tuxtla Gutiérrez", state: "Chiapas" },
+  { city: "San Cristóbal de las Casas", state: "Chiapas" },
+  { city: "Tapachula", state: "Chiapas" },
+  { city: "Comitán de Domínguez", state: "Chiapas" },
+  { city: "Palenque", state: "Chiapas" },
+  { city: "Chihuahua", state: "Chihuahua" },
+  { city: "Ciudad Juárez", state: "Chihuahua" },
+  { city: "Delicias", state: "Chihuahua" },
+  { city: "Cuauhtémoc", state: "Chihuahua" },
+  { city: "Hidalgo del Parral", state: "Chihuahua" },
+  { city: "Saltillo", state: "Coahuila" },
+  { city: "Torreón", state: "Coahuila" },
+  { city: "Monclova", state: "Coahuila" },
+  { city: "Piedras Negras", state: "Coahuila" },
+  { city: "Ciudad Acuña", state: "Coahuila" },
+  { city: "Ramos Arizpe", state: "Coahuila" },
+  { city: "Colima", state: "Colima" },
+  { city: "Manzanillo", state: "Colima" },
+  { city: "Tecomán", state: "Colima" },
+  { city: "Ciudad de México", state: "Ciudad de México" },
+  { city: "Durango", state: "Durango" },
+  { city: "Gómez Palacio", state: "Durango" },
+  { city: "Lerdo", state: "Durango" },
+  { city: "León", state: "Guanajuato" },
+  { city: "Guanajuato", state: "Guanajuato" },
+  { city: "Irapuato", state: "Guanajuato" },
+  { city: "Celaya", state: "Guanajuato" },
+  { city: "Salamanca", state: "Guanajuato" },
+  { city: "Silao", state: "Guanajuato" },
+  { city: "San Miguel de Allende", state: "Guanajuato" },
+  { city: "Moroleón", state: "Guanajuato" },
+  { city: "Uriangato", state: "Guanajuato" },
+  { city: "Valle de Santiago", state: "Guanajuato" },
+  { city: "Dolores Hidalgo", state: "Guanajuato" },
+  { city: "Acapulco", state: "Guerrero" },
+  { city: "Chilpancingo", state: "Guerrero" },
+  { city: "Iguala", state: "Guerrero" },
+  { city: "Taxco", state: "Guerrero" },
+  { city: "Zihuatanejo", state: "Guerrero" },
+  { city: "Pachuca", state: "Hidalgo" },
+  { city: "Tulancingo", state: "Hidalgo" },
+  { city: "Tula de Allende", state: "Hidalgo" },
+  { city: "Mineral de la Reforma", state: "Hidalgo" },
+  { city: "Guadalajara", state: "Jalisco" },
+  { city: "Zapopan", state: "Jalisco" },
+  { city: "San Pedro Tlaquepaque", state: "Jalisco" },
+  { city: "Tonalá", state: "Jalisco" },
+  { city: "Tlajomulco de Zúñiga", state: "Jalisco" },
+  { city: "Puerto Vallarta", state: "Jalisco" },
+  { city: "Lagos de Moreno", state: "Jalisco" },
+  { city: "Tepatitlán de Morelos", state: "Jalisco" },
+  { city: "Toluca", state: "Estado de México" },
+  { city: "Ecatepec", state: "Estado de México" },
+  { city: "Nezahualcóyotl", state: "Estado de México" },
+  { city: "Naucalpan", state: "Estado de México" },
+  { city: "Tlalnepantla", state: "Estado de México" },
+  { city: "Metepec", state: "Estado de México" },
+  { city: "Lerma", state: "Estado de México" },
+  { city: "Cuautitlán Izcalli", state: "Estado de México" },
+  { city: "Atizapán de Zaragoza", state: "Estado de México" },
+  { city: "Texcoco", state: "Estado de México" },
+  { city: "Valle de Bravo", state: "Estado de México" },
+  { city: "Ixtapaluca", state: "Estado de México" },
+  { city: "Chimalhuacán", state: "Estado de México" },
+  { city: "Morelia", state: "Michoacán" },
+  { city: "Uruapan", state: "Michoacán" },
+  { city: "Zamora", state: "Michoacán" },
+  { city: "Lázaro Cárdenas", state: "Michoacán" },
+  { city: "Pátzcuaro", state: "Michoacán" },
+  { city: "La Piedad", state: "Michoacán" },
+  { city: "Apatzingán", state: "Michoacán" },
+  { city: "Zitácuaro", state: "Michoacán" },
+  { city: "Cuernavaca", state: "Morelos" },
+  { city: "Jiutepec", state: "Morelos" },
+  { city: "Cuautla", state: "Morelos" },
+  { city: "Temixco", state: "Morelos" },
+  { city: "Jojutla", state: "Morelos" },
+  { city: "Tepic", state: "Nayarit" },
+  { city: "Bahía de Banderas", state: "Nayarit" },
+  { city: "Santiago Ixcuintla", state: "Nayarit" },
+  { city: "Monterrey", state: "Nuevo León" },
+  { city: "Guadalupe", state: "Nuevo León" },
+  { city: "San Nicolás de los Garza", state: "Nuevo León" },
+  { city: "Apodaca", state: "Nuevo León" },
+  { city: "Santa Catarina", state: "Nuevo León" },
+  { city: "General Escobedo", state: "Nuevo León" },
+  { city: "San Pedro Garza García", state: "Nuevo León" },
+  { city: "Oaxaca de Juárez", state: "Oaxaca" },
+  { city: "Juchitán", state: "Oaxaca" },
+  { city: "Salina Cruz", state: "Oaxaca" },
+  { city: "Tuxtepec", state: "Oaxaca" },
+  { city: "Puerto Escondido", state: "Oaxaca" },
+  { city: "Puebla", state: "Puebla" },
+  { city: "Tehuacán", state: "Puebla" },
+  { city: "San Martín Texmelucan", state: "Puebla" },
+  { city: "Atlixco", state: "Puebla" },
+  { city: "San Pedro Cholula", state: "Puebla" },
+  { city: "San Andrés Cholula", state: "Puebla" },
+  { city: "Querétaro", state: "Querétaro" },
+  { city: "San Juan del Río", state: "Querétaro" },
+  { city: "El Marqués", state: "Querétaro" },
+  { city: "Corregidora", state: "Querétaro" },
+  { city: "Cancún", state: "Quintana Roo" },
+  { city: "Playa del Carmen", state: "Quintana Roo" },
+  { city: "Chetumal", state: "Quintana Roo" },
+  { city: "Tulum", state: "Quintana Roo" },
+  { city: "Cozumel", state: "Quintana Roo" },
+  { city: "Isla Mujeres", state: "Quintana Roo" },
+  { city: "San Luis Potosí", state: "San Luis Potosí" },
+  { city: "Soledad de Graciano Sánchez", state: "San Luis Potosí" },
+  { city: "Ciudad Valles", state: "San Luis Potosí" },
+  { city: "Matehuala", state: "San Luis Potosí" },
+  { city: "Rioverde", state: "San Luis Potosí" },
+  { city: "Culiacán", state: "Sinaloa" },
+  { city: "Mazatlán", state: "Sinaloa" },
+  { city: "Los Mochis", state: "Sinaloa" },
+  { city: "Guasave", state: "Sinaloa" },
+  { city: "Hermosillo", state: "Sonora" },
+  { city: "Nogales", state: "Sonora" },
+  { city: "Ciudad Obregón", state: "Sonora" },
+  { city: "San Luis Río Colorado", state: "Sonora" },
+  { city: "Navojoa", state: "Sonora" },
+  { city: "Guaymas", state: "Sonora" },
+  { city: "Villahermosa", state: "Tabasco" },
+  { city: "Cárdenas", state: "Tabasco" },
+  { city: "Comalcalco", state: "Tabasco" },
+  { city: "Paraíso", state: "Tabasco" },
+  { city: "Reynosa", state: "Tamaulipas" },
+  { city: "Matamoros", state: "Tamaulipas" },
+  { city: "Nuevo Laredo", state: "Tamaulipas" },
+  { city: "Tampico", state: "Tamaulipas" },
+  { city: "Ciudad Victoria", state: "Tamaulipas" },
+  { city: "Ciudad Madero", state: "Tamaulipas" },
+  { city: "Altamira", state: "Tamaulipas" },
+  { city: "Tlaxcala", state: "Tlaxcala" },
+  { city: "Apizaco", state: "Tlaxcala" },
+  { city: "Huamantla", state: "Tlaxcala" },
+  { city: "Chiautempan", state: "Tlaxcala" },
+  { city: "Veracruz", state: "Veracruz" },
+  { city: "Xalapa", state: "Veracruz" },
+  { city: "Coatzacoalcos", state: "Veracruz" },
+  { city: "Córdoba", state: "Veracruz" },
+  { city: "Orizaba", state: "Veracruz" },
+  { city: "Poza Rica", state: "Veracruz" },
+  { city: "Boca del Río", state: "Veracruz" },
+  { city: "Minatitlán", state: "Veracruz" },
+  { city: "Tuxpan", state: "Veracruz" },
+  { city: "Mérida", state: "Yucatán" },
+  { city: "Valladolid", state: "Yucatán" },
+  { city: "Progreso", state: "Yucatán" },
+  { city: "Zacatecas", state: "Zacatecas" },
+  { city: "Guadalupe", state: "Zacatecas" },
+  { city: "Fresnillo", state: "Zacatecas" },
+  { city: "Jerez", state: "Zacatecas" },
+];
 
 const buildLocationValue = (
   address?: LocationAddress,
@@ -100,49 +250,55 @@ const buildLocationValue = (
   ).join(", ");
 };
 
-const buildPhotonSuggestion = (
-  feature: PhotonFeature,
-  index: number,
-): LocationSuggestion | null => {
-  const properties = feature.properties;
+const normalizeLocationText = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("es-MX");
 
-  if (!properties) return null;
+const searchMexicanCities = (
+  query: string,
+): LocationSuggestion[] => {
+  const normalizedQuery = normalizeLocationText(query.trim());
 
-  const city =
-    properties.name ??
-    properties.city ??
-    properties.town ??
-    properties.village ??
-    properties.municipality;
+  if (normalizedQuery.length < 2) return [];
 
-  const region = properties.state ?? properties.county;
+  return MEXICAN_CITIES.map((option) => {
+    const city = normalizeLocationText(option.city);
+    const fullValue = `${option.city}, ${option.state}`;
+    const searchableValue = normalizeLocationText(fullValue);
 
-  const value = Array.from(
-    new Set(
-      [city, region].filter(
-        (part): part is string => Boolean(part),
-      ),
-    ),
-  ).join(", ");
+    const priority = city.startsWith(normalizedQuery)
+      ? 0
+      : searchableValue.startsWith(normalizedQuery)
+        ? 1
+        : 2;
 
-  if (!city || !value) return null;
-
-  const label =
-    properties.country && !value.includes(properties.country)
-      ? value + ", " + properties.country
-      : value;
-
-  return {
-    id: [
-      properties.osm_type ?? "place",
-      properties.osm_id ?? index,
-      value,
-    ].join("-"),
-    label,
-    value,
-  };
+    return {
+      option,
+      fullValue,
+      searchableValue,
+      priority,
+    };
+  })
+    .filter(({ searchableValue }) =>
+      searchableValue.includes(normalizedQuery),
+    )
+    .sort(
+      (first, second) =>
+        first.priority - second.priority ||
+        first.option.city.localeCompare(
+          second.option.city,
+          "es-MX",
+        ),
+    )
+    .slice(0, 6)
+    .map(({ option, fullValue }) => ({
+      id: `${option.state}-${option.city}`,
+      label: `${fullValue}, México`,
+      value: fullValue,
+    }));
 };
-
 type NoteComment = {
   id: number;
   petName: string;
@@ -523,97 +679,15 @@ export default function GuaurrinotasApp() {
       return;
     }
 
-    const controller = new AbortController();
+    const suggestions = searchMexicanCities(cleanQuery);
 
-    const timeoutId = window.setTimeout(async () => {
-      setIsSearchingLocation(true);
-      setLocationSuggestions([]);
-      setLocationStatus("Buscando coincidencias…");
-
-      try {
-        const params = new URLSearchParams({
-          q: cleanQuery,
-          limit: "6",
-          lang: "es",
-        });
-
-        params.append("layer", "city");
-        params.append("layer", "locality");
-
-        const response = await fetch(
-          LOCATION_SEARCH_URL + "?" + params.toString(),
-          {
-            signal: controller.signal,
-            headers: {
-              Accept: "application/json",
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("No se pudieron buscar ciudades.");
-        }
-
-        const result =
-          (await response.json()) as PhotonResponse;
-
-        const uniqueSuggestions = new Map<
-          string,
-          LocationSuggestion
-        >();
-
-        (result.features ?? []).forEach((feature, index) => {
-          const suggestion = buildPhotonSuggestion(
-            feature,
-            index,
-          );
-
-          if (
-            !suggestion ||
-            uniqueSuggestions.has(suggestion.value)
-          ) {
-            return;
-          }
-
-          uniqueSuggestions.set(
-            suggestion.value,
-            suggestion,
-          );
-        });
-
-        const suggestions = Array.from(
-          uniqueSuggestions.values(),
-        );
-
-        setLocationSuggestions(suggestions);
-        setLocationStatus(
-          suggestions.length > 0
-            ? "Elige una ciudad de la lista."
-            : "No encontramos coincidencias. Prueba con más letras o escribe tu ciudad manualmente arriba.",
-        );
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.name === "AbortError"
-        ) {
-          return;
-        }
-
-        setLocationSuggestions([]);
-        setLocationStatus(
-          "No pudimos cargar las ciudades en este momento. Puedes escribirla manualmente arriba.",
-        );
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsSearchingLocation(false);
-        }
-      }
-    }, 500);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      controller.abort();
-    };
+    setIsSearchingLocation(false);
+    setLocationSuggestions(suggestions);
+    setLocationStatus(
+      suggestions.length > 0
+        ? "Elige una ciudad de la lista."
+        : "No encontramos coincidencias en México. Puedes escribir tu ciudad manualmente arriba.",
+    );
   }, [locationQuery, showLocationSearch]);
 
   const saveProfile = () => {
