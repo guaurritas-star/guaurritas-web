@@ -17,6 +17,11 @@ type PetProfile = {
   isCurrentUser: boolean;
 };
 
+type ProfileDraft = Pick<
+  PetProfile,
+  "petName" | "bio" | "location"
+>;
+
 type NoteComment = {
   id: number;
   petName: string;
@@ -165,6 +170,19 @@ export default function GuaurrinotasApp() {
     Record<number, string>
   >({});
 
+  const [isEditingProfile, setIsEditingProfile] =
+    useState(false);
+
+  const [profileDraft, setProfileDraft] =
+    useState<ProfileDraft>({
+      petName: "",
+      bio: "",
+      location: "",
+    });
+
+  const [profileFeedback, setProfileFeedback] =
+    useState("");
+
   const selectedProfileUsername =
     openedProfileUsername ??
     (activeView === "perfil" ? currentUsername : null);
@@ -200,12 +218,129 @@ export default function GuaurrinotasApp() {
     setActiveView(view);
     setOpenedProfileUsername(null);
     setOpenCommentsId(null);
+    setIsEditingProfile(false);
+    setProfileFeedback("");
   };
 
   const openProfile = (username: string) => {
     setOpenedProfileUsername(username);
     setOpenCommentsId(null);
     setIsComposerOpen(false);
+    setIsEditingProfile(false);
+    setProfileFeedback("");
+  };
+
+  const startEditingProfile = () => {
+    const currentProfile = profiles.find(
+      (profile) => profile.username === currentUsername,
+    );
+
+    if (!currentProfile) return;
+
+    setProfileDraft({
+      petName: currentProfile.petName,
+      bio: currentProfile.bio,
+      location: currentProfile.location,
+    });
+
+    setProfileFeedback("");
+    setIsEditingProfile(true);
+  };
+
+  const cancelEditingProfile = () => {
+    setIsEditingProfile(false);
+    setProfileFeedback("");
+  };
+
+  const saveProfile = () => {
+    const petName = profileDraft.petName.trim();
+    const bio = profileDraft.bio.trim();
+    const location = profileDraft.location.trim();
+
+    if (!petName || !bio || !location) return;
+
+    setProfiles((currentProfiles) =>
+      currentProfiles.map((profile) =>
+        profile.username === currentUsername
+          ? {
+              ...profile,
+              petName,
+              bio,
+              location,
+            }
+          : profile,
+      ),
+    );
+
+    setNotes((currentNotes) =>
+      currentNotes.map((note) => ({
+        ...note,
+        petName:
+          note.username === currentUsername
+            ? petName
+            : note.petName,
+        comments: note.comments.map((comment) =>
+          comment.username === currentUsername
+            ? {
+                ...comment,
+                petName,
+              }
+            : comment,
+        ),
+      })),
+    );
+
+    setIsEditingProfile(false);
+    setProfileFeedback(
+      "✓ Los cambios se guardaron en tu perfil.",
+    );
+  };
+
+  const shareProfile = async (profile: PetProfile) => {
+    const profileText = [
+      `${profile.petName} ${profile.username}`,
+      profile.bio,
+      `📍 ${profile.location}`,
+      `🗓 ${profile.joined}`,
+      "",
+      "Conoce su historia en Guaurritas.",
+    ].join("\n");
+
+    setProfileFeedback("");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Perfil de ${profile.petName} | Guaurritas`,
+          text: profileText,
+        });
+
+        setProfileFeedback("✓ Perfil compartido.");
+        return;
+      }
+
+      await navigator.clipboard.writeText(profileText);
+
+      setProfileFeedback(
+        "✓ Perfil copiado. Ya puedes pegarlo donde quieras.",
+      );
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(profileText);
+
+        setProfileFeedback(
+          "✓ Perfil copiado. Ya puedes pegarlo donde quieras.",
+        );
+      } catch {
+        setProfileFeedback(
+          "No fue posible compartir el perfil desde este navegador.",
+        );
+      }
+    }
   };
 
   const toggleFollow = (username: string) => {
@@ -471,40 +606,181 @@ export default function GuaurrinotasApp() {
               </p>
 
               {selectedProfile.isCurrentUser ? (
-                <span className="mt-3 inline-block border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold">
-                  Este es tu perfil
-                </span>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={startEditingProfile}
+                    className="border-2 border-[#425b8c] bg-[#425b8c] px-3 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650]"
+                  >
+                    ✎ Editar perfil
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void shareProfile(selectedProfile)}
+                    className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#dce4f2]"
+                  >
+                    ↗ Compartir
+                  </button>
+                </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() =>
-                    toggleFollow(selectedProfile.username)
-                  }
-                  aria-pressed={
-                    selectedProfile.isFollowing
-                  }
-                  className={`mt-3 border-2 border-[#425b8c] px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c] ${
-                    selectedProfile.isFollowing
-                      ? "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
-                      : "bg-[#425b8c] text-white hover:bg-[#263650]"
-                  }`}
-                >
-                  {selectedProfile.isFollowing
-                    ? "✓ Siguiendo"
-                    : "+ Seguir"}
-                </button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleFollow(selectedProfile.username)
+                    }
+                    aria-pressed={selectedProfile.isFollowing}
+                    className={`border-2 border-[#425b8c] px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c] ${
+                      selectedProfile.isFollowing
+                        ? "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
+                        : "bg-[#425b8c] text-white hover:bg-[#263650]"
+                    }`}
+                  >
+                    {selectedProfile.isFollowing
+                      ? "✓ Siguiendo"
+                      : "+ Seguir"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void shareProfile(selectedProfile)}
+                    className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#dce4f2]"
+                  >
+                    ↗ Compartir
+                  </button>
+                </div>
               )}
             </div>
           </div>
 
-          <p className="mt-4 text-sm leading-6 text-[#263650]">
-            {selectedProfile.bio}
-          </p>
+          {selectedProfile.isCurrentUser &&
+          isEditingProfile ? (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                saveProfile();
+              }}
+              className="mt-5 border-2 border-[#425b8c] bg-white p-4"
+            >
+              <h4 className="font-mono text-sm font-bold text-[#263650]">
+                Editar mi perfil
+              </h4>
 
-          <div className="mt-3 space-y-1 font-mono text-[11px] text-[#637497]">
-            <p>📍 {selectedProfile.location}</p>
-            <p>🗓 {selectedProfile.joined}</p>
-          </div>
+              <label
+                htmlFor="profile-name"
+                className="mt-4 block font-mono text-xs font-bold"
+              >
+                Nombre de tu mascota
+              </label>
+
+              <input
+                id="profile-name"
+                value={profileDraft.petName}
+                onChange={(event) =>
+                  setProfileDraft((currentDraft) => ({
+                    ...currentDraft,
+                    petName: event.target.value,
+                  }))
+                }
+                maxLength={28}
+                required
+                className="mt-2 w-full border-2 border-[#425b8c] bg-[#f8f8f8] p-3 text-sm outline-none focus:bg-white"
+              />
+
+              <div className="mt-1 text-right font-mono text-[10px] text-[#637497]">
+                {profileDraft.petName.length}/28
+              </div>
+
+              <label
+                htmlFor="profile-bio"
+                className="mt-3 block font-mono text-xs font-bold"
+              >
+                Biografía
+              </label>
+
+              <textarea
+                id="profile-bio"
+                value={profileDraft.bio}
+                onChange={(event) =>
+                  setProfileDraft((currentDraft) => ({
+                    ...currentDraft,
+                    bio: event.target.value,
+                  }))
+                }
+                maxLength={140}
+                required
+                className="mt-2 min-h-24 w-full resize-none border-2 border-[#425b8c] bg-[#f8f8f8] p-3 text-sm outline-none focus:bg-white"
+              />
+
+              <div className="mt-1 text-right font-mono text-[10px] text-[#637497]">
+                {profileDraft.bio.length}/140
+              </div>
+
+              <label
+                htmlFor="profile-location"
+                className="mt-3 block font-mono text-xs font-bold"
+              >
+                Ubicación
+              </label>
+
+              <input
+                id="profile-location"
+                value={profileDraft.location}
+                onChange={(event) =>
+                  setProfileDraft((currentDraft) => ({
+                    ...currentDraft,
+                    location: event.target.value,
+                  }))
+                }
+                maxLength={50}
+                required
+                className="mt-2 w-full border-2 border-[#425b8c] bg-[#f8f8f8] p-3 text-sm outline-none focus:bg-white"
+              />
+
+              <div className="mt-4 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={cancelEditingProfile}
+                  className="border-2 border-[#425b8c] bg-white px-4 py-2 font-mono text-xs font-bold text-[#425b8c] hover:bg-[#f0f3f8]"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={
+                    !profileDraft.petName.trim() ||
+                    !profileDraft.bio.trim() ||
+                    !profileDraft.location.trim()
+                  }
+                  className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <p className="mt-4 text-sm leading-6 text-[#263650]">
+                {selectedProfile.bio}
+              </p>
+
+              <div className="mt-3 space-y-1 font-mono text-[11px] text-[#637497]">
+                <p>📍 {selectedProfile.location}</p>
+                <p>🗓 {selectedProfile.joined}</p>
+              </div>
+            </>
+          )}
+
+          {profileFeedback && (
+            <p
+              role="status"
+              className="mt-4 border-2 border-dashed border-[#425b8c] bg-[#dce4f2] p-3 font-mono text-xs font-bold text-[#263650]"
+            >
+              {profileFeedback}
+            </p>
+          )}
 
           <div className="mt-4 grid grid-cols-3 border-2 border-[#425b8c] bg-white text-center">
             <div className="border-r-2 border-[#425b8c] p-3">
