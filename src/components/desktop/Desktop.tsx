@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import GuaurrinotasApp from "@/components/apps/GuaurrinotasApp";
+import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import RetroWindow from "@/components/windows/RetroWindow";
 
 const apps = [
@@ -58,7 +58,7 @@ export default function Desktop() {
           onClose={() => setActiveApp(null)}
         >
           {selectedApp.id === "notas" ? (
-            <GuaurrinotasApp />
+            <GuaurrinotasAuthGate />
           ) : (
             <div className="text-center">
               <p className="font-mono text-sm uppercase tracking-wider">
