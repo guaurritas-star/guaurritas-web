@@ -22,6 +22,60 @@ type ProfileDraft = Pick<
   "petName" | "bio" | "location"
 >;
 
+type LocationAddress = {
+  city?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+  county?: string;
+  state?: string;
+  state_district?: string;
+  region?: string;
+  country?: string;
+};
+
+type NominatimPlace = {
+  place_id?: number;
+  osm_id?: number;
+  address?: LocationAddress;
+};
+
+type LocationSuggestion = {
+  id: string;
+  label: string;
+  value: string;
+};
+
+const NOMINATIM_BASE_URL =
+  "https://nominatim.openstreetmap.org";
+
+const buildLocationValue = (
+  address?: LocationAddress,
+) => {
+  if (!address) return "";
+
+  const city =
+    address.city ??
+    address.town ??
+    address.village ??
+    address.municipality ??
+    address.county;
+
+  const region =
+    address.state ??
+    address.state_district ??
+    address.region ??
+    address.country;
+
+  return Array.from(
+    new Set(
+      [city, region].filter(
+        (part): part is string => Boolean(part),
+      ),
+    ),
+  ).join(", ");
+};
+
 type NoteComment = {
   id: number;
   petName: string;
@@ -183,6 +237,16 @@ export default function GuaurrinotasApp() {
   const [profileFeedback, setProfileFeedback] =
     useState("");
 
+  const [isLocating, setIsLocating] = useState(false);
+  const [isSearchingLocation, setIsSearchingLocation] =
+    useState(false);
+  const [showLocationSearch, setShowLocationSearch] =
+    useState(false);
+  const [locationQuery, setLocationQuery] = useState("");
+  const [locationSuggestions, setLocationSuggestions] =
+    useState<LocationSuggestion[]>([]);
+  const [locationStatus, setLocationStatus] = useState("");
+
   const selectedProfileUsername =
     openedProfileUsername ??
     (activeView === "perfil" ? currentUsername : null);
@@ -243,13 +307,224 @@ export default function GuaurrinotasApp() {
       location: currentProfile.location,
     });
 
+    setLocationQuery(currentProfile.location);
+    setLocationSuggestions([]);
+    setLocationStatus("");
+    setShowLocationSearch(false);
     setProfileFeedback("");
     setIsEditingProfile(true);
   };
 
   const cancelEditingProfile = () => {
     setIsEditingProfile(false);
+    setShowLocationSearch(false);
+    setLocationSuggestions([]);
+    setLocationStatus("");
     setProfileFeedback("");
+  };
+
+  const selectLocation = (
+    suggestion: LocationSuggestion,
+  ) => {
+    setProfileDraft((currentDraft) => ({
+      ...currentDraft,
+      location: suggestion.value,
+    }));
+    setLocationQuery(suggestion.value);
+    setLocationSuggestions([]);
+    setShowLocationSearch(false);
+    setLocationStatus(
+      "✓ Ubicación seleccionada: " + suggestion.value,
+    );
+  };
+
+  const useCurrentLocation = async () => {
+    if (!("geolocation" in navigator)) {
+      setLocationStatus(
+        "Este navegador no permite detectar tu ubicación. Puedes escribir tu ciudad manualmente.",
+      );
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationSuggestions([]);
+    setLocationStatus(
+      "Solicitando permiso para detectar tu ciudad…",
+    );
+
+    try {
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            resolve,
+            reject,
+            {
+              enableHighAccuracy: false,
+              timeout: 10000,
+              maximumAge: 300000,
+            },
+          );
+        },
+      );
+
+      const params = new URLSearchParams({
+        format: "jsonv2",
+        lat: String(position.coords.latitude),
+        lon: String(position.coords.longitude),
+        addressdetails: "1",
+        zoom: "10",
+        "accept-language": "es",
+      });
+
+      const response = await fetch(
+        NOMINATIM_BASE_URL +
+          "/reverse?" +
+          params.toString(),
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("No se pudo consultar la ciudad.");
+      }
+
+      const result =
+        (await response.json()) as NominatimPlace;
+      const location = buildLocationValue(result.address);
+
+      if (!location) {
+        throw new Error("No se encontró una ciudad.");
+      }
+
+      setProfileDraft((currentDraft) => ({
+        ...currentDraft,
+        location,
+      }));
+      setLocationQuery(location);
+      setShowLocationSearch(false);
+      setLocationStatus(
+        "✓ Detectamos " +
+          location +
+          ". Solo se guardará ciudad y estado.",
+      );
+    } catch (error) {
+      const geolocationCode =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error
+          ? Number(error.code)
+          : null;
+
+      if (geolocationCode === 1) {
+        setLocationStatus(
+          "No diste permiso de ubicación. Puedes buscar o escribir tu ciudad manualmente.",
+        );
+      } else if (geolocationCode === 2) {
+        setLocationStatus(
+          "No pudimos detectar tu ubicación. Intenta buscar tu ciudad manualmente.",
+        );
+      } else if (geolocationCode === 3) {
+        setLocationStatus(
+          "La ubicación tardó demasiado. Inténtalo otra vez o busca tu ciudad.",
+        );
+      } else {
+        setLocationStatus(
+          "Detectamos tu posición, pero no pudimos convertirla en ciudad. Puedes escribirla manualmente.",
+        );
+      }
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
+  const searchLocations = async () => {
+    const cleanQuery = locationQuery.trim();
+
+    if (cleanQuery.length < 2) {
+      setLocationStatus(
+        "Escribe al menos dos letras para buscar una ciudad.",
+      );
+      return;
+    }
+
+    setIsSearchingLocation(true);
+    setLocationSuggestions([]);
+    setLocationStatus("Buscando ciudades…");
+
+    try {
+      const params = new URLSearchParams({
+        format: "jsonv2",
+        q: cleanQuery,
+        addressdetails: "1",
+        limit: "5",
+        "accept-language": "es",
+      });
+
+      const response = await fetch(
+        NOMINATIM_BASE_URL +
+          "/search?" +
+          params.toString(),
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("No se pudo buscar la ciudad.");
+      }
+
+      const results =
+        (await response.json()) as NominatimPlace[];
+
+      const uniqueSuggestions = new Map<
+        string,
+        LocationSuggestion
+      >();
+
+      results.forEach((result, index) => {
+        const value = buildLocationValue(result.address);
+
+        if (!value || uniqueSuggestions.has(value)) return;
+
+        const country = result.address?.country;
+        const label =
+          country && !value.includes(country)
+            ? value + ", " + country
+            : value;
+
+        uniqueSuggestions.set(value, {
+          id: String(
+            result.place_id ??
+              result.osm_id ??
+              index,
+          ),
+          label,
+          value,
+        });
+      });
+
+      const suggestions = Array.from(
+        uniqueSuggestions.values(),
+      );
+
+      setLocationSuggestions(suggestions);
+      setLocationStatus(
+        suggestions.length > 0
+          ? "Selecciona la ciudad correcta."
+          : "No encontramos esa ciudad. Revisa el nombre o escríbela manualmente.",
+      );
+    } catch {
+      setLocationStatus(
+        "No pudimos buscar ciudades en este momento. Puedes escribirla manualmente.",
+      );
+    } finally {
+      setIsSearchingLocation(false);
+    }
   };
 
   const saveProfile = () => {
@@ -291,6 +566,9 @@ export default function GuaurrinotasApp() {
     );
 
     setIsEditingProfile(false);
+    setShowLocationSearch(false);
+    setLocationSuggestions([]);
+    setLocationStatus("");
     setProfileFeedback(
       "✓ Los cambios se guardaron en tu perfil.",
     );
@@ -721,22 +999,171 @@ export default function GuaurrinotasApp() {
                 htmlFor="profile-location"
                 className="mt-3 block font-mono text-xs font-bold"
               >
-                Ubicación
+                Ubicación visible
               </label>
 
               <input
                 id="profile-location"
                 value={profileDraft.location}
-                onChange={(event) =>
+                onChange={(event) => {
                   setProfileDraft((currentDraft) => ({
                     ...currentDraft,
                     location: event.target.value,
-                  }))
-                }
+                  }));
+                  setLocationStatus("");
+                }}
                 maxLength={50}
                 required
+                placeholder="Ciudad, estado"
                 className="mt-2 w-full border-2 border-[#425b8c] bg-[#f8f8f8] p-3 text-sm outline-none focus:bg-white"
               />
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => void useCurrentLocation()}
+                  disabled={
+                    isLocating || isSearchingLocation
+                  }
+                  className="border-2 border-[#425b8c] bg-[#dce4f2] px-3 py-2 font-mono text-xs font-bold text-[#263650] shadow-[2px_2px_0_#425b8c] hover:bg-[#cbd8ed] disabled:cursor-wait disabled:opacity-50"
+                >
+                  {isLocating
+                    ? "Detectando ciudad…"
+                    : "📍 Usar mi ubicación"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLocationSearch((current) => {
+                      const nextValue = !current;
+
+                      if (nextValue) {
+                        setLocationQuery(
+                          profileDraft.location,
+                        );
+                        setLocationSuggestions([]);
+                        setLocationStatus("");
+                      }
+
+                      return nextValue;
+                    });
+                  }}
+                  disabled={isLocating}
+                  aria-expanded={showLocationSearch}
+                  aria-controls="location-search"
+                  className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#f0f3f8] disabled:opacity-50"
+                >
+                  {showLocationSearch
+                    ? "× Cerrar búsqueda"
+                    : "⌕ Buscar otra ciudad"}
+                </button>
+              </div>
+
+              <p className="mt-3 text-xs leading-5 text-[#637497]">
+                Solo mostraremos ciudad y estado. Tu dirección
+                y tus coordenadas exactas nunca se guardan en
+                el perfil.
+              </p>
+
+              {showLocationSearch && (
+                <section
+                  id="location-search"
+                  className="mt-3 border-2 border-[#425b8c] bg-[#f8f8f8] p-3"
+                >
+                  <label
+                    htmlFor="location-query"
+                    className="font-mono text-xs font-bold text-[#263650]"
+                  >
+                    Busca por ciudad y estado
+                  </label>
+
+                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                    <input
+                      id="location-query"
+                      value={locationQuery}
+                      onChange={(event) => {
+                        setLocationQuery(
+                          event.target.value,
+                        );
+                        setLocationSuggestions([]);
+                        setLocationStatus("");
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          void searchLocations();
+                        }
+                      }}
+                      maxLength={80}
+                      autoComplete="off"
+                      placeholder="Ej. León, Guanajuato"
+                      className="min-w-0 flex-1 border-2 border-[#425b8c] bg-white p-3 text-sm outline-none"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void searchLocations()
+                      }
+                      disabled={
+                        isSearchingLocation ||
+                        locationQuery.trim().length < 2
+                      }
+                      className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-wait disabled:opacity-40"
+                    >
+                      {isSearchingLocation
+                        ? "Buscando…"
+                        : "Buscar"}
+                    </button>
+                  </div>
+
+                  {locationSuggestions.length > 0 && (
+                    <div
+                      className="mt-3 space-y-2"
+                      aria-label="Resultados de ciudades"
+                    >
+                      {locationSuggestions.map(
+                        (suggestion) => (
+                          <button
+                            key={suggestion.id}
+                            type="button"
+                            onClick={() =>
+                              selectLocation(suggestion)
+                            }
+                            className="w-full border-2 border-[#cbd4e4] bg-white p-3 text-left text-sm text-[#263650] hover:border-[#425b8c] hover:bg-[#dce4f2]"
+                          >
+                            📍 {suggestion.label}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {locationStatus && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="mt-3 border-2 border-dashed border-[#425b8c] bg-[#dce4f2] p-3 font-mono text-xs font-bold leading-5 text-[#263650]"
+                >
+                  {locationStatus}
+                </p>
+              )}
+
+              <p className="mt-2 text-[10px] text-[#637497]">
+                Búsqueda de ciudad con{" "}
+                <a
+                  href="https://www.openstreetmap.org/copyright"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline hover:text-[#425b8c]"
+                >
+                  OpenStreetMap
+                </a>
+                .
+              </p>
 
               <div className="mt-4 flex flex-wrap justify-end gap-3">
                 <button
@@ -752,7 +1179,9 @@ export default function GuaurrinotasApp() {
                   disabled={
                     !profileDraft.petName.trim() ||
                     !profileDraft.bio.trim() ||
-                    !profileDraft.location.trim()
+                    !profileDraft.location.trim() ||
+                    isLocating ||
+                    isSearchingLocation
                   }
                   className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-not-allowed disabled:opacity-40"
                 >
