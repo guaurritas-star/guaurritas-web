@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type FeedView = "inicio" | "siguiendo" | "perfil";
 
@@ -40,6 +40,28 @@ type NominatimPlace = {
   address?: LocationAddress;
 };
 
+type PhotonProperties = {
+  name?: string;
+  city?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+  county?: string;
+  state?: string;
+  country?: string;
+  countrycode?: string;
+  osm_id?: number;
+  osm_type?: string;
+};
+
+type PhotonFeature = {
+  properties?: PhotonProperties;
+};
+
+type PhotonResponse = {
+  features?: PhotonFeature[];
+};
+
 type LocationSuggestion = {
   id: string;
   label: string;
@@ -48,6 +70,8 @@ type LocationSuggestion = {
 
 const NOMINATIM_BASE_URL =
   "https://nominatim.openstreetmap.org";
+
+const PHOTON_BASE_URL = "https://photon.komoot.io";
 
 const buildLocationValue = (
   address?: LocationAddress,
@@ -74,6 +98,49 @@ const buildLocationValue = (
       ),
     ),
   ).join(", ");
+};
+
+const buildPhotonSuggestion = (
+  feature: PhotonFeature,
+  index: number,
+): LocationSuggestion | null => {
+  const properties = feature.properties;
+
+  if (!properties) return null;
+
+  const city =
+    properties.name ??
+    properties.city ??
+    properties.town ??
+    properties.village ??
+    properties.municipality;
+
+  const region = properties.state ?? properties.county;
+
+  const value = Array.from(
+    new Set(
+      [city, region].filter(
+        (part): part is string => Boolean(part),
+      ),
+    ),
+  ).join(", ");
+
+  if (!city || !value) return null;
+
+  const label =
+    properties.country && !value.includes(properties.country)
+      ? value + ", " + properties.country
+      : value;
+
+  return {
+    id: [
+      properties.osm_type ?? "place",
+      properties.osm_id ?? index,
+      value,
+    ].join("-"),
+    label,
+    value,
+  };
 };
 
 type NoteComment = {
@@ -440,92 +507,114 @@ export default function GuaurrinotasApp() {
     }
   };
 
-  const searchLocations = async () => {
+  useEffect(() => {
+    if (!showLocationSearch) return;
+
     const cleanQuery = locationQuery.trim();
 
     if (cleanQuery.length < 2) {
+      setLocationSuggestions([]);
+      setIsSearchingLocation(false);
       setLocationStatus(
-        "Escribe al menos dos letras para buscar una ciudad.",
+        cleanQuery.length === 1
+          ? "Escribe una letra más para ver ciudades."
+          : "",
       );
       return;
     }
 
-    setIsSearchingLocation(true);
-    setLocationSuggestions([]);
-    setLocationStatus("Buscando ciudades…");
+    const controller = new AbortController();
 
-    try {
-      const params = new URLSearchParams({
-        format: "jsonv2",
-        q: cleanQuery,
-        addressdetails: "1",
-        limit: "5",
-        "accept-language": "es",
-      });
+    const timeoutId = window.setTimeout(async () => {
+      setIsSearchingLocation(true);
+      setLocationSuggestions([]);
+      setLocationStatus("Buscando coincidencias…");
 
-      const response = await fetch(
-        NOMINATIM_BASE_URL +
-          "/search?" +
-          params.toString(),
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("No se pudo buscar la ciudad.");
-      }
-
-      const results =
-        (await response.json()) as NominatimPlace[];
-
-      const uniqueSuggestions = new Map<
-        string,
-        LocationSuggestion
-      >();
-
-      results.forEach((result, index) => {
-        const value = buildLocationValue(result.address);
-
-        if (!value || uniqueSuggestions.has(value)) return;
-
-        const country = result.address?.country;
-        const label =
-          country && !value.includes(country)
-            ? value + ", " + country
-            : value;
-
-        uniqueSuggestions.set(value, {
-          id: String(
-            result.place_id ??
-              result.osm_id ??
-              index,
-          ),
-          label,
-          value,
+      try {
+        const params = new URLSearchParams({
+          q: cleanQuery,
+          limit: "6",
+          lang: "es",
         });
-      });
 
-      const suggestions = Array.from(
-        uniqueSuggestions.values(),
-      );
+        params.append("layer", "city");
+        params.append("layer", "locality");
 
-      setLocationSuggestions(suggestions);
-      setLocationStatus(
-        suggestions.length > 0
-          ? "Selecciona la ciudad correcta."
-          : "No encontramos esa ciudad. Revisa el nombre o escríbela manualmente.",
-      );
-    } catch {
-      setLocationStatus(
-        "No pudimos buscar ciudades en este momento. Puedes escribirla manualmente.",
-      );
-    } finally {
-      setIsSearchingLocation(false);
-    }
-  };
+        const response = await fetch(
+          PHOTON_BASE_URL + "/api?" + params.toString(),
+          {
+            signal: controller.signal,
+            headers: {
+              Accept: "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("No se pudieron buscar ciudades.");
+        }
+
+        const result =
+          (await response.json()) as PhotonResponse;
+
+        const uniqueSuggestions = new Map<
+          string,
+          LocationSuggestion
+        >();
+
+        (result.features ?? []).forEach((feature, index) => {
+          const suggestion = buildPhotonSuggestion(
+            feature,
+            index,
+          );
+
+          if (
+            !suggestion ||
+            uniqueSuggestions.has(suggestion.value)
+          ) {
+            return;
+          }
+
+          uniqueSuggestions.set(
+            suggestion.value,
+            suggestion,
+          );
+        });
+
+        const suggestions = Array.from(
+          uniqueSuggestions.values(),
+        );
+
+        setLocationSuggestions(suggestions);
+        setLocationStatus(
+          suggestions.length > 0
+            ? "Elige una ciudad de la lista."
+            : "No encontramos coincidencias. Prueba con más letras o escribe tu ciudad manualmente arriba.",
+        );
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        setLocationSuggestions([]);
+        setLocationStatus(
+          "No pudimos cargar las ciudades en este momento. Puedes escribirla manualmente arriba.",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsSearchingLocation(false);
+        }
+      }
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [locationQuery, showLocationSearch]);
 
   const saveProfile = () => {
     const petName = profileDraft.petName.trim();
@@ -1039,9 +1128,7 @@ export default function GuaurrinotasApp() {
                       const nextValue = !current;
 
                       if (nextValue) {
-                        setLocationQuery(
-                          profileDraft.location,
-                        );
+                        setLocationQuery("");
                         setLocationSuggestions([]);
                         setLocationStatus("");
                       }
@@ -1075,10 +1162,14 @@ export default function GuaurrinotasApp() {
                     htmlFor="location-query"
                     className="font-mono text-xs font-bold text-[#263650]"
                   >
-                    Busca por ciudad y estado
+                    Escribe una ciudad
                   </label>
 
-                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <p className="mt-1 text-xs leading-5 text-[#637497]">
+                    Las opciones aparecerán mientras escribes.
+                  </p>
+
+                  <div className="relative mt-2">
                     <input
                       id="location-query"
                       value={locationQuery}
@@ -1089,51 +1180,65 @@ export default function GuaurrinotasApp() {
                         setLocationSuggestions([]);
                         setLocationStatus("");
                       }}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          void searchLocations();
-                        }
-                      }}
                       maxLength={80}
                       autoComplete="off"
-                      placeholder="Ej. León, Guanajuato"
-                      className="min-w-0 flex-1 border-2 border-[#425b8c] bg-white p-3 text-sm outline-none"
+                      placeholder="Ej. Le"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded={
+                        locationSuggestions.length > 0
+                      }
+                      aria-controls="location-suggestions"
+                      className="w-full border-2 border-[#425b8c] bg-white p-3 pr-11 text-sm outline-none focus:bg-white"
                     />
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void searchLocations()
-                      }
-                      disabled={
-                        isSearchingLocation ||
-                        locationQuery.trim().length < 2
-                      }
-                      className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-wait disabled:opacity-40"
-                    >
-                      {isSearchingLocation
-                        ? "Buscando…"
-                        : "Buscar"}
-                    </button>
+                    {isSearchingLocation && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-[#637497]"
+                      >
+                        ···
+                      </span>
+                    )}
                   </div>
 
                   {locationSuggestions.length > 0 && (
                     <div
-                      className="mt-3 space-y-2"
-                      aria-label="Resultados de ciudades"
+                      id="location-suggestions"
+                      role="listbox"
+                      aria-label="Ciudades sugeridas"
+                      className="mt-2 overflow-hidden border-2 border-[#425b8c] bg-white shadow-[3px_3px_0_#425b8c]"
                     >
                       {locationSuggestions.map(
-                        (suggestion) => (
+                        (suggestion, index) => (
                           <button
                             key={suggestion.id}
                             type="button"
+                            role="option"
+                            aria-selected="false"
                             onClick={() =>
                               selectLocation(suggestion)
                             }
-                            className="w-full border-2 border-[#cbd4e4] bg-white p-3 text-left text-sm text-[#263650] hover:border-[#425b8c] hover:bg-[#dce4f2]"
+                            className="flex w-full items-start gap-2 border-b-2 border-[#cbd4e4] p-3 text-left text-sm text-[#263650] last:border-b-0 hover:bg-[#dce4f2] focus:bg-[#dce4f2] focus:outline-none"
                           >
-                            📍 {suggestion.label}
+                            <span aria-hidden="true">📍</span>
+
+                            <span className="min-w-0">
+                              <span className="block font-bold">
+                                {suggestion.value}
+                              </span>
+
+                              {suggestion.label !==
+                                suggestion.value && (
+                                <span className="mt-0.5 block text-xs text-[#637497]">
+                                  {suggestion.label}
+                                </span>
+                              )}
+                            </span>
+
+                            <span className="ml-auto font-mono text-[10px] text-[#637497]">
+                              {index + 1}
+                            </span>
                           </button>
                         ),
                       )}
@@ -1153,7 +1258,7 @@ export default function GuaurrinotasApp() {
               )}
 
               <p className="mt-2 text-[10px] text-[#637497]">
-                Búsqueda de ciudad con{" "}
+                Datos de ubicación de{" "}
                 <a
                   href="https://www.openstreetmap.org/copyright"
                   target="_blank"
