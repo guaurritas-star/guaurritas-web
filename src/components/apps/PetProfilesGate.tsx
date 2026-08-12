@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import GuaurrinotasApp from "@/components/apps/GuaurrinotasApp";
+import PetProfileNotes from "@/components/apps/PetProfileNotes";
 import { createClient } from "@/lib/supabase/client";
 
 type PetProfile = {
@@ -60,6 +61,28 @@ const getAvatarExtension = (type: string) => {
   if (type === "image/png") return "png";
   if (type === "image/webp") return "webp";
   return "jpg";
+};
+
+const getStorageObjectPath = (
+  publicUrl: string | null,
+  bucket: string,
+) => {
+  if (!publicUrl) return "";
+
+  const marker = `/storage/v1/object/public/${bucket}/`;
+  const markerIndex = publicUrl.indexOf(marker);
+
+  if (markerIndex === -1) return "";
+
+  const encodedPath = publicUrl
+    .slice(markerIndex + marker.length)
+    .split("?")[0];
+
+  try {
+    return decodeURIComponent(encodedPath);
+  } catch {
+    return encodedPath;
+  }
 };
 
 const getProfileError = (message: string, code?: string) => {
@@ -123,10 +146,17 @@ export default function PetProfilesGate({
     "success",
   );
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [editAvatar, setEditAvatar] = useState<File | null>(null);
+  const [editFileInputKey, setEditFileInputKey] = useState(0);
 
   const avatarPreview = useMemo(
     () => (draft.avatar ? URL.createObjectURL(draft.avatar) : ""),
     [draft.avatar],
+  );
+
+  const editAvatarPreview = useMemo(
+    () => (editAvatar ? URL.createObjectURL(editAvatar) : ""),
+    [editAvatar],
   );
 
   const selectedProfile = selectedProfileId
@@ -138,6 +168,13 @@ export default function PetProfilesGate({
       if (avatarPreview) URL.revokeObjectURL(avatarPreview);
     },
     [avatarPreview],
+  );
+
+  useEffect(
+    () => () => {
+      if (editAvatarPreview) URL.revokeObjectURL(editAvatarPreview);
+    },
+    [editAvatarPreview],
   );
 
   useEffect(() => {
@@ -228,12 +265,14 @@ export default function PetProfilesGate({
   const openProfile = (profile: PetProfile) => {
     setSelectedProfileId(profile.id);
     setIsEditingProfile(false);
+    setEditAvatar(null);
     setFeedback("");
   };
 
   const closeProfile = () => {
     setSelectedProfileId(null);
     setIsEditingProfile(false);
+    setEditAvatar(null);
     setFeedback("");
   };
 
@@ -244,8 +283,36 @@ export default function PetProfilesGate({
       city: profile.city ?? "",
       region: profile.region ?? "",
     });
+    setEditAvatar(null);
+    setEditFileInputKey((currentKey) => currentKey + 1);
     setFeedback("");
     setIsEditingProfile(true);
+  };
+
+  const selectEditAvatar = (file?: File) => {
+    if (!file) {
+      setEditAvatar(null);
+      return;
+    }
+
+    if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
+      setEditAvatar(null);
+      setFeedbackKind("error");
+      setFeedback("La foto debe ser JPEG, PNG o WebP.");
+      setEditFileInputKey((currentKey) => currentKey + 1);
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      setEditAvatar(null);
+      setFeedbackKind("error");
+      setFeedback("La foto debe pesar máximo 5 MB.");
+      setEditFileInputKey((currentKey) => currentKey + 1);
+      return;
+    }
+
+    setEditAvatar(file);
+    setFeedback("");
   };
 
   const updateEditDraft = (
@@ -280,10 +347,40 @@ export default function PetProfilesGate({
     setIsSavingProfile(true);
     setFeedback("");
 
+    let uploadedAvatarPath = "";
+    let nextAvatarUrl = selectedProfile.avatar_url;
+
+    if (editAvatar) {
+      const extension = getAvatarExtension(editAvatar.type);
+      uploadedAvatarPath = `${user.id}/${crypto.randomUUID()}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("pet-avatars")
+        .upload(uploadedAvatarPath, editAvatar, {
+          cacheControl: "3600",
+          contentType: editAvatar.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        setIsSavingProfile(false);
+        setFeedbackKind("error");
+        setFeedback(
+          "No pudimos subir la nueva foto. Revisa el formato y vuelve a intentarlo.",
+        );
+        return;
+      }
+
+      nextAvatarUrl = supabase.storage
+        .from("pet-avatars")
+        .getPublicUrl(uploadedAvatarPath).data.publicUrl;
+    }
+
     const { data, error } = await supabase
       .from("pet_profiles")
       .update({
         name,
+        avatar_url: nextAvatarUrl,
         bio: bio || null,
         city: city || null,
         region: region || null,
@@ -298,12 +395,34 @@ export default function PetProfilesGate({
     setIsSavingProfile(false);
 
     if (error) {
+      if (uploadedAvatarPath) {
+        await supabase.storage
+          .from("pet-avatars")
+          .remove([uploadedAvatarPath]);
+      }
+
       setFeedbackKind("error");
       setFeedback(getProfileError(error.message, error.code));
       return;
     }
 
     const updatedProfile = data as PetProfile;
+
+    if (uploadedAvatarPath) {
+      const previousAvatarPath = getStorageObjectPath(
+        selectedProfile.avatar_url,
+        "pet-avatars",
+      );
+
+      if (
+        previousAvatarPath &&
+        previousAvatarPath !== uploadedAvatarPath
+      ) {
+        await supabase.storage
+          .from("pet-avatars")
+          .remove([previousAvatarPath]);
+      }
+    }
 
     setProfiles((currentProfiles) =>
       currentProfiles.map((profile) =>
@@ -312,6 +431,8 @@ export default function PetProfilesGate({
     );
     setFeedbackKind("success");
     setFeedback(`Los cambios de ${updatedProfile.name} quedaron guardados ✓`);
+    setEditAvatar(null);
+    setEditFileInputKey((currentKey) => currentKey + 1);
     setIsEditingProfile(false);
   };
 
@@ -786,6 +907,65 @@ export default function PetProfilesGate({
                     </p>
                   </div>
 
+                  <div className="grid gap-4 border-2 border-dashed border-[#cbd4e4] bg-white p-4 sm:grid-cols-[96px_1fr] sm:items-center">
+                    <div className="flex h-24 w-24 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-4xl shadow-[3px_3px_0_#425b8c]">
+                      {editAvatarPreview || selectedProfile.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={
+                            editAvatarPreview ||
+                            selectedProfile.avatar_url ||
+                            ""
+                          }
+                          alt={`Vista previa de ${selectedProfile.name}`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span aria-hidden="true">🐾</span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="edit-pet-avatar"
+                        className="font-mono text-xs font-bold text-[#263650]"
+                      >
+                        Foto de perfil
+                      </label>
+                      <input
+                        key={editFileInputKey}
+                        id="edit-pet-avatar"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        disabled={isSavingProfile}
+                        onChange={(event) =>
+                          selectEditAvatar(event.target.files?.[0])
+                        }
+                        className="mt-2 block w-full text-xs text-[#53627a] file:mr-3 file:border-2 file:border-[#425b8c] file:bg-white file:px-3 file:py-2 file:font-mono file:text-xs file:font-bold file:text-[#425b8c] disabled:opacity-50"
+                      />
+                      <p className="mt-2 text-xs leading-5 text-[#637497]">
+                        {editAvatar
+                          ? "Esta será la nueva foto al guardar los cambios."
+                          : "Elige una nueva foto solo si quieres reemplazar la actual."}
+                        {" "}JPEG, PNG o WebP · máximo 5 MB.
+                      </p>
+
+                      {editAvatar && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditAvatar(null);
+                            setEditFileInputKey((currentKey) => currentKey + 1);
+                          }}
+                          disabled={isSavingProfile}
+                          className="mt-2 font-mono text-xs font-bold text-[#425b8c] hover:underline disabled:opacity-50"
+                        >
+                          × Conservar la foto anterior
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <div>
                     <label
                       htmlFor="edit-pet-name"
@@ -876,6 +1056,8 @@ export default function PetProfilesGate({
                       type="button"
                       onClick={() => {
                         setIsEditingProfile(false);
+                        setEditAvatar(null);
+                        setEditFileInputKey((currentKey) => currentKey + 1);
                         setFeedback("");
                       }}
                       disabled={isSavingProfile}
@@ -921,23 +1103,10 @@ export default function PetProfilesGate({
             </div>
           </section>
 
-          <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
-            <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-              Mis notas
-            </p>
-            <div className="mt-4 border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-6 text-center">
-              <span aria-hidden="true" className="text-3xl">
-                📝
-              </span>
-              <h3 className="mt-3 font-bold text-[#263650]">
-                {selectedProfile.name} todavía no ha publicado notas
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[#637497]">
-                Aquí aparecerán sus historias cuando conectemos el editor de
-                Guaurrinotas en el siguiente paso.
-              </p>
-            </div>
-          </section>
+          <PetProfileNotes
+            ownerId={user.id}
+            profile={selectedProfile}
+          />
         </div>
       ) : (
         <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
