@@ -11,6 +11,7 @@ type RetroWindowProps = {
   icon?: string;
   children: ReactNode;
   onClose: () => void;
+  variant?: "default" | "wide";
 };
 
 type Position = {
@@ -34,6 +35,7 @@ export default function RetroWindow({
   icon,
   children,
   onClose,
+  variant = "default",
 }: RetroWindowProps) {
   const dragState = useRef<DragState | null>(null);
 
@@ -117,7 +119,9 @@ export default function RetroWindow({
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
         }}
-        className="pointer-events-auto flex h-full w-full max-w-2xl flex-col border-2 border-[#425b8c] bg-white shadow-[8px_8px_0_#425b8c] sm:h-auto sm:max-h-full"
+        className={`pointer-events-auto flex h-full w-full flex-col border-2 border-[#425b8c] bg-white shadow-[8px_8px_0_#425b8c] sm:h-auto sm:max-h-full ${
+          variant === "wide" ? "max-w-7xl" : "max-w-2xl"
+        }`}
       >
         <header
           onPointerDown={startDragging}
@@ -144,7 +148,11 @@ export default function RetroWindow({
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <div
+          className={`flex-1 overflow-y-auto ${
+            variant === "wide" ? "p-4 sm:p-6" : "p-6 sm:p-8"
+          }`}
+        >
           {children}
         </div>
       </section>

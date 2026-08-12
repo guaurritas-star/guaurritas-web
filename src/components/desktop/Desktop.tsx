@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import RetroWindow from "@/components/windows/RetroWindow";
 
@@ -56,8 +57,11 @@ export default function Desktop() {
           title={selectedApp.name}
           icon={selectedApp.icon}
           onClose={() => setActiveApp(null)}
+          variant={selectedApp.id === "mundos" ? "wide" : "default"}
         >
-          {selectedApp.id === "notas" ? (
+          {selectedApp.id === "mundos" ? (
+            <GuaurriverseApp />
+          ) : selectedApp.id === "notas" ? (
             <GuaurrinotasAuthGate />
           ) : (
             <div className="text-center">
