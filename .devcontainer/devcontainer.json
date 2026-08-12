@@ -1,0 +1,21 @@
+{
+  "name": "Guaurritas Web",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Guaurritas",
+      "onAutoForward": "openPreview",
+      "protocol": "http",
+      "visibility": "private"
+    }
+  },
+  "postCreateCommand": "npm ci",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "task.allowAutomaticTasks": "on"
+      }
+    }
+  }
+}
