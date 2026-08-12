@@ -22,6 +22,7 @@ type PetNote = {
 type PetProfileNotesProps = {
   ownerId: string;
   profile: NotesProfile;
+  canManage: boolean;
 };
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -78,6 +79,7 @@ const formatNoteDate = (value: string) => {
 export default function PetProfileNotes({
   ownerId,
   profile,
+  canManage,
 }: PetProfileNotesProps) {
   const [supabase] = useState(() => createClient());
   const [notes, setNotes] = useState<PetNote[]>([]);
@@ -414,7 +416,7 @@ export default function PetProfileNotes({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-            Mis notas
+            {canManage ? "Mis notas" : `Notas de ${profile.name}`}
           </p>
           <p className="mt-1 text-xs text-[#637497]">
             {isLoading
@@ -425,22 +427,24 @@ export default function PetProfileNotes({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            cancelEdit();
-            setIsComposerOpen((currentValue) => !currentValue);
-            setFeedback("");
-          }}
-          disabled={isPublishing || isSavingEdit}
-          aria-expanded={isComposerOpen}
-          className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isComposerOpen ? "× Cerrar" : "+ Nueva nota"}
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            onClick={() => {
+              cancelEdit();
+              setIsComposerOpen((currentValue) => !currentValue);
+              setFeedback("");
+            }}
+            disabled={isPublishing || isSavingEdit}
+            aria-expanded={isComposerOpen}
+            className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isComposerOpen ? "× Cerrar" : "+ Nueva nota"}
+          </button>
+        )}
       </div>
 
-      {isComposerOpen && (
+      {canManage && isComposerOpen && (
         <form
           onSubmit={publishNote}
           className="mt-5 space-y-4 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 shadow-[3px_3px_0_#cbd4e4]"
@@ -590,7 +594,9 @@ export default function PetProfileNotes({
             {profile.name} todavía no ha publicado notas
           </h3>
           <p className="mt-2 text-sm leading-6 text-[#637497]">
-            Su primera historia aparecerá aquí en cuanto la publiques.
+            {canManage
+              ? "Su primera historia aparecerá aquí en cuanto la publiques."
+              : "Su primera historia aparecerá aquí cuando la publique."}
           </p>
         </div>
       ) : (
@@ -624,7 +630,9 @@ export default function PetProfileNotes({
                   </div>
                 </div>
 
-                {note.owner_id === ownerId && editingNoteId !== note.id && (
+                {canManage &&
+                  note.owner_id === ownerId &&
+                  editingNoteId !== note.id && (
                   <button
                     type="button"
                     onClick={() => startEditing(note)}
