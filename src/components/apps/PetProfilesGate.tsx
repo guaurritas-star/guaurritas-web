@@ -2,22 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import GuaurrinotasApp from "@/components/apps/GuaurrinotasApp";
+import PetNotesFeed, {
+  type CommunityPetProfile,
+} from "@/components/apps/PetNotesFeed";
 import PetProfileNotes from "@/components/apps/PetProfileNotes";
 import { createClient } from "@/lib/supabase/client";
 
-type PetProfile = {
-  id: string;
-  owner_id: string;
-  name: string;
-  username: string;
-  avatar_url: string | null;
-  bio: string | null;
-  city: string | null;
-  region: string | null;
-  country_code: string;
-  created_at: string;
-};
+type PetProfile = CommunityPetProfile;
+
+type WorkspaceView = "feed" | "pets";
 
 type ProfileDraft = {
   name: string;
@@ -130,9 +123,16 @@ export default function PetProfilesGate({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [activeView, setActiveView] = useState<WorkspaceView>("feed");
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     null,
   );
+  const [selectedCommunityProfile, setSelectedCommunityProfile] =
+    useState<PetProfile | null>(null);
+  const [composerProfileId, setComposerProfileId] = useState<string | null>(
+    null,
+  );
+  const [isChoosingNoteAuthor, setIsChoosingNoteAuthor] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [draft, setDraft] = useState<ProfileDraft>(EMPTY_DRAFT);
   const [editDraft, setEditDraft] = useState<EditProfileDraft>({
@@ -160,8 +160,13 @@ export default function PetProfilesGate({
   );
 
   const selectedProfile = selectedProfileId
-    ? profiles.find((profile) => profile.id === selectedProfileId) ?? null
+    ? profiles.find((profile) => profile.id === selectedProfileId) ??
+      (selectedCommunityProfile?.id === selectedProfileId
+        ? selectedCommunityProfile
+        : null)
     : null;
+
+  const selectedProfileIsOwned = selectedProfile?.owner_id === user.id;
 
   useEffect(
     () => () => {
@@ -262,18 +267,49 @@ export default function PetProfilesGate({
     setShowForm(false);
   };
 
-  const openProfile = (profile: PetProfile) => {
+  const openProfile = (
+    profile: CommunityPetProfile,
+    openComposer = false,
+  ) => {
     setSelectedProfileId(profile.id);
+    setSelectedCommunityProfile(
+      profile.owner_id === user.id ? null : profile,
+    );
     setIsEditingProfile(false);
+    setComposerProfileId(openComposer ? profile.id : null);
+    setIsChoosingNoteAuthor(false);
     setEditAvatar(null);
     setFeedback("");
   };
 
   const closeProfile = () => {
     setSelectedProfileId(null);
+    setSelectedCommunityProfile(null);
+    setComposerProfileId(null);
     setIsEditingProfile(false);
     setEditAvatar(null);
     setFeedback("");
+  };
+
+  const changeView = (nextView: WorkspaceView) => {
+    setActiveView(nextView);
+    setIsChoosingNoteAuthor(false);
+    setShowForm(false);
+    closeProfile();
+  };
+
+  const startCreatingNote = () => {
+    setActiveView("pets");
+
+    if (profiles.length === 1) {
+      openProfile(profiles[0], true);
+      return;
+    }
+
+    closeProfile();
+    setIsChoosingNoteAuthor(true);
+    setFeedbackKind("success");
+    setFeedback("Elige la mascota que quiere publicar una nota.");
   };
 
   const startEditingProfile = (profile: PetProfile) => {
@@ -602,6 +638,38 @@ export default function PetProfilesGate({
         </div>
       </section>
 
+      {profiles.length > 0 && !showForm && (
+        <nav
+          className="grid grid-cols-2 border-2 border-[#425b8c] bg-white shadow-[3px_3px_0_#425b8c]"
+          aria-label="Secciones de Guaurrinotas"
+        >
+          <button
+            type="button"
+            onClick={() => changeView("feed")}
+            aria-current={activeView === "feed" ? "page" : undefined}
+            className={`border-r-2 border-[#425b8c] px-4 py-3 font-mono text-xs font-bold ${
+              activeView === "feed" && !selectedProfile
+                ? "bg-[#425b8c] text-white"
+                : "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
+            }`}
+          >
+            📝 Inicio
+          </button>
+          <button
+            type="button"
+            onClick={() => changeView("pets")}
+            aria-current={activeView === "pets" ? "page" : undefined}
+            className={`px-4 py-3 font-mono text-xs font-bold ${
+              activeView === "pets" && !selectedProfile
+                ? "bg-[#425b8c] text-white"
+                : "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
+            }`}
+          >
+            🐾 Mis mascotas
+          </button>
+        </nav>
+      )}
+
       {showForm ? (
         <section className="border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
           <header className="border-b-2 border-[#425b8c] bg-[#f0f3f8] p-5">
@@ -841,7 +909,7 @@ export default function PetProfilesGate({
                 disabled={isSavingProfile}
                 className="font-mono text-xs font-bold text-[#425b8c] hover:underline disabled:opacity-50"
               >
-                ← Volver a mis mascotas
+                ← {activeView === "feed" ? "Volver al muro" : "Volver a mis mascotas"}
               </button>
             </header>
 
@@ -872,14 +940,16 @@ export default function PetProfilesGate({
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => startEditingProfile(selectedProfile)}
-                      disabled={isSavingProfile}
-                      className="border-2 border-[#425b8c] bg-[#425b8c] px-3 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:opacity-50"
-                    >
-                      ✎ Editar perfil
-                    </button>
+                    {selectedProfileIsOwned && (
+                      <button
+                        type="button"
+                        onClick={() => startEditingProfile(selectedProfile)}
+                        disabled={isSavingProfile}
+                        className="border-2 border-[#425b8c] bg-[#425b8c] px-3 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:opacity-50"
+                      >
+                        ✎ Editar perfil
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => void shareProfile(selectedProfile)}
@@ -1104,10 +1174,19 @@ export default function PetProfilesGate({
           </section>
 
           <PetProfileNotes
+            key={selectedProfile.id}
             ownerId={user.id}
             profile={selectedProfile}
+            canManage={Boolean(selectedProfileIsOwned)}
+            initialComposerOpen={composerProfileId === selectedProfile.id}
           />
         </div>
+      ) : activeView === "feed" ? (
+        <PetNotesFeed
+          currentOwnerId={user.id}
+          onOpenProfile={openProfile}
+          onCreateNote={startCreatingNote}
+        />
       ) : (
         <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -1149,7 +1228,7 @@ export default function PetProfilesGate({
               <button
                 key={profile.id}
                 type="button"
-                onClick={() => openProfile(profile)}
+                onClick={() => openProfile(profile, isChoosingNoteAuthor)}
                 className="flex w-full items-start gap-3 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 text-left shadow-[3px_3px_0_#cbd4e4] transition-transform hover:-translate-y-0.5 hover:bg-[#f0f3f8] focus:outline-none focus:ring-2 focus:ring-[#425b8c] focus:ring-offset-2"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-2xl">
@@ -1184,15 +1263,11 @@ export default function PetProfilesGate({
           </div>
 
           <p className="mt-5 border-t-2 border-dashed border-[#cbd4e4] pt-4 text-sm leading-6 text-[#53627a]">
-            Los perfiles ya están guardados en tu cuenta. El siguiente bloque
-            conectará cada mascota con sus notas, comentarios y amistades.
+            Entra al perfil de una mascota para publicar, editar o compartir
+            sus historias.
           </p>
         </section>
       )}
-
-      <div className="pointer-events-none opacity-40" aria-hidden="true">
-        <GuaurrinotasApp />
-      </div>
     </div>
   );
 }
