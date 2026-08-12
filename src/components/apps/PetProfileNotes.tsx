@@ -60,6 +60,7 @@ export default function PetProfileNotes({
   const [supabase] = useState(() => createClient());
   const [notes, setNotes] = useState<PetNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadError, setHasLoadError] = useState(false);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [message, setMessage] = useState("");
@@ -87,6 +88,7 @@ export default function PetProfileNotes({
 
     const loadNotes = async () => {
       setIsLoading(true);
+      setHasLoadError(false);
       setFeedback("");
 
       const { data, error } = await supabase
@@ -100,6 +102,7 @@ export default function PetProfileNotes({
       if (!isMounted) return;
 
       if (error) {
+        setHasLoadError(true);
         setFeedbackKind("error");
         setFeedback(
           "No pudimos cargar las notas en este momento. Inténtalo nuevamente.",
@@ -109,6 +112,7 @@ export default function PetProfileNotes({
       }
 
       setNotes((data ?? []) as PetNote[]);
+      setHasLoadError(false);
       setIsLoading(false);
     };
 
@@ -237,9 +241,11 @@ export default function PetProfileNotes({
             Mis notas
           </p>
           <p className="mt-1 text-xs text-[#637497]">
-            {notes.length === 1
-              ? "1 historia publicada"
-              : `${notes.length} historias publicadas`}
+            {isLoading
+              ? "Cargando historias..."
+              : notes.length === 1
+                ? "1 historia publicada"
+                : `${notes.length} historias publicadas`}
           </p>
         </div>
 
@@ -398,7 +404,7 @@ export default function PetProfileNotes({
             Cargando las notas de {profile.name}...
           </p>
         </div>
-      ) : notes.length === 0 ? (
+      ) : hasLoadError ? null : notes.length === 0 ? (
         <div className="mt-5 border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-6 text-center">
           <span aria-hidden="true" className="text-3xl">
             📝
