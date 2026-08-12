@@ -129,6 +129,10 @@ export default function PetProfilesGate({
   );
   const [selectedCommunityProfile, setSelectedCommunityProfile] =
     useState<PetProfile | null>(null);
+  const [composerProfileId, setComposerProfileId] = useState<string | null>(
+    null,
+  );
+  const [isChoosingNoteAuthor, setIsChoosingNoteAuthor] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [draft, setDraft] = useState<ProfileDraft>(EMPTY_DRAFT);
   const [editDraft, setEditDraft] = useState<EditProfileDraft>({
@@ -263,12 +267,17 @@ export default function PetProfilesGate({
     setShowForm(false);
   };
 
-  const openProfile = (profile: CommunityPetProfile) => {
+  const openProfile = (
+    profile: CommunityPetProfile,
+    openComposer = false,
+  ) => {
     setSelectedProfileId(profile.id);
     setSelectedCommunityProfile(
       profile.owner_id === user.id ? null : profile,
     );
     setIsEditingProfile(false);
+    setComposerProfileId(openComposer ? profile.id : null);
+    setIsChoosingNoteAuthor(false);
     setEditAvatar(null);
     setFeedback("");
   };
@@ -276,6 +285,7 @@ export default function PetProfilesGate({
   const closeProfile = () => {
     setSelectedProfileId(null);
     setSelectedCommunityProfile(null);
+    setComposerProfileId(null);
     setIsEditingProfile(false);
     setEditAvatar(null);
     setFeedback("");
@@ -283,6 +293,7 @@ export default function PetProfilesGate({
 
   const changeView = (nextView: WorkspaceView) => {
     setActiveView(nextView);
+    setIsChoosingNoteAuthor(false);
     setShowForm(false);
     closeProfile();
   };
@@ -291,11 +302,12 @@ export default function PetProfilesGate({
     setActiveView("pets");
 
     if (profiles.length === 1) {
-      openProfile(profiles[0]);
+      openProfile(profiles[0], true);
       return;
     }
 
     closeProfile();
+    setIsChoosingNoteAuthor(true);
     setFeedbackKind("success");
     setFeedback("Elige la mascota que quiere publicar una nota.");
   };
@@ -1162,9 +1174,11 @@ export default function PetProfilesGate({
           </section>
 
           <PetProfileNotes
+            key={selectedProfile.id}
             ownerId={user.id}
             profile={selectedProfile}
             canManage={Boolean(selectedProfileIsOwned)}
+            initialComposerOpen={composerProfileId === selectedProfile.id}
           />
         </div>
       ) : activeView === "feed" ? (
@@ -1214,7 +1228,7 @@ export default function PetProfilesGate({
               <button
                 key={profile.id}
                 type="button"
-                onClick={() => openProfile(profile)}
+                onClick={() => openProfile(profile, isChoosingNoteAuthor)}
                 className="flex w-full items-start gap-3 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 text-left shadow-[3px_3px_0_#cbd4e4] transition-transform hover:-translate-y-0.5 hover:bg-[#f0f3f8] focus:outline-none focus:ring-2 focus:ring-[#425b8c] focus:ring-offset-2"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-2xl">
