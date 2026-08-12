@@ -23,6 +23,7 @@ type PetProfileNotesProps = {
   ownerId: string;
   profile: NotesProfile;
   canManage: boolean;
+  initialComposerOpen: boolean;
 };
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -80,12 +81,15 @@ export default function PetProfileNotes({
   ownerId,
   profile,
   canManage,
+  initialComposerOpen,
 }: PetProfileNotesProps) {
   const [supabase] = useState(() => createClient());
   const [notes, setNotes] = useState<PetNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoadError, setHasLoadError] = useState(false);
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [isComposerOpen, setIsComposerOpen] = useState(
+    canManage && initialComposerOpen,
+  );
   const [isPublishing, setIsPublishing] = useState(false);
   const [message, setMessage] = useState("");
   const [image, setImage] = useState<File | null>(null);
