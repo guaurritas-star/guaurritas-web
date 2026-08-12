@@ -27,6 +27,11 @@ type ProfileDraft = {
   avatar: File | null;
 };
 
+type EditProfileDraft = Pick<
+  ProfileDraft,
+  "name" | "bio" | "city" | "region"
+>;
+
 type PetProfilesGateProps = {
   user: User;
   isSigningOut: boolean;
@@ -78,6 +83,19 @@ const getLocationLabel = (profile: PetProfile) =>
   [profile.city, profile.region].filter(Boolean).join(", ") ||
   "Ubicación no agregada";
 
+const getJoinedLabel = (createdAt: string) => {
+  const joinedDate = new Date(createdAt);
+
+  if (Number.isNaN(joinedDate.getTime())) {
+    return "Fecha de ingreso no disponible";
+  }
+
+  return `En Guaurritas desde ${new Intl.DateTimeFormat("es-MX", {
+    month: "long",
+    year: "numeric",
+  }).format(joinedDate)}`;
+};
+
 export default function PetProfilesGate({
   user,
   isSigningOut,
@@ -87,8 +105,19 @@ export default function PetProfilesGate({
   const [profiles, setProfiles] = useState<PetProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+    null,
+  );
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [draft, setDraft] = useState<ProfileDraft>(EMPTY_DRAFT);
+  const [editDraft, setEditDraft] = useState<EditProfileDraft>({
+    name: "",
+    bio: "",
+    city: "",
+    region: "",
+  });
   const [feedback, setFeedback] = useState("");
   const [feedbackKind, setFeedbackKind] = useState<"success" | "error">(
     "success",
@@ -99,6 +128,10 @@ export default function PetProfilesGate({
     () => (draft.avatar ? URL.createObjectURL(draft.avatar) : ""),
     [draft.avatar],
   );
+
+  const selectedProfile = selectedProfileId
+    ? profiles.find((profile) => profile.id === selectedProfileId) ?? null
+    : null;
 
   useEffect(
     () => () => {
@@ -190,6 +223,132 @@ export default function PetProfilesGate({
     resetForm();
     setFeedback("");
     setShowForm(false);
+  };
+
+  const openProfile = (profile: PetProfile) => {
+    setSelectedProfileId(profile.id);
+    setIsEditingProfile(false);
+    setFeedback("");
+  };
+
+  const closeProfile = () => {
+    setSelectedProfileId(null);
+    setIsEditingProfile(false);
+    setFeedback("");
+  };
+
+  const startEditingProfile = (profile: PetProfile) => {
+    setEditDraft({
+      name: profile.name,
+      bio: profile.bio ?? "",
+      city: profile.city ?? "",
+      region: profile.region ?? "",
+    });
+    setFeedback("");
+    setIsEditingProfile(true);
+  };
+
+  const updateEditDraft = (
+    field: keyof EditProfileDraft,
+    value: string,
+  ) => {
+    setEditDraft((currentDraft) => ({
+      ...currentDraft,
+      [field]: value,
+    }));
+    setFeedback("");
+  };
+
+  const saveEditedProfile = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (!selectedProfile) return;
+
+    const name = editDraft.name.trim();
+    const bio = editDraft.bio.trim();
+    const city = editDraft.city.trim();
+    const region = editDraft.region.trim();
+
+    if (!name) {
+      setFeedbackKind("error");
+      setFeedback("Escribe el nombre de tu mascota.");
+      return;
+    }
+
+    setIsSavingProfile(true);
+    setFeedback("");
+
+    const { data, error } = await supabase
+      .from("pet_profiles")
+      .update({
+        name,
+        bio: bio || null,
+        city: city || null,
+        region: region || null,
+      })
+      .eq("id", selectedProfile.id)
+      .eq("owner_id", user.id)
+      .select(
+        "id, owner_id, name, username, avatar_url, bio, city, region, country_code, created_at",
+      )
+      .single();
+
+    setIsSavingProfile(false);
+
+    if (error) {
+      setFeedbackKind("error");
+      setFeedback(getProfileError(error.message, error.code));
+      return;
+    }
+
+    const updatedProfile = data as PetProfile;
+
+    setProfiles((currentProfiles) =>
+      currentProfiles.map((profile) =>
+        profile.id === updatedProfile.id ? updatedProfile : profile,
+      ),
+    );
+    setFeedbackKind("success");
+    setFeedback(`Los cambios de ${updatedProfile.name} quedaron guardados ✓`);
+    setIsEditingProfile(false);
+  };
+
+  const shareProfile = async (profile: PetProfile) => {
+    const profileText = [
+      `${profile.name} · @${profile.username}`,
+      profile.bio,
+      `📍 ${getLocationLabel(profile)}`,
+      getJoinedLabel(profile.created_at),
+      "",
+      "Conoce su historia en Guaurrinotas.",
+    ]
+      .filter((line): line is string => Boolean(line))
+      .join("\n");
+
+    setFeedback("");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Perfil de ${profile.name} | Guaurritas`,
+          text: profileText,
+        });
+        setFeedbackKind("success");
+        setFeedback("Perfil compartido ✓");
+        return;
+      }
+
+      await navigator.clipboard.writeText(profileText);
+      setFeedbackKind("success");
+      setFeedback("Perfil copiado. Ya puedes pegarlo donde quieras ✓");
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") return;
+
+      setFeedbackKind("error");
+      setFeedback("No pudimos compartir el perfil desde este navegador.");
+    }
   };
 
   const createProfile = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -314,7 +473,7 @@ export default function PetProfilesGate({
           <button
             type="button"
             onClick={() => void onSignOut()}
-            disabled={isSigningOut || isSubmitting}
+            disabled={isSigningOut || isSubmitting || isSavingProfile}
             className="border-2 border-[#425b8c] bg-white px-4 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#f0f3f8] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cerrar sesión
@@ -551,6 +710,235 @@ export default function PetProfilesGate({
             </div>
           </form>
         </section>
+      ) : selectedProfile ? (
+        <div className="space-y-5">
+          <section className="border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
+            <header className="border-b-2 border-[#425b8c] bg-[#f0f3f8] p-4">
+              <button
+                type="button"
+                onClick={closeProfile}
+                disabled={isSavingProfile}
+                className="font-mono text-xs font-bold text-[#425b8c] hover:underline disabled:opacity-50"
+              >
+                ← Volver a mis mascotas
+              </button>
+            </header>
+
+            <div className="p-5">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-4xl shadow-[3px_3px_0_#425b8c]">
+                  {selectedProfile.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={selectedProfile.avatar_url}
+                      alt={`Foto de ${selectedProfile.name}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span aria-hidden="true">🐾</span>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#637497]">
+                    Perfil de mascota
+                  </p>
+                  <h2 className="mt-1 truncate text-3xl font-bold text-[#263650]">
+                    {selectedProfile.name}
+                  </h2>
+                  <p className="truncate font-mono text-sm text-[#425b8c]">
+                    @{selectedProfile.username}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEditingProfile(selectedProfile)}
+                      disabled={isSavingProfile}
+                      className="border-2 border-[#425b8c] bg-[#425b8c] px-3 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:opacity-50"
+                    >
+                      ✎ Editar perfil
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void shareProfile(selectedProfile)}
+                      disabled={isSavingProfile}
+                      className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#dce4f2] disabled:opacity-50"
+                    >
+                      ↗ Compartir
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {isEditingProfile ? (
+                <form
+                  onSubmit={saveEditedProfile}
+                  className="mt-6 space-y-4 border-2 border-[#425b8c] bg-[#f8f8f8] p-4"
+                >
+                  <div>
+                    <p className="font-mono text-sm font-bold text-[#263650]">
+                      Editar datos de {selectedProfile.name}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-[#637497]">
+                      El usuario @{selectedProfile.username} identifica este
+                      perfil y no cambia en esta sección.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="edit-pet-name"
+                      className="font-mono text-xs font-bold text-[#263650]"
+                    >
+                      Nombre
+                    </label>
+                    <input
+                      id="edit-pet-name"
+                      value={editDraft.name}
+                      onChange={(event) =>
+                        updateEditDraft("name", event.target.value)
+                      }
+                      maxLength={40}
+                      required
+                      className="mt-2 w-full border-2 border-[#425b8c] bg-white p-3 text-sm outline-none focus:bg-[#f8fafc]"
+                    />
+                    <p className="mt-1 text-right font-mono text-[10px] text-[#637497]">
+                      {editDraft.name.length}/40
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="edit-pet-bio"
+                      className="font-mono text-xs font-bold text-[#263650]"
+                    >
+                      Personalidad <span className="font-normal">(opcional)</span>
+                    </label>
+                    <textarea
+                      id="edit-pet-bio"
+                      value={editDraft.bio}
+                      onChange={(event) =>
+                        updateEditDraft("bio", event.target.value)
+                      }
+                      maxLength={160}
+                      className="mt-2 min-h-24 w-full resize-none border-2 border-[#425b8c] bg-white p-3 text-sm outline-none focus:bg-[#f8fafc]"
+                    />
+                    <p className="mt-1 text-right font-mono text-[10px] text-[#637497]">
+                      {editDraft.bio.length}/160
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label
+                        htmlFor="edit-pet-city"
+                        className="font-mono text-xs font-bold text-[#263650]"
+                      >
+                        Ciudad <span className="font-normal">(opcional)</span>
+                      </label>
+                      <input
+                        id="edit-pet-city"
+                        value={editDraft.city}
+                        onChange={(event) =>
+                          updateEditDraft("city", event.target.value)
+                        }
+                        maxLength={80}
+                        className="mt-2 w-full border-2 border-[#425b8c] bg-white p-3 text-sm outline-none focus:bg-[#f8fafc]"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="edit-pet-region"
+                        className="font-mono text-xs font-bold text-[#263650]"
+                      >
+                        Estado <span className="font-normal">(opcional)</span>
+                      </label>
+                      <input
+                        id="edit-pet-region"
+                        value={editDraft.region}
+                        onChange={(event) =>
+                          updateEditDraft("region", event.target.value)
+                        }
+                        maxLength={80}
+                        className="mt-2 w-full border-2 border-[#425b8c] bg-white p-3 text-sm outline-none focus:bg-[#f8fafc]"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="border-2 border-dashed border-[#cbd4e4] bg-white p-3 text-xs leading-5 text-[#637497]">
+                    Solo se mostrará ciudad y estado; nunca una dirección exacta.
+                  </p>
+
+                  <div className="flex flex-wrap justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingProfile(false);
+                        setFeedback("");
+                      }}
+                      disabled={isSavingProfile}
+                      className="border-2 border-[#425b8c] bg-white px-4 py-2 font-mono text-xs font-bold text-[#425b8c] hover:bg-[#f0f3f8] disabled:opacity-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingProfile || !editDraft.name.trim()}
+                      className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {isSavingProfile ? "Guardando cambios..." : "Guardar cambios"}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="mt-6 space-y-4">
+                  <p className="text-sm leading-6 text-[#263650]">
+                    {selectedProfile.bio ||
+                      "Este perfil todavía no tiene una descripción."}
+                  </p>
+                  <div className="space-y-1 border-t-2 border-dashed border-[#cbd4e4] pt-4 font-mono text-xs text-[#637497]">
+                    <p>📍 {getLocationLabel(selectedProfile)}</p>
+                    <p>🗓 {getJoinedLabel(selectedProfile.created_at)}</p>
+                  </div>
+                </div>
+              )}
+
+              {feedback && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className={`mt-4 border-2 border-dashed p-3 font-mono text-xs font-bold leading-5 ${
+                    feedbackKind === "error"
+                      ? "border-[#9b3a3a] bg-[#fff0f0] text-[#7b2929]"
+                      : "border-[#425b8c] bg-[#dce4f2] text-[#263650]"
+                  }`}
+                >
+                  {feedback}
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
+            <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
+              Mis notas
+            </p>
+            <div className="mt-4 border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-6 text-center">
+              <span aria-hidden="true" className="text-3xl">
+                📝
+              </span>
+              <h3 className="mt-3 font-bold text-[#263650]">
+                {selectedProfile.name} todavía no ha publicado notas
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#637497]">
+                Aquí aparecerán sus historias cuando conectemos el editor de
+                Guaurrinotas en el siguiente paso.
+              </p>
+            </div>
+          </section>
+        </div>
       ) : (
         <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -589,9 +977,11 @@ export default function PetProfilesGate({
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             {profiles.map((profile) => (
-              <article
+              <button
                 key={profile.id}
-                className="flex items-start gap-3 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 shadow-[3px_3px_0_#cbd4e4]"
+                type="button"
+                onClick={() => openProfile(profile)}
+                className="flex w-full items-start gap-3 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 text-left shadow-[3px_3px_0_#cbd4e4] transition-transform hover:-translate-y-0.5 hover:bg-[#f0f3f8] focus:outline-none focus:ring-2 focus:ring-[#425b8c] focus:ring-offset-2"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-2xl">
                   {profile.avatar_url ? (
@@ -616,8 +1006,11 @@ export default function PetProfilesGate({
                   <p className="mt-2 text-xs text-[#637497]">
                     📍 {getLocationLabel(profile)}
                   </p>
+                  <p className="mt-3 font-mono text-[10px] font-bold uppercase tracking-wider text-[#425b8c]">
+                    Ver perfil →
+                  </p>
                 </div>
-              </article>
+              </button>
             ))}
           </div>
 
