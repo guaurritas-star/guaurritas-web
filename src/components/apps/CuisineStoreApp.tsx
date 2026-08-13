@@ -81,7 +81,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Para elevar su bowl",
     category: "snacks",
     description: "Más sabor e intención para el plato de todos los días.",
-    image: "/cuisine/products/sazonadores-transparent.png",
+    image: "/cuisine/products/sazonadores-card-v2.png",
     imageAlt: "Sazonadores Guaurritas de pollo y res",
     options: [
       { label: "Res · 60 g", price: 119 },
@@ -224,7 +224,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Regalo & celebración",
     category: "birthday",
     description: "Cajita surtida de premios Guaurritas más juguete.",
-    image: "/cuisine/products/happy-box-transparent.png",
+    image: "/cuisine/products/happy-box-card-v2.png",
     imageAlt: "Caja de regalo Happy Box de Guaurritas",
     options: [
       { label: "Happy Box", price: 160 },
@@ -271,7 +271,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Extra de celebración",
     category: "birthday",
     description: "Banderines para vestir su mesa, sesión o rincón de cumpleaños.",
-    image: "/cuisine/products/pancarta-transparent.png",
+    image: "/cuisine/products/pancarta-card-v2.png",
     imageAlt: "Pancarta colorida de Happy Birthday",
     options: [{ label: "Pancarta", price: 80 }],
     detail: "Pancarta decorativa para completar su celebración o pedido especial.",
