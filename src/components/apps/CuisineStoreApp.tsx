@@ -81,7 +81,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Para elevar su bowl",
     category: "snacks",
     description: "Más sabor e intención para el plato de todos los días.",
-    image: "/cuisine/products/sazonadores-card-v2.png",
+    image: "/cuisine/products/sazonadores-card-v3.webp",
     imageAlt: "Sazonadores Guaurritas de pollo y res",
     options: [
       { label: "Res · 60 g", price: 119 },
@@ -224,7 +224,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Regalo & celebración",
     category: "birthday",
     description: "Cajita surtida de premios Guaurritas más juguete.",
-    image: "/cuisine/products/happy-box-card-v2.png",
+    image: "/cuisine/products/happy-box-card-v3.webp",
     imageAlt: "Caja de regalo Happy Box de Guaurritas",
     options: [
       { label: "Happy Box", price: 160 },
@@ -367,6 +367,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 alt={selectedProduct.imageAlt}
                 fill
                 priority
+                unoptimized
                 sizes="(max-width: 1024px) 90vw, 42vw"
                 className="object-contain p-7 sm:p-10"
               />
@@ -591,6 +592,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   src={product.image}
                   alt={product.imageAlt}
                   fill
+                  unoptimized
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
                   className="object-contain p-5 transition duration-500 group-hover:scale-105"
                 />
