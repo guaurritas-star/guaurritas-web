@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
+import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
 
 type WorldId =
   | "club"
@@ -195,6 +196,10 @@ export default function GuaurriverseApp() {
     setSelectedWorldId(null);
     updateWorldInUrl(null);
   };
+
+  if (selectedWorld?.id === "cuisine") {
+    return <CuisineStoreApp onBack={showAllWorlds} />;
+  }
 
   if (selectedWorld) {
     return (
