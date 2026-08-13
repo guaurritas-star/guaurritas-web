@@ -41,10 +41,6 @@ textarea {
   font-family: var(--font-open-sans), sans-serif;
 }
 
-.guaurriverse-shell {
-  background: #f7f0e8;
-}
-
 .world-card {
   border-color: color-mix(in srgb, var(--world-accent) 42%, #806f61 18%);
 }
