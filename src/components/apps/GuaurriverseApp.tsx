@@ -33,6 +33,11 @@ const worlds: World[] = [
     accent: "#c9a97a",
     accentSoft: "#f0d898",
     symbol: "✦",
+    media: {
+      type: "image",
+      src: "/guaurriverse/worlds/club.gif",
+      alt: "Carrito de compras de Guaurriclub con mascotas",
+    },
   },
   {
     id: "cuisine",
@@ -42,6 +47,11 @@ const worlds: World[] = [
     accent: "#5ea0b0",
     accentSoft: "#a8dde8",
     symbol: "♨",
+    media: {
+      type: "image",
+      src: "/guaurriverse/worlds/cuisine.gif",
+      alt: "Experiencia de Guaurritas Cuisine con una mascota",
+    },
   },
   {
     id: "guaupalooza",
@@ -51,6 +61,11 @@ const worlds: World[] = [
     accent: "#e07a85",
     accentSoft: "#f5b8be",
     symbol: "★",
+    media: {
+      type: "image",
+      src: "/guaurriverse/worlds/guaupalooza.jpg",
+      alt: "Celebración pet party de Guaupalooza",
+    },
   },
   {
     id: "couture",
@@ -60,6 +75,11 @@ const worlds: World[] = [
     accent: "#8c9f87",
     accentSoft: "#c8d8c0",
     symbol: "◇",
+    media: {
+      type: "image",
+      src: "/guaurriverse/worlds/couture.jpg",
+      alt: "Bandana presentada por Guaurritas Couture",
+    },
   },
   {
     id: "academy",
@@ -69,6 +89,11 @@ const worlds: World[] = [
     accent: "#c3a07a",
     accentSoft: "#e8d5b0",
     symbol: "✎",
+    media: {
+      type: "image",
+      src: "/guaurriverse/worlds/academy.jpg",
+      alt: "Consejo de alimentación de GuaurriAcademy",
+    },
   },
 ];
 
@@ -114,7 +139,7 @@ function WorldMediaPreview({ world }: { world: World }) {
   if (world.media?.type === "image") {
     return (
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-top transition-transform duration-500 group-hover:scale-105"
         style={{ backgroundImage: `url(${world.media.src})` }}
         role="img"
         aria-label={world.media.alt}
