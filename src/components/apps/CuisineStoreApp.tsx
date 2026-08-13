@@ -31,6 +31,7 @@ type CuisineProduct = {
   customizable?: boolean;
   badge?: string;
   imageTone: string;
+  imageScale?: number;
 };
 
 const categories: { id: CategoryId; label: string }[] = [
@@ -67,13 +68,14 @@ const products: CuisineProduct[] = [
     eyebrow: "Guaurricookies",
     category: "snacks",
     description: "Bolsita de 100 g para probar sabores o llevar un detalle.",
-    image: "/cuisine/products/happy-bag-transparent.png",
+    image: "/cuisine/products/happy-bag-card-v4.webp",
     imageAlt: "Bolsa de treats horneados Guaurritas",
     options: [{ label: "Bolsa 100 g", price: 85 }],
     detail:
       "Premios horneados pensados para consentir en el día a día. Puedes elegir el sabor al preparar tu pedido.",
     badge: "Favorito",
     imageTone: "#f0e5ea",
+    imageScale: 1.18,
   },
   {
     id: "sazonadores",
@@ -98,12 +100,13 @@ const products: CuisineProduct[] = [
     eyebrow: "Snack sin carnaza",
     category: "snacks",
     description: "Sticks para perro, prácticos para premiar y consentir.",
-    image: "/cuisine/products/sticks-transparent.png",
+    image: "/cuisine/products/sticks-card-v4.webp",
     imageAlt: "Sticks Guaurritas sostenidos en una mano",
     options: [{ label: "Bolsa con 10 sticks", price: 79 }],
     detail: "Snack para perros sin carnaza. Cada bolsita contiene 10 sticks.",
     badge: "Nuevo",
     imageTone: "#e6edf5",
+    imageScale: 1.2,
   },
   {
     id: "petcakes",
@@ -135,7 +138,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Repostería pet",
     category: "bakery",
     description: "Un detalle pequeño para cumpleaños y mesas dulces.",
-    image: "/cuisine/products/cupcakes-transparent.png",
+    image: "/cuisine/products/cupcakes-card-v4.webp",
     imageAlt: "Cupcake decorado para mascotas",
     options: [
       { label: "Individual", price: 40 },
@@ -145,6 +148,7 @@ const products: CuisineProduct[] = [
       "Proteínas para lomitos: pollo, res o mixto. Para michis: atún, pollo o hígado.",
     customizable: true,
     imageTone: "#f3e0e6",
+    imageScale: 1.15,
   },
   {
     id: "cake-pops",
@@ -152,13 +156,14 @@ const products: CuisineProduct[] = [
     eyebrow: "Repostería pet",
     category: "bakery",
     description: "Un par de bocaditos para regalar o completar su mesa dulce.",
-    image: "/cuisine/products/cake-pops.png",
+    image: "/cuisine/products/cake-pops-card-v4.webp",
     imageAlt: "Tres Cake Pops decorados para mascotas",
     options: [{ label: "Pareja", price: 40 }],
     detail:
       "Proteínas para lomitos: pollo, res o mixto. Para michis: atún, pollo o hígado.",
     customizable: true,
     imageTone: "#f5e3e8",
+    imageScale: 1.18,
   },
   {
     id: "dognuts",
@@ -183,12 +188,13 @@ const products: CuisineProduct[] = [
     eyebrow: "Repostería pet",
     category: "bakery",
     description: "Premios de arroz, proteína de res y complemento de verduras.",
-    image: "/cuisine/products/perrundas.png",
+    image: "/cuisine/products/perrundas-card-v4.webp",
     imageAlt: "Perrundas envueltas y presentadas sobre una charola",
     options: [{ label: "Pack de 4", price: 80 }],
     detail:
       "Una presentación de cuatro piezas para sumar a una celebración o disfrutar como premio complementario.",
     imageTone: "#e5efe8",
+    imageScale: 1.15,
   },
   {
     id: "chilaquidogs",
@@ -196,7 +202,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Antojería pet",
     category: "antojitos",
     description: "Chilaquiles pet estilo Guaurritas para lomitos.",
-    image: "/cuisine/products/chilaquidogs-transparent.png",
+    image: "/cuisine/products/chilaquidogs-card-v4.webp",
     imageAlt: "ChilaquiDogs servido en una cajita",
     options: [
       { label: "Petit", price: 65 },
@@ -204,6 +210,7 @@ const products: CuisineProduct[] = [
     ],
     detail: "Elige proteína de res o pollo y salsa roja o verde.",
     imageTone: "#edf1f5",
+    imageScale: 1.18,
   },
   {
     id: "pizzet",
@@ -211,12 +218,13 @@ const products: CuisineProduct[] = [
     eyebrow: "Antojería pet",
     category: "antojitos",
     description: "Pizza individual pet con proteína de res.",
-    image: "/cuisine/products/pizzet.png",
+    image: "/cuisine/products/pizzet-card-v4.webp",
     imageAlt: "Pizzet individual para mascota dentro de una caja",
     options: [{ label: "Individual", price: 60 }],
     detail:
       "Antojito especial pensado como premio complementario para lomitos.",
     imageTone: "#eee6dc",
+    imageScale: 1.18,
   },
   {
     id: "happy-box",
@@ -362,15 +370,20 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce]"
               style={{ backgroundColor: selectedProduct.imageTone }}
             >
-              <Image
-                src={selectedProduct.image}
-                alt={selectedProduct.imageAlt}
-                fill
-                priority
-                unoptimized
-                sizes="(max-width: 1024px) 90vw, 42vw"
-                className="object-contain p-7 sm:p-10"
-              />
+              <span
+                className="absolute inset-0"
+                style={{ transform: `scale(${selectedProduct.imageScale ?? 1})` }}
+              >
+                <Image
+                  src={selectedProduct.image}
+                  alt={selectedProduct.imageAlt}
+                  fill
+                  priority
+                  unoptimized
+                  sizes="(max-width: 1024px) 90vw, 42vw"
+                  className="object-contain p-7 sm:p-10"
+                />
+              </span>
               {selectedProduct.badge && (
                 <span className="absolute left-4 top-4 rounded-full border border-white/70 bg-[#263650] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-white shadow-sm">
                   {selectedProduct.badge}
@@ -588,14 +601,19 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 className="relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da]"
                 style={{ backgroundColor: product.imageTone }}
               >
-                <Image
-                  src={product.image}
-                  alt={product.imageAlt}
-                  fill
-                  unoptimized
-                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
-                  className="object-contain p-5 transition duration-500 group-hover:scale-105"
-                />
+                <span
+                  className="absolute inset-0"
+                  style={{ transform: `scale(${product.imageScale ?? 1})` }}
+                >
+                  <Image
+                    src={product.image}
+                    alt={product.imageAlt}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
+                    className="object-contain p-5 transition duration-500 group-hover:scale-105"
+                  />
+                </span>
                 {product.badge && (
                   <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#263650] px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
                     {product.badge}
