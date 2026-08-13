@@ -261,8 +261,8 @@ export default function GuaurriverseApp() {
               <span className="mt-2 block font-serif text-[1.45rem] font-semibold leading-7">
                 {world.name}
               </span>
-              <span className="mt-3 block h-px w-0 bg-white/70 transition-all duration-300 group-hover:w-full" />
-              <span className="mt-3 block font-mono text-[9px] uppercase tracking-[0.13em] text-white/75">
+              <span className="mt-3 block h-px w-0 bg-white/70 transition-all duration-300 group-hover:w-full group-focus-visible:w-full" />
+              <span className="world-card-subtitle mt-3 block text-[9px] uppercase tracking-[0.13em] text-white/75">
                 {world.description}
               </span>
             </span>
