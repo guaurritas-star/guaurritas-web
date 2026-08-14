@@ -48,10 +48,80 @@ const categories: { id: CategoryId; label: string }[] = [
 
 const petcakeSizes = ["Chico", "Mediano", "Grande", "Plus grande"] as const;
 
-const petcakeProteins: Record<PetType, readonly string[]> = {
+const proteinsByPetType: Record<PetType, readonly string[]> = {
   lomito: ["Pollo", "Res", "Mixto"],
   michi: ["Atún", "Pollo", "Hígado"],
 };
+
+const recipeProductIds = new Set(["petcakes", "cupcakes", "cake-pops", "dognuts"]);
+
+function PetRecipeFields({
+  petType,
+  petProtein,
+  onPetTypeChange,
+  onPetProteinChange,
+  firstStep,
+}: {
+  petType: PetType | null;
+  petProtein: string | null;
+  onPetTypeChange: (petType: PetType) => void;
+  onPetProteinChange: (protein: string) => void;
+  firstStep: number;
+}) {
+  return (
+    <>
+      <fieldset className="mt-5">
+        <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+          {firstStep}. ¿Para quién es?
+        </legend>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {(["lomito", "michi"] as const).map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              onClick={() => onPetTypeChange(kind)}
+              className={`rounded-xl border px-3 py-3 font-interface text-[11px] font-bold capitalize transition ${
+                petType === kind
+                  ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
+                  : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
+              }`}
+            >
+              {kind === "lomito" ? "🐶 Lomito" : "🐱 Michi"}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-5">
+        <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+          {firstStep + 1}. Proteína
+        </legend>
+        {petType ? (
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {proteinsByPetType[petType].map((protein) => (
+              <button
+                key={protein}
+                type="button"
+                onClick={() => onPetProteinChange(protein)}
+                className={`rounded-xl border px-2 py-3 font-interface text-[10px] font-bold transition ${
+                  petProtein === protein
+                    ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
+                    : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
+                }`}
+              >
+                {protein}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-2 rounded-xl border border-dashed border-[#b9c8d8] bg-white px-3 py-3 font-interface text-[10px] text-[#718093]">
+            Primero elige lomito o michi para mostrar las proteínas disponibles.
+          </p>
+        )}
+      </fieldset>
+    </>
+  );
+}
 
 const products: CuisineProduct[] = [
   {
@@ -366,15 +436,18 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";
+    const needsRecipe = recipeProductIds.has(selectedProduct.id);
+    const usesDecorationPersonalization = recipeProductIds.has(selectedProduct.id);
     const petcakeFinishOffset = petcakeFinish === "fondant" ? 1 : 0;
     const currentOption = isPetcake
       ? selectedProduct.options[petcakeSize * 2 + petcakeFinishOffset]
       : selectedProduct.options[selectedOption];
     const needsChoice = selectedProduct.customizable && customize === null;
-    const needsPetcakeConfiguration =
-      isPetcake &&
-      (petcakeFinish === null || petType === null || petProtein === null);
-    const canAdd = !needsChoice && !needsPetcakeConfiguration;
+    const needsRecipeConfiguration =
+      needsRecipe && (petType === null || petProtein === null);
+    const needsPetcakeFinish = isPetcake && petcakeFinish === null;
+    const canAdd =
+      !needsChoice && !needsRecipeConfiguration && !needsPetcakeFinish;
 
     return (
       <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
@@ -500,88 +573,69 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   </div>
                 </fieldset>
 
-                <fieldset className="mt-5">
-                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-                    3. ¿Para quién es?
+                <PetRecipeFields
+                  petType={petType}
+                  petProtein={petProtein}
+                  onPetTypeChange={(kind) => {
+                    setPetType(kind);
+                    setPetProtein(null);
+                  }}
+                  onPetProteinChange={setPetProtein}
+                  firstStep={3}
+                />
+              </div>
+            ) : (
+              <>
+                <fieldset className="mt-7">
+                  <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                    Elige una presentación
                   </legend>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    {(["lomito", "michi"] as const).map((kind) => (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {selectedProduct.options.map((option, index) => (
                       <button
-                        key={kind}
+                        key={`${option.label}-${option.price}`}
                         type="button"
-                        onClick={() => {
-                          setPetType(kind);
-                          setPetProtein(null);
-                        }}
-                        className={`rounded-xl border px-3 py-3 font-interface text-[11px] font-bold capitalize transition ${
-                          petType === kind
-                            ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
-                            : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
+                        onClick={() => setSelectedOption(index)}
+                        className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left font-interface text-xs transition ${
+                          selectedOption === index
+                            ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
+                            : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
                         }`}
                       >
-                        {kind === "lomito" ? "🐶 Lomito" : "🐱 Michi"}
+                        <span>{option.label}</span>
+                        <strong>{money(option.price)}</strong>
                       </button>
                     ))}
                   </div>
                 </fieldset>
 
-                <fieldset className="mt-5">
-                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-                    4. Proteína
-                  </legend>
-                  {petType ? (
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      {petcakeProteins[petType].map((protein) => (
-                        <button
-                          key={protein}
-                          type="button"
-                          onClick={() => setPetProtein(protein)}
-                          className={`rounded-xl border px-2 py-3 font-interface text-[10px] font-bold transition ${
-                            petProtein === protein
-                              ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
-                              : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
-                          }`}
-                        >
-                          {protein}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-2 rounded-xl border border-dashed border-[#b9c8d8] bg-white px-3 py-3 font-interface text-[10px] text-[#718093]">
-                      Primero elige lomito o michi para mostrar las proteínas disponibles.
+                {needsRecipe && (
+                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                      Configura su receta
                     </p>
-                  )}
-                </fieldset>
-              </div>
-            ) : (
-              <fieldset className="mt-7">
-                <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                  Elige una presentación
-                </legend>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {selectedProduct.options.map((option, index) => (
-                    <button
-                      key={`${option.label}-${option.price}`}
-                      type="button"
-                      onClick={() => setSelectedOption(index)}
-                      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left font-interface text-xs transition ${
-                        selectedOption === index
-                          ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
-                          : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
-                      }`}
-                    >
-                      <span>{option.label}</span>
-                      <strong>{money(option.price)}</strong>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
+                    <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                      La proteína disponible cambia según sea para lomito o michi.
+                    </p>
+                    <PetRecipeFields
+                      petType={petType}
+                      petProtein={petProtein}
+                      onPetTypeChange={(kind) => {
+                        setPetType(kind);
+                        setPetProtein(null);
+                      }}
+                      onPetProteinChange={setPetProtein}
+                      firstStep={1}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             {selectedProduct.customizable && (
               <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5">
                 <p className="font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
-                  {isPetcake
+                  {usesDecorationPersonalization
                     ? "¿Quieres personalizar la decoración?"
                     : "¿Quieres personalizar tu producto?"}
                 </p>
@@ -648,8 +702,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
             {!canAdd && (
               <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
-                {needsPetcakeConfiguration
-                  ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
+                {needsPetcakeFinish || needsRecipeConfiguration
+                  ? isPetcake
+                    ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
+                    : "Elige si es para lomito o michi y selecciona su proteína para agregarlo."
                   : "Indica si deseas personalizarlo para agregarlo."}
               </p>
             )}
