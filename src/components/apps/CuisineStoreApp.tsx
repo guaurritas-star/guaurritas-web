@@ -18,6 +18,9 @@ type ProductOption = {
   price: number;
 };
 
+type PetcakeFinish = "betún" | "fondant";
+type PetType = "lomito" | "michi";
+
 type CuisineProduct = {
   id: string;
   name: string;
@@ -42,6 +45,13 @@ const categories: { id: CategoryId; label: string }[] = [
   { id: "antojitos", label: "Antojería pet" },
   { id: "birthday", label: "Cumpleaños" },
 ];
+
+const petcakeSizes = ["Chico", "Mediano", "Grande", "Plus grande"] as const;
+
+const petcakeProteins: Record<PetType, readonly string[]> = {
+  lomito: ["Pollo", "Res", "Mixto"],
+  michi: ["Atún", "Pollo", "Hígado"],
+};
 
 const products: CuisineProduct[] = [
   {
@@ -113,7 +123,8 @@ const products: CuisineProduct[] = [
     name: "Petcakes",
     eyebrow: "Pasteles pet",
     category: "petcakes",
-    description: "Elige tamaño, proteína y decoración para su celebración.",
+    description:
+      "Elige tamaño, acabado, especie, proteína y decoración para su celebración.",
     image: "/cuisine/products/petcakes-transparent.png",
     imageAlt: "Petcake grande decorado para una celebración",
     options: [
@@ -127,7 +138,7 @@ const products: CuisineProduct[] = [
       { label: "Plus grande · fondant", price: 895 },
     ],
     detail:
-      "Proteínas para lomitos: pollo, res o mixto. Para michis: atún, pollo o hígado.",
+      "Cada receta se adapta a su especie. Configura primero la base del pastel y después cuéntanos cómo quieres personalizarlo.",
     customizable: true,
     badge: "Personalizable",
     imageTone: "#dceef0",
@@ -311,6 +322,11 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     useState<CuisineProduct | null>(null);
   const [selectedOption, setSelectedOption] = useState(0);
   const [customize, setCustomize] = useState<"yes" | "no" | null>(null);
+  const [petcakeSize, setPetcakeSize] = useState(0);
+  const [petcakeFinish, setPetcakeFinish] =
+    useState<PetcakeFinish | null>(null);
+  const [petType, setPetType] = useState<PetType | null>(null);
+  const [petProtein, setPetProtein] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
 
@@ -334,6 +350,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setSelectedProduct(product);
     setSelectedOption(0);
     setCustomize(null);
+    setPetcakeSize(0);
+    setPetcakeFinish(null);
+    setPetType(null);
+    setPetProtein(null);
     setNotice("");
   };
 
@@ -345,9 +365,16 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   };
 
   if (selectedProduct) {
-    const currentOption = selectedProduct.options[selectedOption];
+    const isPetcake = selectedProduct.id === "petcakes";
+    const petcakeFinishOffset = petcakeFinish === "fondant" ? 1 : 0;
+    const currentOption = isPetcake
+      ? selectedProduct.options[petcakeSize * 2 + petcakeFinishOffset]
+      : selectedProduct.options[selectedOption];
     const needsChoice = selectedProduct.customizable && customize === null;
-    const canAdd = !needsChoice;
+    const needsPetcakeConfiguration =
+      isPetcake &&
+      (petcakeFinish === null || petType === null || petProtein === null);
+    const canAdd = !needsChoice && !needsPetcakeConfiguration;
 
     return (
       <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
@@ -409,33 +436,154 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               {selectedProduct.detail}
             </p>
 
-            <fieldset className="mt-7">
-              <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                Elige una presentación
-              </legend>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {selectedProduct.options.map((option, index) => (
-                  <button
-                    key={`${option.label}-${option.price}`}
-                    type="button"
-                    onClick={() => setSelectedOption(index)}
-                    className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left font-interface text-xs transition ${
-                      selectedOption === index
-                        ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
-                        : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
-                    }`}
-                  >
-                    <span>{option.label}</span>
-                    <strong>{money(option.price)}</strong>
-                  </button>
-                ))}
+            {isPetcake ? (
+              <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                      Configura su Petcake
+                    </p>
+                    <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                      Completa las cuatro elecciones para continuar.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
+                    Paso a paso
+                  </span>
+                </div>
+
+                <fieldset className="mt-5">
+                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                    1. Tamaño
+                  </legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {petcakeSizes.map((size, index) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => setPetcakeSize(index)}
+                        className={`rounded-xl border px-3 py-3 text-left font-interface text-[11px] font-semibold transition ${
+                          petcakeSize === index
+                            ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
+                            : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                        }`}
+                      >
+                        <span className="block">{size}</span>
+                        <span className="mt-1 block text-[9px] font-normal text-[#718093]">
+                          Desde {money(selectedProduct.options[index * 2].price)}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset className="mt-5">
+                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                    2. Acabado
+                  </legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {(["betún", "fondant"] as const).map((finish, index) => (
+                      <button
+                        key={finish}
+                        type="button"
+                        onClick={() => setPetcakeFinish(finish)}
+                        className={`flex items-center justify-between rounded-xl border px-3 py-3 text-left font-interface text-[11px] transition ${
+                          petcakeFinish === finish
+                            ? "border-[#a66271] bg-[#fcf2f4] text-[#6f3f4a] shadow-[2px_2px_0_#a66271]"
+                            : "border-[#d2c4c8] bg-white text-[#657287] hover:border-[#a66271]"
+                        }`}
+                      >
+                        <span className="font-semibold capitalize">{finish}</span>
+                        <strong>{money(selectedProduct.options[petcakeSize * 2 + index].price)}</strong>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset className="mt-5">
+                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                    3. ¿Para quién es?
+                  </legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {(["lomito", "michi"] as const).map((kind) => (
+                      <button
+                        key={kind}
+                        type="button"
+                        onClick={() => {
+                          setPetType(kind);
+                          setPetProtein(null);
+                        }}
+                        className={`rounded-xl border px-3 py-3 font-interface text-[11px] font-bold capitalize transition ${
+                          petType === kind
+                            ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
+                            : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
+                        }`}
+                      >
+                        {kind === "lomito" ? "🐶 Lomito" : "🐱 Michi"}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset className="mt-5">
+                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                    4. Proteína
+                  </legend>
+                  {petType ? (
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {petcakeProteins[petType].map((protein) => (
+                        <button
+                          key={protein}
+                          type="button"
+                          onClick={() => setPetProtein(protein)}
+                          className={`rounded-xl border px-2 py-3 font-interface text-[10px] font-bold transition ${
+                            petProtein === protein
+                              ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
+                              : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
+                          }`}
+                        >
+                          {protein}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 rounded-xl border border-dashed border-[#b9c8d8] bg-white px-3 py-3 font-interface text-[10px] text-[#718093]">
+                      Primero elige lomito o michi para mostrar las proteínas disponibles.
+                    </p>
+                  )}
+                </fieldset>
               </div>
-            </fieldset>
+            ) : (
+              <fieldset className="mt-7">
+                <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                  Elige una presentación
+                </legend>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {selectedProduct.options.map((option, index) => (
+                    <button
+                      key={`${option.label}-${option.price}`}
+                      type="button"
+                      onClick={() => setSelectedOption(index)}
+                      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left font-interface text-xs transition ${
+                        selectedOption === index
+                          ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
+                          : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                      }`}
+                    >
+                      <span>{option.label}</span>
+                      <strong>{money(option.price)}</strong>
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
 
             {selectedProduct.customizable && (
               <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5">
                 <p className="font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
-                  ¿Quieres personalizar tu producto?
+                  {isPetcake
+                    ? "¿Quieres personalizar la decoración?"
+                    : "¿Quieres personalizar tu producto?"}
                 </p>
                 <div className="mt-3 flex gap-2">
                   {(["yes", "no"] as const).map((choice) => (
@@ -480,10 +628,12 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
             <div className="mt-7 flex flex-col gap-3 border-t border-[#d6dee5] pt-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
-                  {currentOption.label}
+                  {isPetcake
+                    ? `${petcakeSizes[petcakeSize]} · ${petcakeFinish ?? "elige acabado"}`
+                    : currentOption.label}
                 </p>
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
-                  {money(currentOption.price)}
+                  {isPetcake && petcakeFinish === null ? "Selecciona el acabado" : money(currentOption.price)}
                 </p>
               </div>
               <button
@@ -495,6 +645,14 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 Agregar al carrito
               </button>
             </div>
+
+            {!canAdd && (
+              <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
+                {needsPetcakeConfiguration
+                  ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
+                  : "Indica si deseas personalizarlo para agregarlo."}
+              </p>
+            )}
 
             {notice && (
               <p
