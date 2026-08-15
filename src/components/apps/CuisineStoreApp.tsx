@@ -150,9 +150,14 @@ const products: CuisineProduct[] = [
     description: "Bolsita de 100 g para probar sabores o llevar un detalle.",
     image: "/cuisine/products/happy-bag-card-v4.webp",
     imageAlt: "Bolsa de treats horneados Guaurritas",
-    options: [{ label: "Bolsa 100 g", price: 85 }],
+    options: [
+      { label: "Cacahuate con tocino · 100 g", price: 85 },
+      { label: "Pollo con zanahoria · 100 g", price: 85 },
+      { label: "Pollo con calabaza · 100 g", price: 85 },
+      { label: "Manzana con plátano · 100 g", price: 85 },
+    ],
     detail:
-      "Premios horneados pensados para consentir en el día a día. Puedes elegir el sabor al preparar tu pedido.",
+      "Premios horneados pensados para consentir en el día a día. Elige un sabor por cada Happy Bag.",
     badge: "Favorito",
     imageTone: "#f0e5ea",
     imageScale: 1.18,
