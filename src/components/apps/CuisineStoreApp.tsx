@@ -22,6 +22,8 @@ type ProductOption = {
 
 type PetcakeFinish = "betún" | "fondant";
 type PetType = "lomito" | "michi";
+type ChilaquiProtein = "Pollo" | "Res";
+type ChilaquiSalsa = "Roja" | "Verde";
 
 type CuisineProduct = {
   id: string;
@@ -424,6 +426,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     useState<PetcakeFinish | null>(null);
   const [petType, setPetType] = useState<PetType | null>(null);
   const [petProtein, setPetProtein] = useState<string | null>(null);
+  const [chilaquiProtein, setChilaquiProtein] =
+    useState<ChilaquiProtein | null>(null);
+  const [chilaquiSalsa, setChilaquiSalsa] =
+    useState<ChilaquiSalsa | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
 
@@ -451,6 +457,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setPetcakeFinish(null);
     setPetType(null);
     setPetProtein(null);
+    setChilaquiProtein(null);
+    setChilaquiSalsa(null);
     setNotice("");
   };
 
@@ -458,11 +466,20 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     if (!selectedProduct) return;
 
     setCartCount((count) => count + 1);
+    if (selectedProduct.id === "chilaquidogs") {
+      const size = selectedProduct.options[selectedOption].label;
+      setNotice(
+        `${selectedProduct.name} ${size} · ${chilaquiProtein} · salsa ${chilaquiSalsa?.toLocaleLowerCase("es")} se agregó al carrito.`,
+      );
+      return;
+    }
+
     setNotice(`${selectedProduct.name} se agregó al carrito.`);
   };
 
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";
+    const isChilaquidogs = selectedProduct.id === "chilaquidogs";
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
     const usesDecorationPersonalization = recipeProductIds.has(selectedProduct.id);
     const petcakeFinishOffset = petcakeFinish === "fondant" ? 1 : 0;
@@ -476,8 +493,13 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
     const needsPetcakeFinish = isPetcake && petcakeFinish === null;
+    const needsChilaquiConfiguration =
+      isChilaquidogs && (chilaquiProtein === null || chilaquiSalsa === null);
     const canAdd =
-      !needsChoice && !needsRecipeConfiguration && !needsPetcakeFinish;
+      !needsChoice &&
+      !needsRecipeConfiguration &&
+      !needsPetcakeFinish &&
+      !needsChilaquiConfiguration;
 
     return (
       <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
@@ -653,6 +675,72 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   </div>
                 </fieldset>
 
+                {isChilaquidogs && (
+                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Arma sus ChilaquiDogs
+                        </p>
+                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                          Elige una proteína y una salsa para completar su platito.
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
+                        2 elecciones
+                      </span>
+                    </div>
+
+                    <fieldset className="mt-5">
+                      <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                        1. Proteína
+                      </legend>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {(["Pollo", "Res"] as const).map((protein) => (
+                          <button
+                            key={protein}
+                            type="button"
+                            aria-pressed={chilaquiProtein === protein}
+                            onClick={() => setChilaquiProtein(protein)}
+                            className={`rounded-xl border px-3 py-3 font-interface text-[11px] font-bold transition ${
+                              chilaquiProtein === protein
+                                ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
+                                : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
+                            }`}
+                          >
+                            {protein}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+
+                    <fieldset className="mt-5">
+                      <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                        2. Salsa
+                      </legend>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {(["Roja", "Verde"] as const).map((salsa) => (
+                          <button
+                            key={salsa}
+                            type="button"
+                            aria-pressed={chilaquiSalsa === salsa}
+                            onClick={() => setChilaquiSalsa(salsa)}
+                            className={`rounded-xl border px-3 py-3 font-interface text-[11px] font-bold transition ${
+                              chilaquiSalsa === salsa
+                                ? salsa === "Roja"
+                                  ? "border-[#b96d72] bg-[#fbebed] text-[#743d45] shadow-[2px_2px_0_#b96d72]"
+                                  : "border-[#789477] bg-[#edf4e9] text-[#425d42] shadow-[2px_2px_0_#789477]"
+                                : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                            }`}
+                          >
+                            Salsa {salsa.toLocaleLowerCase("es")}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                  </div>
+                )}
+
                 {needsRecipe && (
                   <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
@@ -728,6 +816,12 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 <p className="font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
                   {isPetcake
                     ? `${petcakeSizes[petcakeSize]} · ${petcakeFinish ?? "elige acabado"}`
+                    : isChilaquidogs
+                      ? `${currentOption.label} · ${chilaquiProtein ?? "elige proteína"} · ${
+                          chilaquiSalsa
+                            ? `salsa ${chilaquiSalsa.toLocaleLowerCase("es")}`
+                            : "elige salsa"
+                        }`
                     : currentOption.label}
                 </p>
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
@@ -746,7 +840,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
             {!canAdd && (
               <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
-                {needsPetcakeFinish || needsRecipeConfiguration
+                {needsChilaquiConfiguration
+                  ? "Selecciona la proteína y la salsa para agregar sus ChilaquiDogs."
+                  : needsPetcakeFinish || needsRecipeConfiguration
                   ? isPetcake
                     ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
                     : "Elige si es para lomito o michi y selecciona su proteína para agregarlo."
