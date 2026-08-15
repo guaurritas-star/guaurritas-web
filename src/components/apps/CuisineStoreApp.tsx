@@ -16,6 +16,8 @@ type ProductCategory = Exclude<CategoryId, "all">;
 type ProductOption = {
   label: string;
   price: number;
+  image?: string;
+  imageAlt?: string;
 };
 
 type PetcakeFinish = "betún" | "fondant";
@@ -151,10 +153,30 @@ const products: CuisineProduct[] = [
     image: "/cuisine/products/happy-bag-card-v4.webp",
     imageAlt: "Bolsa de treats horneados Guaurritas",
     options: [
-      { label: "Cacahuate con tocino · 100 g", price: 85 },
-      { label: "Pollo con zanahoria · 100 g", price: 85 },
-      { label: "Pollo con calabaza · 100 g", price: 85 },
-      { label: "Manzana con plátano · 100 g", price: 85 },
+      {
+        label: "Cacahuate con tocino · 100 g",
+        price: 85,
+        image: "/cuisine/products/happy-bag-flavors/peanut-bacon.jpg",
+        imageAlt: "Happy Bag sabor cacahuate con tocino",
+      },
+      {
+        label: "Pollo con zanahoria · 100 g",
+        price: 85,
+        image: "/cuisine/products/happy-bag-flavors/chicken-carrot.jpg",
+        imageAlt: "Happy Bag sabor pollo con zanahoria",
+      },
+      {
+        label: "Pollo con calabaza · 100 g",
+        price: 85,
+        image: "/cuisine/products/happy-bag-flavors/chicken-pumpkin.jpg",
+        imageAlt: "Happy Bag sabor pollo con calabaza",
+      },
+      {
+        label: "Manzana con plátano · 100 g",
+        price: 85,
+        image: "/cuisine/products/happy-bag-flavors/apple-banana.jpg",
+        imageAlt: "Happy Bag sabor manzana con plátano",
+      },
     ],
     detail:
       "Premios horneados pensados para consentir en el día a día. Elige un sabor por cada Happy Bag.",
@@ -447,6 +469,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const currentOption = isPetcake
       ? selectedProduct.options[petcakeSize * 2 + petcakeFinishOffset]
       : selectedProduct.options[selectedOption];
+    const currentProductImage = currentOption.image ?? selectedProduct.image;
+    const currentProductImageAlt =
+      currentOption.imageAlt ?? selectedProduct.imageAlt;
     const needsChoice = selectedProduct.customizable && customize === null;
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
@@ -480,8 +505,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 style={{ transform: `scale(${selectedProduct.imageScale ?? 1})` }}
               >
                 <Image
-                  src={selectedProduct.image}
-                  alt={selectedProduct.imageAlt}
+                  src={currentProductImage}
+                  alt={currentProductImageAlt}
                   fill
                   priority
                   unoptimized
@@ -607,7 +632,21 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                             : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
                         }`}
                       >
-                        <span>{option.label}</span>
+                        <span className="flex min-w-0 items-center gap-2.5">
+                          {option.image && (
+                            <span className="relative h-10 w-7 shrink-0 overflow-hidden rounded-md border border-[#d7dfe3] bg-white">
+                              <Image
+                                src={option.image}
+                                alt=""
+                                fill
+                                unoptimized
+                                sizes="28px"
+                                className="object-contain"
+                              />
+                            </span>
+                          )}
+                          <span>{option.label}</span>
+                        </span>
                         <strong>{money(option.price)}</strong>
                       </button>
                     ))}
