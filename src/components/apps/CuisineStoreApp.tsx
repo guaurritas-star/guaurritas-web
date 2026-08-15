@@ -16,6 +16,7 @@ type ProductCategory = Exclude<CategoryId, "all">;
 type ProductOption = {
   label: string;
   price: number;
+  grams?: number;
   image?: string;
   imageAlt?: string;
 };
@@ -56,6 +57,21 @@ const proteinsByPetType: Record<PetType, readonly string[]> = {
   lomito: ["Pollo", "Res", "Mixto"],
   michi: ["Atún", "Pollo", "Hígado"],
 };
+
+const bulkFlavors = [
+  "Cacahuate con tocino",
+  "Pollo con calabaza",
+  "Pollo con zanahoria",
+  "Manzana con plátano",
+] as const;
+
+type BulkFlavor = (typeof bulkFlavors)[number];
+
+function createEmptyBulkDistribution(): Record<BulkFlavor, number> {
+  return Object.fromEntries(
+    bulkFlavors.map((flavor) => [flavor, 0]),
+  ) as Record<BulkFlavor, number>;
+}
 
 const recipeProductIds = new Set(["petcakes", "cupcakes", "cake-pops", "dognuts"]);
 
@@ -137,10 +153,10 @@ const products: CuisineProduct[] = [
     image: "/cuisine/products/guaurricookies-transparent.png",
     imageAlt: "Galletas Guaurricookies horneadas para mascotas",
     options: [
-      { label: "300 g", price: 150 },
-      { label: "400 g", price: 225 },
-      { label: "500 g", price: 300 },
-      { label: "1 kg", price: 600 },
+      { label: "300 g", price: 150, grams: 300 },
+      { label: "400 g", price: 225, grams: 400 },
+      { label: "500 g", price: 300, grams: 500 },
+      { label: "1 kg", price: 600, grams: 1000 },
     ],
     detail:
       "Sabores disponibles: cacahuate con tocino, pollo con calabaza, pollo con zanahoria y manzana con plátano.",
@@ -430,6 +446,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     useState<ChilaquiProtein | null>(null);
   const [chilaquiSalsa, setChilaquiSalsa] =
     useState<ChilaquiSalsa | null>(null);
+  const [bulkFlavorGrams, setBulkFlavorGrams] = useState<
+    Record<BulkFlavor, number>
+  >(createEmptyBulkDistribution);
   const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
 
@@ -459,13 +478,45 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setPetProtein(null);
     setChilaquiProtein(null);
     setChilaquiSalsa(null);
+    setBulkFlavorGrams(createEmptyBulkDistribution());
     setNotice("");
+  };
+
+  const adjustBulkFlavor = (
+    flavor: BulkFlavor,
+    change: -100 | 100,
+    targetGrams: number,
+  ) => {
+    setBulkFlavorGrams((current) => {
+      const assignedGrams = Object.values(current).reduce(
+        (total, grams) => total + grams,
+        0,
+      );
+      const nextFlavorGrams = current[flavor] + change;
+
+      if (nextFlavorGrams < 0 || assignedGrams + change > targetGrams) {
+        return current;
+      }
+
+      return { ...current, [flavor]: nextFlavorGrams };
+    });
   };
 
   const addToCart = () => {
     if (!selectedProduct) return;
 
     setCartCount((count) => count + 1);
+    if (selectedProduct.id === "guaurricookies") {
+      const distribution = bulkFlavors
+        .filter((flavor) => bulkFlavorGrams[flavor] > 0)
+        .map((flavor) => `${bulkFlavorGrams[flavor]} g de ${flavor.toLocaleLowerCase("es")}`)
+        .join(", ");
+      setNotice(
+        `${selectedProduct.name} ${selectedProduct.options[selectedOption].label}: ${distribution}. Se agregó al carrito.`,
+      );
+      return;
+    }
+
     if (selectedProduct.id === "chilaquidogs") {
       const size = selectedProduct.options[selectedOption].label;
       setNotice(
@@ -479,6 +530,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";
+    const isBulkCookies = selectedProduct.id === "guaurricookies";
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
     const usesDecorationPersonalization = recipeProductIds.has(selectedProduct.id);
@@ -489,17 +541,30 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const currentProductImage = currentOption.image ?? selectedProduct.image;
     const currentProductImageAlt =
       currentOption.imageAlt ?? selectedProduct.imageAlt;
+    const bulkTargetGrams = isBulkCookies ? (currentOption.grams ?? 0) : 0;
+    const bulkAssignedGrams = Object.values(bulkFlavorGrams).reduce(
+      (total, grams) => total + grams,
+      0,
+    );
+    const bulkRemainingGrams = bulkTargetGrams - bulkAssignedGrams;
+    const bulkDistributionSummary = bulkFlavors
+      .filter((flavor) => bulkFlavorGrams[flavor] > 0)
+      .map((flavor) => `${bulkFlavorGrams[flavor]} g ${flavor.toLocaleLowerCase("es")}`)
+      .join(" · ");
     const needsChoice = selectedProduct.customizable && customize === null;
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
     const needsPetcakeFinish = isPetcake && petcakeFinish === null;
     const needsChilaquiConfiguration =
       isChilaquidogs && (chilaquiProtein === null || chilaquiSalsa === null);
+    const needsBulkDistribution =
+      isBulkCookies && bulkAssignedGrams !== bulkTargetGrams;
     const canAdd =
       !needsChoice &&
       !needsRecipeConfiguration &&
       !needsPetcakeFinish &&
-      !needsChilaquiConfiguration;
+      !needsChilaquiConfiguration &&
+      !needsBulkDistribution;
 
     return (
       <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
@@ -647,7 +712,12 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       <button
                         key={`${option.label}-${option.price}`}
                         type="button"
-                        onClick={() => setSelectedOption(index)}
+                        onClick={() => {
+                          setSelectedOption(index);
+                          if (isBulkCookies) {
+                            setBulkFlavorGrams(createEmptyBulkDistribution());
+                          }
+                        }}
                         className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left font-interface text-xs transition ${
                           selectedOption === index
                             ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
@@ -674,6 +744,119 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     ))}
                   </div>
                 </fieldset>
+
+                {isBulkCookies && (
+                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Distribuye tus sabores
+                        </p>
+                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                          Suma o resta porciones de 100 g hasta completar tu presentación.
+                        </p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] ${
+                          bulkRemainingGrams === 0
+                            ? "bg-[#e3f1e7] text-[#456a4e]"
+                            : "bg-[#dceef0] text-[#425b8c]"
+                        }`}
+                        aria-live="polite"
+                      >
+                        {bulkAssignedGrams} / {bulkTargetGrams} g
+                      </span>
+                    </div>
+
+                    <div
+                      className="mt-4 h-2 overflow-hidden rounded-full bg-[#dce4e9]"
+                      role="progressbar"
+                      aria-label="Gramos distribuidos"
+                      aria-valuemin={0}
+                      aria-valuemax={bulkTargetGrams}
+                      aria-valuenow={bulkAssignedGrams}
+                    >
+                      <span
+                        className={`block h-full rounded-full transition-[width] duration-300 ${
+                          bulkRemainingGrams === 0
+                            ? "bg-[#6f9a78]"
+                            : "bg-[#5e96a5]"
+                        }`}
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (bulkAssignedGrams / bulkTargetGrams) * 100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {bulkFlavors.map((flavor) => {
+                        const grams = bulkFlavorGrams[flavor];
+                        return (
+                          <div
+                            key={flavor}
+                            className={`flex items-center justify-between gap-3 rounded-xl border p-3 transition ${
+                              grams > 0
+                                ? "border-[#7c9cab] bg-white shadow-[2px_2px_0_#d0e2e6]"
+                                : "border-[#d1d9df] bg-white/75"
+                            }`}
+                          >
+                            <div className="min-w-0">
+                              <p className="font-interface text-[10px] font-bold leading-4 text-[#53627a]">
+                                {flavor}
+                              </p>
+                              <p className="mt-0.5 font-interface text-[10px] text-[#718093]">
+                                {grams === 0 ? "Sin asignar" : `${grams} g asignados`}
+                              </p>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  adjustBulkFlavor(flavor, -100, bulkTargetGrams)
+                                }
+                                disabled={grams === 0}
+                                aria-label={`Restar 100 gramos de ${flavor}`}
+                                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b9c8d8] bg-white font-interface text-lg font-bold text-[#425b8c] transition hover:border-[#5e96a5] disabled:cursor-not-allowed disabled:opacity-30"
+                              >
+                                −
+                              </button>
+                              <span className="min-w-12 text-center font-interface text-[11px] font-bold text-[#263650]">
+                                {grams} g
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  adjustBulkFlavor(flavor, 100, bulkTargetGrams)
+                                }
+                                disabled={bulkRemainingGrams < 100}
+                                aria-label={`Agregar 100 gramos de ${flavor}`}
+                                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#5e96a5] bg-[#e8f2f4] font-interface text-lg font-bold text-[#263650] transition hover:bg-[#d6eaee] disabled:cursor-not-allowed disabled:opacity-30"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <p
+                      className={`mt-4 font-interface text-[10px] font-semibold ${
+                        bulkRemainingGrams === 0
+                          ? "text-[#456a4e]"
+                          : "text-[#718093]"
+                      }`}
+                      aria-live="polite"
+                    >
+                      {bulkRemainingGrams === 0
+                        ? "✓ Distribución completa"
+                        : `Faltan ${bulkRemainingGrams} g por asignar.`}
+                    </p>
+                  </div>
+                )}
 
                 {isChilaquidogs && (
                   <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
@@ -816,6 +999,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 <p className="font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
                   {isPetcake
                     ? `${petcakeSizes[petcakeSize]} · ${petcakeFinish ?? "elige acabado"}`
+                    : isBulkCookies
+                      ? `${currentOption.label} · ${
+                          bulkDistributionSummary || "distribuye los sabores"
+                        }`
                     : isChilaquidogs
                       ? `${currentOption.label} · ${chilaquiProtein ?? "elige proteína"} · ${
                           chilaquiSalsa
@@ -840,7 +1027,11 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
             {!canAdd && (
               <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
-                {needsChilaquiConfiguration
+                {needsBulkDistribution
+                  ? bulkAssignedGrams === 0
+                    ? `Distribuye los ${bulkTargetGrams} g entre uno o varios sabores.`
+                    : `Faltan ${bulkRemainingGrams} g por asignar antes de agregarlo.`
+                  : needsChilaquiConfiguration
                   ? "Selecciona la proteína y la salsa para agregar sus ChilaquiDogs."
                   : needsPetcakeFinish || needsRecipeConfiguration
                   ? isPetcake
