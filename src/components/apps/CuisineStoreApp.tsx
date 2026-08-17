@@ -85,6 +85,7 @@ function formatBulkWeight(grams: number) {
 }
 
 const recipeProductIds = new Set(["petcakes", "cupcakes", "cake-pops", "dognuts"]);
+const nonFoodProductIds = new Set(["gorrito", "velitas", "pancarta"]);
 
 const MAX_INSPIRATION_PHOTOS = 5;
 const MAX_INSPIRATION_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -169,7 +170,8 @@ const products: CuisineProduct[] = [
     name: "Guaurricookies",
     eyebrow: "Premios horneados",
     category: "snacks",
-    description: "Elige uno o varios sabores en presentación a granel.",
+    description:
+      "El clásico de Cuisine: galletitas de harina de avena, horneadas sin azúcar y mezcladas a su gusto.",
     image: "/cuisine/products/guaurricookies-transparent.png",
     imageAlt: "Galletas Guaurricookies horneadas para mascotas",
     options: [
@@ -179,7 +181,7 @@ const products: CuisineProduct[] = [
       { label: "1 kg", price: 600, grams: 1000 },
     ],
     detail:
-      "Sabores disponibles: cacahuate con tocino, pollo con calabaza, pollo con zanahoria y manzana con plátano.",
+      "Para lomitos. Elige de 300 g a 10 kg, siempre en pasos de 100 g, y reparte el total entre uno o varios sabores: cacahuate con tocino; pollo con calabaza y coco rallado; pollo con zanahoria y cúrcuma; o manzana con plátano.",
     imageTone: "#eef4f5",
   },
   {
@@ -187,7 +189,8 @@ const products: CuisineProduct[] = [
     name: "Happy Bag",
     eyebrow: "Guaurricookies",
     category: "snacks",
-    description: "Bolsita de 100 g para probar sabores o llevar un detalle.",
+    description:
+      "Una probadita del recetario Guaurritas: 100 g de Guaurricookies horneadas para premiar o llevar un detalle.",
     image: "/cuisine/products/happy-bag-flavors-v6/peanut-bacon.webp",
     imageAlt: "Bolsa de treats horneados Guaurritas",
     options: [
@@ -217,7 +220,7 @@ const products: CuisineProduct[] = [
       },
     ],
     detail:
-      "Premios horneados pensados para consentir en el día a día. Elige un sabor por cada Happy Bag.",
+      "Elige un sabor por bolsa: cacahuate con tocino; pollo con zanahoria y cúrcuma; pollo con calabaza y coco rallado; o manzana con plátano. Se preparan con harina de avena y sin azúcar para lomitos.",
     badge: "Favorito",
     imageTone: "#f0e5ea",
     imageScale: 1.18,
@@ -227,7 +230,8 @@ const products: CuisineProduct[] = [
     name: "Sazonadores",
     eyebrow: "Para elevar su bowl",
     category: "snacks",
-    description: "Más sabor e intención para el plato de todos los días.",
+    description:
+      "Un toque Cuisine sobre su alimento habitual para transformar el bowl sin cambiar toda su rutina.",
     image: "/cuisine/products/sazonadores-card-v3.webp",
     imageAlt: "Sazonadores Guaurritas de pollo y res",
     options: [
@@ -235,7 +239,7 @@ const products: CuisineProduct[] = [
       { label: "Pollo · 60 g", price: 119 },
     ],
     detail:
-      "Línea para perros y gatos disponible en sabor res o pollo. Contenido neto de 60 g.",
+      "Disponible para lomitos y michis en sabor res o pollo. Cada frasco contiene 60 g y se usa como complemento sobre su comida habitual, no como sustituto de su alimentación diaria.",
     badge: "Nuevo",
     imageTone: "#dce8ef",
   },
@@ -244,11 +248,13 @@ const products: CuisineProduct[] = [
     name: "GuaurriSticks",
     eyebrow: "Snack sin carnaza",
     category: "snacks",
-    description: "Sticks para perro, prácticos para premiar y consentir.",
+    description:
+      "El premio largo del Guaurriverse: práctico para consentir a su lomito y elaborado sin carnaza.",
     image: "/cuisine/products/sticks-card-v5.webp",
     imageAlt: "GuaurriSticks Guaurritas sin carnaza",
     options: [{ label: "Bolsa con 10 sticks", price: 79 }],
-    detail: "Snack para perros sin carnaza. Cada bolsita contiene 10 sticks.",
+    detail:
+      "Cada bolsita contiene 10 GuaurriSticks para perro. No son de carnaza: ofrécelos como premio ocasional y siempre bajo supervisión.",
     badge: "Nuevo",
     imageTone: "#e6edf5",
     imageScale: 1,
@@ -259,7 +265,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Pasteles pet",
     category: "petcakes",
     description:
-      "Elige tamaño, acabado, especie, proteína y decoración para su celebración.",
+      "El centro de su fiesta, hecho para su pancita y vestido para su momento más Guaurritas.",
     image: "/cuisine/products/petcakes-transparent.png",
     imageAlt: "Petcake grande decorado para una celebración",
     options: [
@@ -303,7 +309,7 @@ const products: CuisineProduct[] = [
       },
     ],
     detail:
-      "Cada receta se adapta a su especie. Configura primero la base del pastel y después cuéntanos cómo quieres personalizarlo.",
+      "Su base se prepara con harina de avena e ingredientes naturales. El betún es a base de papa; el fondant pet se elabora con leche deslactosada, ingredientes naturales y probióticos. Elige tamaño, acabado, lomito o michi, proteína y decoración; después puedes enviarnos hasta 5 fotos de inspiración.",
     customizable: true,
     badge: "Personalizable",
     imageTone: "#dceef0",
@@ -313,7 +319,8 @@ const products: CuisineProduct[] = [
     name: "Cupcakes",
     eyebrow: "Repostería pet",
     category: "bakery",
-    description: "Un detalle pequeño para cumpleaños y mesas dulces.",
+    description:
+      "Una mini celebración horneada para que lomitos y michis también tengan su momento Cuisine.",
     image: "/cuisine/products/cupcakes-card-v4.webp",
     imageAlt: "Cupcake decorado para mascotas",
     options: [
@@ -321,7 +328,7 @@ const products: CuisineProduct[] = [
       { label: "Caja de 4", price: 150 },
     ],
     detail:
-      "Proteínas para lomitos: pollo, res o mixto. Para michis: atún, pollo o hígado.",
+      "Se preparan con harina de avena e ingredientes naturales. Puedes pedir uno o una caja de 4, elegir lomito o michi y seleccionar su proteína: pollo, res o mixto para lomitos; atún, pollo o hígado para michis.",
     customizable: true,
     imageTone: "#f3e0e6",
     imageScale: 1.15,
@@ -331,12 +338,13 @@ const products: CuisineProduct[] = [
     name: "Cake Pops",
     eyebrow: "Repostería pet",
     category: "bakery",
-    description: "Un par de bocaditos para regalar o completar su mesa dulce.",
+    description:
+      "Dos bocaditos de fiesta para sumar color, proteína y espíritu Guaurritas a su mesa dulce.",
     image: "/cuisine/products/cake-pops-card-v4.webp",
     imageAlt: "Tres Cake Pops decorados para mascotas",
     options: [{ label: "Pareja", price: 40 }],
     detail:
-      "Proteínas para lomitos: pollo, res o mixto. Para michis: atún, pollo o hígado.",
+      "La presentación incluye 2 Cake Pops elaborados con harina de avena, ingredientes naturales y fondant especial para mascotas. Elige lomito o michi y su proteína: pollo, res o mixto; o atún, pollo o hígado, respectivamente.",
     customizable: true,
     imageTone: "#f5e3e8",
     imageScale: 1.18,
@@ -346,7 +354,8 @@ const products: CuisineProduct[] = [
     name: "Dognuts",
     eyebrow: "Repostería pet",
     category: "bakery",
-    description: "Donitas coloridas para regalar o montar una celebración.",
+    description:
+      "Donitas horneadas, coloridas y listas para convertir cualquier festejo en capítulo del Guaurriverse.",
     image: "/cuisine/products/dognuts-card-v7.webp",
     imageAlt: "Cuatro Dognuts decoradas como caritas de lomitos",
     options: [
@@ -354,7 +363,7 @@ const products: CuisineProduct[] = [
       { label: "Pack de 4", price: 140 },
     ],
     detail:
-      "Disponibles para lomitos y michis con la proteína apropiada para cada especie.",
+      "Hechas con harina de avena, ingredientes naturales y fondant especial para mascotas. Elige pack de 3 o 4, lomito o michi y la proteína correspondiente: pollo, res o mixto; o atún, pollo o hígado.",
     customizable: true,
     imageTone: "#e8e0f0",
   },
@@ -363,12 +372,13 @@ const products: CuisineProduct[] = [
     name: "Perrundas",
     eyebrow: "Repostería pet",
     category: "bakery",
-    description: "Premios de arroz, proteína de res y complemento de verduras.",
+    description:
+      "La corunda se volvió Perrunda: un antojito Cuisine de arroz, res y verduras para lomitos.",
     image: "/cuisine/products/perrundas-card-v4.webp",
     imageAlt: "Perrundas envueltas y presentadas sobre una charola",
     options: [{ label: "Pack de 4", price: 80 }],
     detail:
-      "Una presentación de cuatro piezas para sumar a una celebración o disfrutar como premio complementario.",
+      "Cada pedido incluye 4 piezas elaboradas con base de arroz, proteína de res y verduras. Son ideales para compartir durante una celebración o repartir como premios ocasionales.",
     imageTone: "#e5efe8",
     imageScale: 1.15,
   },
@@ -377,14 +387,16 @@ const products: CuisineProduct[] = [
     name: "ChilaquiDogs",
     eyebrow: "Antojería pet",
     category: "antojitos",
-    description: "Chilaquiles pet estilo Guaurritas para lomitos.",
+    description:
+      "El desayuno más mexicano entró a Cuisine: ChilaquiDogs para lomitos, con totopos de avena y salsa de verduras.",
     image: "/cuisine/products/chilaquidogs-card-v4.webp",
     imageAlt: "ChilaquiDogs servido en una cajita",
     options: [
       { label: "Petit", price: 65 },
       { label: "Grande", price: 85 },
     ],
-    detail: "Elige proteína de res o pollo y salsa roja o verde.",
+    detail:
+      "Los totopos se preparan con harina de avena. Elige proteína de res o pollo y salsa roja de zanahoria con manzana, o verde de calabaza con manzana. La receta incorpora probióticos y está disponible en tamaño Petit o Grande.",
     imageTone: "#edf1f5",
     imageScale: 1.18,
   },
@@ -393,12 +405,13 @@ const products: CuisineProduct[] = [
     name: "Pizzet",
     eyebrow: "Antojería pet",
     category: "antojitos",
-    description: "Pizza individual pet con proteína de res.",
+    description:
+      "Una pizza que sí pertenece a su menú: pequeña, horneada y hecha especialmente para lomitos.",
     image: "/cuisine/products/pizzet-card-v4.webp",
     imageAlt: "Pizzet individual para mascota dentro de una caja",
     options: [{ label: "Individual", price: 60 }],
     detail:
-      "Antojito especial pensado como premio complementario para lomitos.",
+      "La Pizzet individual se prepara con harina de avena, zanahoria, manzana y carne de res. Es un antojito para perro pensado como premio complementario, no como reemplazo de su comida habitual.",
     imageTone: "#eee6dc",
     imageScale: 1.18,
   },
@@ -407,7 +420,8 @@ const products: CuisineProduct[] = [
     name: "Happy Box",
     eyebrow: "Regalo & celebración",
     category: "birthday",
-    description: "Cajita surtida de premios Guaurritas más juguete.",
+    description:
+      "Una caja sorpresa del Guaurriverse con premios surtidos y un juguete para regalar sin improvisar.",
     image: "/cuisine/products/happy-box-card-v3.webp",
     imageAlt: "Caja de regalo Happy Box de Guaurritas",
     options: [
@@ -415,7 +429,7 @@ const products: CuisineProduct[] = [
       { label: "Happy Box Deluxe", price: 210 },
     ],
     detail:
-      "Ideal para regalo, cumpleaños pequeño o para probar una selección de premios.",
+      "Elige Happy Box o Happy Box Deluxe. Ambas reúnen una selección surtida de premios Guaurritas más un juguete; el contenido puede variar según disponibilidad y puedes contarnos para quién es al personalizar el pedido.",
     customizable: true,
     imageTone: "#e8eef1",
   },
@@ -424,11 +438,13 @@ const products: CuisineProduct[] = [
     name: "B’day gorrito",
     eyebrow: "Extra de celebración",
     category: "birthday",
-    description: "El toque de fiesta para completar su cumpleaños y sus fotos.",
+    description:
+      "El uniforme oficial de quien cumple años en el Guaurriverse: listo para la foto y el apapacho.",
     image: "/cuisine/products/gorrito-transparent.png",
     imageAlt: "Gorrito azul de cumpleaños para mascota",
     options: [{ label: "Gorrito", price: 50 }],
-    detail: "Accesorio de cumpleaños disponible como extra para tu pedido especial.",
+    detail:
+      "Incluye un gorrito de cumpleaños como extra decorativo. Colócalo solo durante la celebración y siempre con supervisión para que el festejado esté cómodo.",
     badge: "Nuevo",
     imageTone: "#dceef2",
   },
@@ -437,14 +453,16 @@ const products: CuisineProduct[] = [
     name: "Velitas",
     eyebrow: "Extra de celebración",
     category: "birthday",
-    description: "Una velita para cerrar el festejo como se merece.",
+    description:
+      "Porque toda vuelta al sol merece su número, su foto y su deseo dentro del Guaurriverse.",
     image: "/cuisine/products/velitas-transparent.png",
     imageAlt: "Velitas rosas de números para cumpleaños",
     options: [
       { label: "Velita chica", price: 10 },
       { label: "Velita grande", price: 40 },
     ],
-    detail: "Elige tamaño y confirma el número que necesitas al personalizar el pedido.",
+    detail:
+      "Elige velita chica o grande y escribe el número al personalizar. Es un elemento decorativo: mantenlo fuera del alcance de la mascota y retíralo del pastel antes de servir.",
     customizable: true,
     badge: "Nuevo",
     imageTone: "#f4e2ea",
@@ -454,11 +472,13 @@ const products: CuisineProduct[] = [
     name: "Pancarta",
     eyebrow: "Extra de celebración",
     category: "birthday",
-    description: "Banderines para vestir su mesa, sesión o rincón de cumpleaños.",
+    description:
+      "Banderines para declarar oficialmente que hoy su rincón pertenece al Guaurriverse.",
     image: "/cuisine/products/pancarta-card-v2.png",
     imageAlt: "Pancarta colorida de Happy Birthday",
     options: [{ label: "Pancarta", price: 80 }],
-    detail: "Pancarta decorativa para completar su celebración o pedido especial.",
+    detail:
+      "Incluye una pancarta decorativa de cumpleaños para vestir la mesa, la sesión de fotos o su rincón de celebración. No incluye pastel ni otros accesorios.",
     badge: "Nuevo",
     imageTone: "#f2e6db",
   },
@@ -532,6 +552,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       const matchesSearch =
         !normalizedQuery ||
         `${product.name} ${product.eyebrow} ${product.description}`
+          .concat(` ${product.detail}`)
           .toLocaleLowerCase("es")
           .includes(normalizedQuery);
 
@@ -733,6 +754,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const isPetcake = selectedProduct.id === "petcakes";
     const isBulkCookies = selectedProduct.id === "guaurricookies";
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
+    const isEdibleProduct = !nonFoodProductIds.has(selectedProduct.id);
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
     const usesDecorationPersonalization = recipeProductIds.has(selectedProduct.id);
     const petcakeFinishOffset = petcakeFinish === "fondant" ? 1 : 0;
@@ -854,9 +876,22 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
             <p className="mt-3 max-w-xl text-lg leading-7 text-[#53627a]">
               {selectedProduct.description}
             </p>
-            <p className="mt-4 font-interface text-sm leading-6 text-[#657287]">
-              {selectedProduct.detail}
-            </p>
+            <div className="mt-5 max-w-xl rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4">
+              <p className="font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5]">
+                Antes de pedir
+              </p>
+              <p className="mt-2 font-interface text-sm leading-6 text-[#657287]">
+                {selectedProduct.detail}
+              </p>
+              {isEdibleProduct && (
+                <p className="mt-3 border-t border-[#d7e0e5] pt-3 font-interface text-[10px] leading-5 text-[#718093]">
+                  <strong className="text-[#53627a]">Guía Cuisine:</strong>{" "}
+                  es un premio complementario y no sustituye su alimento diario.
+                  Si tu lomito o michi tiene alergias, intolerancias o una dieta
+                  indicada por su veterinario, consúltanos antes de pedir.
+                </p>
+              )}
+            </div>
 
             {isPetcake ? (
               <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
