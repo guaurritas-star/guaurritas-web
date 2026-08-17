@@ -19,6 +19,8 @@ type ProductOption = {
   grams?: number;
   image?: string;
   imageAlt?: string;
+  ingredients?: string[];
+  guaranteedAnalysis?: { label: string; value: string }[];
 };
 
 type PetcakeFinish = "betún" | "fondant";
@@ -231,15 +233,39 @@ const products: CuisineProduct[] = [
     eyebrow: "Para elevar su bowl",
     category: "snacks",
     description:
-      "Un toque Cuisine sobre su alimento habitual para transformar el bowl sin cambiar toda su rutina.",
+      "Proteína deshidratada, cereales y verduras para complementar su alimento habitual con más aroma, sabor y variedad.",
     image: "/cuisine/products/sazonadores-card-v3.webp",
     imageAlt: "Sazonadores Guaurritas de pollo y res",
     options: [
-      { label: "Res · 60 g", price: 119 },
-      { label: "Pollo · 60 g", price: 119 },
+      {
+        label: "Res · 60 g",
+        price: 119,
+        ingredients: [
+          "Res deshidratada",
+          "Camote",
+          "Avena",
+          "Arroz inflado",
+          "Betabel",
+          "Zanahoria",
+          "Calabaza",
+          "Nopal",
+        ],
+      },
+      {
+        label: "Pollo · 60 g",
+        price: 119,
+        ingredients: [
+          "Pollo deshidratado",
+          "Calabaza",
+          "Avena",
+          "Zanahoria",
+          "Amaranto",
+          "Nopal",
+        ],
+      },
     ],
     detail:
-      "Disponible para lomitos y michis en sabor res o pollo. Cada frasco contiene 60 g y se usa como complemento sobre su comida habitual, no como sustituto de su alimentación diaria.",
+      "Para lomitos y michis. Espolvorea una pequeña cantidad sobre su alimento habitual para sumar sabor y variedad. Cada frasco contiene 60 g; selecciona res o pollo para consultar su fórmula correspondiente.",
     badge: "Nuevo",
     imageTone: "#dce8ef",
   },
@@ -249,12 +275,40 @@ const products: CuisineProduct[] = [
     eyebrow: "Snack sin carnaza",
     category: "snacks",
     description:
-      "El premio largo del Guaurriverse: práctico para consentir a su lomito y elaborado sin carnaza.",
+      "Premios masticables sabor res para lomitos, elaborados sin carnaza y presentados en una práctica bolsita con 10 sticks.",
     image: "/cuisine/products/sticks-card-v5.webp",
     imageAlt: "GuaurriSticks Guaurritas sin carnaza",
-    options: [{ label: "Bolsa con 10 sticks", price: 79 }],
+    options: [
+      {
+        label: "Bolsa con 10 sticks",
+        price: 79,
+        ingredients: [
+          "Harina de maíz",
+          "Fibra de chícharo",
+          "Glicerina vegetal",
+          "Grenetina",
+          "Carbonato de calcio",
+          "Aceite vegetal",
+          "Carne de res",
+          "Dextrosa",
+          "Extracto de levadura",
+          "Ácido láctico",
+          "Caldo de pollo",
+          "Ácido sórbico como conservador",
+          "Colorantes naturales (anato y riboflavina)",
+        ],
+        guaranteedAnalysis: [
+          { label: "Proteína cruda", value: "15% mínimo" },
+          { label: "Grasa cruda", value: "1.5% mínimo" },
+          { label: "Fibra cruda", value: "5% máximo" },
+          { label: "Ceniza", value: "10% máximo" },
+          { label: "Humedad", value: "12% máximo" },
+          { label: "Extracto libre de nitrógeno (ELN)", value: "56.5%" },
+        ],
+      },
+    ],
     detail:
-      "Cada bolsita contiene 10 GuaurriSticks para perro. No son de carnaza: ofrécelos como premio ocasional y siempre bajo supervisión.",
+      "Los GuaurriSticks son una opción práctica para premiar, consentir o acompañar los paseos de tu lomito. Están elaborados sin carnaza y cuentan con una textura firme y duradera que genera fricción durante la masticación, ayudando a complementar su rutina de cuidado bucal mientras disfruta su sabor.",
     badge: "Nuevo",
     imageTone: "#e6edf5",
     imageScale: 1,
@@ -754,6 +808,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const isPetcake = selectedProduct.id === "petcakes";
     const isBulkCookies = selectedProduct.id === "guaurricookies";
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
+    const isSticks = selectedProduct.id === "sticks";
     const isEdibleProduct = !nonFoodProductIds.has(selectedProduct.id);
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
     const usesDecorationPersonalization = recipeProductIds.has(selectedProduct.id);
@@ -883,7 +938,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               <p className="mt-2 font-interface text-sm leading-6 text-[#657287]">
                 {selectedProduct.detail}
               </p>
-              {isEdibleProduct && (
+              {isEdibleProduct && !isSticks && (
                 <p className="mt-3 border-t border-[#d7e0e5] pt-3 font-interface text-[10px] leading-5 text-[#718093]">
                   <strong className="text-[#53627a]">Guía Cuisine:</strong>{" "}
                   es un premio complementario y no sustituye su alimento diario.
@@ -1158,6 +1213,51 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   </div>
                 </fieldset>
                 )}
+
+                {!isBulkCookies &&
+                  (currentOption.ingredients?.length ||
+                    currentOption.guaranteedAnalysis?.length) && (
+                    <section
+                      key={currentOption.label}
+                      className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f8fbfc] p-4 sm:p-5"
+                      aria-live="polite"
+                    >
+                      <div>
+                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Ingredientes
+                        </p>
+                        <p className="mt-1 font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                          {currentOption.label}
+                        </p>
+                        <p className="mt-3 font-interface text-sm leading-6 text-[#657287]">
+                          {currentOption.ingredients?.join(", ")}.
+                        </p>
+                      </div>
+
+                      {!!currentOption.guaranteedAnalysis?.length && (
+                        <div className="mt-5 border-t border-[#d7e0e5] pt-5">
+                          <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                            Análisis garantizado
+                          </p>
+                          <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                            {currentOption.guaranteedAnalysis.map((item) => (
+                              <div
+                                key={item.label}
+                                className="flex items-center justify-between gap-4 rounded-xl border border-[#d1dce1] bg-white px-3 py-2.5"
+                              >
+                                <dt className="font-interface text-[10px] font-semibold leading-4 text-[#657287]">
+                                  {item.label}
+                                </dt>
+                                <dd className="shrink-0 font-interface text-[10px] font-bold text-[#263650]">
+                                  {item.value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      )}
+                    </section>
+                  )}
 
                 {isBulkCookies && (
                   <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
