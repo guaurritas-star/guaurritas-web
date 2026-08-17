@@ -66,11 +66,22 @@ const bulkFlavors = [
 ] as const;
 
 type BulkFlavor = (typeof bulkFlavors)[number];
+type BulkUnit = "g" | "kg";
 
 function createEmptyBulkDistribution(): Record<BulkFlavor, number> {
   return Object.fromEntries(
     bulkFlavors.map((flavor) => [flavor, 0]),
   ) as Record<BulkFlavor, number>;
+}
+
+function formatBulkWeight(grams: number) {
+  if (grams >= 1000) {
+    return `${new Intl.NumberFormat("es-MX", {
+      maximumFractionDigits: 1,
+    }).format(grams / 1000)} kg`;
+  }
+
+  return `${grams} g`;
 }
 
 const recipeProductIds = new Set(["petcakes", "cupcakes", "cake-pops", "dognuts"]);
@@ -153,8 +164,8 @@ const products: CuisineProduct[] = [
     image: "/cuisine/products/guaurricookies-transparent.png",
     imageAlt: "Galletas Guaurricookies horneadas para mascotas",
     options: [
-      { label: "300 g", price: 150, grams: 300 },
-      { label: "400 g", price: 225, grams: 400 },
+      { label: "300 g", price: 180, grams: 300 },
+      { label: "400 g", price: 240, grams: 400 },
       { label: "500 g", price: 300, grams: 500 },
       { label: "1 kg", price: 600, grams: 1000 },
     ],
@@ -449,6 +460,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [bulkFlavorGrams, setBulkFlavorGrams] = useState<
     Record<BulkFlavor, number>
   >(createEmptyBulkDistribution);
+  const [bulkUnit, setBulkUnit] = useState<BulkUnit>("g");
+  const [bulkQuantityInput, setBulkQuantityInput] = useState("300");
   const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
 
@@ -479,7 +492,44 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setChilaquiProtein(null);
     setChilaquiSalsa(null);
     setBulkFlavorGrams(createEmptyBulkDistribution());
+    setBulkUnit("g");
+    setBulkQuantityInput("300");
     setNotice("");
+  };
+
+  const selectBulkUnit = (nextUnit: BulkUnit) => {
+    const numericValue = Number(bulkQuantityInput);
+    const currentGrams = Number.isFinite(numericValue)
+      ? bulkUnit === "kg"
+        ? numericValue * 1000
+        : numericValue
+      : 300;
+    const safeGrams = Math.max(300, Math.round(currentGrams / 100) * 100);
+
+    setBulkUnit(nextUnit);
+    setBulkQuantityInput(
+      nextUnit === "kg"
+        ? String(Number((safeGrams / 1000).toFixed(1)))
+        : String(safeGrams),
+    );
+  };
+
+  const setBulkQuantity = (grams: number) => {
+    setBulkQuantityInput(
+      bulkUnit === "kg"
+        ? String(Number((grams / 1000).toFixed(1)))
+        : String(grams),
+    );
+  };
+
+  const changeBulkFlavorInput = (flavor: BulkFlavor, value: string) => {
+    const numericValue = Number(value);
+    setBulkFlavorGrams((current) => ({
+      ...current,
+      [flavor]: value === "" || !Number.isFinite(numericValue)
+        ? 0
+        : Math.max(0, numericValue),
+    }));
   };
 
   const adjustBulkFlavor = (
@@ -507,12 +557,28 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
     setCartCount((count) => count + 1);
     if (selectedProduct.id === "guaurricookies") {
+      const quantityValue = Number(bulkQuantityInput);
+      const totalGrams = Math.round(
+        bulkUnit === "kg" ? quantityValue * 1000 : quantityValue,
+      );
       const distribution = bulkFlavors
         .filter((flavor) => bulkFlavorGrams[flavor] > 0)
         .map((flavor) => `${bulkFlavorGrams[flavor]} g de ${flavor.toLocaleLowerCase("es")}`)
         .join(", ");
+
+      if (totalGrams >= 5000) {
+        setNotice(
+          `Solicitud de mayoreo por ${formatBulkWeight(totalGrams)}: ${distribution}. La cantidad y el precio quedan pendientes de confirmación.`,
+        );
+        return;
+      }
+
+      const discountRate = totalGrams >= 2000 ? 0.05 : 0;
+      const calculatedPrice = Math.round(
+        totalGrams * 0.6 * (1 - discountRate),
+      );
       setNotice(
-        `${selectedProduct.name} ${selectedProduct.options[selectedOption].label}: ${distribution}. Se agregó al carrito.`,
+        `${selectedProduct.name} ${formatBulkWeight(totalGrams)} por ${money(calculatedPrice)}: ${distribution}. Se agregó al carrito.`,
       );
       return;
     }
@@ -541,16 +607,44 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const currentProductImage = currentOption.image ?? selectedProduct.image;
     const currentProductImageAlt =
       currentOption.imageAlt ?? selectedProduct.imageAlt;
-    const bulkTargetGrams = isBulkCookies ? (currentOption.grams ?? 0) : 0;
+    const bulkNumericInput = Number(bulkQuantityInput);
+    const bulkEnteredGrams =
+      isBulkCookies && bulkQuantityInput.trim() !== "" && Number.isFinite(bulkNumericInput)
+        ? bulkUnit === "kg"
+          ? Math.round(bulkNumericInput * 1000)
+          : Math.round(bulkNumericInput)
+        : 0;
+    const bulkQuantityIsValid =
+      isBulkCookies &&
+      bulkEnteredGrams >= 300 &&
+      bulkEnteredGrams <= 10000 &&
+      bulkEnteredGrams % 100 === 0;
+    const bulkTargetGrams = bulkQuantityIsValid ? bulkEnteredGrams : 0;
+    const isBulkWholesaleQuote = bulkQuantityIsValid && bulkTargetGrams >= 5000;
+    const bulkBasePrice = bulkTargetGrams * 0.6;
+    const bulkDiscountRate =
+      bulkQuantityIsValid && !isBulkWholesaleQuote && bulkTargetGrams >= 2000
+        ? 0.05
+        : 0;
+    const bulkPrice = Math.round(bulkBasePrice * (1 - bulkDiscountRate));
+    const bulkSavings = Math.round(bulkBasePrice - bulkPrice);
     const bulkAssignedGrams = Object.values(bulkFlavorGrams).reduce(
       (total, grams) => total + grams,
       0,
     );
     const bulkRemainingGrams = bulkTargetGrams - bulkAssignedGrams;
+    const bulkFlavorIncrementsAreValid = Object.values(bulkFlavorGrams).every(
+      (grams) => Number.isInteger(grams) && grams >= 0 && grams % 100 === 0,
+    );
     const bulkDistributionSummary = bulkFlavors
       .filter((flavor) => bulkFlavorGrams[flavor] > 0)
       .map((flavor) => `${bulkFlavorGrams[flavor]} g ${flavor.toLocaleLowerCase("es")}`)
       .join(" · ");
+    const bulkDistributionIsComplete =
+      isBulkCookies &&
+      bulkQuantityIsValid &&
+      bulkFlavorIncrementsAreValid &&
+      bulkAssignedGrams === bulkTargetGrams;
     const needsChoice = selectedProduct.customizable && customize === null;
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
@@ -558,7 +652,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const needsChilaquiConfiguration =
       isChilaquidogs && (chilaquiProtein === null || chilaquiSalsa === null);
     const needsBulkDistribution =
-      isBulkCookies && bulkAssignedGrams !== bulkTargetGrams;
+      isBulkCookies &&
+      (!bulkQuantityIsValid ||
+        !bulkFlavorIncrementsAreValid ||
+        bulkAssignedGrams !== bulkTargetGrams);
     const canAdd =
       !needsChoice &&
       !needsRecipeConfiguration &&
@@ -703,6 +800,152 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               </div>
             ) : (
               <>
+                {isBulkCookies ? (
+                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          ¿Cuánto necesitas?
+                        </p>
+                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                          Mínimo 300 g · cantidades de 100 g en 100 g.
+                        </p>
+                      </div>
+                      {bulkDiscountRate > 0 && (
+                        <span className="shrink-0 rounded-full bg-[#e3f1e7] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#456a4e]">
+                          5% menos
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
+                      <div className="flex rounded-xl border border-[#b9c8d8] bg-white p-1">
+                        {(["g", "kg"] as const).map((unit) => (
+                          <button
+                            key={unit}
+                            type="button"
+                            aria-pressed={bulkUnit === unit}
+                            onClick={() => selectBulkUnit(unit)}
+                            className={`min-w-12 rounded-lg px-3 py-2 font-interface text-[10px] font-bold uppercase transition ${
+                              bulkUnit === unit
+                                ? "bg-[#263650] text-white"
+                                : "text-[#657287] hover:bg-[#edf3f5]"
+                            }`}
+                          >
+                            {unit}
+                          </button>
+                        ))}
+                      </div>
+
+                      <label className="relative min-w-0">
+                        <span className="sr-only">Cantidad total en {bulkUnit}</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          min={bulkUnit === "kg" ? 0.3 : 300}
+                          max={bulkUnit === "kg" ? 10 : 10000}
+                          step={bulkUnit === "kg" ? 0.1 : 100}
+                          value={bulkQuantityInput}
+                          onChange={(event) =>
+                            setBulkQuantityInput(event.target.value)
+                          }
+                          aria-invalid={!bulkQuantityIsValid}
+                          aria-describedby="bulk-quantity-help"
+                          className={`h-full min-h-12 w-full rounded-xl border bg-white px-4 pr-12 font-interface text-base font-bold text-[#263650] outline-none transition ${
+                            bulkQuantityIsValid
+                              ? "border-[#7c9cab] focus:border-[#425b8c]"
+                              : "border-[#b96d72] focus:border-[#9f5860]"
+                          }`}
+                        />
+                        <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center font-interface text-[10px] font-bold uppercase text-[#718093]">
+                          {bulkUnit}
+                        </span>
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setBulkQuantity(Math.max(300, bulkTargetGrams - 100))
+                        }
+                        disabled={!bulkQuantityIsValid || bulkTargetGrams <= 300}
+                        aria-label="Restar 100 gramos a la cantidad total"
+                        className="flex min-h-12 items-center justify-center rounded-xl border border-[#b9c8d8] bg-white px-4 font-interface text-lg font-bold text-[#425b8c] disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        −
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBulkQuantity(bulkTargetGrams + 100)}
+                        disabled={!bulkQuantityIsValid || bulkTargetGrams >= 10000}
+                        aria-label="Agregar 100 gramos a la cantidad total"
+                        className="flex min-h-12 items-center justify-center rounded-xl border border-[#5e96a5] bg-[#e8f2f4] px-4 font-interface text-lg font-bold text-[#263650] disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <p
+                      id="bulk-quantity-help"
+                      className={`mt-2 font-interface text-[10px] ${
+                        bulkQuantityIsValid
+                          ? "text-[#718093]"
+                          : "font-semibold text-[#9f5860]"
+                      }`}
+                    >
+                      {bulkQuantityIsValid
+                        ? `${formatBulkWeight(bulkTargetGrams)} seleccionados.`
+                        : "Ingresa entre 300 g y 10 kg en múltiplos de 100 g."}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {[300, 500, 1000, 2000].map((grams) => (
+                        <button
+                          key={grams}
+                          type="button"
+                          onClick={() => setBulkQuantity(grams)}
+                          className={`rounded-full border px-3 py-2 font-interface text-[10px] font-bold transition ${
+                            bulkTargetGrams === grams
+                              ? "border-[#425b8c] bg-[#e5edf4] text-[#263650]"
+                              : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                          }`}
+                        >
+                          {formatBulkWeight(grams)}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-3">
+                      <div>
+                        <p className="font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#718093]">
+                          {isBulkWholesaleQuote
+                            ? "Pedido de mayoreo"
+                            : "Precio calculado"}
+                        </p>
+                        <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
+                          {!bulkQuantityIsValid
+                            ? "—"
+                            : isBulkWholesaleQuote
+                              ? "Por cotizar"
+                              : money(bulkPrice)}
+                        </p>
+                      </div>
+                      <div className="text-right font-interface text-[10px] leading-4 text-[#718093]">
+                        {isBulkWholesaleQuote ? (
+                          <p>Desde 5 kg confirmamos precio y producción.</p>
+                        ) : bulkDiscountRate > 0 ? (
+                          <>
+                            <p className="line-through">Antes {money(bulkBasePrice)}</p>
+                            <p className="font-bold text-[#456a4e]">
+                              Ahorras {money(bulkSavings)}
+                            </p>
+                          </>
+                        ) : (
+                          <p>$60 por cada 100 g</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                 <fieldset className="mt-7">
                   <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                     Elige una presentación
@@ -744,6 +987,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     ))}
                   </div>
                 </fieldset>
+                )}
 
                 {isBulkCookies && (
                   <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
@@ -758,13 +1002,13 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       </div>
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] ${
-                          bulkRemainingGrams === 0
+                          bulkDistributionIsComplete
                             ? "bg-[#e3f1e7] text-[#456a4e]"
                             : "bg-[#dceef0] text-[#425b8c]"
                         }`}
                         aria-live="polite"
                       >
-                        {bulkAssignedGrams} / {bulkTargetGrams} g
+                        {bulkAssignedGrams} / {bulkQuantityIsValid ? bulkTargetGrams : "—"} g
                       </span>
                     </div>
 
@@ -778,15 +1022,17 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     >
                       <span
                         className={`block h-full rounded-full transition-[width] duration-300 ${
-                          bulkRemainingGrams === 0
+                          bulkDistributionIsComplete
                             ? "bg-[#6f9a78]"
                             : "bg-[#5e96a5]"
                         }`}
                         style={{
-                          width: `${Math.min(
-                            100,
-                            (bulkAssignedGrams / bulkTargetGrams) * 100,
-                          )}%`,
+                          width: bulkQuantityIsValid
+                            ? `${Math.min(
+                                100,
+                                (bulkAssignedGrams / bulkTargetGrams) * 100,
+                              )}%`
+                            : "0%",
                         }}
                       />
                     </div>
@@ -817,21 +1063,50 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                                 onClick={() =>
                                   adjustBulkFlavor(flavor, -100, bulkTargetGrams)
                                 }
-                                disabled={grams === 0}
+                                disabled={!bulkQuantityIsValid || grams < 100}
                                 aria-label={`Restar 100 gramos de ${flavor}`}
                                 className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b9c8d8] bg-white font-interface text-lg font-bold text-[#425b8c] transition hover:border-[#5e96a5] disabled:cursor-not-allowed disabled:opacity-30"
                               >
                                 −
                               </button>
-                              <span className="min-w-12 text-center font-interface text-[11px] font-bold text-[#263650]">
-                                {grams} g
-                              </span>
+                              <label className="relative">
+                                <span className="sr-only">
+                                  Gramos de {flavor}
+                                </span>
+                                <input
+                                  type="number"
+                                  inputMode="numeric"
+                                  min={0}
+                                  max={bulkQuantityIsValid ? bulkTargetGrams : 10000}
+                                  step={100}
+                                  value={grams}
+                                  onChange={(event) =>
+                                    changeBulkFlavorInput(
+                                      flavor,
+                                      event.target.value,
+                                    )
+                                  }
+                                  aria-invalid={
+                                    !Number.isInteger(grams) || grams % 100 !== 0
+                                  }
+                                  className={`h-9 w-[4.75rem] rounded-lg border bg-white px-2 pr-5 text-center font-interface text-[11px] font-bold text-[#263650] outline-none ${
+                                    Number.isInteger(grams) && grams % 100 === 0
+                                      ? "border-[#b9c8d8] focus:border-[#5e96a5]"
+                                      : "border-[#b96d72] focus:border-[#9f5860]"
+                                  }`}
+                                />
+                                <span className="pointer-events-none absolute inset-y-0 right-1.5 flex items-center font-interface text-[8px] font-bold text-[#718093]">
+                                  g
+                                </span>
+                              </label>
                               <button
                                 type="button"
                                 onClick={() =>
                                   adjustBulkFlavor(flavor, 100, bulkTargetGrams)
                                 }
-                                disabled={bulkRemainingGrams < 100}
+                                disabled={
+                                  !bulkQuantityIsValid || bulkRemainingGrams < 100
+                                }
                                 aria-label={`Agregar 100 gramos de ${flavor}`}
                                 className="flex h-9 w-9 items-center justify-center rounded-full border border-[#5e96a5] bg-[#e8f2f4] font-interface text-lg font-bold text-[#263650] transition hover:bg-[#d6eaee] disabled:cursor-not-allowed disabled:opacity-30"
                               >
@@ -845,15 +1120,23 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
                     <p
                       className={`mt-4 font-interface text-[10px] font-semibold ${
-                        bulkRemainingGrams === 0
+                        bulkDistributionIsComplete
                           ? "text-[#456a4e]"
-                          : "text-[#718093]"
+                          : bulkRemainingGrams < 0 || !bulkFlavorIncrementsAreValid
+                            ? "text-[#9f5860]"
+                            : "text-[#718093]"
                       }`}
                       aria-live="polite"
                     >
-                      {bulkRemainingGrams === 0
-                        ? "✓ Distribución completa"
-                        : `Faltan ${bulkRemainingGrams} g por asignar.`}
+                      {!bulkQuantityIsValid
+                        ? "Primero ingresa una cantidad total válida."
+                        : !bulkFlavorIncrementsAreValid
+                          ? "Cada sabor debe escribirse en múltiplos de 100 g."
+                          : bulkRemainingGrams < 0
+                            ? `Reduce ${Math.abs(bulkRemainingGrams)} g para coincidir con el total.`
+                            : bulkRemainingGrams === 0
+                              ? "✓ Distribución completa"
+                              : `Faltan ${bulkRemainingGrams} g por asignar.`}
                     </p>
                   </div>
                 )}
@@ -1000,7 +1283,11 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   {isPetcake
                     ? `${petcakeSizes[petcakeSize]} · ${petcakeFinish ?? "elige acabado"}`
                     : isBulkCookies
-                      ? `${currentOption.label} · ${
+                      ? `${
+                          bulkQuantityIsValid
+                            ? formatBulkWeight(bulkTargetGrams)
+                            : "cantidad pendiente"
+                        } · ${
                           bulkDistributionSummary || "distribuye los sabores"
                         }`
                     : isChilaquidogs
@@ -1012,7 +1299,15 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     : currentOption.label}
                 </p>
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
-                  {isPetcake && petcakeFinish === null ? "Selecciona el acabado" : money(currentOption.price)}
+                  {isBulkCookies
+                    ? !bulkQuantityIsValid
+                      ? "Ingresa una cantidad válida"
+                      : isBulkWholesaleQuote
+                        ? "Cotización de mayoreo"
+                        : money(bulkPrice)
+                    : isPetcake && petcakeFinish === null
+                      ? "Selecciona el acabado"
+                      : money(currentOption.price)}
                 </p>
               </div>
               <button
@@ -1021,16 +1316,24 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 disabled={!canAdd}
                 className="border-2 border-[#263650] bg-[#263650] px-6 py-3.5 font-interface text-xs font-bold uppercase tracking-[0.12em] text-white shadow-[3px_3px_0_#77aab6] transition hover:-translate-y-0.5 hover:bg-[#425b8c] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
               >
-                Agregar al carrito
+                {isBulkWholesaleQuote
+                  ? "Solicitar cotización"
+                  : "Agregar al carrito"}
               </button>
             </div>
 
             {!canAdd && (
               <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
                 {needsBulkDistribution
-                  ? bulkAssignedGrams === 0
-                    ? `Distribuye los ${bulkTargetGrams} g entre uno o varios sabores.`
-                    : `Faltan ${bulkRemainingGrams} g por asignar antes de agregarlo.`
+                  ? !bulkQuantityIsValid
+                    ? "Ingresa una cantidad entre 300 g y 10 kg en múltiplos de 100 g."
+                    : !bulkFlavorIncrementsAreValid
+                      ? "Escribe los gramos de cada sabor en múltiplos de 100 g."
+                      : bulkRemainingGrams < 0
+                        ? `Reduce ${Math.abs(bulkRemainingGrams)} g de la distribución.`
+                        : bulkAssignedGrams === 0
+                          ? `Distribuye los ${bulkTargetGrams} g entre uno o varios sabores.`
+                          : `Faltan ${bulkRemainingGrams} g por asignar antes de continuar.`
                   : needsChilaquiConfiguration
                   ? "Selecciona la proteína y la salsa para agregar sus ChilaquiDogs."
                   : needsPetcakeFinish || needsRecipeConfiguration
