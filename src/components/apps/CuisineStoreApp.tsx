@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type CategoryId =
   | "all"
@@ -85,6 +85,15 @@ function formatBulkWeight(grams: number) {
 }
 
 const recipeProductIds = new Set(["petcakes", "cupcakes", "cake-pops", "dognuts"]);
+
+const MAX_INSPIRATION_PHOTOS = 5;
+const MAX_INSPIRATION_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_INSPIRATION_TOTAL_BYTES = 20 * 1024 * 1024;
+const inspirationPhotoTypes = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 function PetRecipeFields({
   petType,
@@ -462,8 +471,27 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   >(createEmptyBulkDistribution);
   const [bulkUnit, setBulkUnit] = useState<BulkUnit>("g");
   const [bulkQuantityInput, setBulkQuantityInput] = useState("300");
+  const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
+  const [inspirationFeedback, setInspirationFeedback] = useState("");
+  const [inspirationInputKey, setInspirationInputKey] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
+
+  const inspirationPreviews = useMemo(
+    () =>
+      inspirationPhotos.map((file) => ({
+        file,
+        url: URL.createObjectURL(file),
+      })),
+    [inspirationPhotos],
+  );
+
+  useEffect(
+    () => () => {
+      inspirationPreviews.forEach(({ url }) => URL.revokeObjectURL(url));
+    },
+    [inspirationPreviews],
+  );
 
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
@@ -494,7 +522,76 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setBulkFlavorGrams(createEmptyBulkDistribution());
     setBulkUnit("g");
     setBulkQuantityInput("300");
+    setInspirationPhotos([]);
+    setInspirationFeedback("");
+    setInspirationInputKey((key) => key + 1);
     setNotice("");
+  };
+
+  const selectInspirationPhotos = (files: FileList | null) => {
+    if (!files?.length) return;
+
+    const existingSignatures = new Set(
+      inspirationPhotos.map(
+        (file) => `${file.name}-${file.size}-${file.lastModified}`,
+      ),
+    );
+    const accepted: File[] = [];
+    let totalBytes = inspirationPhotos.reduce(
+      (total, file) => total + file.size,
+      0,
+    );
+    let rejectedByFormat = 0;
+    let rejectedBySize = 0;
+    let rejectedByTotal = 0;
+    let rejectedAsDuplicate = 0;
+    let rejectedByLimit = 0;
+
+    Array.from(files).forEach((file) => {
+      const signature = `${file.name}-${file.size}-${file.lastModified}`;
+
+      if (inspirationPhotos.length + accepted.length >= MAX_INSPIRATION_PHOTOS) {
+        rejectedByLimit += 1;
+      } else if (!inspirationPhotoTypes.has(file.type)) {
+        rejectedByFormat += 1;
+      } else if (file.size > MAX_INSPIRATION_PHOTO_BYTES) {
+        rejectedBySize += 1;
+      } else if (existingSignatures.has(signature)) {
+        rejectedAsDuplicate += 1;
+      } else if (totalBytes + file.size > MAX_INSPIRATION_TOTAL_BYTES) {
+        rejectedByTotal += 1;
+      } else {
+        accepted.push(file);
+        existingSignatures.add(signature);
+        totalBytes += file.size;
+      }
+    });
+
+    if (accepted.length) {
+      setInspirationPhotos((current) => [...current, ...accepted]);
+    }
+
+    const messages: string[] = [];
+    if (accepted.length) {
+      messages.push(
+        `${accepted.length} ${accepted.length === 1 ? "foto agregada" : "fotos agregadas"}`,
+      );
+    }
+    if (rejectedByLimit) messages.push("límite de 5 fotos alcanzado");
+    if (rejectedByFormat) messages.push("usa solo JPEG, PNG o WebP");
+    if (rejectedBySize) messages.push("cada foto debe pesar máximo 5 MB");
+    if (rejectedByTotal) messages.push("las fotos no deben superar 20 MB en total");
+    if (rejectedAsDuplicate) messages.push("omitimos fotos repetidas");
+
+    setInspirationFeedback(messages.join(" · "));
+    setInspirationInputKey((key) => key + 1);
+  };
+
+  const removeInspirationPhoto = (index: number) => {
+    setInspirationPhotos((current) =>
+      current.filter((_, photoIndex) => photoIndex !== index),
+    );
+    setInspirationFeedback("Foto eliminada. Puedes agregar otra si lo necesitas.");
   };
 
   const selectBulkUnit = (nextUnit: BulkUnit) => {
@@ -591,7 +688,15 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    setNotice(`${selectedProduct.name} se agregó al carrito.`);
+    const inspirationSuffix =
+      customize === "yes" && inspirationPhotos.length > 0
+        ? ` con ${inspirationPhotos.length} ${
+            inspirationPhotos.length === 1
+              ? "foto de inspiración"
+              : "fotos de inspiración"
+          }`
+        : "";
+    setNotice(`${selectedProduct.name}${inspirationSuffix} se agregó al carrito.`);
   };
 
   if (selectedProduct) {
@@ -1272,6 +1377,96 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                         placeholder="Cuéntanos tu idea"
                       />
                     </label>
+
+                    <div className="mt-2 rounded-xl border border-[#e1bcc3] bg-white/80 p-3 sm:col-span-2 sm:p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-interface text-[11px] font-bold text-[#53627a]">
+                            Fotos de inspiración
+                            <span className="ml-1 font-normal text-[#8a6a72]">
+                              (opcional)
+                            </span>
+                          </p>
+                          <p
+                            id="inspiration-photo-help"
+                            className="mt-1 font-interface text-[9px] leading-4 text-[#718093]"
+                          >
+                            Hasta 5 fotos · JPEG, PNG o WebP · máximo 5 MB por
+                            foto y 20 MB en total.
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-[#f5e4e8] px-2.5 py-1 font-interface text-[9px] font-bold text-[#7a5660]">
+                          {inspirationPhotos.length}/{MAX_INSPIRATION_PHOTOS}
+                        </span>
+                      </div>
+
+                      {inspirationPreviews.length > 0 && (
+                        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                          {inspirationPreviews.map(({ file, url }, index) => (
+                            <div
+                              key={`${file.name}-${file.size}-${file.lastModified}`}
+                              className="group relative aspect-square overflow-hidden rounded-lg border border-[#d2a5ad] bg-[#f8eef0]"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={url}
+                                alt={`Inspiración ${index + 1}: ${file.name}`}
+                                className="h-full w-full object-contain"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeInspirationPhoto(index)}
+                                aria-label={`Quitar foto de inspiración ${index + 1}`}
+                                className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/80 bg-[#263650]/90 font-interface text-sm font-bold text-white shadow-sm transition hover:bg-[#9f5860]"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <input
+                        key={inspirationInputKey}
+                        id="inspiration-photos"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        disabled={
+                          inspirationPhotos.length >= MAX_INSPIRATION_PHOTOS
+                        }
+                        aria-describedby="inspiration-photo-help inspiration-photo-feedback"
+                        onChange={(event) =>
+                          selectInspirationPhotos(event.target.files)
+                        }
+                        className="sr-only"
+                      />
+                      <label
+                        htmlFor="inspiration-photos"
+                        aria-disabled={
+                          inspirationPhotos.length >= MAX_INSPIRATION_PHOTOS
+                        }
+                        className={`mt-3 flex min-h-11 items-center justify-center rounded-lg border border-dashed px-4 py-2.5 font-interface text-[10px] font-bold uppercase tracking-[0.08em] transition ${
+                          inspirationPhotos.length >= MAX_INSPIRATION_PHOTOS
+                            ? "cursor-not-allowed border-[#d9cbd0] bg-[#f3edef] text-[#a48d94]"
+                            : "cursor-pointer border-[#a66271] bg-white text-[#7a4c57] hover:bg-[#fcf2f4]"
+                        }`}
+                      >
+                        {inspirationPhotos.length >= MAX_INSPIRATION_PHOTOS
+                          ? "Límite de 5 fotos alcanzado"
+                          : inspirationPhotos.length === 0
+                            ? "+ Agregar fotos de inspiración"
+                            : "+ Agregar otra foto"}
+                      </label>
+
+                      <p
+                        id="inspiration-photo-feedback"
+                        role="status"
+                        className="mt-2 min-h-4 font-interface text-[9px] leading-4 text-[#7a5660]"
+                      >
+                        {inspirationFeedback}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
