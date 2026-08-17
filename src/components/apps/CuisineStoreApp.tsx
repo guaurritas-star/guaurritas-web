@@ -317,7 +317,7 @@ const products: CuisineProduct[] = [
     eyebrow: "Repostería pet",
     category: "bakery",
     description: "Donitas coloridas para regalar o montar una celebración.",
-    image: "/cuisine/products/dognuts-card-v5.jpeg",
+    image: "/cuisine/products/dognuts-card-v6.png",
     imageAlt: "Cuatro Dognuts decoradas como caritas de lomitos",
     options: [
       { label: "Pack de 3", price: 105 },
