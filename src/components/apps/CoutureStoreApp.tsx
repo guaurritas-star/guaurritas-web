@@ -257,7 +257,10 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
               </span>
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2" aria-label="Vistas del producto">
+            <div
+              className="mt-3 grid grid-cols-2 gap-2 lg:hidden"
+              aria-label="Vistas del producto"
+            >
               {(["product", "worn"] as const).map((mode) => {
                 const active = mode === viewMode;
                 return (
@@ -342,6 +345,43 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
             <p className="mt-4 font-brand text-base leading-7 text-[#76636e]">
               {collection.detail}
             </p>
+
+            <div className="mt-7 hidden lg:block">
+              <p className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
+                Vista del producto
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2" aria-label="Vistas del producto">
+                {(["product", "worn"] as const).map((mode) => {
+                  const active = mode === viewMode;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setViewMode(mode)}
+                      aria-pressed={active}
+                      className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition ${
+                        active
+                          ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
+                          : "border-[#ddcfd6] bg-white text-[#76636e] hover:border-[#a77d91]"
+                      }`}
+                    >
+                      <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
+                        <Image
+                          src={mode === "product" ? color.productImage : color.wornImage}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-contain"
+                        />
+                      </span>
+                      <span className="font-interface text-[10px] font-bold uppercase tracking-[0.08em]">
+                        {mode === "product" ? "Producto" : "Puesta en lomito"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <fieldset className="mt-7 hidden lg:block">
               <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
