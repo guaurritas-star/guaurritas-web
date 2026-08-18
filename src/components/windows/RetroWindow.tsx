@@ -135,7 +135,7 @@ export default function RetroWindow({
             className="truncate font-mono text-sm font-bold"
           >
             {icon && (
-              <span aria-hidden="true" className="mr-1 inline-flex align-middle">
+              <span aria-hidden="true" className="mr-1 inline-flex h-5 w-5 shrink-0 overflow-hidden align-middle">
                 {icon}
               </span>
             )}
