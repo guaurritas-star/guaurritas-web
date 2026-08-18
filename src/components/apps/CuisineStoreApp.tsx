@@ -13,6 +13,11 @@ type CategoryId =
 
 type ProductCategory = Exclude<CategoryId, "all">;
 
+type GuaranteedAnalysisItem = {
+  label: string;
+  value: string;
+};
+
 type ProductOption = {
   label: string;
   price: number;
@@ -20,7 +25,7 @@ type ProductOption = {
   image?: string;
   imageAlt?: string;
   ingredients?: string[];
-  guaranteedAnalysis?: { label: string; value: string }[];
+  guaranteedAnalysis?: GuaranteedAnalysisItem[];
 };
 
 type PetcakeFinish = "betún" | "fondant";
@@ -69,6 +74,40 @@ const bulkFlavors = [
 
 type BulkFlavor = (typeof bulkFlavors)[number];
 type BulkUnit = "g" | "kg";
+
+const cookieFlavorAnalyses: Record<
+  BulkFlavor,
+  GuaranteedAnalysisItem[]
+> = {
+  "Cacahuate con tocino": [
+    { label: "Proteína", value: "18.6%" },
+    { label: "Grasas", value: "21.8%" },
+    { label: "Humedad", value: "0.5%" },
+    { label: "Cenizas", value: "2%" },
+    { label: "Fibra", value: "2%" },
+  ],
+  "Pollo con calabaza": [
+    { label: "Proteína", value: "19.7%" },
+    { label: "Grasas", value: "12%" },
+    { label: "Humedad", value: "0.8%" },
+    { label: "Cenizas", value: "2%" },
+    { label: "Fibra", value: "2.2%" },
+  ],
+  "Pollo con zanahoria": [
+    { label: "Proteína", value: "19.2%" },
+    { label: "Grasas", value: "15.7%" },
+    { label: "Humedad", value: "0.8%" },
+    { label: "Cenizas", value: "1.8%" },
+    { label: "Fibra", value: "2.4%" },
+  ],
+  "Manzana con plátano": [
+    { label: "Proteína", value: "15.8%" },
+    { label: "Grasas", value: "10.9%" },
+    { label: "Humedad", value: "1%" },
+    { label: "Cenizas", value: "1.7%" },
+    { label: "Fibra", value: "2.4%" },
+  ],
+};
 
 function createEmptyBulkDistribution(): Record<BulkFlavor, number> {
   return Object.fromEntries(
@@ -201,24 +240,28 @@ const products: CuisineProduct[] = [
         price: 85,
         image: "/cuisine/products/happy-bag-flavors-v6/peanut-bacon.webp",
         imageAlt: "Happy Bag sabor cacahuate con tocino",
+        guaranteedAnalysis: cookieFlavorAnalyses["Cacahuate con tocino"],
       },
       {
         label: "Pollo con zanahoria · 100 g",
         price: 85,
         image: "/cuisine/products/happy-bag-flavors-v6/chicken-carrot.webp",
         imageAlt: "Happy Bag sabor pollo con zanahoria",
+        guaranteedAnalysis: cookieFlavorAnalyses["Pollo con zanahoria"],
       },
       {
         label: "Pollo con calabaza · 100 g",
         price: 85,
         image: "/cuisine/products/happy-bag-flavors-v6/chicken-pumpkin.webp",
         imageAlt: "Happy Bag sabor pollo con calabaza",
+        guaranteedAnalysis: cookieFlavorAnalyses["Pollo con calabaza"],
       },
       {
         label: "Manzana con plátano · 100 g",
         price: 85,
         image: "/cuisine/products/happy-bag-flavors-v6/apple-banana.webp",
         imageAlt: "Happy Bag sabor manzana con plátano",
+        guaranteedAnalysis: cookieFlavorAnalyses["Manzana con plátano"],
       },
     ],
     detail:
@@ -1238,23 +1281,36 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f8fbfc] p-4 sm:p-5"
                       aria-live="polite"
                     >
-                      <div>
-                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                          Ingredientes
-                        </p>
-                        <p className="mt-1 font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
-                          {currentOption.label}
-                        </p>
-                        <p className="mt-3 font-interface text-sm leading-6 text-[#657287]">
-                          {currentOption.ingredients?.join(", ")}.
-                        </p>
-                      </div>
+                      {!!currentOption.ingredients?.length && (
+                        <div>
+                          <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                            Ingredientes
+                          </p>
+                          <p className="mt-1 font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                            {currentOption.label}
+                          </p>
+                          <p className="mt-3 font-interface text-sm leading-6 text-[#657287]">
+                            {currentOption.ingredients.join(", ")}.
+                          </p>
+                        </div>
+                      )}
 
                       {!!currentOption.guaranteedAnalysis?.length && (
-                        <div className="mt-5 border-t border-[#d7e0e5] pt-5">
+                        <div
+                          className={
+                            currentOption.ingredients?.length
+                              ? "mt-5 border-t border-[#d7e0e5] pt-5"
+                              : ""
+                          }
+                        >
                           <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                             Análisis garantizado
                           </p>
+                          {!currentOption.ingredients?.length && (
+                            <p className="mt-1 font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                              {currentOption.label}
+                            </p>
+                          )}
                           <dl className="mt-3 grid gap-2 sm:grid-cols-2">
                             {currentOption.guaranteedAnalysis.map((item) => (
                               <div
@@ -1425,6 +1481,49 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                               : `Faltan ${bulkRemainingGrams} g por asignar.`}
                     </p>
                   </div>
+                )}
+
+                {isBulkCookies && (
+                  <section className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f8fbfc] p-4 sm:p-5">
+                    <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                      Análisis garantizado por sabor
+                    </p>
+                    <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                      Consulta los valores de cada receta incluida en tu mezcla.
+                    </p>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {bulkFlavors.map((flavor) => (
+                        <details
+                          key={flavor}
+                          className="group rounded-xl border border-[#d1dce1] bg-white p-3 open:shadow-[2px_2px_0_#d0e2e6]"
+                        >
+                          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-interface text-[10px] font-bold text-[#53627a] marker:content-none">
+                            <span>{flavor}</span>
+                            <span
+                              aria-hidden="true"
+                              className="text-base text-[#5e96a5] transition-transform group-open:rotate-45"
+                            >
+                              +
+                            </span>
+                          </summary>
+                          <dl className="mt-3 grid gap-1.5 border-t border-[#e0e6ea] pt-3">
+                            {cookieFlavorAnalyses[flavor].map((item) => (
+                              <div
+                                key={item.label}
+                                className="flex items-center justify-between gap-4 font-interface text-[10px]"
+                              >
+                                <dt className="text-[#718093]">{item.label}</dt>
+                                <dd className="font-bold text-[#263650]">
+                                  {item.value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </details>
+                      ))}
+                    </div>
+                  </section>
                 )}
 
                 {isChilaquidogs && (
