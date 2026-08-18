@@ -241,8 +241,8 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-12">
-          <div className="lg:sticky lg:top-20 lg:self-start">
-            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white">
+          <div className="lg:sticky lg:top-24 lg:z-10 lg:self-start">
+            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white lg:max-h-[min(46rem,calc(100dvh-11rem))]">
               <Image
                 key={galleryImage}
                 src={galleryImage}
