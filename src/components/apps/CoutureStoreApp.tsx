@@ -212,7 +212,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
                   }`}
                 >
-                  <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f2e9ed] sm:h-28 sm:w-full">
+                  <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white sm:h-28 sm:w-full">
                     <Image
                       src={item.colors[0].productImage}
                       alt=""
@@ -242,7 +242,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-12">
           <div className="lg:sticky lg:top-20 lg:self-start">
-            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-[#f4ebef]">
+            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white">
               <Image
                 key={galleryImage}
                 src={galleryImage}
@@ -272,7 +272,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                         : "border-[#ddcfd6] bg-white text-[#76636e] hover:border-[#a77d91]"
                     }`}
                   >
-                    <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[#f4ebef]">
+                    <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white">
                       <Image
                         src={mode === "product" ? color.productImage : color.wornImage}
                         alt=""
@@ -288,6 +288,42 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                 );
               })}
             </div>
+
+            <fieldset className="mt-4 lg:hidden">
+              <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
+                2. Color: <span className="text-[#a05d7d]">{color.name}</span>
+              </legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {collection.colors.map((item) => {
+                  const active = item.id === color.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setColorId(item.id);
+                        setViewMode("product");
+                        setNotice("");
+                      }}
+                      aria-pressed={active}
+                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-[10px] font-bold transition ${
+                        active
+                          ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
+                          : "border-[#d8c9d0] bg-white text-[#71606a] hover:border-[#a77d91]"
+                      }`}
+                    >
+                      <span
+                        className="h-5 w-5 rounded-full border border-black/15 shadow-inner"
+                        style={{ background: item.swatch }}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
             <p className="mt-3 text-center font-interface text-[9px] uppercase tracking-[0.15em] text-[#8d7a84]">
               Fotografías de la colección Guaurritas Couture
             </p>
@@ -307,7 +343,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
               {collection.detail}
             </p>
 
-            <fieldset className="mt-7">
+            <fieldset className="mt-7 hidden lg:block">
               <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
                 2. Color: <span className="text-[#a05d7d]">{color.name}</span>
               </legend>

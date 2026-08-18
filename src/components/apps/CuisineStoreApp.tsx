@@ -990,7 +990,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
             <p className="mt-3 max-w-xl text-lg leading-7 text-[#53627a]">
               {selectedProduct.description}
             </p>
-            <div className="mt-5 max-w-xl rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4">
+            <div className="mt-5 hidden max-w-xl rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4 lg:block">
               <p className="font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5]">
                 Antes de pedir
               </p>
@@ -1084,6 +1084,44 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               </div>
             ) : (
               <>
+                {!isBulkCookies && (
+                  <div
+                    key={`${selectedProduct.id}-${currentOption.label}`}
+                    className="mt-6 flex items-center gap-3 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-3 lg:hidden"
+                    aria-live="polite"
+                  >
+                    <span
+                      className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[#d1dce1]"
+                      style={{ backgroundColor: selectedProduct.imageTone }}
+                    >
+                      <span
+                        className="absolute inset-0"
+                        style={{ transform: `scale(${selectedProduct.imageScale ?? 1})` }}
+                      >
+                        <Image
+                          src={currentProductImage}
+                          alt={currentProductImageAlt}
+                          fill
+                          unoptimized
+                          sizes="96px"
+                          className="object-contain p-2"
+                        />
+                      </span>
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#5e96a5]">
+                        Tu selección se ve así
+                      </span>
+                      <span className="mt-1 block font-interface text-xs font-bold leading-5 text-[#263650]">
+                        {currentOption.label}
+                      </span>
+                      <span className="mt-1 block font-interface text-[9px] leading-4 text-[#718093]">
+                        La imagen cambia al elegir otra presentación.
+                      </span>
+                    </span>
+                  </div>
+                )}
+
                 {isBulkCookies ? (
                   <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-4">
@@ -1253,14 +1291,20 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       >
                         <span className="flex min-w-0 items-center gap-2.5">
                           {option.image && (
-                            <span className="relative h-10 w-7 shrink-0 overflow-hidden rounded-md border border-[#d7dfe3] bg-white">
+                            <span
+                              className={`relative shrink-0 overflow-hidden rounded-lg border border-[#d7dfe3] bg-white transition-all ${
+                                selectedOption === index
+                                  ? "h-16 w-12"
+                                  : "h-10 w-7"
+                              }`}
+                            >
                               <Image
                                 src={option.image}
                                 alt=""
                                 fill
                                 unoptimized
-                                sizes="28px"
-                                className="object-contain"
+                                sizes={selectedOption === index ? "48px" : "28px"}
+                                className="object-contain p-0.5"
                               />
                             </span>
                           )}
@@ -1614,6 +1658,29 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                 )}
               </>
             )}
+
+            <details className="group mt-7 rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4 lg:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5] marker:content-none">
+                <span>Antes de pedir</span>
+                <span
+                  aria-hidden="true"
+                  className="text-base text-[#425b8c] transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 font-interface text-sm leading-6 text-[#657287]">
+                {selectedProduct.detail}
+              </p>
+              {isEdibleProduct && !isSticks && (
+                <p className="mt-3 border-t border-[#d7e0e5] pt-3 font-interface text-[10px] leading-5 text-[#718093]">
+                  <strong className="text-[#53627a]">Guía Cuisine:</strong>{" "}
+                  es un premio complementario y no sustituye su alimento diario.
+                  Si tu lomito o michi tiene alergias, intolerancias o una dieta
+                  indicada por su veterinario, consúltanos antes de pedir.
+                </p>
+              )}
+            </details>
 
             {selectedProduct.customizable && (
               <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5">
