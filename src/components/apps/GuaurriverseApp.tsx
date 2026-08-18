@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
+import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
 
 type WorldId =
   | "club"
@@ -199,6 +200,10 @@ export default function GuaurriverseApp() {
 
   if (selectedWorld?.id === "cuisine") {
     return <CuisineStoreApp onBack={showAllWorlds} />;
+  }
+
+  if (selectedWorld?.id === "couture") {
+    return <CoutureStoreApp onBack={showAllWorlds} />;
   }
 
   if (selectedWorld) {
