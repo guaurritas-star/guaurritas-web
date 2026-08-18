@@ -1,9 +1,9 @@
 {
   "name": "Guaurritas Web",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
-  "forwardPorts": [3000],
+  "forwardPorts": [3001],
   "portsAttributes": {
-    "3000": {
+    "3001": {
       "label": "Guaurritas",
       "onAutoForward": "openBrowser",
       "protocol": "http",
@@ -16,7 +16,7 @@
       "settings": {
         "task.allowAutomaticTasks": "on",
         "remote.portsAttributes": {
-          "3000": {
+          "3001": {
             "label": "Guaurritas",
             "onAutoForward": "openBrowser"
           }
