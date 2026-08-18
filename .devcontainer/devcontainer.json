@@ -14,7 +14,13 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "task.allowAutomaticTasks": "on"
+        "task.allowAutomaticTasks": "on",
+        "remote.portsAttributes": {
+          "3000": {
+            "label": "Guaurritas",
+            "onAutoForward": "openBrowser"
+          }
+        }
       }
     }
   }
