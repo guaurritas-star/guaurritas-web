@@ -950,9 +950,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
-          <div>
+          <div className="lg:sticky lg:top-24 lg:z-10 lg:self-start">
             <div
-              className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce]"
+              className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce] lg:max-h-[min(42rem,calc(100dvh-11rem))]"
               style={{ backgroundColor: selectedProduct.imageTone }}
             >
               <span
