@@ -950,9 +950,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
-          <div className="lg:sticky lg:top-24 lg:z-10 lg:self-start">
+          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[32rem] lg:justify-self-center lg:self-start">
             <div
-              className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce] lg:max-h-[min(42rem,calc(100dvh-11rem))]"
+              className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce] lg:max-h-[min(32rem,calc(100dvh-11rem))]"
               style={{ backgroundColor: selectedProduct.imageTone }}
             >
               <span
@@ -965,7 +965,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   fill
                   priority
                   unoptimized
-                  sizes="(max-width: 1024px) 90vw, 42vw"
+                  sizes="(max-width: 1024px) 90vw, 32rem"
                   className="object-contain p-7 sm:p-10"
                 />
               </span>

@@ -241,15 +241,15 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-12">
-          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[38rem] lg:justify-self-center lg:self-start">
-            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white lg:max-h-[min(38rem,calc(100dvh-11rem))]">
+          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[32rem] lg:justify-self-center lg:self-start">
+            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white lg:max-h-[min(32rem,calc(100dvh-11rem))]">
               <Image
                 key={galleryImage}
                 src={galleryImage}
                 alt={galleryAlt}
                 fill
                 priority
-                sizes="(max-width: 1024px) 92vw, 38rem"
+                sizes="(max-width: 1024px) 92vw, 32rem"
                 className="object-contain p-4 sm:p-7"
               />
               <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-[#42243a]/90 px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-white">
