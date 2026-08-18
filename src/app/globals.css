@@ -41,6 +41,184 @@ textarea {
   font-family: var(--font-open-sans), sans-serif;
 }
 
+.desktop-shortcut {
+  transition:
+    background-color 180ms ease,
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.desktop-shortcut:hover,
+.desktop-shortcut:focus-visible {
+  background: rgba(220, 228, 242, 0.72);
+  transform: translateY(-2px);
+}
+
+.desktop-shortcut-icon {
+  filter: drop-shadow(4px 5px 0 rgba(66, 91, 140, 0.22));
+  transition:
+    filter 220ms ease,
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.desktop-shortcut:hover .desktop-shortcut-icon,
+.desktop-shortcut:focus-visible .desktop-shortcut-icon {
+  filter:
+    drop-shadow(5px 7px 0 rgba(66, 91, 140, 0.28))
+    drop-shadow(0 0 9px rgba(166, 109, 136, 0.22));
+  transform: translateY(-4px) scale(1.04);
+}
+
+.retro-desktop-icon {
+  display: block;
+  height: 100%;
+  width: 100%;
+  overflow: visible;
+}
+
+.desktop-icon-shadow {
+  fill: rgba(66, 91, 140, 0.2);
+}
+
+.desktop-icon-shell,
+.desktop-icon-note-page,
+.desktop-icon-pet-card,
+.desktop-icon-cart-body,
+.desktop-icon-cart-bag,
+.desktop-icon-brush,
+.desktop-icon-paint-stroke,
+.desktop-icon-spark,
+.desktop-icon-pet-tag,
+.desktop-icon-note-clip,
+.desktop-icon-note-stamp,
+.desktop-icon-paint-dot,
+.desktop-icon-cart-wheels,
+.desktop-icon-world-orbit {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .desktop-shortcut:hover .desktop-icon-world-orbit,
+  .desktop-shortcut:focus-visible .desktop-icon-world-orbit {
+    animation: desktop-orbit 1.5s linear infinite;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-pet-card,
+  .desktop-shortcut:focus-visible .desktop-icon-pet-card {
+    animation: desktop-card-tilt 700ms ease-in-out both;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-pet-tag,
+  .desktop-shortcut:focus-visible .desktop-icon-pet-tag {
+    animation: desktop-tag-swing 700ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-brush,
+  .desktop-shortcut:focus-visible .desktop-icon-brush {
+    animation: desktop-brush-paint 850ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-paint-stroke,
+  .desktop-shortcut:focus-visible .desktop-icon-paint-stroke {
+    animation: desktop-stroke-pulse 850ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-note-page,
+  .desktop-shortcut:focus-visible .desktop-icon-note-page {
+    animation: desktop-page-flip 620ms ease-out both;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-note-stamp,
+  .desktop-shortcut:focus-visible .desktop-icon-note-stamp {
+    animation: desktop-stamp 650ms cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-cart-body,
+  .desktop-shortcut:focus-visible .desktop-icon-cart-body,
+  .desktop-shortcut:hover .desktop-icon-cart-bag,
+  .desktop-shortcut:focus-visible .desktop-icon-cart-bag {
+    animation: desktop-cart-roll 780ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-cart-wheels,
+  .desktop-shortcut:focus-visible .desktop-icon-cart-wheels {
+    animation: desktop-wheel-bounce 390ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-spark-one,
+  .desktop-shortcut:focus-visible .desktop-icon-spark-one {
+    animation: desktop-spark 750ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-spark-two,
+  .desktop-shortcut:focus-visible .desktop-icon-spark-two {
+    animation: desktop-spark 750ms ease-in-out 160ms infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-paint-dot-one,
+  .desktop-shortcut:focus-visible .desktop-icon-paint-dot-one,
+  .desktop-shortcut:hover .desktop-icon-paint-dot-two,
+  .desktop-shortcut:focus-visible .desktop-icon-paint-dot-two {
+    animation: desktop-dot-pop 650ms ease-in-out infinite alternate;
+  }
+}
+
+@keyframes desktop-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes desktop-card-tilt {
+  45% { transform: rotate(3deg) translateY(-2px); }
+  100% { transform: rotate(-1deg); }
+}
+
+@keyframes desktop-tag-swing {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(7deg) translateY(-2px); }
+}
+
+@keyframes desktop-brush-paint {
+  from { transform: rotate(-3deg) translate(-1px, 1px); }
+  to { transform: rotate(7deg) translate(2px, -3px); }
+}
+
+@keyframes desktop-stroke-pulse {
+  from { transform: scaleX(0.88); opacity: 0.78; }
+  to { transform: scaleX(1.04); opacity: 1; }
+}
+
+@keyframes desktop-page-flip {
+  0% { transform: rotateY(0); }
+  52% { transform: rotateY(-10deg) translateX(-2px); }
+  100% { transform: rotateY(0); }
+}
+
+@keyframes desktop-stamp {
+  0% { transform: translateY(-8px) rotate(-8deg) scale(1.08); }
+  55% { transform: translateY(2px) rotate(2deg) scale(0.94); }
+  100% { transform: translateY(0) rotate(0) scale(1); }
+}
+
+@keyframes desktop-cart-roll {
+  from { transform: translateX(-2px) rotate(-1deg); }
+  to { transform: translateX(4px) rotate(1deg); }
+}
+
+@keyframes desktop-wheel-bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(1.5px); }
+}
+
+@keyframes desktop-spark {
+  from { transform: rotate(0) scale(0.72); opacity: 0.55; }
+  to { transform: rotate(45deg) scale(1.12); opacity: 1; }
+}
+
+@keyframes desktop-dot-pop {
+  from { transform: scale(0.84); }
+  to { transform: scale(1.12); }
+}
+
 .world-card {
   border-color: color-mix(in srgb, var(--world-accent) 42%, #806f61 18%);
 }
@@ -173,6 +351,9 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .desktop-shortcut,
+  .desktop-shortcut-icon,
+  .desktop-shortcut *,
   .world-card,
   .world-card-overlay,
   .world-card-content,
@@ -180,6 +361,7 @@ textarea {
   .world-card-line,
   .world-card-subtitle,
   .world-card-cta {
+    animation: none !important;
     transition: none;
   }
 }

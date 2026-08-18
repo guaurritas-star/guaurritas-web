@@ -8,7 +8,7 @@ import type {
 
 type RetroWindowProps = {
   title: string;
-  icon?: string;
+  icon?: ReactNode;
   children: ReactNode;
   onClose: () => void;
   variant?: "default" | "wide";
@@ -134,7 +134,11 @@ export default function RetroWindow({
             id="retro-window-title"
             className="truncate font-mono text-sm font-bold"
           >
-            {icon && <span aria-hidden="true">{icon} </span>}
+            {icon && (
+              <span aria-hidden="true" className="mr-1 inline-flex align-middle">
+                {icon}
+              </span>
+            )}
             {title}.exe
           </p>
 

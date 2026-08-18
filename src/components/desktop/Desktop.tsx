@@ -3,14 +3,15 @@
 import { useState } from "react";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
+import RetroDesktopIcon from "@/components/desktop/RetroDesktopIcon";
 import RetroWindow from "@/components/windows/RetroWindow";
 
 const apps = [
-  { id: "mundos", name: "Explora mundo", icon: "🌎" },
-  { id: "mascota", name: "Mi mascota", icon: "🐶" },
-  { id: "paint", name: "Paint", icon: "🎨" },
-  { id: "notas", name: "Guaurrinotas", icon: "📝" },
-  { id: "carrito", name: "Carrito", icon: "🛒" },
+  { id: "mundos", name: "Explora mundo", icon: "world" as const },
+  { id: "mascota", name: "Mi mascota", icon: "pet" as const },
+  { id: "paint", name: "Paint", icon: "paint" as const },
+  { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
+  { id: "carrito", name: "Carrito", icon: "cart" as const },
 ];
 
 export default function Desktop() {
@@ -27,13 +28,13 @@ export default function Desktop() {
             type="button"
             onClick={() => setActiveApp(app.id)}
             onDoubleClick={() => setActiveApp(app.id)}
-            className="group flex w-28 flex-col items-center gap-2 rounded-md p-2 text-center hover:bg-[#dce4f2]"
+            className="desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2"
           >
-            <span className="flex h-16 w-16 items-center justify-center border-2 border-[#425b8c] bg-white text-3xl shadow-[4px_4px_0_#425b8c] transition-transform group-hover:-translate-y-1">
-              {app.icon}
+            <span className="desktop-shortcut-icon flex h-[5.5rem] w-[5.5rem] items-center justify-center">
+              <RetroDesktopIcon kind={app.icon} />
             </span>
 
-            <span className="bg-white/80 px-2 py-1 font-mono text-xs font-bold">
+            <span className="desktop-shortcut-label border border-transparent bg-white/85 px-2 py-1 font-interface text-xs font-bold tracking-[0.02em] shadow-[2px_2px_0_rgba(66,91,140,0.18)] transition-colors group-hover:border-[#425b8c] group-focus-visible:border-[#425b8c]">
               {app.name}
             </span>
           </button>
@@ -55,7 +56,7 @@ export default function Desktop() {
       {selectedApp && (
         <RetroWindow
           title={selectedApp.name}
-          icon={selectedApp.icon}
+          icon={<RetroDesktopIcon kind={selectedApp.icon} className="h-5 w-5" />}
           onClose={() => setActiveApp(null)}
           variant={selectedApp.id === "mundos" ? "wide" : "default"}
         >
@@ -82,7 +83,10 @@ export default function Desktop() {
           type="button"
           className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c]"
         >
-          🐶 Guaurritas.exe
+          <span className="flex items-center gap-2">
+            <RetroDesktopIcon kind="mark" className="h-5 w-5" />
+            Guaurritas.exe
+          </span>
         </button>
 
         <div className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs">
