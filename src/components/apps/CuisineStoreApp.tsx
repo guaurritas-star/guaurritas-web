@@ -950,23 +950,20 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
-          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[32rem] lg:justify-self-center lg:self-start">
+          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
             <div
-              className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce] lg:max-h-[min(32rem,calc(100dvh-11rem))]"
+              className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce]"
               style={{ backgroundColor: selectedProduct.imageTone }}
             >
-              <span
-                className="absolute inset-0"
-                style={{ transform: `scale(${selectedProduct.imageScale ?? 1})` }}
-              >
+              <span className="absolute inset-0">
                 <Image
                   src={currentProductImage}
                   alt={currentProductImageAlt}
                   fill
                   priority
                   unoptimized
-                  sizes="(max-width: 1024px) 90vw, 32rem"
-                  className="object-contain p-7 sm:p-10"
+                  sizes="(max-width: 1024px) 90vw, 28rem"
+                  className="object-contain p-7 sm:p-10 lg:p-12"
                 />
               </span>
               {selectedProduct.badge && (
