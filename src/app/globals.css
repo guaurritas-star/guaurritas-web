@@ -78,6 +78,12 @@ textarea {
   overflow: visible;
 }
 
+.desktop-icon-y2k {
+  display: block;
+  object-fit: contain;
+  transform-origin: center;
+}
+
 .desktop-icon-shadow {
   fill: rgba(66, 91, 140, 0.2);
 }
@@ -101,6 +107,31 @@ textarea {
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .desktop-shortcut:hover .desktop-icon-y2k-world,
+  .desktop-shortcut:focus-visible .desktop-icon-y2k-world {
+    animation: desktop-y2k-world 1.45s ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-y2k-pet,
+  .desktop-shortcut:focus-visible .desktop-icon-y2k-pet {
+    animation: desktop-y2k-pet 900ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-y2k-paint,
+  .desktop-shortcut:focus-visible .desktop-icon-y2k-paint {
+    animation: desktop-y2k-paint 820ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-y2k-notes,
+  .desktop-shortcut:focus-visible .desktop-icon-y2k-notes {
+    animation: desktop-y2k-notes 780ms ease-in-out infinite alternate;
+  }
+
+  .desktop-shortcut:hover .desktop-icon-y2k-cart,
+  .desktop-shortcut:focus-visible .desktop-icon-y2k-cart {
+    animation: desktop-y2k-cart 720ms ease-in-out infinite alternate;
+  }
+
   .desktop-shortcut:hover .desktop-icon-world-orbit,
   .desktop-shortcut:focus-visible .desktop-icon-world-orbit {
     animation: desktop-orbit 1.5s linear infinite;
@@ -164,6 +195,31 @@ textarea {
   .desktop-shortcut:focus-visible .desktop-icon-paint-dot-two {
     animation: desktop-dot-pop 650ms ease-in-out infinite alternate;
   }
+}
+
+@keyframes desktop-y2k-world {
+  from { transform: rotate(-4deg) translateY(1px) scale(0.98); }
+  to { transform: rotate(5deg) translateY(-3px) scale(1.04); }
+}
+
+@keyframes desktop-y2k-pet {
+  from { transform: rotate(-2deg) translateY(1px); }
+  to { transform: rotate(3deg) translateY(-4px) scale(1.04); }
+}
+
+@keyframes desktop-y2k-paint {
+  from { transform: rotate(-4deg) translate(-1px, 1px); }
+  to { transform: rotate(5deg) translate(2px, -4px) scale(1.03); }
+}
+
+@keyframes desktop-y2k-notes {
+  from { transform: rotate(-2deg) translateY(1px); }
+  to { transform: rotate(2deg) translateY(-5px) scale(1.03); }
+}
+
+@keyframes desktop-y2k-cart {
+  from { transform: translateX(-4px) rotate(-2deg); }
+  to { transform: translateX(6px) translateY(-2px) rotate(2deg); }
 }
 
 @keyframes desktop-orbit {
@@ -361,6 +417,7 @@ textarea {
 @media (prefers-reduced-motion: reduce) {
   .desktop-shortcut,
   .desktop-shortcut-icon,
+  .desktop-icon-y2k,
   .desktop-shortcut *,
   .world-card,
   .world-card-overlay,
