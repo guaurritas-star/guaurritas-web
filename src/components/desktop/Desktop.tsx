@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
@@ -24,19 +23,6 @@ function DesktopAppIcon({
   kind: AppIconKind;
   className?: string;
 }) {
-  if (kind === "world") {
-    return (
-      <Image
-        src="/icons/desktop/explora-mundo-y2k-3d.png"
-        alt=""
-        width={96}
-        height={96}
-        unoptimized
-        className={`desktop-icon-3d desktop-icon-3d-world object-contain ${className}`}
-      />
-    );
-  }
-
   return <RetroDesktopIcon kind={kind} className={className} />;
 }
 
