@@ -18,11 +18,11 @@ const apps = [
 type AppIconKind = (typeof apps)[number]["icon"];
 
 const desktopIconImages: Record<AppIconKind, string> = {
-  world: "/icons/desktop/world-y2k.png",
-  pet: "/icons/desktop/pet-y2k.png",
-  paint: "/icons/desktop/paint-y2k.png",
-  notes: "/icons/desktop/notes-y2k.png",
-  cart: "/icons/desktop/cart-y2k.png",
+  world: "/icons/desktop/world-y2k.webp",
+  pet: "/icons/desktop/pet-y2k.webp",
+  paint: "/icons/desktop/paint-y2k.webp",
+  notes: "/icons/desktop/notes-y2k.webp",
+  cart: "/icons/desktop/cart-y2k.webp",
 };
 
 function DesktopAppIcon({
