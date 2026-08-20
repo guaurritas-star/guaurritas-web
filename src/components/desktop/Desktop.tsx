@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
@@ -16,6 +17,14 @@ const apps = [
 
 type AppIconKind = (typeof apps)[number]["icon"];
 
+const desktopIconImages: Record<AppIconKind, string> = {
+  world: "/icons/desktop/world-y2k.png",
+  pet: "/icons/desktop/pet-y2k.png",
+  paint: "/icons/desktop/paint-y2k.png",
+  notes: "/icons/desktop/notes-y2k.png",
+  cart: "/icons/desktop/cart-y2k.png",
+};
+
 function DesktopAppIcon({
   kind,
   className = "",
@@ -23,7 +32,17 @@ function DesktopAppIcon({
   kind: AppIconKind;
   className?: string;
 }) {
-  return <RetroDesktopIcon kind={kind} className={className} />;
+  return (
+    <Image
+      src={desktopIconImages[kind]}
+      alt=""
+      aria-hidden="true"
+      width={96}
+      height={96}
+      unoptimized
+      className={`desktop-icon-y2k desktop-icon-y2k-${kind} object-contain ${className}`}
+    />
+  );
 }
 
 export default function Desktop() {
