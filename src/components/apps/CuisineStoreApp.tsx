@@ -213,7 +213,7 @@ const products: CuisineProduct[] = [
     category: "snacks",
     description:
       "El clásico de Cuisine: galletitas de harina de avena, horneadas sin azúcar y mezcladas a su gusto.",
-    image: "/cuisine/products/guaurricookies-transparent.png",
+    image: "/cuisine/products/guaurricookies-vitrolero.webp",
     imageAlt: "Galletas Guaurricookies horneadas para mascotas",
     options: [
       { label: "300 g", price: 180, grams: 300 },
