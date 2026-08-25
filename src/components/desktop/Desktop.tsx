@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
+import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import RetroDesktopIcon from "@/components/desktop/RetroDesktopIcon";
 import RetroWindow from "@/components/windows/RetroWindow";
 
@@ -50,6 +51,13 @@ export default function Desktop() {
 
   const selectedApp = apps.find((app) => app.id === activeApp);
 
+  const openCuisineFromPaint = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("world", "cuisine");
+    window.history.pushState({ world: "cuisine" }, "", url);
+    setActiveApp("mundos");
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f2f2f2] text-[#263650]">
       <section className="grid min-h-[calc(100vh-52px)] grid-cols-2 content-start gap-5 p-6 sm:grid-cols-3 lg:grid-cols-5">
@@ -89,10 +97,16 @@ export default function Desktop() {
           title={selectedApp.name}
           icon={<DesktopAppIcon kind={selectedApp.icon} className="h-full w-full" />}
           onClose={() => setActiveApp(null)}
-          variant={selectedApp.id === "mundos" ? "wide" : "default"}
+          variant={
+            selectedApp.id === "mundos" || selectedApp.id === "paint"
+              ? "wide"
+              : "default"
+          }
         >
           {selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
+          ) : selectedApp.id === "paint" ? (
+            <PaintStudioApp onOpenCuisine={openCuisineFromPaint} />
           ) : selectedApp.id === "notas" ? (
             <GuaurrinotasAuthGate />
           ) : (
