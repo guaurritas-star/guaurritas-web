@@ -23,7 +23,7 @@ const desktopIconImages: Record<AppIconKind, string> = {
   pet: "/icons/desktop/pet-food-bowl.webp",
   paint: "/icons/desktop/paint-y2k.webp",
   notes: "/icons/desktop/notes-y2k-closed.webp",
-  cart: "/icons/desktop/cart-y2k.webp",
+  cart: "/icons/desktop/cart-empty.webp",
 };
 
 function DesktopAppIcon({
@@ -109,6 +109,33 @@ function DesktopAppIcon({
           height={96}
           unoptimized
           className="desktop-pet-state desktop-pet-seasoning absolute inset-0 h-full w-full object-contain"
+        />
+      </span>
+    );
+  }
+
+  if (kind === "cart") {
+    return (
+      <span
+        aria-hidden="true"
+        className={`desktop-icon-y2k desktop-icon-y2k-cart relative block ${className}`}
+      >
+        <Image
+          src={desktopIconImages.cart}
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className="desktop-cart-state desktop-cart-empty absolute inset-0 h-full w-full object-contain"
+        />
+
+        <Image
+          src="/icons/desktop/cart-full.webp"
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className="desktop-cart-state desktop-cart-full absolute inset-0 h-full w-full object-contain"
         />
       </span>
     );
