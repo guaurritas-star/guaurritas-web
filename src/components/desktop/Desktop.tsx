@@ -22,7 +22,7 @@ const desktopIconImages: Record<AppIconKind, string> = {
   world: "/icons/desktop/world-y2k.webp",
   pet: "/icons/desktop/pet-y2k.webp",
   paint: "/icons/desktop/paint-y2k.webp",
-  notes: "/icons/desktop/notes-y2k.webp",
+  notes: "/icons/desktop/notes-y2k-closed.webp",
   cart: "/icons/desktop/cart-y2k.webp",
 };
 
@@ -33,6 +33,33 @@ function DesktopAppIcon({
   kind: AppIconKind;
   className?: string;
 }) {
+  if (kind === "notes") {
+    return (
+      <span
+        aria-hidden="true"
+        className={`desktop-icon-y2k desktop-icon-y2k-notes relative block ${className}`}
+      >
+        <Image
+          src={desktopIconImages.notes}
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className="desktop-notes-state desktop-notes-closed absolute inset-0 h-full w-full object-contain"
+        />
+
+        <Image
+          src="/icons/desktop/notes-y2k-open.webp"
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className="desktop-notes-state desktop-notes-open absolute inset-0 h-full w-full object-contain"
+        />
+      </span>
+    );
+  }
+
   return (
     <Image
       src={desktopIconImages[kind]}
