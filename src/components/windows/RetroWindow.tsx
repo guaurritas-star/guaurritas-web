@@ -11,6 +11,7 @@ type RetroWindowProps = {
   icon?: ReactNode;
   children: ReactNode;
   onClose: () => void;
+  onMinimize?: () => void;
   variant?: "default" | "wide";
 };
 
@@ -35,6 +36,7 @@ export default function RetroWindow({
   icon,
   children,
   onClose,
+  onMinimize,
   variant = "default",
 }: RetroWindowProps) {
   const dragState = useRef<DragState | null>(null);
@@ -142,14 +144,29 @@ export default function RetroWindow({
             {title}.exe
           </p>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={`Cerrar ${title}`}
-            className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono font-bold hover:bg-[#425b8c] hover:text-white"
-          >
-            ×
-          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            {onMinimize && (
+              <button
+                type="button"
+                onClick={onMinimize}
+                aria-label={`Minimizar ${title}`}
+                title="Minimizar"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono text-sm font-bold leading-none hover:bg-[#e4c56d]"
+              >
+                <span aria-hidden="true" className="-translate-y-0.5">_</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={`Cerrar ${title}`}
+              title="Cerrar"
+              className="flex h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono font-bold hover:bg-[#425b8c] hover:text-white"
+            >
+              ×
+            </button>
+          </div>
         </header>
 
         <div
