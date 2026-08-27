@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import ChatGuaurritasApp from "@/components/apps/ChatGuaurritasApp";
+import ExpedienteRobbieApp from "@/components/apps/ExpedienteRobbieApp";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
@@ -14,6 +16,8 @@ const apps = [
   { id: "paint", name: "Paint", icon: "paint" as const },
   { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
   { id: "carrito", name: "Carrito", icon: "cart" as const },
+  { id: "robbie", name: "Expediente Robbie", icon: "notes" as const },
+  { id: "chat", name: "Chat Guaurritas", icon: "pet" as const },
 ];
 
 type AppIconKind = (typeof apps)[number]["icon"];
@@ -156,14 +160,49 @@ function DesktopAppIcon({
 
 export default function Desktop() {
   const [activeApp, setActiveApp] = useState<string | null>(null);
+  const [minimizedApp, setMinimizedApp] = useState<string | null>(null);
 
   const selectedApp = apps.find((app) => app.id === activeApp);
+  const taskApp = apps.find(
+    (app) => app.id === activeApp || app.id === minimizedApp,
+  );
+
+  const openApp = (appId: string) => {
+    setActiveApp(appId);
+    setMinimizedApp(null);
+  };
+
+  const closeActiveApp = () => {
+    setActiveApp(null);
+    setMinimizedApp(null);
+  };
+
+  const minimizeActiveApp = () => {
+    if (!activeApp) return;
+
+    setMinimizedApp(activeApp);
+    setActiveApp(null);
+  };
+
+  const toggleTaskApp = () => {
+    if (!taskApp) return;
+
+    if (activeApp === taskApp.id) {
+      setMinimizedApp(taskApp.id);
+      setActiveApp(null);
+      return;
+    }
+
+    setActiveApp(taskApp.id);
+    setMinimizedApp(null);
+  };
 
   const openCuisineFromPaint = () => {
     const url = new URL(window.location.href);
     url.searchParams.set("world", "cuisine");
     window.history.pushState({ world: "cuisine" }, "", url);
     setActiveApp("mundos");
+    setMinimizedApp(null);
   };
 
   return (
@@ -173,8 +212,8 @@ export default function Desktop() {
           <button
             key={app.id}
             type="button"
-            onClick={() => setActiveApp(app.id)}
-            onDoubleClick={() => setActiveApp(app.id)}
+            onClick={() => openApp(app.id)}
+            onDoubleClick={() => openApp(app.id)}
             className="desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2"
           >
             <span className="desktop-shortcut-icon flex h-[5.5rem] w-[5.5rem] items-center justify-center">
@@ -204,9 +243,12 @@ export default function Desktop() {
         <RetroWindow
           title={selectedApp.name}
           icon={<DesktopAppIcon kind={selectedApp.icon} className="h-full w-full" />}
-          onClose={() => setActiveApp(null)}
+          onClose={closeActiveApp}
+          onMinimize={minimizeActiveApp}
           variant={
-            selectedApp.id === "mundos" || selectedApp.id === "paint"
+            selectedApp.id === "mundos" ||
+            selectedApp.id === "paint" ||
+            selectedApp.id === "robbie"
               ? "wide"
               : "default"
           }
@@ -217,6 +259,10 @@ export default function Desktop() {
             <PaintStudioApp onOpenCuisine={openCuisineFromPaint} />
           ) : selectedApp.id === "notas" ? (
             <GuaurrinotasAuthGate />
+          ) : selectedApp.id === "robbie" ? (
+            <ExpedienteRobbieApp />
+          ) : selectedApp.id === "chat" ? (
+            <ChatGuaurritasApp />
           ) : (
             <div className="text-center">
               <p className="font-mono text-sm uppercase tracking-wider">
@@ -231,18 +277,40 @@ export default function Desktop() {
         </RetroWindow>
       )}
 
-      <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center justify-between border-t-2 border-[#425b8c] bg-[#dce4f2] px-2">
+      <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 border-t-2 border-[#425b8c] bg-[#dce4f2] px-2">
         <button
           type="button"
-          className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c]"
+          className="shrink-0 border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c]"
         >
           <span className="flex items-center gap-2">
             <RetroDesktopIcon kind="mark" className="h-5 w-5" />
-            Guaurritas.exe
+            <span className="hidden sm:inline">Guaurritas.exe</span>
           </span>
         </button>
 
-        <div className="border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs">
+        <div className="flex min-w-0 flex-1 items-center">
+          {taskApp && (
+            <button
+              type="button"
+              onClick={toggleTaskApp}
+              aria-label={
+                activeApp === taskApp.id
+                  ? `Minimizar ${taskApp.name}`
+                  : `Restaurar ${taskApp.name}`
+              }
+              className={`flex min-w-0 max-w-[260px] items-center gap-2 border-2 border-[#425b8c] px-3 py-2 font-mono text-[10px] font-bold shadow-[2px_2px_0_#425b8c] sm:text-xs ${
+                activeApp === taskApp.id ? "bg-[#c9d6ec]" : "bg-white"
+              }`}
+            >
+              <span className="h-5 w-5 shrink-0">
+                <DesktopAppIcon kind={taskApp.icon} className="h-full w-full" />
+              </span>
+              <span className="truncate">{taskApp.name}.exe</span>
+            </button>
+          )}
+        </div>
+
+        <div className="hidden shrink-0 border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs sm:block">
           GUAURRIVERSE ONLINE
         </div>
       </footer>
