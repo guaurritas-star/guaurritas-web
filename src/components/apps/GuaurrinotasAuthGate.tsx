@@ -1,36 +1,87 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import type { AuthError, User } from "@supabase/supabase-js";
 import PetProfilesGate from "@/components/apps/PetProfilesGate";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthMode = "signup" | "signin";
 
-const translateAuthError = (message: string) => {
-  const normalized = message.toLowerCase();
+const PASSWORD_REQUIREMENTS = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-  if (normalized.includes("invalid login credentials")) {
+const translateAuthError = (error: AuthError) => {
+  const normalized = error.message.toLowerCase();
+
+  if (error.code === "signup_disabled") {
+    return "El registro de cuentas está desactivado en Supabase. Activa Authentication → Providers → Email.";
+  }
+
+  if (
+    error.code === "email_provider_disabled" ||
+    error.code === "provider_disabled"
+  ) {
+    return "El acceso por correo está desactivado en Supabase. Activa Authentication → Providers → Email.";
+  }
+
+  if (
+    error.code === "invalid_credentials" ||
+    normalized.includes("invalid login credentials")
+  ) {
     return "El correo o la contraseña no coinciden.";
   }
 
-  if (normalized.includes("email not confirmed")) {
+  if (
+    error.code === "email_not_confirmed" ||
+    normalized.includes("email not confirmed")
+  ) {
     return "Primero confirma tu correo desde el mensaje que te enviamos.";
   }
 
-  if (normalized.includes("user already registered")) {
+  if (
+    error.code === "email_exists" ||
+    error.code === "user_already_exists" ||
+    normalized.includes("user already registered")
+  ) {
     return "Ese correo ya tiene una cuenta. Prueba iniciar sesión.";
   }
 
-  if (normalized.includes("password")) {
+  if (error.code === "weak_password" || normalized.includes("password")) {
     return "La contraseña debe tener al menos 8 caracteres, mayúscula, minúscula y número.";
   }
 
-  if (normalized.includes("rate limit")) {
+  if (
+    error.code === "over_email_send_rate_limit" ||
+    error.code === "over_request_rate_limit" ||
+    normalized.includes("rate limit")
+  ) {
     return "Se hicieron varios intentos seguidos. Espera un momento y vuelve a intentar.";
   }
 
-  return "No pudimos completar el acceso. Revisa los datos e inténtalo nuevamente.";
+  if (error.code === "email_address_invalid") {
+    return "Supabase rechazó ese correo como inválido. Revisa que esté escrito correctamente.";
+  }
+
+  if (error.code === "email_address_not_authorized") {
+    return "Ese correo no está autorizado para registrarse en este proyecto de Supabase.";
+  }
+
+  if (error.code === "captcha_failed") {
+    return "La verificación de seguridad de Supabase falló. Revisa la configuración de CAPTCHA.";
+  }
+
+  if (
+    error.code === "request_timeout" ||
+    normalized.includes("failed to fetch") ||
+    normalized.includes("network")
+  ) {
+    return "No pudimos conectar con Supabase. Revisa tu conexión e inténtalo nuevamente.";
+  }
+
+  if (normalized.includes("error sending confirmation email")) {
+    return "Supabase no pudo enviar el correo de confirmación. Revisa Authentication → Email Templates y la configuración SMTP.";
+  }
+
+  return `Supabase respondió: ${error.message}${error.code ? ` (código: ${error.code})` : ""}`;
 };
 
 export default function GuaurrinotasAuthGate() {
@@ -110,6 +161,14 @@ export default function GuaurrinotasAuthGate() {
       return;
     }
 
+    if (mode === "signup" && !PASSWORD_REQUIREMENTS.test(password)) {
+      setFeedbackKind("error");
+      setFeedback(
+        "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setFeedback("");
 
@@ -126,7 +185,7 @@ export default function GuaurrinotasAuthGate() {
 
       if (error) {
         setFeedbackKind("error");
-        setFeedback(translateAuthError(error.message));
+        setFeedback(translateAuthError(error));
         return;
       }
 
@@ -153,7 +212,7 @@ export default function GuaurrinotasAuthGate() {
 
     if (error) {
       setFeedbackKind("error");
-      setFeedback(translateAuthError(error.message));
+      setFeedback(translateAuthError(error));
       return;
     }
 
