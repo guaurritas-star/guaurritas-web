@@ -83,15 +83,17 @@ function MessengerButton({
   onClick,
   active = false,
   ariaLabel,
+  buttonType = "button",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   active?: boolean;
   ariaLabel?: string;
+  buttonType?: "button" | "submit";
 }) {
   return (
     <button
-      type="button"
+      type={buttonType}
       onClick={onClick}
       aria-label={ariaLabel}
       className={`min-h-7 border px-2 py-1 text-[10px] leading-none text-black shadow-[inset_1px_1px_#fff,inset_-1px_-1px_#555] active:translate-x-px active:translate-y-px ${
@@ -299,7 +301,7 @@ export default function ChatGuaurritasApp() {
         </div>
 
         <div className="flex justify-end gap-1 border-t border-[#888] bg-[#c0c0c0] p-1.5">
-          <MessengerButton active ariaLabel="Enviar mensaje">Send</MessengerButton>
+          <MessengerButton buttonType="submit" active ariaLabel="Enviar mensaje">Send</MessengerButton>
           <MessengerButton onClick={() => setDraft("")} ariaLabel="Cancelar texto">Cancel</MessengerButton>
         </div>
       </form>
