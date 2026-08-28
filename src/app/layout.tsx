@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cinzel, Mansalva, Open_Sans } from "next/font/google";
 import "./globals.css";
 import "./iframe-scroll-fix.css";
+import "./mobile-launch-animations.css";
 
 const mansalva = Mansalva({
   weight: "400",
