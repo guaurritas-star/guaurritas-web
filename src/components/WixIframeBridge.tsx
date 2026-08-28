@@ -4,8 +4,9 @@ import { useEffect } from "react";
 
 const BRIDGE_SOURCE = "guaurritas-web";
 const HEIGHT_MESSAGE = "guaurritas:height";
+const MOBILE_BREAKPOINT = 639;
 
-function getDocumentHeight() {
+function getDesktopDocumentHeight() {
   const body = document.body;
   const html = document.documentElement;
 
@@ -20,39 +21,76 @@ function getDocumentHeight() {
   );
 }
 
+function getMobileContentHeight(baseViewportHeight: number) {
+  const main = document.querySelector("main");
+
+  if (!(main instanceof HTMLElement)) {
+    return Math.ceil(baseViewportHeight);
+  }
+
+  const rectHeight = main.getBoundingClientRect().height;
+  const contentHeight = Math.max(rectHeight, main.scrollHeight);
+
+  return Math.ceil(Math.max(baseViewportHeight, contentHeight));
+}
+
 export default function WixIframeBridge() {
   useEffect(() => {
     if (window.self === window.top) return;
 
+    // Guardamos el alto inicial real del iframe antes de que Wix empiece a
+    // redimensionarlo. Así evitamos el bucle: iframe grande -> 100dvh grande
+    // -> medición más grande -> iframe todavía más grande.
+    const baseViewportHeight = Math.max(1, Math.round(window.innerHeight));
+
     const style = document.createElement("style");
     style.id = "guaurritas-wix-iframe-layout";
     style.textContent = `
-      @media (max-width: 639px) {
+      @media (max-width: ${MOBILE_BREAKPOINT}px) {
         html,
         body {
           height: auto !important;
-          min-height: 100% !important;
+          min-height: 0 !important;
           overflow: visible !important;
           overscroll-behavior: auto !important;
         }
 
+        body {
+          display: block !important;
+        }
+
+        main {
+          height: ${baseViewportHeight}px !important;
+          min-height: ${baseViewportHeight}px !important;
+          overflow: hidden !important;
+        }
+
+        .desktop-launcher {
+          height: ${Math.max(1, baseViewportHeight - 52)}px !important;
+        }
+
         main.mobile-app-open {
           height: auto !important;
-          min-height: 100dvh !important;
+          min-height: ${baseViewportHeight}px !important;
           overflow: visible !important;
+        }
+
+        main.mobile-app-open > .desktop-launcher,
+        main.mobile-app-open > .desktop-brand {
+          display: none !important;
         }
 
         .retro-window-overlay {
           position: relative !important;
           inset: auto !important;
           height: auto !important;
-          min-height: 100dvh !important;
+          min-height: ${baseViewportHeight}px !important;
           align-items: stretch !important;
         }
 
         .retro-window-dialog {
           height: auto !important;
-          min-height: 100dvh !important;
+          min-height: ${baseViewportHeight}px !important;
           max-height: none !important;
         }
 
@@ -67,12 +105,19 @@ export default function WixIframeBridge() {
 
     let animationFrame = 0;
 
+    function getCurrentHeight() {
+      if (window.innerWidth <= MOBILE_BREAKPOINT) {
+        return getMobileContentHeight(baseViewportHeight);
+      }
+
+      return getDesktopDocumentHeight();
+    }
+
     function enviarAltura() {
       window.cancelAnimationFrame(animationFrame);
       animationFrame = window.requestAnimationFrame(() => {
-        const height = getDocumentHeight();
+        const height = getCurrentHeight();
 
-        // Bridge usado por el Custom Element de Wix.
         window.parent.postMessage(
           {
             source: BRIDGE_SOURCE,
@@ -82,7 +127,6 @@ export default function WixIframeBridge() {
           "*",
         );
 
-        // Compatibilidad con el HtmlComponent / iframe clásico de Wix + Velo.
         window.parent.postMessage(
           JSON.stringify({ type: "resize", height }),
           "*",
@@ -91,8 +135,13 @@ export default function WixIframeBridge() {
     }
 
     const resizeObserver = new ResizeObserver(enviarAltura);
-    resizeObserver.observe(document.documentElement);
-    resizeObserver.observe(document.body);
+    const main = document.querySelector("main");
+
+    if (main) {
+      resizeObserver.observe(main);
+    } else {
+      resizeObserver.observe(document.body);
+    }
 
     const mutationObserver = new MutationObserver(enviarAltura);
     mutationObserver.observe(document.body, {
@@ -107,7 +156,7 @@ export default function WixIframeBridge() {
     window.addEventListener("orientationchange", enviarAltura);
 
     enviarAltura();
-    const intervalId = window.setInterval(enviarAltura, 1000);
+
     const delayedMeasurements = [
       window.setTimeout(enviarAltura, 100),
       window.setTimeout(enviarAltura, 400),
@@ -116,7 +165,6 @@ export default function WixIframeBridge() {
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
-      window.clearInterval(intervalId);
       resizeObserver.disconnect();
       mutationObserver.disconnect();
       delayedMeasurements.forEach(window.clearTimeout);
