@@ -67,25 +67,34 @@ export default function WixIframeBridge() {
 
     let animationFrame = 0;
 
-    const sendHeight = () => {
+    function enviarAltura() {
       window.cancelAnimationFrame(animationFrame);
       animationFrame = window.requestAnimationFrame(() => {
+        const height = getDocumentHeight();
+
+        // Bridge usado por el Custom Element de Wix.
         window.parent.postMessage(
           {
             source: BRIDGE_SOURCE,
             type: HEIGHT_MESSAGE,
-            height: getDocumentHeight(),
+            height,
           },
           "*",
         );
-      });
-    };
 
-    const resizeObserver = new ResizeObserver(sendHeight);
+        // Compatibilidad con el HtmlComponent / iframe clásico de Wix + Velo.
+        window.parent.postMessage(
+          JSON.stringify({ type: "resize", height }),
+          "*",
+        );
+      });
+    }
+
+    const resizeObserver = new ResizeObserver(enviarAltura);
     resizeObserver.observe(document.documentElement);
     resizeObserver.observe(document.body);
 
-    const mutationObserver = new MutationObserver(sendHeight);
+    const mutationObserver = new MutationObserver(enviarAltura);
     mutationObserver.observe(document.body, {
       attributes: true,
       childList: true,
@@ -93,25 +102,27 @@ export default function WixIframeBridge() {
       subtree: true,
     });
 
-    window.addEventListener("load", sendHeight);
-    window.addEventListener("resize", sendHeight);
-    window.addEventListener("orientationchange", sendHeight);
+    window.addEventListener("load", enviarAltura);
+    window.addEventListener("resize", enviarAltura);
+    window.addEventListener("orientationchange", enviarAltura);
 
-    sendHeight();
+    enviarAltura();
+    const intervalId = window.setInterval(enviarAltura, 1000);
     const delayedMeasurements = [
-      window.setTimeout(sendHeight, 100),
-      window.setTimeout(sendHeight, 400),
-      window.setTimeout(sendHeight, 1200),
+      window.setTimeout(enviarAltura, 100),
+      window.setTimeout(enviarAltura, 400),
+      window.setTimeout(enviarAltura, 1200),
     ];
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
+      window.clearInterval(intervalId);
       resizeObserver.disconnect();
       mutationObserver.disconnect();
       delayedMeasurements.forEach(window.clearTimeout);
-      window.removeEventListener("load", sendHeight);
-      window.removeEventListener("resize", sendHeight);
-      window.removeEventListener("orientationchange", sendHeight);
+      window.removeEventListener("load", enviarAltura);
+      window.removeEventListener("resize", enviarAltura);
+      window.removeEventListener("orientationchange", enviarAltura);
       style.remove();
     };
   }, []);
