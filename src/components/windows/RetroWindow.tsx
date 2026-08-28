@@ -113,7 +113,7 @@ export default function RetroWindow({
   };
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-50 flex h-[100dvh] items-center justify-center p-0 sm:bottom-[52px] sm:h-auto sm:p-4">
+    <div className="retro-window-overlay pointer-events-none fixed inset-0 z-50 flex h-[100dvh] items-center justify-center p-0 sm:bottom-[52px] sm:h-auto sm:p-4">
       <section
         role="dialog"
         aria-modal="true"
@@ -121,7 +121,7 @@ export default function RetroWindow({
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
         }}
-        className={`pointer-events-auto flex h-full max-h-full w-full flex-col border-0 border-[#425b8c] bg-white shadow-none sm:h-auto sm:max-h-full sm:border-2 sm:shadow-[8px_8px_0_#425b8c] ${
+        className={`retro-window-dialog pointer-events-auto flex h-full max-h-full w-full flex-col border-0 border-[#425b8c] bg-white shadow-none sm:h-auto sm:max-h-full sm:border-2 sm:shadow-[8px_8px_0_#425b8c] ${
           variant === "wide" ? "max-w-7xl" : "max-w-2xl"
         }`}
       >
@@ -171,7 +171,7 @@ export default function RetroWindow({
         </header>
 
         <div
-          className={`min-h-0 flex-1 overscroll-contain overflow-y-auto ${
+          className={`retro-window-content min-h-0 flex-1 overscroll-contain overflow-y-auto ${
             variant === "wide" ? "p-4 sm:p-6" : "p-6 sm:p-8"
           }`}
         >
