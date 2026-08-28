@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatGuaurritasApp from "@/components/apps/ChatGuaurritasApp";
 import ExpedienteRobbieApp from "@/components/apps/ExpedienteRobbieApp";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
@@ -162,15 +162,45 @@ function DesktopAppIcon({
 export default function Desktop() {
   const [activeApp, setActiveApp] = useState<string | null>(null);
   const [minimizedApp, setMinimizedApp] = useState<string | null>(null);
+  const [launchingApp, setLaunchingApp] = useState<string | null>(null);
+  const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedApp = apps.find((app) => app.id === activeApp);
   const taskApp = apps.find(
     (app) => app.id === activeApp || app.id === minimizedApp,
   );
 
+  useEffect(() => {
+    return () => {
+      if (launchTimer.current) clearTimeout(launchTimer.current);
+    };
+  }, []);
+
   const openApp = (appId: string) => {
     setActiveApp(appId);
     setMinimizedApp(null);
+  };
+
+  const launchApp = (appId: string) => {
+    if (launchingApp) return;
+
+    const isMobile = window.matchMedia("(max-width: 639px)").matches;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (!isMobile || reduceMotion) {
+      openApp(appId);
+      return;
+    }
+
+    setLaunchingApp(appId);
+
+    launchTimer.current = setTimeout(() => {
+      setLaunchingApp(null);
+      openApp(appId);
+      launchTimer.current = null;
+    }, 520);
   };
 
   const closeActiveApp = () => {
@@ -213,23 +243,29 @@ export default function Desktop() {
       }`}
     >
       <section className="desktop-launcher grid h-[calc(100dvh-52px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
-        {apps.map((app) => (
-          <button
-            key={app.id}
-            type="button"
-            onClick={() => openApp(app.id)}
-            onDoubleClick={() => openApp(app.id)}
-            className="desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2"
-          >
-            <span className="desktop-shortcut-icon flex h-[5.5rem] w-[5.5rem] items-center justify-center">
-              <DesktopAppIcon kind={app.icon} className="h-full w-full" />
-            </span>
+        {apps.map((app) => {
+          const isLaunching = launchingApp === app.id;
 
-            <span className="desktop-shortcut-label border border-transparent bg-white/85 px-2 py-1 font-interface text-xs font-bold tracking-[0.02em] shadow-[2px_2px_0_rgba(66,91,140,0.18)] transition-colors group-hover:border-[#425b8c] group-focus-visible:border-[#425b8c]">
-              {app.name}
-            </span>
-          </button>
-        ))}
+          return (
+            <button
+              key={app.id}
+              type="button"
+              onClick={() => launchApp(app.id)}
+              aria-busy={isLaunching || undefined}
+              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${
+                isLaunching ? "is-launching" : ""
+              }`}
+            >
+              <span className="desktop-shortcut-icon flex h-[5.5rem] w-[5.5rem] items-center justify-center">
+                <DesktopAppIcon kind={app.icon} className="h-full w-full" />
+              </span>
+
+              <span className="desktop-shortcut-label border border-transparent bg-white/85 px-2 py-1 font-interface text-xs font-bold tracking-[0.02em] shadow-[2px_2px_0_rgba(66,91,140,0.18)] transition-colors group-hover:border-[#425b8c] group-focus-visible:border-[#425b8c]">
+                {app.name}
+              </span>
+            </button>
+          );
+        })}
       </section>
 
       <div className="desktop-brand pointer-events-none absolute inset-0 flex items-center justify-center pb-14">
