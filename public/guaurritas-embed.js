@@ -4,35 +4,75 @@
   const ALLOWED_ORIGIN = "https://guaurritas-star.github.io";
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
+  const MIN_HEIGHT = 640;
 
   if (customElements.get(TAG_NAME)) return;
 
   class GuaurritasEmbed extends HTMLElement {
+    constructor() {
+      super();
+      this._iframe = null;
+      this._messageHandler = null;
+      this._shadow = this.attachShadow({ mode: "open" });
+    }
+
     connectedCallback() {
-      if (this.dataset.guaurritasMounted === "true") return;
-      this.dataset.guaurritasMounted = "true";
+      if (this._iframe) return;
 
       this.style.display = "block";
       this.style.width = "100%";
+      this.style.minHeight = "100vh";
       this.style.minHeight = "100dvh";
       this.style.overflow = "visible";
 
+      const style = document.createElement("style");
+      style.textContent = `
+        :host {
+          display: block;
+          width: 100%;
+          min-height: 100vh;
+          min-height: 100dvh;
+          overflow: visible;
+        }
+
+        .guaurritas-frame-wrap {
+          position: relative;
+          width: 100%;
+          min-height: 100vh;
+          min-height: 100dvh;
+          overflow: visible;
+        }
+
+        iframe {
+          display: block;
+          width: 100%;
+          min-height: 100vh;
+          min-height: 100dvh;
+          border: 0;
+          margin: 0;
+          padding: 0;
+          background: transparent;
+          overflow: hidden;
+        }
+      `;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "guaurritas-frame-wrap";
+
       const iframe = document.createElement("iframe");
       iframe.src = this.getAttribute("data-src") || DEFAULT_SRC;
-      iframe.title = this.getAttribute("data-title") || "Guaurritas";
+      iframe.title = this.getAttribute("data-title") || "Guaurritas OS";
+      iframe.loading = "eager";
       iframe.setAttribute("scrolling", "no");
-      iframe.setAttribute("allow", "clipboard-write; fullscreen");
-      iframe.style.display = "block";
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.minHeight = "100dvh";
-      iframe.style.border = "0";
-      iframe.style.overflow = "hidden";
+      iframe.setAttribute("allow", "clipboard-write; fullscreen; geolocation");
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.style.height = "100dvh";
 
-      this.appendChild(iframe);
-      this._guaurritasIframe = iframe;
+      wrapper.appendChild(iframe);
+      this._shadow.append(style, wrapper);
+      this._iframe = iframe;
 
-      this._guaurritasMessageHandler = (event) => {
+      this._messageHandler = (event) => {
         if (event.origin !== ALLOWED_ORIGIN) return;
         if (event.source !== iframe.contentWindow) return;
 
@@ -48,29 +88,39 @@
 
         const isBridgeHeightMessage =
           message?.source === BRIDGE_SOURCE && message?.type === HEIGHT_MESSAGE;
-        const isWixResizeMessage = message?.type === "resize";
+        const isLegacyResizeMessage = message?.type === "resize";
 
-        if (!isBridgeHeightMessage && !isWixResizeMessage) return;
+        if (!isBridgeHeightMessage && !isLegacyResizeMessage) return;
 
         const requestedHeight = Number(message.height);
-        if (!Number.isFinite(requestedHeight) || requestedHeight < 320) return;
+        if (!Number.isFinite(requestedHeight)) return;
 
-        const nextHeight = Math.ceil(requestedHeight);
+        const nextHeight = Math.max(MIN_HEIGHT, Math.ceil(requestedHeight));
+
         this.style.height = `${nextHeight}px`;
+        wrapper.style.height = `${nextHeight}px`;
         iframe.style.height = `${nextHeight}px`;
+
+        this.dispatchEvent(
+          new CustomEvent("guaurritas-resize", {
+            detail: { height: nextHeight },
+            bubbles: true,
+            composed: true,
+          }),
+        );
       };
 
-      window.addEventListener("message", this._guaurritasMessageHandler);
+      window.addEventListener("message", this._messageHandler);
     }
 
     disconnectedCallback() {
-      if (this._guaurritasMessageHandler) {
-        window.removeEventListener("message", this._guaurritasMessageHandler);
+      if (this._messageHandler) {
+        window.removeEventListener("message", this._messageHandler);
       }
 
-      this._guaurritasMessageHandler = null;
-      this._guaurritasIframe = null;
-      delete this.dataset.guaurritasMounted;
+      this._messageHandler = null;
+      this._iframe = null;
+      this._shadow.replaceChildren();
     }
   }
 
