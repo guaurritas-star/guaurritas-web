@@ -36,14 +36,21 @@
         if (event.origin !== ALLOWED_ORIGIN) return;
         if (event.source !== iframe.contentWindow) return;
 
-        const message = event.data;
-        if (
-          !message ||
-          message.source !== BRIDGE_SOURCE ||
-          message.type !== HEIGHT_MESSAGE
-        ) {
-          return;
+        let message = event.data;
+
+        if (typeof message === "string") {
+          try {
+            message = JSON.parse(message);
+          } catch {
+            return;
+          }
         }
+
+        const isBridgeHeightMessage =
+          message?.source === BRIDGE_SOURCE && message?.type === HEIGHT_MESSAGE;
+        const isWixResizeMessage = message?.type === "resize";
+
+        if (!isBridgeHeightMessage && !isWixResizeMessage) return;
 
         const requestedHeight = Number(message.height);
         if (!Number.isFinite(requestedHeight) || requestedHeight < 320) return;
