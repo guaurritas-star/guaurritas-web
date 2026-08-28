@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
 import PetProfilesGate from "@/components/apps/PetProfilesGate";
+import { withBasePath } from "@/lib/base-path";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthMode = "signup" | "signin";
@@ -104,12 +105,17 @@ export default function GuaurrinotasAuthGate() {
     const searchParams = new URLSearchParams(window.location.search);
     const authNotice = searchParams.get("auth_notice");
 
+    const noticeTimer = authNotice === "confirmation_requires_sign_in"
+      ? window.setTimeout(() => {
+          setMode("signin");
+          setFeedbackKind("success");
+          setFeedback(
+            "Tu correo ya recibió la confirmación, pero el enlace se abrió fuera del navegador original. Inicia sesión con tu correo y contraseña.",
+          );
+        }, 0)
+      : null;
+
     if (authNotice === "confirmation_requires_sign_in") {
-      setMode("signin");
-      setFeedbackKind("success");
-      setFeedback(
-        "Tu correo ya recibió la confirmación, pero el enlace se abrió fuera del navegador original. Inicia sesión con tu correo y contraseña.",
-      );
       window.history.replaceState({}, "", window.location.pathname);
     }
 
@@ -137,6 +143,7 @@ export default function GuaurrinotasAuthGate() {
 
     return () => {
       isMounted = false;
+      if (noticeTimer !== null) window.clearTimeout(noticeTimer);
       subscription.unsubscribe();
     };
   }, [supabase]);
@@ -177,7 +184,7 @@ export default function GuaurrinotasAuthGate() {
         email: normalizedEmail,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+          emailRedirectTo: `${window.location.origin}${withBasePath("/auth/confirm/")}`,
         },
       });
 

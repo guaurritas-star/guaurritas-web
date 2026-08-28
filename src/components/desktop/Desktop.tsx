@@ -9,6 +9,7 @@ import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import RetroDesktopIcon from "@/components/desktop/RetroDesktopIcon";
 import RetroWindow from "@/components/windows/RetroWindow";
+import { withBasePath } from "@/lib/base-path";
 
 const apps = [
   { id: "mundos", name: "Explora mundo", icon: "world" as const },
@@ -23,11 +24,11 @@ const apps = [
 type AppIconKind = (typeof apps)[number]["icon"];
 
 const desktopIconImages: Record<AppIconKind, string> = {
-  world: "/icons/desktop/world-planet.webp",
-  pet: "/icons/desktop/pet-food-bowl.webp",
-  paint: "/icons/desktop/paint-y2k.webp",
-  notes: "/icons/desktop/notes-y2k-closed.webp",
-  cart: "/icons/desktop/cart-empty.webp",
+  world: withBasePath("/icons/desktop/world-planet.webp"),
+  pet: withBasePath("/icons/desktop/pet-food-bowl.webp"),
+  paint: withBasePath("/icons/desktop/paint-y2k.webp"),
+  notes: withBasePath("/icons/desktop/notes-y2k-closed.webp"),
+  cart: withBasePath("/icons/desktop/cart-empty.webp"),
 };
 
 function DesktopAppIcon({
@@ -53,7 +54,7 @@ function DesktopAppIcon({
         />
 
         <Image
-          src="/icons/desktop/world-rocket.webp"
+          src={withBasePath("/icons/desktop/world-rocket.webp")}
           alt=""
           width={96}
           height={96}
@@ -80,7 +81,7 @@ function DesktopAppIcon({
         />
 
         <Image
-          src="/icons/desktop/notes-y2k-open.webp"
+          src={withBasePath("/icons/desktop/notes-y2k-open.webp")}
           alt=""
           width={96}
           height={96}
@@ -107,7 +108,7 @@ function DesktopAppIcon({
         />
 
         <Image
-          src="/icons/desktop/pet-seasoning-bowl.webp"
+          src={withBasePath("/icons/desktop/pet-seasoning-bowl.webp")}
           alt=""
           width={96}
           height={96}
@@ -134,7 +135,7 @@ function DesktopAppIcon({
         />
 
         <Image
-          src="/icons/desktop/cart-full.webp"
+          src={withBasePath("/icons/desktop/cart-full.webp")}
           alt=""
           width={96}
           height={96}
@@ -206,8 +207,12 @@ export default function Desktop() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f2f2f2] text-[#263650]">
-      <section className="grid min-h-[calc(100vh-52px)] grid-cols-2 content-start gap-5 p-6 sm:grid-cols-3 lg:grid-cols-5">
+    <main
+      className={`relative h-dvh min-h-0 overflow-hidden bg-[#f2f2f2] text-[#263650] ${
+        selectedApp ? "mobile-app-open" : ""
+      }`}
+    >
+      <section className="desktop-launcher grid h-[calc(100dvh-52px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
         {apps.map((app) => (
           <button
             key={app.id}
@@ -227,7 +232,7 @@ export default function Desktop() {
         ))}
       </section>
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center pb-14">
+      <div className="desktop-brand pointer-events-none absolute inset-0 flex items-center justify-center pb-14">
         <div className="text-center">
           <h1 className="text-5xl font-semibold italic text-[#425b8c] sm:text-7xl">
             Guaurritas
@@ -277,7 +282,7 @@ export default function Desktop() {
         </RetroWindow>
       )}
 
-      <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 border-t-2 border-[#425b8c] bg-[#dce4f2] px-2">
+      <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 border-t-2 border-[#425b8c] bg-[#dce4f2] px-2">
         <button
           type="button"
           className="shrink-0 border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c]"

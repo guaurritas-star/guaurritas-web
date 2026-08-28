@@ -113,7 +113,7 @@ export default function RetroWindow({
   };
 
   return (
-    <div className="pointer-events-none fixed left-0 right-0 top-0 z-20 flex h-[calc(100vh-52px)] items-center justify-center p-4">
+    <div className="pointer-events-none fixed inset-0 z-50 flex h-[100dvh] items-center justify-center p-0 sm:bottom-[52px] sm:h-auto sm:p-4">
       <section
         role="dialog"
         aria-modal="true"
@@ -121,7 +121,7 @@ export default function RetroWindow({
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
         }}
-        className={`pointer-events-auto flex h-full w-full flex-col border-2 border-[#425b8c] bg-white shadow-[8px_8px_0_#425b8c] sm:h-auto sm:max-h-full ${
+        className={`pointer-events-auto flex h-full max-h-full w-full flex-col border-0 border-[#425b8c] bg-white shadow-none sm:h-auto sm:max-h-full sm:border-2 sm:shadow-[8px_8px_0_#425b8c] ${
           variant === "wide" ? "max-w-7xl" : "max-w-2xl"
         }`}
       >
@@ -130,7 +130,7 @@ export default function RetroWindow({
           onPointerMove={moveWindow}
           onPointerUp={stopDragging}
           onPointerCancel={stopDragging}
-          className="flex shrink-0 cursor-grab touch-none select-none items-center justify-between border-b-2 border-[#425b8c] bg-[#dce4f2] px-3 py-2 active:cursor-grabbing"
+          className="flex shrink-0 touch-none select-none items-center justify-between border-b-2 border-[#425b8c] bg-[#dce4f2] px-3 py-2 sm:cursor-grab sm:active:cursor-grabbing"
         >
           <p
             id="retro-window-title"
@@ -151,7 +151,7 @@ export default function RetroWindow({
                 onClick={onMinimize}
                 aria-label={`Minimizar ${title}`}
                 title="Minimizar"
-                className="flex h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono text-sm font-bold leading-none hover:bg-[#e4c56d]"
+                className="hidden h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono text-sm font-bold leading-none hover:bg-[#e4c56d] sm:flex"
               >
                 <span aria-hidden="true" className="-translate-y-0.5">_</span>
               </button>
@@ -160,17 +160,18 @@ export default function RetroWindow({
             <button
               type="button"
               onClick={onClose}
-              aria-label={`Cerrar ${title}`}
-              title="Cerrar"
-              className="flex h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono font-bold hover:bg-[#425b8c] hover:text-white"
+              aria-label={`Cerrar ${title} y volver a las aplicaciones`}
+              title="Volver a las aplicaciones"
+              className="flex h-8 min-w-8 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white px-2 font-mono font-bold hover:bg-[#425b8c] hover:text-white sm:h-7 sm:min-w-7 sm:px-0"
             >
-              ×
+              <span aria-hidden="true" className="sm:hidden">←</span>
+              <span aria-hidden="true" className="hidden sm:inline">×</span>
             </button>
           </div>
         </header>
 
         <div
-          className={`flex-1 overflow-y-auto ${
+          className={`min-h-0 flex-1 overscroll-contain overflow-y-auto ${
             variant === "wide" ? "p-4 sm:p-6" : "p-6 sm:p-8"
           }`}
         >

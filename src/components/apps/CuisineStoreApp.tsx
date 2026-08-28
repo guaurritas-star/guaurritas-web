@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 type CategoryId =
   | "all"
@@ -957,7 +958,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
             >
               <span className="absolute inset-0">
                 <Image
-                  src={currentProductImage}
+                  src={withBasePath(currentProductImage)}
                   alt={currentProductImageAlt}
                   fill
                   priority
@@ -1096,7 +1097,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                         style={{ transform: `scale(${selectedProduct.imageScale ?? 1})` }}
                       >
                         <Image
-                          src={currentProductImage}
+                          src={withBasePath(currentProductImage)}
                           alt={currentProductImageAlt}
                           fill
                           unoptimized
@@ -1296,7 +1297,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                               }`}
                             >
                               <Image
-                                src={option.image}
+                                src={withBasePath(option.image)}
                                 alt=""
                                 fill
                                 unoptimized
@@ -1993,7 +1994,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   style={{ transform: `scale(${product.imageScale ?? 1})` }}
                 >
                   <Image
-                    src={product.image}
+                    src={withBasePath(product.image)}
                     alt={product.imageAlt}
                     fill
                     unoptimized

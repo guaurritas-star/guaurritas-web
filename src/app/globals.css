@@ -29,6 +29,29 @@ body {
   font-family: var(--font-mansalva), cursive;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 639px) {
+  .mobile-app-open .desktop-launcher,
+  .mobile-app-open .desktop-brand,
+  .mobile-app-open .desktop-taskbar {
+    display: none;
+  }
+}
+
 h1,
 h2,
 h3 {

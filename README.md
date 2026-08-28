@@ -1,4 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Guaurritas OS
+
+Experiencia web retro/Y2K de Guaurritas. El proyecto conserva el escritorio y
+las ventanas en computadora; en móvil funciona como un lanzador de apps y cada
+aplicación se abre a pantalla completa.
+
+## GitHub Pages
+
+Cada cambio enviado a `main` genera automáticamente una versión HTML estática
+en la carpeta de compilación `out` y la publica mediante GitHub Pages.
+
+URL prevista:
+
+```text
+https://guaurritas-star.github.io/guaurritas-web/
+```
+
+Ejemplo para incrustarla:
+
+```html
+<iframe
+  src="https://guaurritas-star.github.io/guaurritas-web/"
+  title="Guaurritas OS"
+  style="width:100%;height:100dvh;border:0;display:block"
+  loading="eager"
+  allow="geolocation"
+></iframe>
+```
+
+## Desarrollo local
 
 ## Getting Started
 
@@ -14,23 +43,12 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3001](http://localhost:3001) en el navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Para comprobar la exportación HTML:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+El resultado queda en `out/index.html` junto con los recursos estáticos.

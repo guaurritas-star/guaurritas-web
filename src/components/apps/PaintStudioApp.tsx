@@ -6,6 +6,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 type PaintTool = "pencil" | "brush" | "eraser";
 
@@ -207,7 +208,7 @@ export default function PaintStudioApp({
       link.click();
       setSavedMessage("Diseño guardado. Puedes usarlo como foto de inspiración en Cuisine.");
     };
-    productImage.src = selectedProduct.image;
+    productImage.src = withBasePath(selectedProduct.image);
   };
 
   return (
@@ -282,7 +283,7 @@ export default function PaintStudioApp({
           <div className="p-2 sm:p-3">
             <div className="relative aspect-[5/3] touch-none overflow-hidden border-2 border-[#626262] bg-[#f6e9ed] shadow-[inset_3px_3px_0_rgba(38,54,80,0.16)]">
               <Image
-                src={selectedProduct.image}
+                src={withBasePath(selectedProduct.image)}
                 alt={`Happy Bag ${selectedProduct.label}`}
                 fill
                 unoptimized
@@ -331,7 +332,7 @@ export default function PaintStudioApp({
                 >
                   <span className="relative h-11 w-9 shrink-0 overflow-hidden bg-white">
                     <Image
-                      src={product.image}
+                      src={withBasePath(product.image)}
                       alt=""
                       fill
                       unoptimized

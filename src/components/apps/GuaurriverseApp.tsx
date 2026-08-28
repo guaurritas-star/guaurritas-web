@@ -3,6 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
 import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
+import { withBasePath } from "@/lib/base-path";
 
 type WorldId =
   | "club"
@@ -132,8 +133,8 @@ function WorldMediaPreview({ world }: { world: World }) {
     return (
       <video
         className="absolute inset-0 h-full w-full object-cover"
-        src={world.media.src}
-        poster={world.media.poster}
+        src={withBasePath(world.media.src)}
+        poster={world.media.poster ? withBasePath(world.media.poster) : undefined}
         aria-label={world.media.alt}
         muted
         loop
@@ -147,7 +148,7 @@ function WorldMediaPreview({ world }: { world: World }) {
     return (
       <div
         className="absolute inset-0 bg-cover bg-top transition-transform duration-500 group-hover:scale-105"
-        style={{ backgroundImage: `url(${world.media.src})` }}
+        style={{ backgroundImage: `url(${withBasePath(world.media.src)})` }}
         role="img"
         aria-label={world.media.alt}
       />

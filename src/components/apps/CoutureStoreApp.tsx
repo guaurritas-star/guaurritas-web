@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 type CollectionId = "amuleto" | "clasica" | "encanto";
 type ViewMode = "product" | "worn";
@@ -214,7 +215,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                 >
                   <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white sm:h-28 sm:w-full">
                     <Image
-                      src={item.colors[0].productImage}
+                      src={withBasePath(item.colors[0].productImage)}
                       alt=""
                       fill
                       sizes="(max-width: 640px) 80px, 28vw"
@@ -245,7 +246,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
             <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white">
               <Image
                 key={galleryImage}
-                src={galleryImage}
+                src={withBasePath(galleryImage)}
                 alt={galleryAlt}
                 fill
                 priority
@@ -277,7 +278,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                   >
                     <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white">
                       <Image
-                        src={mode === "product" ? color.productImage : color.wornImage}
+                        src={withBasePath(mode === "product" ? color.productImage : color.wornImage)}
                         alt=""
                         fill
                         sizes="48px"
@@ -367,7 +368,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                     >
                       <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
                         <Image
-                          src={mode === "product" ? color.productImage : color.wornImage}
+                          src={withBasePath(mode === "product" ? color.productImage : color.wornImage)}
                           alt=""
                           fill
                           sizes="56px"

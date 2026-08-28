@@ -561,7 +561,7 @@ export default function GuaurrinotasApp() {
     );
   };
 
-  const useCurrentLocation = async () => {
+  const detectCurrentLocation = async () => {
     if (!("geolocation" in navigator)) {
       setLocationStatus(
         "Este navegador no permite detectar tu ubicación. Puedes escribir tu ciudad manualmente.",
@@ -667,27 +667,30 @@ export default function GuaurrinotasApp() {
     if (!showLocationSearch) return;
 
     const cleanQuery = locationQuery.trim();
+    const searchTimer = window.setTimeout(() => {
+      if (cleanQuery.length < 2) {
+        setLocationSuggestions([]);
+        setIsSearchingLocation(false);
+        setLocationStatus(
+          cleanQuery.length === 1
+            ? "Escribe una letra más para ver ciudades."
+            : "",
+        );
+        return;
+      }
 
-    if (cleanQuery.length < 2) {
-      setLocationSuggestions([]);
+      const suggestions = searchMexicanCities(cleanQuery);
+
       setIsSearchingLocation(false);
+      setLocationSuggestions(suggestions);
       setLocationStatus(
-        cleanQuery.length === 1
-          ? "Escribe una letra más para ver ciudades."
-          : "",
+        suggestions.length > 0
+          ? "Elige una ciudad de la lista."
+          : "No encontramos coincidencias en México. Puedes escribir tu ciudad manualmente arriba.",
       );
-      return;
-    }
+    }, 0);
 
-    const suggestions = searchMexicanCities(cleanQuery);
-
-    setIsSearchingLocation(false);
-    setLocationSuggestions(suggestions);
-    setLocationStatus(
-      suggestions.length > 0
-        ? "Elige una ciudad de la lista."
-        : "No encontramos coincidencias en México. Puedes escribir tu ciudad manualmente arriba.",
-    );
+    return () => window.clearTimeout(searchTimer);
   }, [locationQuery, showLocationSearch]);
 
   const saveProfile = () => {
@@ -1184,7 +1187,7 @@ export default function GuaurrinotasApp() {
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
-                  onClick={() => void useCurrentLocation()}
+                  onClick={() => void detectCurrentLocation()}
                   disabled={
                     isLocating || isSearchingLocation
                   }
