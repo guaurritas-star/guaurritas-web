@@ -21,26 +21,26 @@ function getDesktopDocumentHeight() {
   );
 }
 
-function getMobileContentHeight(baseViewportHeight: number) {
+function getMobileContentHeight() {
   const main = document.querySelector("main");
 
   if (!(main instanceof HTMLElement)) {
-    return Math.ceil(baseViewportHeight);
+    return Math.max(1, Math.ceil(document.body.scrollHeight));
   }
 
-  const rectHeight = main.getBoundingClientRect().height;
-  const contentHeight = Math.max(rectHeight, main.scrollHeight);
-
-  return Math.ceil(Math.max(baseViewportHeight, contentHeight));
+  return Math.max(
+    1,
+    Math.ceil(Math.max(main.getBoundingClientRect().height, main.scrollHeight)),
+  );
 }
 
 export default function WixIframeBridge() {
   useEffect(() => {
     if (window.self === window.top) return;
 
-    // Guardamos el alto inicial real del iframe antes de que Wix empiece a
-    // redimensionarlo. Así evitamos el bucle: iframe grande -> 100dvh grande
-    // -> medición más grande -> iframe todavía más grande.
+    // Guardamos el viewport inicial únicamente para las apps que se abren a
+    // pantalla completa. La pantalla principal del launcher se deja crecer de
+    // forma natural para que no reserve espacio vacío antes de Gallery.
     const baseViewportHeight = Math.max(1, Math.round(window.innerHeight));
 
     const style = document.createElement("style");
@@ -59,24 +59,42 @@ export default function WixIframeBridge() {
           display: block !important;
         }
 
+        /*
+         * En Wix el launcher ya no debe comportarse como un viewport fijo.
+         * Su alto pasa a ser exactamente el alto de sus iconos + taskbar.
+         */
         main {
-          height: ${baseViewportHeight}px !important;
-          min-height: ${baseViewportHeight}px !important;
-          overflow: hidden !important;
+          height: auto !important;
+          min-height: 0 !important;
+          overflow: visible !important;
         }
 
         .desktop-launcher {
-          height: ${Math.max(1, baseViewportHeight - 52)}px !important;
+          height: auto !important;
+          min-height: 0 !important;
+          overflow: visible !important;
+        }
+
+        /*
+         * La taskbar originalmente es absolute bottom-0. Dentro del embed eso
+         * dejaba al main conservando una zona invisible debajo. La ponemos en
+         * flujo normal para que marque el final real de Guaurritas OS.
+         */
+        main:not(.mobile-app-open) > .desktop-taskbar {
+          position: relative !important;
+          inset: auto !important;
+          bottom: auto !important;
         }
 
         main.mobile-app-open {
           height: auto !important;
-          min-height: ${baseViewportHeight}px !important;
+          min-height: 0 !important;
           overflow: visible !important;
         }
 
         main.mobile-app-open > .desktop-launcher,
-        main.mobile-app-open > .desktop-brand {
+        main.mobile-app-open > .desktop-brand,
+        main.mobile-app-open > .desktop-taskbar {
           display: none !important;
         }
 
@@ -107,7 +125,7 @@ export default function WixIframeBridge() {
 
     function getCurrentHeight() {
       if (window.innerWidth <= MOBILE_BREAKPOINT) {
-        return getMobileContentHeight(baseViewportHeight);
+        return getMobileContentHeight();
       }
 
       return getDesktopDocumentHeight();
