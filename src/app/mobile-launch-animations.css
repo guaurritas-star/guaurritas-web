@@ -1,0 +1,134 @@
+/* Mobile tap feedback for the Guaurritas OS desktop shortcuts.
+   Desktop keeps its hover behavior from globals.css; on touch screens we
+   briefly replay the same visual language before the app opens. */
+
+@media (max-width: 639px) {
+  .desktop-shortcut.is-launching {
+    background: rgba(220, 228, 242, 0.86);
+    animation: guaurritas-mobile-shortcut-select 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    pointer-events: none;
+  }
+
+  .desktop-shortcut.is-launching .desktop-shortcut-label {
+    border-color: #425b8c;
+    background: #eef3fb;
+  }
+
+  .desktop-shortcut.is-launching .desktop-shortcut-icon {
+    animation: guaurritas-mobile-icon-pop 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    filter:
+      drop-shadow(5px 7px 0 rgba(66, 91, 140, 0.28))
+      drop-shadow(0 0 9px rgba(166, 109, 136, 0.22));
+  }
+
+  .desktop-shortcut.is-launching .desktop-notes-closed {
+    opacity: 0;
+    transform: perspective(460px) rotateX(-16deg) rotateZ(-7deg)
+      translate(-6px, 4px) scale(0.82);
+  }
+
+  .desktop-shortcut.is-launching .desktop-notes-open {
+    filter: drop-shadow(0 5px 4px rgba(66, 91, 140, 0.2));
+    opacity: 1;
+    transform: perspective(460px) rotateX(0) rotateZ(0) translateY(-1px)
+      scale(1.14);
+  }
+
+  .desktop-shortcut.is-launching .desktop-pet-bowl {
+    opacity: 0;
+    transform: perspective(460px) rotateX(-10deg) rotateZ(-5deg)
+      translate(-5px, 5px) scale(0.86);
+  }
+
+  .desktop-shortcut.is-launching .desktop-pet-seasoning {
+    filter: drop-shadow(0 5px 4px rgba(66, 91, 140, 0.22));
+    opacity: 1;
+    transform: perspective(460px) rotateX(0) rotateZ(0) translateY(-2px)
+      scale(1.12);
+  }
+
+  .desktop-shortcut.is-launching .desktop-world-planet {
+    opacity: 0;
+    transform: perspective(480px) rotateX(-10deg) rotateZ(5deg)
+      translate(-6px, 5px) scale(0.84);
+  }
+
+  .desktop-shortcut.is-launching .desktop-world-rocket {
+    filter: drop-shadow(0 5px 4px rgba(66, 91, 140, 0.22));
+    opacity: 1;
+    transform: perspective(480px) rotateX(0) rotateZ(0) translateY(-2px)
+      scale(1.08);
+  }
+
+  .desktop-shortcut.is-launching .desktop-cart-empty {
+    opacity: 0;
+    transform: perspective(460px) rotateY(12deg) rotateZ(5deg)
+      translate(8px, 4px) scale(0.84);
+  }
+
+  .desktop-shortcut.is-launching .desktop-cart-full {
+    filter: drop-shadow(0 5px 4px rgba(66, 91, 140, 0.22));
+    opacity: 1;
+    transform: perspective(460px) rotateY(0) rotateZ(0) translateY(-2px)
+      scale(1.06);
+  }
+
+  .desktop-shortcut.is-launching .desktop-icon-y2k-world {
+    animation: desktop-y2k-world 520ms ease-in-out both;
+  }
+
+  .desktop-shortcut.is-launching .desktop-icon-y2k-pet {
+    animation: desktop-y2k-pet 520ms ease-in-out both;
+  }
+
+  .desktop-shortcut.is-launching .desktop-icon-y2k-paint {
+    animation: desktop-y2k-paint 520ms ease-in-out both;
+  }
+
+  .desktop-shortcut.is-launching .desktop-icon-y2k-notes {
+    animation: desktop-y2k-notes 520ms ease-in-out both;
+  }
+
+  .desktop-shortcut.is-launching .desktop-icon-y2k-cart {
+    animation: desktop-y2k-cart 520ms ease-in-out both;
+  }
+}
+
+@keyframes guaurritas-mobile-shortcut-select {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  38% {
+    transform: translateY(1px) scale(0.96);
+  }
+  72% {
+    transform: translateY(-4px) scale(1.025);
+  }
+  100% {
+    transform: translateY(-2px) scale(1);
+  }
+}
+
+@keyframes guaurritas-mobile-icon-pop {
+  0% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+  42% {
+    transform: translateY(2px) rotate(-2deg) scale(0.92);
+  }
+  76% {
+    transform: translateY(-9px) rotate(2deg) scale(1.09);
+  }
+  100% {
+    transform: translateY(-4px) rotate(0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-shortcut.is-launching,
+  .desktop-shortcut.is-launching .desktop-shortcut-icon,
+  .desktop-shortcut.is-launching .desktop-icon-y2k {
+    animation: none !important;
+    transition-duration: 0ms !important;
+  }
+}
