@@ -4,7 +4,6 @@
   const ALLOWED_ORIGIN = "https://guaurritas-star.github.io";
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
-  const MIN_HEIGHT = 640;
 
   if (customElements.get(TAG_NAME)) return;
 
@@ -12,6 +11,7 @@
     constructor() {
       super();
       this._iframe = null;
+      this._wrapper = null;
       this._messageHandler = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
@@ -19,35 +19,38 @@
     connectedCallback() {
       if (this._iframe) return;
 
-      this.style.display = "block";
-      this.style.width = "100%";
-      this.style.minHeight = "100vh";
-      this.style.minHeight = "100dvh";
-      this.style.overflow = "visible";
+      this.style.setProperty("display", "block", "important");
+      this.style.setProperty("width", "100%", "important");
+      this.style.setProperty("min-height", "100dvh", "important");
+      this.style.setProperty("max-height", "none", "important");
+      this.style.setProperty("overflow", "visible", "important");
+      this.style.setProperty("contain", "none", "important");
 
       const style = document.createElement("style");
       style.textContent = `
         :host {
-          display: block;
-          width: 100%;
-          min-height: 100vh;
-          min-height: 100dvh;
-          overflow: visible;
+          display: block !important;
+          width: 100% !important;
+          min-height: 100dvh !important;
+          max-height: none !important;
+          overflow: visible !important;
+          contain: none !important;
         }
 
         .guaurritas-frame-wrap {
           position: relative;
+          display: block;
           width: 100%;
-          min-height: 100vh;
           min-height: 100dvh;
+          max-height: none;
           overflow: visible;
         }
 
         iframe {
           display: block;
           width: 100%;
-          min-height: 100vh;
           min-height: 100dvh;
+          max-height: none;
           border: 0;
           margin: 0;
           padding: 0;
@@ -66,13 +69,47 @@
       iframe.setAttribute("scrolling", "no");
       iframe.setAttribute("allow", "clipboard-write; fullscreen; geolocation");
       iframe.setAttribute("allowfullscreen", "");
-      iframe.style.height = "100dvh";
+      iframe.style.setProperty("height", "100dvh", "important");
 
       wrapper.appendChild(iframe);
       this._shadow.append(style, wrapper);
       this._iframe = iframe;
+      this._wrapper = wrapper;
+
+      const applyHeight = (height) => {
+        const exactHeight = Number(height);
+        if (!Number.isFinite(exactHeight) || exactHeight <= 0) return;
+
+        const cssHeight = `${exactHeight}px`;
+
+        // El alto que manda WixIframeBridge es la fuente de verdad.
+        // Forzamos la altura en el host real de Wix y en sus hijos para
+        // evitar que el breakpoint móvil conserve el alto fijo del editor.
+        this.style.setProperty("height", cssHeight, "important");
+        this.style.setProperty("min-height", cssHeight, "important");
+        this.style.setProperty("max-height", cssHeight, "important");
+
+        wrapper.style.setProperty("height", cssHeight, "important");
+        wrapper.style.setProperty("min-height", cssHeight, "important");
+        wrapper.style.setProperty("max-height", cssHeight, "important");
+
+        iframe.style.setProperty("height", cssHeight, "important");
+        iframe.style.setProperty("min-height", cssHeight, "important");
+        iframe.style.setProperty("max-height", cssHeight, "important");
+
+        this.setAttribute("data-content-height", String(exactHeight));
+
+        this.dispatchEvent(
+          new CustomEvent("guaurritas-resize", {
+            detail: { height: exactHeight },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      };
 
       this._messageHandler = (event) => {
+        // Solo aceptamos mensajes provenientes del iframe real de Guaurritas.
         if (event.origin !== ALLOWED_ORIGIN) return;
         if (event.source !== iframe.contentWindow) return;
 
@@ -86,28 +123,24 @@
           }
         }
 
-        const isBridgeHeightMessage =
-          message?.source === BRIDGE_SOURCE && message?.type === HEIGHT_MESSAGE;
-        const isLegacyResizeMessage = message?.type === "resize";
+        if (!message || typeof message !== "object") return;
 
-        if (!isBridgeHeightMessage && !isLegacyResizeMessage) return;
+        // WixIframeBridge.tsx envía este mensaje dinámico en cada cambio de
+        // contenido, viewport y orientación:
+        // JSON.stringify({ type: "resize", height })
+        if (message.type === "resize") {
+          applyHeight(message.height);
+          return;
+        }
 
-        const requestedHeight = Number(message.height);
-        if (!Number.isFinite(requestedHeight)) return;
-
-        const nextHeight = Math.max(MIN_HEIGHT, Math.ceil(requestedHeight));
-
-        this.style.height = `${nextHeight}px`;
-        wrapper.style.height = `${nextHeight}px`;
-        iframe.style.height = `${nextHeight}px`;
-
-        this.dispatchEvent(
-          new CustomEvent("guaurritas-resize", {
-            detail: { height: nextHeight },
-            bubbles: true,
-            composed: true,
-          }),
-        );
+        // Conservamos el canal moderno como respaldo, pero con la misma
+        // validación estricta de origen y ventana emisora.
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === HEIGHT_MESSAGE
+        ) {
+          applyHeight(message.height);
+        }
       };
 
       window.addEventListener("message", this._messageHandler);
@@ -120,6 +153,7 @@
 
       this._messageHandler = null;
       this._iframe = null;
+      this._wrapper = null;
       this._shadow.replaceChildren();
     }
   }
