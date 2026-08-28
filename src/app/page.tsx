@@ -1,5 +1,11 @@
+import WixIframeBridge from "@/components/WixIframeBridge";
 import Desktop from "@/components/desktop/Desktop";
 
 export default function Home() {
-  return <Desktop />;
+  return (
+    <>
+      <WixIframeBridge />
+      <Desktop />
+    </>
+  );
 }
