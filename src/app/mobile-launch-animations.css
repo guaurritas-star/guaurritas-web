@@ -15,12 +15,11 @@
   transform: translateY(0) rotate(0) scale(1);
 }
 
-/* The supplied open-folder PNG has much more transparent canvas around the
-   artwork than the closed-folder PNG. The larger scale compensates for that
-   empty canvas so both states have the same perceived icon size. */
+/* The corrected open-folder asset already fills its canvas properly, so both
+   Robbie folder states use the exact same visual scale. */
 .desktop-robbie-open {
   opacity: 0;
-  transform: translateY(1px) rotate(-1deg) scale(1.68);
+  transform: translateY(0) rotate(0) scale(1);
 }
 
 /* Desktop hover/focus behaves like the rest of the animated OS shortcuts. */
@@ -28,7 +27,7 @@
   .desktop-shortcut:hover .desktop-robbie-closed,
   .desktop-shortcut:focus-visible .desktop-robbie-closed {
     opacity: 0;
-    transform: translateY(2px) rotate(1deg) scale(0.96);
+    transform: translateY(0) rotate(0) scale(1);
   }
 
   .desktop-shortcut:hover .desktop-robbie-open,
@@ -37,14 +36,14 @@
     filter:
       drop-shadow(4px 6px 0 rgba(66, 91, 140, 0.18))
       drop-shadow(0 0 7px rgba(166, 109, 136, 0.14));
-    transform: translateY(-2px) rotate(0) scale(1.68);
+    transform: translateY(0) rotate(0) scale(1);
   }
 }
 
 /* Click/tap launch state, shared by desktop and mobile. */
 .desktop-shortcut.is-launching .desktop-robbie-closed {
   opacity: 0;
-  transform: translateY(3px) rotate(1deg) scale(0.94);
+  transform: translateY(0) rotate(0) scale(1);
 }
 
 .desktop-shortcut.is-launching .desktop-robbie-open {
@@ -52,7 +51,7 @@
   filter:
     drop-shadow(4px 6px 0 rgba(66, 91, 140, 0.18))
     drop-shadow(0 0 7px rgba(166, 109, 136, 0.14));
-  transform: translateY(-2px) rotate(0) scale(1.68);
+  transform: translateY(0) rotate(0) scale(1);
 }
 
 .desktop-shortcut.is-launching .desktop-icon-y2k-robbie {
