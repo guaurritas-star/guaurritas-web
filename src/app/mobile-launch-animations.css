@@ -1,8 +1,8 @@
 /* Expediente Robbie uses the two supplied folder states on every device.
-   The closed folder is the resting state; the open folder appears only while
-   the app is being launched by click/tap. */
+   Desktop: hover previews the open folder, just like the other Guaurritas icons.
+   Mobile: tap runs the same closed -> open transition before launching. */
 .desktop-robbie-state {
-  transform-origin: 50% 72%;
+  transform-origin: 50% 58%;
   transition:
     opacity 150ms ease,
     filter 260ms ease,
@@ -15,11 +15,33 @@
   transform: translateY(0) rotate(0) scale(1);
 }
 
+/* The supplied open-folder PNG has much more transparent canvas around the
+   artwork than the closed-folder PNG. The larger scale compensates for that
+   empty canvas so both states have the same perceived icon size. */
 .desktop-robbie-open {
   opacity: 0;
-  transform: translateY(5px) rotate(-2deg) scale(0.92);
+  transform: translateY(1px) rotate(-1deg) scale(1.68);
 }
 
+/* Desktop hover/focus behaves like the rest of the animated OS shortcuts. */
+@media (hover: hover) and (pointer: fine) {
+  .desktop-shortcut:hover .desktop-robbie-closed,
+  .desktop-shortcut:focus-visible .desktop-robbie-closed {
+    opacity: 0;
+    transform: translateY(2px) rotate(1deg) scale(0.96);
+  }
+
+  .desktop-shortcut:hover .desktop-robbie-open,
+  .desktop-shortcut:focus-visible .desktop-robbie-open {
+    opacity: 1;
+    filter:
+      drop-shadow(4px 6px 0 rgba(66, 91, 140, 0.18))
+      drop-shadow(0 0 7px rgba(166, 109, 136, 0.14));
+    transform: translateY(-2px) rotate(0) scale(1.68);
+  }
+}
+
+/* Click/tap launch state, shared by desktop and mobile. */
 .desktop-shortcut.is-launching .desktop-robbie-closed {
   opacity: 0;
   transform: translateY(3px) rotate(1deg) scale(0.94);
@@ -30,7 +52,7 @@
   filter:
     drop-shadow(4px 6px 0 rgba(66, 91, 140, 0.18))
     drop-shadow(0 0 7px rgba(166, 109, 136, 0.14));
-  transform: translateY(-3px) rotate(0) scale(1.04);
+  transform: translateY(-2px) rotate(0) scale(1.68);
 }
 
 .desktop-shortcut.is-launching .desktop-icon-y2k-robbie {
@@ -134,10 +156,10 @@
     transform: translateY(0) rotate(0) scale(1);
   }
   38% {
-    transform: translateY(1px) rotate(-1deg) scale(0.96);
+    transform: translateY(1px) rotate(-1deg) scale(0.97);
   }
   76% {
-    transform: translateY(-5px) rotate(1deg) scale(1.05);
+    transform: translateY(-4px) rotate(1deg) scale(1.04);
   }
   100% {
     transform: translateY(-2px) rotate(0) scale(1.02);
