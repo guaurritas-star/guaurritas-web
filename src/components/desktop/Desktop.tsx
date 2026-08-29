@@ -267,7 +267,10 @@ export default function Desktop() {
 
   return (
     <main
-      className={`relative h-dvh min-h-0 overflow-hidden bg-[#f2f2f2] text-[#263650] ${
+      style={{
+        backgroundImage: `url("${withBasePath("/guaurritas-desktop-wallpaper.jpeg")}")`,
+      }}
+      className={`desktop-wallpaper relative h-dvh min-h-0 overflow-hidden text-[#263650] ${
         selectedApp ? "mobile-app-open" : ""
       }`}
     >
@@ -289,7 +292,7 @@ export default function Desktop() {
                 <DesktopAppIcon kind={app.icon} className="h-full w-full" />
               </span>
 
-              <span className="desktop-shortcut-label border border-transparent bg-white/85 px-2 py-1 font-interface text-xs font-bold tracking-[0.02em] shadow-[2px_2px_0_rgba(66,91,140,0.18)] transition-colors group-hover:border-[#425b8c] group-focus-visible:border-[#425b8c]">
+              <span className="desktop-shortcut-label px-2 py-1 font-title text-xs font-bold tracking-[0.02em] text-[#263650] [text-shadow:0_1px_2px_rgba(255,255,255,0.9)]">
                 {app.name}
               </span>
             </button>

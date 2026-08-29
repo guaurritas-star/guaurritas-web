@@ -66,8 +66,7 @@
   }
 
   .desktop-shortcut.is-launching .desktop-shortcut-label {
-    border-color: #425b8c;
-    background: #eef3fb;
+    background: transparent;
   }
 
   .desktop-shortcut.is-launching .desktop-shortcut-icon {
