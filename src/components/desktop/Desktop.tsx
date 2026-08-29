@@ -17,7 +17,7 @@ const apps = [
   { id: "paint", name: "Paint", icon: "paint" as const },
   { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
   { id: "carrito", name: "Carrito", icon: "cart" as const },
-  { id: "robbie", name: "Expediente Robbie", icon: "notes" as const },
+  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const },
   { id: "chat", name: "Chat Guaurritas", icon: "pet" as const },
 ];
 
@@ -29,6 +29,7 @@ const desktopIconImages: Record<AppIconKind, string> = {
   paint: withBasePath("/icons/desktop/paint-y2k.webp"),
   notes: withBasePath("/icons/desktop/notes-y2k-closed.webp"),
   cart: withBasePath("/icons/desktop/cart-empty.webp"),
+  robbie: withBasePath("/icons/desktop/robbie-folder-closed.webp"),
 };
 
 function DesktopAppIcon({
@@ -87,6 +88,33 @@ function DesktopAppIcon({
           height={96}
           unoptimized
           className="desktop-notes-state desktop-notes-open absolute inset-0 h-full w-full object-contain"
+        />
+      </span>
+    );
+  }
+
+  if (kind === "robbie") {
+    return (
+      <span
+        aria-hidden="true"
+        className={`desktop-icon-y2k desktop-icon-y2k-robbie relative block ${className}`}
+      >
+        <Image
+          src={desktopIconImages.robbie}
+          alt=""
+          width={128}
+          height={96}
+          unoptimized
+          className="desktop-robbie-state desktop-robbie-closed absolute inset-0 h-full w-full object-contain"
+        />
+
+        <Image
+          src={withBasePath("/icons/desktop/robbie-folder-open.webp")}
+          alt=""
+          width={96}
+          height={120}
+          unoptimized
+          className="desktop-robbie-state desktop-robbie-open absolute inset-0 h-full w-full object-contain"
         />
       </span>
     );
@@ -188,8 +216,9 @@ export default function Desktop() {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const animateOnThisDevice = isMobile || appId === "robbie";
 
-    if (!isMobile || reduceMotion) {
+    if (!animateOnThisDevice || reduceMotion) {
       openApp(appId);
       return;
     }
