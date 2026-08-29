@@ -1,3 +1,6 @@
+import Image from "next/image";
+import { withBasePath } from "@/lib/base-path";
+
 const findings = [
   {
     number: "01",
@@ -127,8 +130,15 @@ export default function ExpedienteRobbieApp() {
                   <span>001</span>
                 </div>
                 <div className="mt-5 grid place-items-center">
-                  <div className="grid h-28 w-28 place-items-center rounded-full border-2 border-dashed border-[#425b8c] bg-[#e7edf7] text-6xl shadow-[4px_4px_0_#d4cbb9] sm:h-36 sm:w-36 sm:text-7xl">
-                    🐈
+                  <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-dashed border-[#425b8c] bg-[#e7edf7] shadow-[4px_4px_0_#d4cbb9] sm:h-36 sm:w-36">
+                    <Image
+                      src={withBasePath("/robbie/robbie-cat.webp")}
+                      alt="Robbie, gato naranja y blanco"
+                      fill
+                      sizes="(max-width: 639px) 112px, 144px"
+                      unoptimized
+                      className="object-cover object-center"
+                    />
                   </div>
                 </div>
                 <div className="mt-5 space-y-2 font-mono text-[10px] sm:text-xs">
