@@ -111,8 +111,8 @@ function DesktopAppIcon({
         <Image
           src={withBasePath("/icons/desktop/robbie-folder-open.webp")}
           alt=""
-          width={96}
-          height={120}
+          width={128}
+          height={96}
           unoptimized
           className="desktop-robbie-state desktop-robbie-open absolute inset-0 h-full w-full object-contain"
         />
