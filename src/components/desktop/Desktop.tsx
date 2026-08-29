@@ -300,18 +300,6 @@ export default function Desktop() {
         })}
       </section>
 
-      <div className="desktop-brand pointer-events-none absolute inset-0 flex items-center justify-center pb-14">
-        <div className="text-center">
-          <h1 className="text-5xl font-semibold italic text-[#425b8c] sm:text-7xl">
-            Guaurritas
-          </h1>
-
-          <p className="mt-3 max-w-md px-6 text-sm leading-6 sm:text-base">
-            Lo que comen, lo que usan, lo que viven y lo que aprenden.
-          </p>
-        </div>
-      </div>
-
       {selectedApp && (
         <RetroWindow
           title={selectedApp.name}
