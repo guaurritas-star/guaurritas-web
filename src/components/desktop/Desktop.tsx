@@ -7,7 +7,6 @@ import ExpedienteRobbieApp from "@/components/apps/ExpedienteRobbieApp";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
-import RetroDesktopIcon from "@/components/desktop/RetroDesktopIcon";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
 
@@ -188,10 +187,7 @@ function DesktopAppIcon({
 }
 
 const wixPages = {
-  home: "https://www.guaurritas.com/inicio",
-  guaurrinicio: "https://www.guaurritas.com/guaurrinicio",
-  about: "https://www.guaurritas.com/nosotros",
-  history: "https://www.guaurritas.com/historia",
+  home: "https://www.guaurritas.com/guarrinicio",
   blog: "https://www.guaurritas.com/blog",
   contact: "https://www.guaurritas.com/contact",
   faq: "https://www.guaurritas.com/faq",
@@ -220,12 +216,23 @@ function WixPageLink({
   );
 }
 
-function GuaurritasHeader({ onOpenShop }: { onOpenShop: () => void }) {
+function GuaurritasHeader({
+  onOpenShop,
+  onOpenRobbie,
+}: {
+  onOpenShop: () => void;
+  onOpenRobbie: () => void;
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openShop = () => {
     setMobileMenuOpen(false);
     onOpenShop();
+  };
+
+  const openRobbie = () => {
+    setMobileMenuOpen(false);
+    onOpenRobbie();
   };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
@@ -235,7 +242,7 @@ function GuaurritasHeader({ onOpenShop }: { onOpenShop: () => void }) {
       <WixPageLink href={wixPages.home} className="desktop-os-brand">
         <span className="desktop-os-brand-mascot" aria-hidden="true">
           <Image
-            src={withBasePath("/icons/desktop/notes-y2k-closed.webp")}
+            src={withBasePath("/icons/desktop/guaurritas-mascot.png")}
             alt=""
             fill
             sizes="42px"
@@ -246,23 +253,13 @@ function GuaurritasHeader({ onOpenShop }: { onOpenShop: () => void }) {
       </WixPageLink>
 
       <nav className="desktop-os-nav" aria-label="Navegación principal">
-        <div className="desktop-os-nav-group">
-          <WixPageLink href={wixPages.home} className="desktop-os-nav-link">
-            Inicio <span aria-hidden="true">▸</span>
-          </WixPageLink>
-          <div className="desktop-os-dropdown">
-            <WixPageLink href={wixPages.guaurrinicio}>Guaurrinicio</WixPageLink>
-          </div>
-        </div>
+        <WixPageLink href={wixPages.home} className="desktop-os-nav-link">
+          Inicio
+        </WixPageLink>
 
-        <div className="desktop-os-nav-group">
-          <WixPageLink href={wixPages.about} className="desktop-os-nav-link">
-            Nosotros <span aria-hidden="true">▸</span>
-          </WixPageLink>
-          <div className="desktop-os-dropdown">
-            <WixPageLink href={wixPages.history}>Nuestra historia</WixPageLink>
-          </div>
-        </div>
+        <button type="button" onClick={openRobbie} className="desktop-os-nav-link">
+          Nosotros
+        </button>
 
         <button type="button" onClick={openShop} className="desktop-os-nav-link">
           Tienda
@@ -316,15 +313,13 @@ function GuaurritasHeader({ onOpenShop }: { onOpenShop: () => void }) {
           </div>
           <div className="desktop-os-mobile-menu-body">
             <WixPageLink href={wixPages.home} onClick={closeMobileMenu}>Inicio</WixPageLink>
-            <WixPageLink href={wixPages.about} onClick={closeMobileMenu}>Nosotros</WixPageLink>
+            <button type="button" onClick={openRobbie}>Nosotros</button>
             <button type="button" onClick={openShop}>Tienda</button>
             <WixPageLink href={wixPages.blog} onClick={closeMobileMenu}>Blog</WixPageLink>
             <WixPageLink href={wixPages.contact} onClick={closeMobileMenu}>Contacto</WixPageLink>
             <details>
               <summary>Páginas</summary>
               <div className="desktop-os-mobile-submenu">
-                <WixPageLink href={wixPages.guaurrinicio} onClick={closeMobileMenu}>Guaurrinicio</WixPageLink>
-                <WixPageLink href={wixPages.history} onClick={closeMobileMenu}>Nuestra historia</WixPageLink>
                 <WixPageLink href={wixPages.faq} onClick={closeMobileMenu}>FAQ</WixPageLink>
                 <WixPageLink href={wixPages.terms} onClick={closeMobileMenu}>Términos y condiciones</WixPageLink>
                 <WixPageLink href={wixPages.privacy} onClick={closeMobileMenu}>Aviso de privacidad</WixPageLink>
@@ -455,7 +450,10 @@ export default function Desktop() {
         selectedApp ? "mobile-app-open" : ""
       }`}
     >
-      <GuaurritasHeader onOpenShop={openGuaurriverseFromHeader} />
+      <GuaurritasHeader
+        onOpenShop={openGuaurriverseFromHeader}
+        onOpenRobbie={() => openApp("robbie")}
+      />
 
       <section className="desktop-launcher grid h-[calc(100dvh-102px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
         {apps.map((app) => {
@@ -521,14 +519,22 @@ export default function Desktop() {
         </RetroWindow>
       )}
 
-      <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 border-t-2 border-[#875773] bg-[#D9A6B9] px-2 font-title text-white">
+      <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 px-2 font-title text-white">
         <button
           type="button"
-          className="shrink-0 border-2 border-[#875773] bg-[#c985a5] px-3 py-2 font-title text-xs font-bold text-white shadow-[2px_2px_0_#6f3f5b]"
+          className="desktop-taskbar-start shrink-0 font-title text-xs font-bold text-white"
         >
           <span className="flex items-center gap-2">
-            <RetroDesktopIcon kind="mark" className="h-5 w-5" />
-            <span className="hidden sm:inline">Inicio</span>
+            <span className="desktop-taskbar-mascot">
+              <Image
+                src={withBasePath("/icons/desktop/guaurritas-mascot.png")}
+                alt=""
+                fill
+                sizes="30px"
+                className="desktop-taskbar-mascot-source"
+              />
+            </span>
+            <span>Inicio</span>
           </span>
         </button>
 
@@ -554,8 +560,9 @@ export default function Desktop() {
           )}
         </div>
 
-        <div className="desktop-taskbar-clock shrink-0 border-2 border-[#875773] bg-[#c985a5] px-3 py-2 font-title text-xs text-white">
-          <span aria-hidden="true">◖))</span>
+        <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
+          <span className="desktop-taskbar-speaker" aria-hidden="true" />
+          <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
         </div>
       </footer>
