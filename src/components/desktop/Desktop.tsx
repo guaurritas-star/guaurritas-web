@@ -187,6 +187,180 @@ function DesktopAppIcon({
   );
 }
 
+const wixPages = {
+  home: "https://www.guaurritas.com/inicio",
+  guaurrinicio: "https://www.guaurritas.com/guaurrinicio",
+  about: "https://www.guaurritas.com/nosotros",
+  history: "https://www.guaurritas.com/historia",
+  blog: "https://www.guaurritas.com/blog",
+  contact: "https://www.guaurritas.com/contact",
+  faq: "https://www.guaurritas.com/faq",
+  terms: "https://www.guaurritas.com/terminos-y-condiciones",
+  privacy: "https://www.guaurritas.com/aviso-de-privacidad",
+  refunds: "https://www.guaurritas.com/reembolso",
+  cookies: "https://www.guaurritas.com/politica-cookies",
+  shipping: "https://www.guaurritas.com/envios-y-devoluciones",
+};
+
+function WixPageLink({
+  href,
+  children,
+  className = "",
+  onClick,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <a href={href} target="_top" className={className} onClick={onClick}>
+      {children}
+    </a>
+  );
+}
+
+function GuaurritasHeader({ onOpenShop }: { onOpenShop: () => void }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const openShop = () => {
+    setMobileMenuOpen(false);
+    onOpenShop();
+  };
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
+  return (
+    <header className="desktop-os-header">
+      <WixPageLink href={wixPages.home} className="desktop-os-brand">
+        <span className="desktop-os-brand-mascot" aria-hidden="true">
+          <Image
+            src={withBasePath("/icons/desktop/notes-y2k-closed.webp")}
+            alt=""
+            fill
+            sizes="42px"
+            className="desktop-os-brand-mascot-source"
+          />
+        </span>
+        <span>Guaurritas</span>
+      </WixPageLink>
+
+      <nav className="desktop-os-nav" aria-label="Navegación principal">
+        <div className="desktop-os-nav-group">
+          <WixPageLink href={wixPages.home} className="desktop-os-nav-link">
+            Inicio <span aria-hidden="true">▸</span>
+          </WixPageLink>
+          <div className="desktop-os-dropdown">
+            <WixPageLink href={wixPages.guaurrinicio}>Guaurrinicio</WixPageLink>
+          </div>
+        </div>
+
+        <div className="desktop-os-nav-group">
+          <WixPageLink href={wixPages.about} className="desktop-os-nav-link">
+            Nosotros <span aria-hidden="true">▸</span>
+          </WixPageLink>
+          <div className="desktop-os-dropdown">
+            <WixPageLink href={wixPages.history}>Nuestra historia</WixPageLink>
+          </div>
+        </div>
+
+        <button type="button" onClick={openShop} className="desktop-os-nav-link">
+          Tienda
+        </button>
+
+        <WixPageLink href={wixPages.blog} className="desktop-os-nav-link">
+          Blog
+        </WixPageLink>
+
+        <div className="desktop-os-nav-group">
+          <button type="button" className="desktop-os-nav-link">
+            Páginas <span aria-hidden="true">▸</span>
+          </button>
+          <div className="desktop-os-dropdown desktop-os-dropdown-pages">
+            <WixPageLink href={wixPages.faq}>FAQ</WixPageLink>
+            <WixPageLink href={wixPages.terms}>Términos y condiciones</WixPageLink>
+            <WixPageLink href={wixPages.privacy}>Aviso de privacidad</WixPageLink>
+            <WixPageLink href={wixPages.refunds}>Reembolso</WixPageLink>
+            <WixPageLink href={wixPages.cookies}>Política de cookies</WixPageLink>
+            <WixPageLink href={wixPages.shipping}>Envíos y devoluciones</WixPageLink>
+          </div>
+        </div>
+
+        <WixPageLink href={wixPages.contact} className="desktop-os-nav-link">
+          Contacto
+        </WixPageLink>
+      </nav>
+
+      <div className="desktop-os-online" aria-label="Guaurritas en línea">
+        <span className="desktop-os-online-led" aria-hidden="true" />
+        <span>En línea</span>
+      </div>
+
+      <button
+        type="button"
+        className="desktop-os-menu-toggle"
+        aria-expanded={mobileMenuOpen}
+        aria-controls="guaurritas-mobile-menu"
+        onClick={() => setMobileMenuOpen((open) => !open)}
+      >
+        Menú <span aria-hidden="true">▾</span>
+      </button>
+
+      {mobileMenuOpen && (
+        <div id="guaurritas-mobile-menu" className="desktop-os-mobile-menu">
+          <div className="desktop-os-mobile-menu-title">
+            <span>Menú — Guaurritas OS</span>
+            <button type="button" aria-label="Cerrar menú" onClick={closeMobileMenu}>
+              ×
+            </button>
+          </div>
+          <div className="desktop-os-mobile-menu-body">
+            <WixPageLink href={wixPages.home} onClick={closeMobileMenu}>Inicio</WixPageLink>
+            <WixPageLink href={wixPages.about} onClick={closeMobileMenu}>Nosotros</WixPageLink>
+            <button type="button" onClick={openShop}>Tienda</button>
+            <WixPageLink href={wixPages.blog} onClick={closeMobileMenu}>Blog</WixPageLink>
+            <WixPageLink href={wixPages.contact} onClick={closeMobileMenu}>Contacto</WixPageLink>
+            <details>
+              <summary>Páginas</summary>
+              <div className="desktop-os-mobile-submenu">
+                <WixPageLink href={wixPages.guaurrinicio} onClick={closeMobileMenu}>Guaurrinicio</WixPageLink>
+                <WixPageLink href={wixPages.history} onClick={closeMobileMenu}>Nuestra historia</WixPageLink>
+                <WixPageLink href={wixPages.faq} onClick={closeMobileMenu}>FAQ</WixPageLink>
+                <WixPageLink href={wixPages.terms} onClick={closeMobileMenu}>Términos y condiciones</WixPageLink>
+                <WixPageLink href={wixPages.privacy} onClick={closeMobileMenu}>Aviso de privacidad</WixPageLink>
+                <WixPageLink href={wixPages.refunds} onClick={closeMobileMenu}>Reembolso</WixPageLink>
+                <WixPageLink href={wixPages.cookies} onClick={closeMobileMenu}>Política de cookies</WixPageLink>
+                <WixPageLink href={wixPages.shipping} onClick={closeMobileMenu}>Envíos y devoluciones</WixPageLink>
+              </div>
+            </details>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function DesktopClock() {
+  const [time, setTime] = useState("--:--");
+
+  useEffect(() => {
+    const updateTime = () => {
+      setTime(
+        new Intl.DateTimeFormat("es-MX", {
+          hour: "numeric",
+          minute: "2-digit",
+        }).format(new Date()),
+      );
+    };
+
+    updateTime();
+    const timer = window.setInterval(updateTime, 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return <time>{time}</time>;
+}
+
 export default function Desktop() {
   const [activeApp, setActiveApp] = useState<string | null>(null);
   const [minimizedApp, setMinimizedApp] = useState<string | null>(null);
@@ -265,6 +439,13 @@ export default function Desktop() {
     setMinimizedApp(null);
   };
 
+  const openGuaurriverseFromHeader = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("world");
+    window.history.pushState({ world: null }, "", url);
+    openApp("mundos");
+  };
+
   return (
     <main
       style={{
@@ -274,7 +455,9 @@ export default function Desktop() {
         selectedApp ? "mobile-app-open" : ""
       }`}
     >
-      <section className="desktop-launcher grid h-[calc(100dvh-52px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
+      <GuaurritasHeader onOpenShop={openGuaurriverseFromHeader} />
+
+      <section className="desktop-launcher grid h-[calc(100dvh-102px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
         {apps.map((app) => {
           const isLaunching = launchingApp === app.id;
 
@@ -338,14 +521,14 @@ export default function Desktop() {
         </RetroWindow>
       )}
 
-      <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 border-t-2 border-[#425b8c] bg-[#dce4f2] px-2">
+      <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 border-t-2 border-[#875773] bg-[#D9A6B9] px-2 font-title text-white">
         <button
           type="button"
-          className="shrink-0 border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs font-bold shadow-[2px_2px_0_#425b8c]"
+          className="shrink-0 border-2 border-[#875773] bg-[#c985a5] px-3 py-2 font-title text-xs font-bold text-white shadow-[2px_2px_0_#6f3f5b]"
         >
           <span className="flex items-center gap-2">
             <RetroDesktopIcon kind="mark" className="h-5 w-5" />
-            <span className="hidden sm:inline">Guaurritas.exe</span>
+            <span className="hidden sm:inline">Inicio</span>
           </span>
         </button>
 
@@ -359,8 +542,8 @@ export default function Desktop() {
                   ? `Minimizar ${taskApp.name}`
                   : `Restaurar ${taskApp.name}`
               }
-              className={`flex min-w-0 max-w-[260px] items-center gap-2 border-2 border-[#425b8c] px-3 py-2 font-mono text-[10px] font-bold shadow-[2px_2px_0_#425b8c] sm:text-xs ${
-                activeApp === taskApp.id ? "bg-[#c9d6ec]" : "bg-white"
+              className={`flex min-w-0 max-w-[260px] items-center gap-2 border-2 border-[#875773] px-3 py-2 font-title text-[10px] font-bold text-white shadow-[2px_2px_0_#6f3f5b] sm:text-xs ${
+                activeApp === taskApp.id ? "bg-[#b97496]" : "bg-[#c985a5]"
               }`}
             >
               <span className="h-5 w-5 shrink-0">
@@ -371,8 +554,9 @@ export default function Desktop() {
           )}
         </div>
 
-        <div className="hidden shrink-0 border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-xs sm:block">
-          GUAURRIVERSE ONLINE
+        <div className="desktop-taskbar-clock shrink-0 border-2 border-[#875773] bg-[#c985a5] px-3 py-2 font-title text-xs text-white">
+          <span aria-hidden="true">◖))</span>
+          <DesktopClock />
         </div>
       </footer>
     </main>
