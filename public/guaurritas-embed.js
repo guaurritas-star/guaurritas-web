@@ -4,6 +4,7 @@
   const ALLOWED_ORIGIN = "https://guaurritas-star.github.io";
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
+  const CHECKOUT_MESSAGE = "guaurritas:checkout";
 
   if (customElements.get(TAG_NAME)) return;
 
@@ -119,6 +120,22 @@
         );
       };
 
+      const forwardCheckout = (message) => {
+        if (!Array.isArray(message.items) || message.items.length === 0) return;
+
+        this.dispatchEvent(
+          new CustomEvent("guaurritas-checkout", {
+            detail: {
+              items: message.items,
+              buyerNote:
+                typeof message.buyerNote === "string" ? message.buyerNote : "",
+            },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      };
+
       this._messageHandler = (event) => {
         // Solo aceptamos mensajes provenientes del iframe real de Guaurritas.
         if (event.origin !== ALLOWED_ORIGIN) return;
@@ -141,6 +158,14 @@
         // JSON.stringify({ type: "resize", height })
         if (message.type === "resize") {
           applyHeight(message.height);
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === CHECKOUT_MESSAGE
+        ) {
+          forwardCheckout(message);
           return;
         }
 
