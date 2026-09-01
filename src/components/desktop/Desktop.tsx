@@ -242,7 +242,7 @@ function GuaurritasHeader({
       <WixPageLink href={wixPages.home} className="desktop-os-brand">
         <span className="desktop-os-brand-mascot" aria-hidden="true">
           <Image
-            src={withBasePath("/icons/desktop/guaurritas-mascot.png")}
+            src={withBasePath("/icons/desktop/guaurritas-mascot-hd.webp")}
             alt=""
             fill
             sizes="42px"
@@ -527,7 +527,7 @@ export default function Desktop() {
           <span className="flex items-center gap-2">
             <span className="desktop-taskbar-mascot">
               <Image
-                src={withBasePath("/icons/desktop/guaurritas-mascot.png")}
+                src={withBasePath("/icons/desktop/guaurritas-mascot-hd.webp")}
                 alt=""
                 fill
                 sizes="30px"
