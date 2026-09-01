@@ -1,4 +1,5 @@
 import type { CartItem } from "@/lib/cart-store";
+import type { WixCatalogReference } from "@/lib/wix-commerce-map";
 
 export const WIX_CHECKOUT_MESSAGE_TYPE = "guaurritas:checkout";
 export const GUAURRITAS_BRIDGE_SOURCE = "guaurritas-web";
@@ -8,7 +9,7 @@ export type WixCheckoutPayloadItem = {
   name: string;
   detail: string;
   quantity: number;
-  catalogReference: NonNullable<CartItem["wix"]>["catalogReference"];
+  catalogReference: WixCatalogReference;
 };
 
 export type WixCheckoutRequest = {
@@ -40,7 +41,7 @@ export function requestWixCheckout(
     return { ok: false, message: "Tu carrito está vacío." };
   }
 
-  const unsupported = items.filter((item) => !item.wix?.supported);
+  const unsupported = items.filter((item) => !item.wix.supported);
   if (unsupported.length) {
     return {
       ok: false,
@@ -63,17 +64,25 @@ export function requestWixCheckout(
     };
   }
 
-  const payload: WixCheckoutRequest = {
-    source: GUAURRITAS_BRIDGE_SOURCE,
-    type: WIX_CHECKOUT_MESSAGE_TYPE,
-    buyerNote: buildBuyerNote(items),
-    items: items.map((item) => ({
+  const checkoutItems: WixCheckoutPayloadItem[] = items.map((item) => {
+    if (!item.wix.supported) {
+      throw new Error(`Unsupported Wix cart item: ${item.id}`);
+    }
+
+    return {
       cartItemId: item.id,
       name: item.name,
       detail: item.detail,
       quantity: item.quantity,
-      catalogReference: item.wix!.catalogReference!,
-    })),
+      catalogReference: item.wix.catalogReference,
+    };
+  });
+
+  const payload: WixCheckoutRequest = {
+    source: GUAURRITAS_BRIDGE_SOURCE,
+    type: WIX_CHECKOUT_MESSAGE_TYPE,
+    buyerNote: buildBuyerNote(items),
+    items: checkoutItems,
   };
 
   window.parent.postMessage(payload, "*");
