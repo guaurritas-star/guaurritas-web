@@ -104,20 +104,14 @@ textarea {
 
 .desktop-os-brand-mascot {
   position: relative;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  overflow: hidden;
-  border-radius: 50%;
-  border: 1px solid #f4d9a8;
-  background: #f8ead7;
-  box-shadow: 1px 1px 0 #142968;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  filter: drop-shadow(1px 2px 0 rgba(15, 35, 96, 0.55));
 }
 
 .desktop-os-brand-mascot-source {
-  object-fit: cover;
-  object-position: 50% 52%;
-  transform: scale(1.25);
+  object-fit: contain;
 }
 
 .desktop-os-nav {
@@ -262,16 +256,11 @@ textarea {
   width: 30px;
   height: 30px;
   flex: 0 0 30px;
-  overflow: hidden;
-  border-radius: 50%;
-  border: 1px solid #f4d9a8;
-  background: #fff;
+  filter: drop-shadow(1px 1px 0 rgba(111, 63, 91, 0.65));
 }
 
 .desktop-taskbar-mascot-source {
-  object-fit: cover;
-  object-position: 50% 52%;
-  transform: scale(1.25);
+  object-fit: contain;
 }
 
 .desktop-taskbar-speaker {
