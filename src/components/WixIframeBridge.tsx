@@ -28,6 +28,20 @@ function getMobileContentHeight() {
     return Math.max(1, Math.ceil(document.body.scrollHeight));
   }
 
+  // En el launcher la taskbar marca el final visual real de Guaurritas OS.
+  // main.scrollHeight puede conservar parte del antiguo alto de viewport y
+  // hacer que Wix reserve un bloque blanco después de la barra.
+  if (!main.classList.contains("mobile-app-open")) {
+    const taskbar = main.querySelector(":scope > .desktop-taskbar");
+
+    if (taskbar instanceof HTMLElement) {
+      const mainTop = main.getBoundingClientRect().top;
+      const taskbarBottom = taskbar.getBoundingClientRect().bottom;
+
+      return Math.max(1, Math.ceil(taskbarBottom - mainTop));
+    }
+  }
+
   return Math.max(
     1,
     Math.ceil(Math.max(main.getBoundingClientRect().height, main.scrollHeight)),
