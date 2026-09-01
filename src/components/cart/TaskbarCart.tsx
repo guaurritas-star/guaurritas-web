@@ -9,6 +9,7 @@ import {
   useCart,
 } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
+import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
 
 function money(value: number) {
   return new Intl.NumberFormat("es-MX", {
@@ -20,6 +21,7 @@ function money(value: number) {
 
 export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [open, setOpen] = useState(false);
+  const [checkoutStatus, setCheckoutStatus] = useState("");
   const shellRef = useRef<HTMLDivElement>(null);
   const cart = useCart();
 
@@ -42,6 +44,24 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
       window.removeEventListener("pointerdown", closeOutside);
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) setCheckoutStatus("");
+  }, [open]);
+
+  const proceedToCheckout = () => {
+    const result = requestWixCheckout(cart.items);
+
+    if (!result.ok) {
+      const unsupported = result.unsupportedNames?.length
+        ? ` (${result.unsupportedNames.join(", ")})`
+        : "";
+      setCheckoutStatus(`${result.message}${unsupported}`);
+      return;
+    }
+
+    setCheckoutStatus("Preparando tu pago seguro en Wix…");
+  };
 
   return (
     <div ref={shellRef} className="taskbar-cart-shell">
@@ -89,12 +109,20 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     <span className="taskbar-cart-item-copy">
                       <strong>{item.name}</strong>
                       <small>{item.detail}</small>
+                      {!item.wix.supported && (
+                        <small className="mt-1 font-bold text-[#9f5860]">
+                          Pendiente de conectar a Wix
+                        </small>
+                      )}
                     </span>
                     <span className="taskbar-cart-quantity" aria-label={`Cantidad de ${item.name}`}>
                       <button
                         type="button"
                         aria-label={`Quitar una unidad de ${item.name}`}
-                        onClick={() => changeCartQuantity(item.id, -1)}
+                        onClick={() => {
+                          setCheckoutStatus("");
+                          changeCartQuantity(item.id, -1);
+                        }}
                       >
                         −
                       </button>
@@ -102,7 +130,10 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <button
                         type="button"
                         aria-label={`Agregar otra unidad de ${item.name}`}
-                        onClick={() => changeCartQuantity(item.id, 1)}
+                        onClick={() => {
+                          setCheckoutStatus("");
+                          changeCartQuantity(item.id, 1);
+                        }}
                       >
                         +
                       </button>
@@ -114,7 +145,10 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       type="button"
                       className="taskbar-cart-remove"
                       aria-label={`Eliminar ${item.name} del carrito`}
-                      onClick={() => removeCartItem(item.id)}
+                      onClick={() => {
+                        setCheckoutStatus("");
+                        removeCartItem(item.id);
+                      }}
                     >
                       ×
                     </button>
@@ -124,15 +158,32 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
               <footer className="taskbar-cart-footer">
                 <strong>Total: {money(cart.total)}</strong>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(false);
-                    onShop();
-                  }}
-                >
-                  Seguir comprando
-                </button>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      onShop();
+                    }}
+                  >
+                    Seguir comprando
+                  </button>
+                  <button
+                    type="button"
+                    onClick={proceedToCheckout}
+                    className="!border-[#425b8c] !bg-[#425b8c] !text-white shadow-[2px_2px_0_#aab8d2]"
+                  >
+                    Proceder a pagar
+                  </button>
+                </div>
+                {checkoutStatus && (
+                  <p
+                    className="basis-full text-right text-[10px] font-semibold leading-4 text-[#53627a]"
+                    aria-live="polite"
+                  >
+                    {checkoutStatus}
+                  </p>
+                )}
               </footer>
             </>
           )}
