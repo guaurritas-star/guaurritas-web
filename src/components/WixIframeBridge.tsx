@@ -56,6 +56,7 @@ export default function WixIframeBridge() {
     // pantalla completa. La pantalla principal del launcher se deja crecer de
     // forma natural para que no reserve espacio vacío antes de Gallery.
     const baseViewportHeight = Math.max(1, Math.round(window.innerHeight));
+    const mobileLauncherHeight = Math.max(1, baseViewportHeight - 98);
 
     const style = document.createElement("style");
     style.id = "guaurritas-wix-iframe-layout";
@@ -87,6 +88,21 @@ export default function WixIframeBridge() {
           height: auto !important;
           min-height: 0 !important;
           overflow: visible !important;
+        }
+
+        /*
+         * La pantalla principal conserva el alto disponible original de Wix,
+         * pero lo usa como wallpaper en vez de dejarlo como un bloque blanco.
+         * Las tres filas se reparten sobre ese espacio para respirar mejor.
+         */
+        main:not(.mobile-app-open) > .desktop-launcher {
+          min-height: ${mobileLauncherHeight}px !important;
+          align-content: space-evenly !important;
+        }
+
+        main:not(.mobile-app-open) .desktop-shortcut-icon {
+          width: 6rem !important;
+          height: 6rem !important;
         }
 
         /*
