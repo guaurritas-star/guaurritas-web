@@ -81,6 +81,7 @@
         if (!Number.isFinite(exactHeight) || exactHeight <= 0) return;
 
         const cssHeight = `${exactHeight}px`;
+        const wixElementWrapper = this.parentElement;
 
         // El alto que manda WixIframeBridge es la fuente de verdad.
         // Forzamos la altura en el host real de Wix y en sus hijos para
@@ -96,6 +97,16 @@
         iframe.style.setProperty("height", cssHeight, "important");
         iframe.style.setProperty("min-height", cssHeight, "important");
         iframe.style.setProperty("max-height", cssHeight, "important");
+
+        // Wix envuelve el Custom Element en un contenedor propio que puede
+        // conservar el min-height configurado originalmente (655 px en el
+        // breakpoint móvil), aunque el iframe ya sea más corto. Ese mínimo es
+        // el espacio blanco que queda entre la taskbar y la siguiente sección.
+        if (wixElementWrapper) {
+          wixElementWrapper.style.setProperty("height", cssHeight, "important");
+          wixElementWrapper.style.setProperty("min-height", "0px", "important");
+          wixElementWrapper.style.setProperty("max-height", "none", "important");
+        }
 
         this.setAttribute("data-content-height", String(exactHeight));
 
