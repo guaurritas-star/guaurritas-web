@@ -7,6 +7,7 @@ import ExpedienteRobbieApp from "@/components/apps/ExpedienteRobbieApp";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
+import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
 
@@ -15,12 +16,11 @@ const apps = [
   { id: "mascota", name: "Mi mascota", icon: "pet" as const },
   { id: "paint", name: "Paint", icon: "paint" as const },
   { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
-  { id: "carrito", name: "Carrito", icon: "cart" as const },
   { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const },
   { id: "chat", name: "Chat Guaurritas", icon: "pet" as const },
 ];
 
-type AppIconKind = (typeof apps)[number]["icon"];
+type AppIconKind = (typeof apps)[number]["icon"] | "cart";
 
 const desktopIconImages: Record<AppIconKind, string> = {
   world: withBasePath("/icons/desktop/world-planet.webp"),
@@ -561,7 +561,7 @@ export default function Desktop() {
         </div>
 
         <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
-          <span className="desktop-taskbar-speaker" aria-hidden="true" />
+          <TaskbarCart onShop={openGuaurriverseFromHeader} />
           <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
         </div>

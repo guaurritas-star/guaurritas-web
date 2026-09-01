@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 
 type CategoryId =
@@ -638,8 +639,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
   const [inspirationFeedback, setInspirationFeedback] = useState("");
   const [inspirationInputKey, setInspirationInputKey] = useState(0);
-  const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
+  const { count: cartCount } = useCart();
 
   const inspirationPreviews = useMemo(
     () =>
@@ -817,7 +818,14 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const addToCart = () => {
     if (!selectedProduct) return;
 
-    setCartCount((count) => count + 1);
+    const isPetcake = selectedProduct.id === "petcakes";
+    const optionIndex = isPetcake
+      ? petcakeSize * 2 + (petcakeFinish === "fondant" ? 1 : 0)
+      : selectedOption;
+    const cartOption =
+      selectedProduct.options[optionIndex] ?? selectedProduct.options[0];
+    const cartImage = cartOption.image ?? selectedProduct.image;
+
     if (selectedProduct.id === "guaurricookies") {
       const quantityValue = Number(bulkQuantityInput);
       const totalGrams = Math.round(
@@ -839,6 +847,14 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       const calculatedPrice = Math.round(
         totalGrams * 0.6 * (1 - discountRate),
       );
+      const detail = `${formatBulkWeight(totalGrams)} · ${distribution}`;
+      addCartItem({
+        id: `cuisine:${selectedProduct.id}:${totalGrams}:${distribution}`,
+        name: selectedProduct.name,
+        detail,
+        unitPrice: calculatedPrice,
+        image: cartImage,
+      });
       setNotice(
         `${selectedProduct.name} ${formatBulkWeight(totalGrams)} por ${money(calculatedPrice)}: ${distribution}. Se agregó al carrito.`,
       );
@@ -846,9 +862,17 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     }
 
     if (selectedProduct.id === "chilaquidogs") {
-      const size = selectedProduct.options[selectedOption].label;
+      const size = cartOption.label;
+      const detail = `${size} · ${chilaquiProtein} · salsa ${chilaquiSalsa?.toLocaleLowerCase("es")}`;
+      addCartItem({
+        id: `cuisine:${selectedProduct.id}:${selectedOption}:${chilaquiProtein}:${chilaquiSalsa}`,
+        name: selectedProduct.name,
+        detail,
+        unitPrice: cartOption.price,
+        image: cartImage,
+      });
       setNotice(
-        `${selectedProduct.name} ${size} · ${chilaquiProtein} · salsa ${chilaquiSalsa?.toLocaleLowerCase("es")} se agregó al carrito.`,
+        `${selectedProduct.name} ${detail} se agregó al carrito.`,
       );
       return;
     }
@@ -861,6 +885,21 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               : "fotos de inspiración"
           }`
         : "";
+    const detail = [
+      cartOption.label,
+      petType,
+      petProtein,
+      customize === "yes" ? "personalizado" : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    addCartItem({
+      id: `cuisine:${selectedProduct.id}:${optionIndex}:${petType ?? ""}:${petProtein ?? ""}:${customize ?? ""}:${inspirationPhotos.length}`,
+      name: selectedProduct.name,
+      detail,
+      unitPrice: cartOption.price,
+      image: cartImage,
+    });
     setNotice(`${selectedProduct.name}${inspirationSuffix} se agregó al carrito.`);
   };
 

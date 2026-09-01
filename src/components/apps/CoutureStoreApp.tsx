@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 
 type CollectionId = "amuleto" | "clasica" | "encanto";
@@ -133,8 +134,8 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
   const [viewMode, setViewMode] = useState<ViewMode>("product");
   const [fitHelperOpen, setFitHelperOpen] = useState(false);
   const [neckInput, setNeckInput] = useState("");
-  const [cartCount, setCartCount] = useState(0);
   const [notice, setNotice] = useState("");
+  const { count: cartCount } = useCart();
 
   const collection = collections.find((item) => item.id === collectionId)!;
   const color = collection.colors.find((item) => item.id === colorId) ?? collection.colors[0];
@@ -160,7 +161,13 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
   };
 
   const addToCart = () => {
-    setCartCount((count) => count + 1);
+    addCartItem({
+      id: `couture:${collection.id}:${color.id}:${size.id}`,
+      name: collection.name,
+      detail: `${color.name} · talla ${size.name}`,
+      unitPrice: price,
+      image: color.productImage,
+    });
     setNotice(
       `${collection.name} · ${color.name} · talla ${size.name} se agregó al carrito.`,
     );
