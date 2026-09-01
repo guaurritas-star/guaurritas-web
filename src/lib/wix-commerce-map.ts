@@ -258,10 +258,7 @@ export function resolveCuisineWixBinding(
   }
 
   if (productKey === "sticks") {
-    return {
-      supported: false,
-      reason: "GuaurriSticks todavía no existe como producto en Wix Stores.",
-    };
+    return supported("29576014-b5ff-46dd-85f8-875dbb4f5e06", 79);
   }
 
   const optionIndex = parseOptionIndex(parts);
