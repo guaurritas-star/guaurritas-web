@@ -187,7 +187,7 @@ function DesktopAppIcon({
 }
 
 const wixPages = {
-  home: "https://www.guaurritas.com/guarrinicio",
+  home: "https://www.guaurritas.com/guaurrinicio",
   blog: "https://www.guaurritas.com/blog",
   contact: "https://www.guaurritas.com/contact",
   faq: "https://www.guaurritas.com/faq",
