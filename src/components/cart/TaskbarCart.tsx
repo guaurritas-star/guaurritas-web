@@ -60,7 +60,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
           {cart.items.length === 0 ? (
             <div className="taskbar-cart-empty-message">
-              <p>Tu carrito está esperando algo guaurri.</p>
+              <p>Tu carrito está esperando algo guarridelicioso.</p>
               <button
                 type="button"
                 onClick={() => {
