@@ -1,6 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import {
+  resolveCuisineWixBinding,
+  type WixCartBinding,
+} from "@/lib/wix-commerce-map";
 
 export type CartItem = {
   id: string;
@@ -9,9 +13,11 @@ export type CartItem = {
   unitPrice: number;
   image: string;
   quantity: number;
+  wix: WixCartBinding;
 };
 
-type NewCartItem = Omit<CartItem, "quantity">;
+type NewCartItem = Omit<CartItem, "quantity" | "wix">;
+type StoredCartItem = Omit<CartItem, "wix"> & { wix?: WixCartBinding };
 
 type CartSnapshot = {
   items: CartItem[];
@@ -47,6 +53,20 @@ function emit() {
   listeners.forEach((listener) => listener());
 }
 
+function enrichCartItem(item: StoredCartItem): CartItem {
+  const wix = resolveCuisineWixBinding(item);
+
+  return {
+    id: item.id,
+    name: item.name,
+    detail: item.detail,
+    unitPrice: wix.supported ? wix.wixUnitPrice : item.unitPrice,
+    image: item.image,
+    quantity: item.quantity,
+    wix,
+  };
+}
+
 export function hydrateCart() {
   if (hydrated || typeof window === "undefined") return;
   hydrated = true;
@@ -54,16 +74,18 @@ export function hydrateCart() {
   try {
     const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]");
     if (Array.isArray(stored)) {
-      items = stored.filter(
-        (item): item is CartItem =>
-          typeof item?.id === "string" &&
-          typeof item?.name === "string" &&
-          typeof item?.detail === "string" &&
-          typeof item?.unitPrice === "number" &&
-          typeof item?.image === "string" &&
-          Number.isInteger(item?.quantity) &&
-          item.quantity > 0,
-      );
+      items = stored
+        .filter(
+          (item): item is StoredCartItem =>
+            typeof item?.id === "string" &&
+            typeof item?.name === "string" &&
+            typeof item?.detail === "string" &&
+            typeof item?.unitPrice === "number" &&
+            typeof item?.image === "string" &&
+            Number.isInteger(item?.quantity) &&
+            item.quantity > 0,
+        )
+        .map(enrichCartItem);
     }
   } catch {
     items = [];
@@ -73,15 +95,21 @@ export function hydrateCart() {
 }
 
 export function addCartItem(item: NewCartItem) {
+  const enriched = enrichCartItem({ ...item, quantity: 1 });
   const existing = items.find((current) => current.id === item.id);
 
   items = existing
     ? items.map((current) =>
         current.id === item.id
-          ? { ...current, quantity: current.quantity + 1 }
+          ? {
+              ...current,
+              unitPrice: enriched.unitPrice,
+              wix: enriched.wix,
+              quantity: current.quantity + 1,
+            }
           : current,
       )
-    : [...items, { ...item, quantity: 1 }];
+    : [...items, enriched];
 
   emit();
 }
