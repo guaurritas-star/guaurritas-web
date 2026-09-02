@@ -6,6 +6,8 @@
   const HEIGHT_MESSAGE = "guaurritas:height";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
   const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
+  const SPEI_PROOF_UPLOAD_URL_MESSAGE = "guaurritas:spei-proof-upload-url-request";
+  const SPEI_PROOF_SUBMIT_MESSAGE = "guaurritas:spei-proof-submit";
   const SPEI_RESPONSE_ATTRIBUTE = "data-spei-response";
 
   if (customElements.get(TAG_NAME)) return;
@@ -150,10 +152,10 @@
         );
       };
 
-      const forwardSpeiRequest = () => {
+      const forwardSpeiEvent = (eventName, message) => {
         this.dispatchEvent(
-          new CustomEvent("guaurritas-spei-request", {
-            detail: {},
+          new CustomEvent(eventName, {
+            detail: message && typeof message === "object" ? message : {},
             bubbles: true,
             composed: true,
           }),
@@ -193,7 +195,23 @@
           message.source === BRIDGE_SOURCE &&
           message.type === SPEI_REQUEST_MESSAGE
         ) {
-          forwardSpeiRequest();
+          forwardSpeiEvent("guaurritas-spei-request", message);
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === SPEI_PROOF_UPLOAD_URL_MESSAGE
+        ) {
+          forwardSpeiEvent("guaurritas-spei-proof-upload-url", message);
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === SPEI_PROOF_SUBMIT_MESSAGE
+        ) {
+          forwardSpeiEvent("guaurritas-spei-proof-submit", message);
           return;
         }
 
