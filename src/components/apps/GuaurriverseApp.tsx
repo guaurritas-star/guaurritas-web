@@ -2,8 +2,13 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
+import NationalCuisineStoreApp from "@/components/apps/NationalCuisineStoreApp";
 import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
 import { withBasePath } from "@/lib/base-path";
+import {
+  setFulfillmentMode,
+  type FulfillmentMode,
+} from "@/lib/fulfillment-store";
 
 type WorldId =
   | "club"
@@ -175,11 +180,100 @@ function WorldMediaPreview({ world }: { world: World }) {
   );
 }
 
+function CuisineDeliveryChooser({
+  onChoose,
+  onBack,
+}: {
+  onChoose: (mode: FulfillmentMode) => void;
+  onBack: () => void;
+}) {
+  return (
+    <section className="-m-4 min-h-full bg-[#f7fafb] p-5 sm:-m-6 sm:p-8">
+      <div className="mx-auto flex min-h-[30rem] w-full max-w-5xl flex-col justify-center">
+        <button
+          type="button"
+          onClick={onBack}
+          className="self-start font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#425b8c]"
+        >
+          ← Volver al Guaurriverse
+        </button>
+
+        <header className="mt-7 text-center">
+          <p className="font-interface text-[10px] font-bold uppercase tracking-[0.22em] text-[#5e96a5]">
+            Guaurritas Cuisine
+          </p>
+          <h2 className="mt-2 font-serif text-3xl font-semibold text-[#263650] sm:text-4xl">
+            ¿Cómo quieres recibir tu pedido?
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#657287]">
+            Primero elegimos la logística. Así solo te mostramos productos que
+            realmente pueden llegar como deben.
+          </p>
+        </header>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => onChoose("national")}
+            className="group rounded-[1.6rem] border-2 border-[#7fa5b3] bg-white p-6 text-left shadow-[5px_5px_0_#b9d7df] transition hover:-translate-y-1"
+          >
+            <span className="text-4xl" aria-hidden="true">📦</span>
+            <span className="mt-5 block font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#5e96a5]">
+              Envío nacional
+            </span>
+            <strong className="mt-1 block font-serif text-2xl text-[#263650]">
+              Recíbelo en México
+            </strong>
+            <span className="mt-3 block text-sm leading-6 text-[#657287]">
+              Premios, snacks y accesorios preparados para viajar por paquetería.
+              Los kits especiales se sumarán después de sus pruebas de empaque.
+            </span>
+            <span className="mt-5 inline-flex rounded-full bg-[#e8f2f4] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
+              Ver catálogo nacional →
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onChoose("leon")}
+            className="group rounded-[1.6rem] border-2 border-[#d2a5ad] bg-white p-6 text-left shadow-[5px_5px_0_#edd0d6] transition hover:-translate-y-1"
+          >
+            <span className="text-4xl" aria-hidden="true">📍</span>
+            <span className="mt-5 block font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#a66271]">
+              Entrega en León
+            </span>
+            <strong className="mt-1 block font-serif text-2xl text-[#263650]">
+              Cuisine completo
+            </strong>
+            <span className="mt-3 block text-sm leading-6 text-[#657287]">
+              Petcakes, cupcakes, antojitos, repostería y todo el catálogo con
+              entrega local. El pedido se confirma con pago completo.
+            </span>
+            <span className="mt-5 inline-flex rounded-full bg-[#fcf2f4] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#8f5663]">
+              Ver catálogo León →
+            </span>
+          </button>
+        </div>
+
+        <p className="mt-5 text-center font-interface text-[10px] leading-5 text-[#718093]">
+          Puedes cambiar de modalidad en cualquier momento. El carrito mantiene
+          separados los artículos nacionales y los de entrega local.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function GuaurriverseApp() {
   const [selectedWorldId, setSelectedWorldId] = useState<WorldId | null>(null);
+  const [cuisineMode, setCuisineMode] = useState<FulfillmentMode | null>(null);
 
   useEffect(() => {
-    const syncWorld = () => setSelectedWorldId(readWorldFromUrl());
+    const syncWorld = () => {
+      const nextWorld = readWorldFromUrl();
+      setSelectedWorldId(nextWorld);
+      if (nextWorld !== "cuisine") setCuisineMode(null);
+    };
 
     syncWorld();
     window.addEventListener("popstate", syncWorld);
@@ -191,16 +285,36 @@ export default function GuaurriverseApp() {
 
   const openWorld = (worldId: WorldId) => {
     setSelectedWorldId(worldId);
+    if (worldId === "cuisine") setCuisineMode(null);
     updateWorldInUrl(worldId);
   };
 
   const showAllWorlds = () => {
     setSelectedWorldId(null);
+    setCuisineMode(null);
     updateWorldInUrl(null);
   };
 
+  const chooseCuisineMode = (mode: FulfillmentMode) => {
+    setFulfillmentMode(mode);
+    setCuisineMode(mode);
+  };
+
   if (selectedWorld?.id === "cuisine") {
-    return <CuisineStoreApp onBack={showAllWorlds} />;
+    if (cuisineMode === "national") {
+      return <NationalCuisineStoreApp onBack={() => setCuisineMode(null)} />;
+    }
+
+    if (cuisineMode === "leon") {
+      return <CuisineStoreApp onBack={() => setCuisineMode(null)} />;
+    }
+
+    return (
+      <CuisineDeliveryChooser
+        onChoose={chooseCuisineMode}
+        onBack={showAllWorlds}
+      />
+    );
   }
 
   if (selectedWorld?.id === "couture") {
