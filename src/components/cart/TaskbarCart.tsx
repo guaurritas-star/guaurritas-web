@@ -11,7 +11,7 @@ import {
 } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
-import { calculateProtectedOnlineTotal } from "@/lib/payment-pricing";
+import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
 
 function money(value: number) {
   return new Intl.NumberFormat("es-MX", {
@@ -69,8 +69,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
   const nationalBaseTotal = itemTotal(nationalItems);
   const leonTransferTotal = itemTotal(leonItems);
-  const nationalOnlineTotal = calculateProtectedOnlineTotal(nationalBaseTotal);
-  const leonOnlineTotal = calculateProtectedOnlineTotal(leonTransferTotal);
+  const nationalOnlineTotal = buildProtectedUnitPrices(nationalItems).protectedTotal;
+  const leonOnlineTotal = buildProtectedUnitPrices(leonItems).protectedTotal;
 
   const proceedToCheckout = (items: CartItem[], label: string) => {
     const result = requestWixCheckout(items);
