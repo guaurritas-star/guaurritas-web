@@ -5,16 +5,37 @@
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
+  const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
+  const SPEI_RESPONSE_ATTRIBUTE = "data-spei-response";
 
   if (customElements.get(TAG_NAME)) return;
 
   class GuaurritasEmbed extends HTMLElement {
+    static get observedAttributes() {
+      return [SPEI_RESPONSE_ATTRIBUTE];
+    }
+
     constructor() {
       super();
       this._iframe = null;
       this._wrapper = null;
       this._messageHandler = null;
       this._shadow = this.attachShadow({ mode: "open" });
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (name !== SPEI_RESPONSE_ATTRIBUTE || !newValue || newValue === oldValue) {
+        return;
+      }
+
+      if (!this._iframe?.contentWindow) return;
+
+      try {
+        const payload = JSON.parse(newValue);
+        this._iframe.contentWindow.postMessage(payload, ALLOWED_ORIGIN);
+      } catch (error) {
+        console.warn("[GUAURRITAS EMBED] Respuesta SPEI inválida.", error);
+      }
     }
 
     connectedCallback() {
@@ -84,9 +105,6 @@
         const cssHeight = `${exactHeight}px`;
         const wixElementWrapper = this.parentElement;
 
-        // El alto que manda WixIframeBridge es la fuente de verdad.
-        // Forzamos la altura en el host real de Wix y en sus hijos para
-        // evitar que el breakpoint móvil conserve el alto fijo del editor.
         this.style.setProperty("height", cssHeight, "important");
         this.style.setProperty("min-height", cssHeight, "important");
         this.style.setProperty("max-height", cssHeight, "important");
@@ -99,10 +117,6 @@
         iframe.style.setProperty("min-height", cssHeight, "important");
         iframe.style.setProperty("max-height", cssHeight, "important");
 
-        // Wix envuelve el Custom Element en un contenedor propio que puede
-        // conservar el min-height configurado originalmente (655 px en el
-        // breakpoint móvil), aunque el iframe ya sea más corto. Ese mínimo es
-        // el espacio blanco que queda entre la taskbar y la siguiente sección.
         if (wixElementWrapper) {
           wixElementWrapper.style.setProperty("height", cssHeight, "important");
           wixElementWrapper.style.setProperty("min-height", "0px", "important");
@@ -136,8 +150,17 @@
         );
       };
 
+      const forwardSpeiRequest = () => {
+        this.dispatchEvent(
+          new CustomEvent("guaurritas-spei-request", {
+            detail: {},
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      };
+
       this._messageHandler = (event) => {
-        // Solo aceptamos mensajes provenientes del iframe real de Guaurritas.
         if (event.origin !== ALLOWED_ORIGIN) return;
         if (event.source !== iframe.contentWindow) return;
 
@@ -153,9 +176,6 @@
 
         if (!message || typeof message !== "object") return;
 
-        // WixIframeBridge.tsx envía este mensaje dinámico en cada cambio de
-        // contenido, viewport y orientación:
-        // JSON.stringify({ type: "resize", height })
         if (message.type === "resize") {
           applyHeight(message.height);
           return;
@@ -169,8 +189,14 @@
           return;
         }
 
-        // Conservamos el canal moderno como respaldo, pero con la misma
-        // validación estricta de origen y ventana emisora.
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === SPEI_REQUEST_MESSAGE
+        ) {
+          forwardSpeiRequest();
+          return;
+        }
+
         if (
           message.source === BRIDGE_SOURCE &&
           message.type === HEIGHT_MESSAGE
