@@ -367,26 +367,26 @@ export default function SpeiPaymentFlow({ items }: { items: CartItem[] }) {
     );
 
     return (
-      <div className="mt-3 rounded-md border border-[#b9c9df] bg-white p-3 text-left">
-        <p className="font-interface text-[10px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
+      <div className="mt-3 min-w-0 max-w-full overflow-hidden rounded-md border border-[#b9c9df] bg-white p-3 text-left">
+        <p className="font-interface whitespace-normal break-words text-[10px] font-bold uppercase tracking-[0.1em] text-[#425b8c] [overflow-wrap:anywhere]">
           ✓ Comprobante recibido
         </p>
-        <strong className="mt-2 block text-[12px] text-[#263650]">
+        <strong className="mt-2 block max-w-full break-all text-[12px] text-[#263650]">
           {proofResult.reference}
         </strong>
-        <p className="mt-2 text-[9px] leading-4 text-[#5d6879]">
+        <p className="mt-2 max-w-full whitespace-normal break-words text-[9px] leading-4 text-[#5d6879] [overflow-wrap:anywhere]">
           {late
             ? "Recibimos tu comprobante después del plazo de la referencia. Revisaremos disponibilidad antes de confirmar el pedido."
             : "Tu comprobante quedó guardado. Revisaremos la transferencia antes de confirmar tu pedido."}
         </p>
-        <p className="mt-2 text-[9px] font-bold text-[#955b69]">
+        <p className="mt-2 max-w-full whitespace-normal break-words text-[9px] font-bold text-[#955b69] [overflow-wrap:anywhere]">
           Estado: {late ? "Revisión por pago fuera de plazo" : "Pendiente de validación"}
         </p>
         <a
           href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
           target="_blank"
           rel="noreferrer"
-          className="spei-whatsapp-button mt-3 inline-flex min-h-8 items-center justify-center px-3 text-[10px]"
+          className="spei-whatsapp-button mt-3 inline-flex min-h-8 max-w-full items-center justify-center whitespace-normal break-words px-3 text-center text-[10px] [overflow-wrap:anywhere]"
         >
           Avisar por WhatsApp
         </a>
