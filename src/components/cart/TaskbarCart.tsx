@@ -12,21 +12,10 @@ import {
 import { withBasePath } from "@/lib/base-path";
 import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
+import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
 
 type LeonPaymentMethod = "spei" | "online";
 
-type SpeiDetails = {
-  clabe: string;
-  beneficiary: string;
-  institution: string;
-  currency?: string;
-};
-
-const BRIDGE_SOURCE = "guaurritas-web";
-const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
-const WIX_BRIDGE_SOURCE = "guaurritas-wix";
-const SPEI_DETAILS_MESSAGE = "guaurritas:spei-details";
-const SPEI_ERROR_MESSAGE = "guaurritas:spei-error";
 const CHECKOUT_RETRY_MS = 8000;
 
 function money(value: number) {
@@ -50,8 +39,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [leonPaymentMethod, setLeonPaymentMethod] =
     useState<LeonPaymentMethod | null>(null);
-  const [speiDetails, setSpeiDetails] = useState<SpeiDetails | null>(null);
-  const [speiLoading, setSpeiLoading] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
   const checkoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cart = useCart();
@@ -105,50 +92,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     };
   }, []);
 
-  useEffect(() => {
-    const handleWixMessage = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
-
-      let message = event.data;
-      if (typeof message === "string") {
-        try {
-          message = JSON.parse(message);
-        } catch {
-          return;
-        }
-      }
-
-      if (!message || typeof message !== "object") return;
-      if (message.source !== WIX_BRIDGE_SOURCE) return;
-
-      if (message.type === SPEI_DETAILS_MESSAGE) {
-        const details = message.details as SpeiDetails | undefined;
-        if (!details?.clabe || !details?.beneficiary || !details?.institution) {
-          setSpeiLoading(false);
-          setCheckoutStatus("Wix respondió sin datos SPEI completos. Intenta de nuevo.");
-          return;
-        }
-
-        setSpeiDetails(details);
-        setSpeiLoading(false);
-        setCheckoutStatus("");
-        return;
-      }
-
-      if (message.type === SPEI_ERROR_MESSAGE) {
-        setSpeiLoading(false);
-        setCheckoutStatus(
-          typeof message.message === "string"
-            ? message.message
-            : "No pudimos cargar los datos SPEI. Intenta de nuevo.",
-        );
-      }
-    };
-
-    window.addEventListener("message", handleWixMessage);
-    return () => window.removeEventListener("message", handleWixMessage);
-  }, []);
-
   const nationalItems = useMemo(
     () => cart.items.filter((item) => item.fulfillment === "national"),
     [cart.items],
@@ -195,51 +138,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     }, CHECKOUT_RETRY_MS);
   };
 
-  const requestSpeiDetails = () => {
-    if (speiLoading) return;
-
-    if (typeof window === "undefined" || window.self === window.top) {
-      setCheckoutStatus("Abre esta tienda desde guaurritas.com para ver los datos SPEI.");
-      return;
-    }
-
-    setCheckoutStatus("");
-    setSpeiLoading(true);
-
-    window.parent.postMessage(
-      {
-        source: BRIDGE_SOURCE,
-        type: SPEI_REQUEST_MESSAGE,
-      },
-      "*",
-    );
-  };
-
-  const copyClabe = async () => {
-    if (!speiDetails?.clabe) return;
-
-    try {
-      await navigator.clipboard.writeText(speiDetails.clabe);
-      setCheckoutStatus("CLABE copiada. ✨");
-    } catch {
-      setCheckoutStatus("No se pudo copiar automáticamente. Puedes seleccionar la CLABE manualmente.");
-    }
-  };
-
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
     setLeonPaymentMethod(method);
     setCheckoutStatus("");
-  };
-
-  const handleLeonContinue = () => {
-    if (leonPaymentMethod === "online") {
-      proceedToCheckout(leonItems, "tu pago seguro en Wix");
-      return;
-    }
-
-    if (leonPaymentMethod === "spei") {
-      requestSpeiDetails();
-    }
   };
 
   return (
@@ -448,80 +349,23 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </button>
                     </div>
 
-                    {leonPaymentMethod && (
+                    {leonPaymentMethod === "online" && (
                       <button
                         type="button"
-                        disabled={
-                          (leonPaymentMethod === "online" && checkoutBusy) ||
-                          (leonPaymentMethod === "spei" && speiLoading)
+                        disabled={checkoutBusy}
+                        onClick={() =>
+                          proceedToCheckout(leonItems, "tu pago seguro en Wix")
                         }
-                        onClick={handleLeonContinue}
                         className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
                       >
-                        {leonPaymentMethod === "online"
-                          ? checkoutBusy
-                            ? "Preparando pago…"
-                            : `Pagar ${money(leonOnlineTotal)} en línea`
-                          : speiLoading
-                            ? "Cargando datos SPEI…"
-                            : speiDetails
-                              ? "Actualizar datos SPEI"
-                              : "Continuar con transferencia"}
+                        {checkoutBusy
+                          ? "Preparando pago…"
+                          : `Pagar ${money(leonOnlineTotal)} en línea`}
                       </button>
                     )}
 
-                    {leonPaymentMethod === "spei" && speiDetails && (
-                      <div className="mt-3 rounded-md border border-[#d9c4ca] bg-white p-3">
-                        <p className="font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#955b69]">
-                          Datos para tu transferencia
-                        </p>
-
-                        <div className="mt-2 space-y-2 text-[10px] leading-4 text-[#344056]">
-                          <div>
-                            <small className="block text-[8px] uppercase tracking-[0.08em] text-[#788297]">
-                              Total a transferir
-                            </small>
-                            <strong className="text-sm">{money(leonTransferTotal)} MXN</strong>
-                          </div>
-
-                          <div>
-                            <small className="block text-[8px] uppercase tracking-[0.08em] text-[#788297]">
-                              CLABE
-                            </small>
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <strong className="select-all break-all text-[12px] tracking-[0.04em]">
-                                {speiDetails.clabe}
-                              </strong>
-                              <button
-                                type="button"
-                                onClick={copyClabe}
-                                className="!border-[#c7cedc] !bg-[#f4f6fb] !px-2 !py-1 !text-[9px] !text-[#425b8c]"
-                              >
-                                Copiar CLABE
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <small className="block text-[8px] uppercase tracking-[0.08em] text-[#788297]">
-                              Beneficiario
-                            </small>
-                            <strong>{speiDetails.beneficiary}</strong>
-                          </div>
-
-                          <div>
-                            <small className="block text-[8px] uppercase tracking-[0.08em] text-[#788297]">
-                              Institución
-                            </small>
-                            <strong>{speiDetails.institution}</strong>
-                          </div>
-                        </div>
-
-                        <p className="mt-3 border-t border-[#eadde1] pt-2 text-[9px] leading-4 text-[#6f6266]">
-                          Tu pedido se confirma al recibir y validar el pago completo.
-                          Conserva tu comprobante para el siguiente paso.
-                        </p>
-                      </div>
+                    {leonPaymentMethod === "spei" && (
+                      <SpeiPaymentFlow items={leonItems} />
                     )}
                   </section>
                 )}
