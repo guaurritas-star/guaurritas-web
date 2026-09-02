@@ -4,6 +4,7 @@ import "./globals.css";
 import "./iframe-scroll-fix.css";
 import "./mobile-launch-animations.css";
 import "./paint-icon-animation.css";
+import "./cart-payment-overrides.css";
 
 const mansalva = Mansalva({
   weight: "400",
