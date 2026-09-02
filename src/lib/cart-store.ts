@@ -5,6 +5,10 @@ import {
   resolveCuisineWixBinding,
   type WixCartBinding,
 } from "@/lib/wix-commerce-map";
+import {
+  getFulfillmentMode,
+  type FulfillmentMode,
+} from "@/lib/fulfillment-store";
 
 export type CartItem = {
   id: string;
@@ -13,11 +17,17 @@ export type CartItem = {
   unitPrice: number;
   image: string;
   quantity: number;
+  fulfillment: FulfillmentMode;
   wix: WixCartBinding;
 };
 
-type NewCartItem = Omit<CartItem, "quantity" | "wix">;
-type StoredCartItem = Omit<CartItem, "wix"> & { wix?: WixCartBinding };
+type NewCartItem = Omit<CartItem, "quantity" | "wix" | "fulfillment"> & {
+  fulfillment?: FulfillmentMode;
+};
+type StoredCartItem = Omit<CartItem, "wix" | "fulfillment"> & {
+  fulfillment?: FulfillmentMode;
+  wix?: WixCartBinding;
+};
 
 type CartSnapshot = {
   items: CartItem[];
@@ -53,6 +63,10 @@ function emit() {
   listeners.forEach((listener) => listener());
 }
 
+function normalizeFulfillment(value: unknown): FulfillmentMode {
+  return value === "national" || value === "leon" ? value : "leon";
+}
+
 function enrichCartItem(item: StoredCartItem): CartItem {
   const wix = resolveCuisineWixBinding(item);
 
@@ -60,9 +74,12 @@ function enrichCartItem(item: StoredCartItem): CartItem {
     id: item.id,
     name: item.name,
     detail: item.detail,
-    unitPrice: wix.supported ? wix.wixUnitPrice : item.unitPrice,
+    // Cuisine is the source of truth for the public price. Wix IDs remain
+    // the source of truth for catalog identity, not for overriding our margin.
+    unitPrice: item.unitPrice,
     image: item.image,
     quantity: item.quantity,
+    fulfillment: normalizeFulfillment(item.fulfillment),
     wix,
   };
 }
@@ -95,12 +112,16 @@ export function hydrateCart() {
 }
 
 export function addCartItem(item: NewCartItem) {
-  const enriched = enrichCartItem({ ...item, quantity: 1 });
-  const existing = items.find((current) => current.id === item.id);
+  const fulfillment = item.fulfillment ?? getFulfillmentMode();
+  const enriched = enrichCartItem({ ...item, fulfillment, quantity: 1 });
+  const existing = items.find(
+    (current) =>
+      current.id === item.id && current.fulfillment === fulfillment,
+  );
 
   items = existing
     ? items.map((current) =>
-        current.id === item.id
+        current.id === item.id && current.fulfillment === fulfillment
           ? {
               ...current,
               unitPrice: enriched.unitPrice,
@@ -114,17 +135,26 @@ export function addCartItem(item: NewCartItem) {
   emit();
 }
 
-export function changeCartQuantity(id: string, delta: -1 | 1) {
+export function changeCartQuantity(
+  id: string,
+  delta: -1 | 1,
+  fulfillment?: FulfillmentMode,
+) {
   items = items
     .map((item) =>
-      item.id === id ? { ...item, quantity: item.quantity + delta } : item,
+      item.id === id && (!fulfillment || item.fulfillment === fulfillment)
+        ? { ...item, quantity: item.quantity + delta }
+        : item,
     )
     .filter((item) => item.quantity > 0);
   emit();
 }
 
-export function removeCartItem(id: string) {
-  items = items.filter((item) => item.id !== id);
+export function removeCartItem(id: string, fulfillment?: FulfillmentMode) {
+  items = items.filter(
+    (item) =>
+      !(item.id === id && (!fulfillment || item.fulfillment === fulfillment)),
+  );
   emit();
 }
 
