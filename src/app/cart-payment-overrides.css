@@ -1,0 +1,13 @@
+.taskbar-cart-footer section > p + p + div > button {
+  background: #D9A689 !important;
+  background-image: none !important;
+  color: #263650 !important;
+  border-color: #c48d70 !important;
+}
+
+.taskbar-cart-footer section > p + p + div > button:hover,
+.taskbar-cart-footer section > p + p + div > button:focus-visible {
+  background: #D9A689 !important;
+  background-image: none !important;
+  color: #263650 !important;
+}
