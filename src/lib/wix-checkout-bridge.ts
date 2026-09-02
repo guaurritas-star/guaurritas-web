@@ -1,5 +1,6 @@
 import type { CartItem } from "@/lib/cart-store";
 import type { WixCatalogReference } from "@/lib/wix-commerce-map";
+import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
 
 export const WIX_CHECKOUT_MESSAGE_TYPE = "guaurritas:checkout";
 export const GUAURRITAS_BRIDGE_SOURCE = "guaurritas-web";
@@ -10,6 +11,9 @@ export type WixCheckoutPayloadItem = {
   detail: string;
   quantity: number;
   catalogReference: WixCatalogReference;
+  catalogOverrideFields?: {
+    price: string;
+  };
 };
 
 export type WixCheckoutRequest = {
@@ -64,10 +68,16 @@ export function requestWixCheckout(
     };
   }
 
+  const protectedPricing = buildProtectedUnitPrices(items);
+
   const checkoutItems: WixCheckoutPayloadItem[] = items.map((item) => {
     if (!item.wix.supported) {
       throw new Error(`Unsupported Wix cart item: ${item.id}`);
     }
+
+    const protectedUnitPrice =
+      protectedPricing.unitPrices.get(`${item.fulfillment}:${item.id}`) ??
+      item.unitPrice;
 
     return {
       cartItemId: item.id,
@@ -75,6 +85,9 @@ export function requestWixCheckout(
       detail: item.detail,
       quantity: item.quantity,
       catalogReference: item.wix.catalogReference,
+      catalogOverrideFields: {
+        price: protectedUnitPrice.toFixed(2),
+      },
     };
   });
 
