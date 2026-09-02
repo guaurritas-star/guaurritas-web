@@ -11,3 +11,39 @@
   background-image: none !important;
   color: #263650 !important;
 }
+
+.taskbar-cart-footer .spei-copy-button {
+  min-height: 28px !important;
+  padding: 4px 9px !important;
+  border: 1px solid #b7c2d5 !important;
+  border-radius: 5px !important;
+  background: #f4f6fb !important;
+  background-image: none !important;
+  color: #425b8c !important;
+  box-shadow: none !important;
+  font-family: var(--font-open-sans), sans-serif !important;
+}
+
+.taskbar-cart-footer .spei-copy-button:hover,
+.taskbar-cart-footer .spei-copy-button:focus-visible {
+  background: #e8edf7 !important;
+  background-image: none !important;
+  color: #263f9a !important;
+  outline: 1px solid #8299c3;
+}
+
+.taskbar-cart-footer .spei-whatsapp-button {
+  border: 1px solid #c48d70;
+  border-radius: 5px;
+  background: #D9A689;
+  color: #263650;
+  font-family: var(--font-cinzel), serif;
+  text-decoration: none;
+}
+
+.taskbar-cart-footer .spei-whatsapp-button:hover,
+.taskbar-cart-footer .spei-whatsapp-button:focus-visible {
+  background: #cf9a7d;
+  color: #263650;
+  outline: 1px solid #9a654c;
+}
