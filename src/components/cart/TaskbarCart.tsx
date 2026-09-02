@@ -396,21 +396,21 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <button
                         type="button"
                         onClick={() => chooseLeonPayment("spei")}
-                        className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left ${
+                        className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
                           leonPaymentMethod === "spei"
-                            ? "!border-[#b77b8b] !bg-[#fff8fa] shadow-[inset_3px_0_0_#b77b8b]"
-                            : "!border-[#e2cbd0] !bg-white"
+                            ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
+                            : "!border-[#c48d70]"
                         }`}
                       >
                         <span className="flex min-w-0 items-start gap-2">
-                          <span className="mt-0.5 text-xs">
+                          <span className="mt-0.5 text-xs text-[#263650]">
                             {leonPaymentMethod === "spei" ? "●" : "○"}
                           </span>
                           <span className="min-w-0">
                             <strong className="block text-[11px] text-[#263650]">
                               Transferencia SPEI
                             </strong>
-                            <small className="block text-[9px] leading-4 text-[#7a6870]">
+                            <small className="block text-[9px] leading-4 text-[#5f4c45]">
                               Precio preferencial · pago completo
                             </small>
                           </span>
@@ -423,21 +423,21 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <button
                         type="button"
                         onClick={() => chooseLeonPayment("online")}
-                        className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left ${
+                        className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
                           leonPaymentMethod === "online"
-                            ? "!border-[#647cae] !bg-[#f5f7ff] shadow-[inset_3px_0_0_#425b8c]"
-                            : "!border-[#c4cedf] !bg-white"
+                            ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
+                            : "!border-[#c48d70]"
                         }`}
                       >
                         <span className="flex min-w-0 items-start gap-2">
-                          <span className="mt-0.5 text-xs">
+                          <span className="mt-0.5 text-xs text-[#263650]">
                             {leonPaymentMethod === "online" ? "●" : "○"}
                           </span>
                           <span className="min-w-0">
                             <strong className="block text-[11px] text-[#263650]">
                               Pago en línea
                             </strong>
-                            <small className="block text-[9px] leading-4 text-[#657287]">
+                            <small className="block text-[9px] leading-4 text-[#5f4c45]">
                               Pago seguro en Wix · precio con procesamiento incluido
                             </small>
                           </span>
