@@ -1,13 +1,13 @@
-.taskbar-cart-footer section > p + p + div > button {
+.taskbar-cart-footer button {
   background: #D9A689 !important;
   background-image: none !important;
   color: #263650 !important;
   border-color: #c48d70 !important;
 }
 
-.taskbar-cart-footer section > p + p + div > button:hover,
-.taskbar-cart-footer section > p + p + div > button:focus-visible {
-  background: #D9A689 !important;
+.taskbar-cart-footer button:hover,
+.taskbar-cart-footer button:focus-visible {
+  background: #cf9a7d !important;
   background-image: none !important;
   color: #263650 !important;
 }
@@ -71,11 +71,9 @@
 
 /*
  * Mobile UX:
- * - El carrito nace pegado a la taskbar y crece hacia arriba.
- * - Con pocos artículos conserva altura de contenido; con muchos toma scroll.
- * - El checkout ocupa el espacio disponible y scrollea dentro del panel.
- * - NO bloqueamos el gesto táctil del documento: el panel fixed ya evita que
- *   desaparezca cuando la página de Wix se mueve.
+ * - El carrito se apoya abajo y crece hacia arriba con más productos.
+ * - La página sigue pudiendo hacer scroll mientras el panel permanece fijo.
+ * - Si el contenido es largo, el propio panel también puede desplazarse.
  */
 @media (max-width: 900px) {
   .taskbar-cart-panel {
@@ -86,18 +84,20 @@
     left: 8px !important;
     z-index: 9999 !important;
     width: auto !important;
+    height: auto !important;
     max-height: calc(100dvh - 122px - env(safe-area-inset-bottom)) !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: auto;
     touch-action: pan-y;
   }
 
   .taskbar-cart-panel--checkout {
-    top: 54px !important;
+    top: auto !important;
     bottom: calc(58px + env(safe-area-inset-bottom)) !important;
-    max-height: none !important;
+    height: auto !important;
+    max-height: calc(100dvh - 122px - env(safe-area-inset-bottom)) !important;
   }
 
   .taskbar-cart-tray {
@@ -119,6 +119,10 @@
   .taskbar-cart-footer {
     overflow: visible !important;
     padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .taskbar-checkout-view [aria-label="Progreso del pedido"] {
+    display: none !important;
   }
 
   .taskbar-checkout-view {
