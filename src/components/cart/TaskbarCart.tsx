@@ -156,7 +156,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
     if (!leonReadyForPayment) {
       setCheckoutStatus(
-        "Primero elige fecha y horario y confírmalos con Guaurritas por WhatsApp.",
+        "Primero elige fecha y horario y confirma su disponibilidad con Guaurritas por WhatsApp.",
       );
       return;
     }
@@ -306,8 +306,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </button>
                     </div>
                     <p className="mt-2 text-[9px] leading-4 text-[#657287]">
-                      El precio online ya contempla el costo de procesamiento. El
-                      envío se calcula por separado en el flujo de entrega.
+                      El precio online ya contempla el costo de procesamiento. El envío nacional se calcula por separado.
                     </p>
                   </section>
                 )}
@@ -333,7 +332,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                       {!leonReadyForPayment ? (
                         <div className="mt-2 rounded-md border border-[#efd69d] bg-[#fff8e8] px-3 py-2 text-[9px] font-semibold leading-4 text-[#775b1f]">
-                          Para habilitar el pago, primero elige fecha, horario preferido y entrega; después confirma la disponibilidad con Guaurritas por WhatsApp.
+                          Para habilitar el pago, elige fecha y horario preferido y confirma su disponibilidad con Guaurritas por WhatsApp.
                         </div>
                       ) : (
                         <>
@@ -396,6 +395,11 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                               </strong>
                             </button>
                           </div>
+
+                          <div className="mt-3 rounded-md border border-[#c9d4e9] bg-[#f8f9fd] px-3 py-2 text-[8px] leading-4 text-[#657287]">
+                            <strong className="block text-[#425b8c]">Entrega después del pago</strong>
+                            Por WhatsApp coordinamos si recoges en HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos o Parque Panorama. También podemos coordinar Uber con costo adicional al pedido.
+                          </div>
                         </>
                       )}
 
@@ -430,8 +434,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                 {nationalItems.length > 0 && leonItems.length > 0 && (
                   <p className="text-left text-[9px] leading-4 text-[#718093]">
-                    Los artículos nacionales y los de León se finalizan por separado
-                    porque usan logística y entrega distintas.
+                    Los artículos nacionales y los de León se finalizan por separado porque usan logística distinta.
                   </p>
                 )}
 
