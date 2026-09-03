@@ -101,7 +101,7 @@ function archiveDate(dateKey: string) {
 }
 
 function sourceLabel(value: string) {
-  const map: Record<string, string> = { HISTORICAL_SHEET: 'Histórico', LOCAL_SPEI: 'Web Guaurritas', WIX_ECOM: 'Online Wix' };
+  const map: Record<string, string> = { HISTORICAL_SHEET: 'Histórico', LOCAL_SPEI: 'Web Guaurritas', WIX_ECOM: 'Online Wix', MANUAL_ADMIN: 'Manual' };
   return map[value] || value || 'Sin origen';
 }
 
