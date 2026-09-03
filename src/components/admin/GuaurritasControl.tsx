@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { openOrderReceipt } from './orderReceipt';
 
 const API_URL = 'https://www.guaurritas.com/_functions/speiAdmin';
 const SESSION_KEY = 'guaurritas-spei-admin-session';
@@ -232,9 +233,10 @@ function DetailPanel({ order, proofReady, busy, todayKey, onClose, onProof, onVa
   {order.notes ? <section className="rounded-2xl border border-[#e0e4f0] bg-white p-4"><h3 className="font-title text-base text-[#2a4189]">Notas</h3><p className="mt-2 whitespace-pre-wrap font-interface text-xs leading-5 text-slate-500">{order.notes}</p></section> : null}
   {order.operationalNote ? <section className="rounded-2xl border border-[#e0e4f0] bg-white p-4"><h3 className="font-title text-base text-[#2a4189]">Nota operativa</h3><p className="mt-2 whitespace-pre-wrap font-interface text-xs leading-5 text-slate-500">{order.operationalNote}</p></section> : null}
 
+  {order.statusGroup !== 'rejected' ? <button onClick={() => { try { openOrderReceipt(order); } catch (error) { window.alert(error instanceof Error ? error.message : 'No pudimos abrir el recibo.'); } }} className="w-full rounded-xl border border-[#b8c3e4] bg-[#eef1ff] px-4 py-3.5 font-interface text-xs font-bold text-[#425BBC]">🧾 GENERAR RECIBO / NOTA</button> : null}
   {order.actionState === 'review' ? <div className="grid gap-2 sm:grid-cols-2"><button onClick={() => onValidate(order)} disabled={Boolean(busy)} className="rounded-xl bg-[#425BBC] px-4 py-3.5 font-interface text-xs font-bold text-white disabled:opacity-50">{busy === 'validate' ? 'Validando…' : '✓ VALIDAR PAGO'}</button><button onClick={() => onReject(order)} disabled={Boolean(busy)} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3.5 font-interface text-xs font-bold text-rose-700 disabled:opacity-50">{busy === 'reject' ? 'Rechazando…' : '✕ RECHAZAR'}</button></div> : null}
   {order.actionState === 'paid' && order.wixOrderNumber ? <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4"><div className="font-title text-base text-emerald-800">✓ PAGADO · Wix #{order.wixOrderNumber}</div><p className="mt-1 font-interface text-xs text-emerald-700">El pedido ya fue formalizado y registrado como pagado.</p></div> : null}
-  {order.canDelete ? <button onClick={() => onDelete(order)} disabled={Boolean(busy)} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-3 font-interface text-xs font-bold text-rose-600 disabled:opacity-50">{busy === 'delete' ? 'Eliminando…' : '🗑 Eliminar pedido pendiente'}</button> : null}
+  {(order.canDelete || (order.statusGroup === 'rejected' && order.sourceType === 'LOCAL_SPEI')) ? <button onClick={() => onDelete(order)} disabled={Boolean(busy)} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-3 font-interface text-xs font-bold text-rose-600 disabled:opacity-50">{busy === 'delete' ? 'Eliminando…' : '🗑 Eliminar pedido del historial'}</button> : null}
   </div></aside></div>;
 }
 
@@ -303,7 +305,7 @@ export default function GuaurritasControl() {
   async function validateOrder(order: ControlOrder) { if (!window.confirm(`¿Validar el pago de ${order.customerName || order.reference} por ${money(order.total, order.currency)}?`)) return; setDetailBusy('validate'); setError(''); try { const updated = await panelApi<ControlOrder>(password, 'validate', { orderId: order.id }); setProofReady(null); await refreshAll(updated); } catch (err) { setError(handleApiError(err)); } finally { setDetailBusy(''); } }
   async function rejectOrder(order: ControlOrder) { if (!window.confirm(`¿Rechazar el comprobante de ${order.customerName || order.reference}?`)) return; setDetailBusy('reject'); setError(''); try { const updated = await panelApi<ControlOrder>(password, 'reject', { orderId: order.id }); setProofReady(null); await refreshAll(updated); } catch (err) { setError(handleApiError(err)); } finally { setDetailBusy(''); } }
   async function saveSchedule(order: ControlOrder, draft: ScheduleDraft) { setDetailBusy('schedule'); setError(''); try { const updated = await panelApi<ControlOrder>(password, 'schedule', { orderId: order.id, ...draft }); await refreshAll(updated); } catch (err) { setError(handleApiError(err)); } finally { setDetailBusy(''); } }
-  async function deletePending(order: ControlOrder) { if (!window.confirm(`¿Eliminar definitivamente el pedido pendiente ${order.reference}?\n\nEsta acción no se puede deshacer.`)) return; setDetailBusy('delete'); setError(''); try { await panelApi<{ deleted: boolean }>(password, 'delete', { orderId: order.id }); setDetail(null); setProofReady(null); await refreshAll(); } catch (err) { setError(handleApiError(err)); } finally { setDetailBusy(''); } }
+  async function deletePending(order: ControlOrder) { const label = order.statusGroup === 'rejected' ? 'pedido rechazado' : 'pedido pendiente'; if (!window.confirm(`¿Eliminar definitivamente este ${label} (${order.reference}) del historial?\n\nEsta acción no se puede deshacer.`)) return; setDetailBusy('delete'); setError(''); try { await panelApi<{ deleted: boolean }>(password, 'delete', { orderId: order.id }); setDetail(null); setProofReady(null); await refreshAll(); } catch (err) { setError(handleApiError(err)); } finally { setDetailBusy(''); } }
   function selectArchiveDate(dateKey: string) { const [year, month, day] = dateKey.split('-').map(Number); setPeriod({ year, month, day }); setMode('all'); setNav('orders'); setPage(0); }
 
   if (checkingSession) return <main className="grid min-h-screen place-items-center bg-[#f4f6fb] font-interface text-sm text-[#425BBC]">Cargando Guaurritas Control…</main>;
