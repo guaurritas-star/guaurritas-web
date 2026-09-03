@@ -56,9 +56,13 @@ export function deliveryMethodLabel(method: LeonOrderPreferences["deliveryMethod
 }
 
 export function isLeonOrderPreferencesComplete(preferences: LeonOrderPreferences) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(preferences.deliveryDate)) return false;
-  if (!/^([01]\d|2[0-3]):[0-5]$/.test(preferences.preferredTime)) return false;
-  return true;
+  // Safari/iOS puede representar los controles nativos de fecha/hora de forma
+  // distinta visualmente. Para el checkout solo necesitamos que ambas
+  // preferencias tengan un valor elegido; la fecha se conserva tal cual para
+  // el pedido y la validación operativa se hace después por WhatsApp.
+  const deliveryDate = String(preferences.deliveryDate || "").trim();
+  const preferredTime = String(preferences.preferredTime || "").trim();
+  return Boolean(deliveryDate && preferredTime);
 }
 
 export function encodeOrderPreferencesMarker(preferences: LeonOrderPreferences) {
