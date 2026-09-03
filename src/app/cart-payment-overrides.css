@@ -50,7 +50,8 @@
 
 /* CTA de pago: recuperamos el café cálido que ya usaba el checkout. */
 .taskbar-checkout-view .spei-primary-button,
-.taskbar-checkout-view .leon-online-pay-button {
+.taskbar-checkout-view .leon-online-pay-button,
+.taskbar-checkout-view section > button[type="button"] {
   border: 1px solid #c48d70 !important;
   background: #D9A689 !important;
   background-image: none !important;
@@ -61,7 +62,9 @@
 .taskbar-checkout-view .spei-primary-button:hover,
 .taskbar-checkout-view .spei-primary-button:focus-visible,
 .taskbar-checkout-view .leon-online-pay-button:hover,
-.taskbar-checkout-view .leon-online-pay-button:focus-visible {
+.taskbar-checkout-view .leon-online-pay-button:focus-visible,
+.taskbar-checkout-view section > button[type="button"]:hover,
+.taskbar-checkout-view section > button[type="button"]:focus-visible {
   background: #cf9a7d !important;
   color: #263650 !important;
 }
