@@ -37,13 +37,9 @@ const PDF_W = 595.28;
 const PDF_H = 841.89;
 
 const LOGO_URL = 'https://static.wixstatic.com/media/24a095_03ad817b85c84e91989175cbcc3ba6b1~mv2.jpeg';
-const FLOWER_RIGHT_URL = 'https://static.wixstatic.com/media/24a095_449ce81898d94269bb7353d07f712b4d~mv2.jpeg';
-const FLOWER_LEFT_URL = 'https://static.wixstatic.com/media/24a095_1c918af1a87f4c08a6d258e416f4c533~mv2.jpeg';
 
 type ReceiptAssets = {
   logo: HTMLImageElement;
-  flowerLeft: HTMLImageElement;
-  flowerRight: HTMLImageElement;
 };
 
 function money(value: number, currency = 'MXN') {
@@ -116,12 +112,8 @@ function loadImage(url: string) {
 }
 
 async function loadAssets(): Promise<ReceiptAssets> {
-  const [logo, flowerRight, flowerLeft] = await Promise.all([
-    loadImage(LOGO_URL),
-    loadImage(FLOWER_RIGHT_URL),
-    loadImage(FLOWER_LEFT_URL),
-  ]);
-  return { logo, flowerLeft, flowerRight };
+  const logo = await loadImage(LOGO_URL);
+  return { logo };
 }
 
 function fitFont(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, startSize: number, family: string, minSize = 18) {
@@ -360,9 +352,6 @@ function drawReceiptPage(
       drawCentered(ctx, valuesMoney[index], totalX[index], 1555, totalW, 25, mansalva, ink);
     });
 
-    // Florecitas originales: quedan debajo de los totales para no tapar los recuadros.
-    ctx.drawImage(assets.flowerLeft, 38, 1600, 205, 145);
-    ctx.drawImage(assets.flowerRight, PAGE_W - 243, 1600, 205, 145);
   } else {
     ctx.fillStyle = blue;
     ctx.textAlign = 'center';
