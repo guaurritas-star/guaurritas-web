@@ -47,3 +47,39 @@
   color: #263650;
   outline: 1px solid #9a654c;
 }
+
+/* En móvil el carrito completo debe ser la superficie de scroll. Antes solo
+   scrolleaba la lista de productos y el bloque de pago podía quedar fuera del
+   viewport, especialmente en Safari/iPhone. */
+@media (max-width: 900px) {
+  .taskbar-cart-panel {
+    position: fixed !important;
+    top: 54px !important;
+    right: 8px !important;
+    bottom: calc(58px + env(safe-area-inset-bottom)) !important;
+    left: 8px !important;
+    width: auto !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+  }
+
+  .taskbar-cart-titlebar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .taskbar-cart-items {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .taskbar-cart-footer {
+    overflow: visible !important;
+    padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  }
+}
