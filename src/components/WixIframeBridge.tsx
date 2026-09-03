@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 const BRIDGE_SOURCE = "guaurritas-web";
 const HEIGHT_MESSAGE = "guaurritas:height";
+const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
 const MOBILE_BREAKPOINT = 639;
 
 function getDesktopDocumentHeight() {
@@ -152,6 +153,7 @@ export default function WixIframeBridge() {
     document.head.appendChild(style);
 
     let animationFrame = 0;
+    let pageScrollLocked = false;
 
     function getCurrentHeight() {
       if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -182,7 +184,45 @@ export default function WixIframeBridge() {
       });
     }
 
-    const resizeObserver = new ResizeObserver(enviarAltura);
+    function syncCheckoutScrollLock() {
+      if (window.innerWidth > MOBILE_BREAKPOINT) {
+        if (pageScrollLocked) {
+          pageScrollLocked = false;
+          window.parent.postMessage(
+            {
+              source: BRIDGE_SOURCE,
+              type: SCROLL_LOCK_MESSAGE,
+              locked: false,
+            },
+            "*",
+          );
+        }
+        return;
+      }
+
+      const shouldLock = Boolean(
+        document.querySelector(
+          "#taskbar-cart-panel.taskbar-cart-panel--checkout",
+        ),
+      );
+
+      if (shouldLock === pageScrollLocked) return;
+      pageScrollLocked = shouldLock;
+
+      window.parent.postMessage(
+        {
+          source: BRIDGE_SOURCE,
+          type: SCROLL_LOCK_MESSAGE,
+          locked: shouldLock,
+        },
+        "*",
+      );
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      enviarAltura();
+      syncCheckoutScrollLock();
+    });
     const main = document.querySelector("main");
 
     if (main) {
@@ -191,7 +231,10 @@ export default function WixIframeBridge() {
       resizeObserver.observe(document.body);
     }
 
-    const mutationObserver = new MutationObserver(enviarAltura);
+    const mutationObserver = new MutationObserver(() => {
+      enviarAltura();
+      syncCheckoutScrollLock();
+    });
     mutationObserver.observe(document.body, {
       attributes: true,
       childList: true,
@@ -199,26 +242,43 @@ export default function WixIframeBridge() {
       subtree: true,
     });
 
-    window.addEventListener("load", enviarAltura);
-    window.addEventListener("resize", enviarAltura);
-    window.addEventListener("orientationchange", enviarAltura);
+    const handleViewportChange = () => {
+      enviarAltura();
+      syncCheckoutScrollLock();
+    };
+
+    window.addEventListener("load", handleViewportChange);
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("orientationchange", handleViewportChange);
 
     enviarAltura();
+    syncCheckoutScrollLock();
 
     const delayedMeasurements = [
-      window.setTimeout(enviarAltura, 100),
-      window.setTimeout(enviarAltura, 400),
-      window.setTimeout(enviarAltura, 1200),
+      window.setTimeout(handleViewportChange, 100),
+      window.setTimeout(handleViewportChange, 400),
+      window.setTimeout(handleViewportChange, 1200),
     ];
 
     return () => {
+      if (pageScrollLocked) {
+        window.parent.postMessage(
+          {
+            source: BRIDGE_SOURCE,
+            type: SCROLL_LOCK_MESSAGE,
+            locked: false,
+          },
+          "*",
+        );
+      }
+
       window.cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
       mutationObserver.disconnect();
       delayedMeasurements.forEach(window.clearTimeout);
-      window.removeEventListener("load", enviarAltura);
-      window.removeEventListener("resize", enviarAltura);
-      window.removeEventListener("orientationchange", enviarAltura);
+      window.removeEventListener("load", handleViewportChange);
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("orientationchange", handleViewportChange);
       style.remove();
     };
   }, []);
