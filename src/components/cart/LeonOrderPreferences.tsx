@@ -49,7 +49,7 @@ export default function LeonOrderPreferencesForm({
   };
 
   return (
-    <section className="min-w-0 rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
+    <section className="min-w-0 overflow-hidden rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
       <div className="flex min-w-0 items-start gap-3">
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#eef1ff] font-interface text-[10px] font-bold text-[#425BBC]">
           1
@@ -58,14 +58,14 @@ export default function LeonOrderPreferencesForm({
           <h3 className="font-interface text-[11px] font-bold text-[#27364f]">
             Fecha y horario
           </h3>
-          <p className="mt-0.5 text-[9px] leading-4 text-[#77849a]">
+          <p className="mt-0.5 whitespace-normal break-words text-[9px] leading-4 text-[#77849a]">
             Elige tu fecha y un horario preferido para continuar.
           </p>
         </div>
       </div>
 
       <div className="mt-4 grid min-w-0 gap-3">
-        <label className="block min-w-0">
+        <label className="block min-w-0 max-w-full overflow-hidden">
           <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
             Fecha de entrega
           </span>
@@ -76,12 +76,12 @@ export default function LeonOrderPreferencesForm({
             onChange={(event) => update({ deliveryDate: event.target.value })}
             className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
           />
-          <small className="mt-1 block text-[8px] leading-4 text-[#8a95a8]">
+          <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
             Mínimo 2 días de anticipación.
           </small>
         </label>
 
-        <label className="block min-w-0">
+        <label className="block min-w-0 max-w-full overflow-hidden">
           <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
             Horario preferido
           </span>
@@ -97,20 +97,20 @@ export default function LeonOrderPreferencesForm({
               </option>
             ))}
           </select>
-          <small className="mt-1 block text-[8px] leading-4 text-[#8a95a8]">
+          <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
             Es una preferencia; todavía no queda reservado.
           </small>
         </label>
       </div>
 
-      <div className="mt-3 flex min-w-0 items-start gap-2 rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">
+      <div className="mt-3 flex min-w-0 max-w-full items-start gap-2 overflow-hidden rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">
         <span className="mt-0.5 shrink-0 text-[12px]">💬</span>
-        <div className="min-w-0">
-          <p className="font-interface text-[8px] font-bold text-[#6f5720]">
-            El horario se confirma por WhatsApp
+        <div className="min-w-0 max-w-full flex-1 overflow-hidden">
+          <p className="whitespace-normal break-words font-interface text-[8px] font-bold leading-4 text-[#6f5720] [overflow-wrap:anywhere]">
+            Horario por confirmar
           </p>
-          <p className="mt-0.5 text-[8px] leading-4 text-[#806c3e]">
-            Cuando recibamos tu comprobante o la confirmación del pago en línea, te confirmamos el horario por WhatsApp.
+          <p className="mt-0.5 whitespace-normal break-words text-[8px] leading-4 text-[#806c3e] [overflow-wrap:anywhere]">
+            Al recibir tu comprobante o pago en línea, te confirmamos por WhatsApp el horario solicitado.
           </p>
         </div>
       </div>
