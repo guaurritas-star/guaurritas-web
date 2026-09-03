@@ -12,7 +12,13 @@ import {
 import { withBasePath } from "@/lib/base-path";
 import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
+import {
+  EMPTY_LEON_ORDER_PREFERENCES,
+  isLeonOrderPreferencesComplete,
+  type LeonOrderPreferences,
+} from "@/lib/order-preferences";
 import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
+import LeonOrderPreferencesForm from "@/components/cart/LeonOrderPreferences";
 
 type LeonPaymentMethod = "spei" | "online";
 
@@ -39,6 +45,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [leonPaymentMethod, setLeonPaymentMethod] =
     useState<LeonPaymentMethod | null>(null);
+  const [leonOrderPreferences, setLeonOrderPreferences] =
+    useState<LeonOrderPreferences>({ ...EMPTY_LEON_ORDER_PREFERENCES });
   const shellRef = useRef<HTMLDivElement>(null);
   const checkoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cart = useCart();
@@ -105,14 +113,21 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const leonTransferTotal = itemTotal(leonItems);
   const nationalOnlineTotal = buildProtectedUnitPrices(nationalItems).protectedTotal;
   const leonOnlineTotal = buildProtectedUnitPrices(leonItems).protectedTotal;
+  const leonPreferencesComplete = isLeonOrderPreferencesComplete(leonOrderPreferences);
+  const leonReadyForPayment =
+    leonPreferencesComplete && leonOrderPreferences.whatsappConfirmed;
 
-  const proceedToCheckout = (items: CartItem[], label: string) => {
+  const proceedToCheckout = (
+    items: CartItem[],
+    label: string,
+    preferences?: LeonOrderPreferences | null,
+  ) => {
     if (checkoutBusy) return;
 
     setCheckoutStatus("");
     setCheckoutBusy(true);
 
-    const result = requestWixCheckout(items);
+    const result = requestWixCheckout(items, preferences);
 
     if (!result.ok) {
       const unsupported = result.unsupportedNames?.length
@@ -139,7 +154,21 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   };
 
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
+    if (!leonReadyForPayment) {
+      setCheckoutStatus(
+        "Primero elige fecha y horario y confírmalos con Guaurritas por WhatsApp.",
+      );
+      return;
+    }
     setLeonPaymentMethod(method);
+    setCheckoutStatus("");
+  };
+
+  const updateLeonPreferences = (next: LeonOrderPreferences) => {
+    setLeonOrderPreferences(next);
+    if (!next.whatsappConfirmed || !isLeonOrderPreferencesComplete(next)) {
+      setLeonPaymentMethod(null);
+    }
     setCheckoutStatus("");
   };
 
@@ -289,84 +318,113 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       📍 Entrega en León · pago completo
                     </p>
 
-                    <p className="mt-2 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#6f6266]">
-                      ¿Cómo quieres pagar?
-                    </p>
-
-                    <div className="mt-2 grid gap-2">
-                      <button
-                        type="button"
-                        onClick={() => chooseLeonPayment("spei")}
-                        className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
-                          leonPaymentMethod === "spei"
-                            ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
-                            : "!border-[#c48d70]"
-                        }`}
-                      >
-                        <span className="flex min-w-0 items-start gap-2">
-                          <span className="mt-0.5 text-xs text-[#263650]">
-                            {leonPaymentMethod === "spei" ? "●" : "○"}
-                          </span>
-                          <span className="min-w-0">
-                            <strong className="block text-[11px] text-[#263650]">
-                              Transferencia SPEI
-                            </strong>
-                            <small className="block text-[9px] leading-4 text-[#5f4c45]">
-                              Precio preferencial · pago completo
-                            </small>
-                          </span>
-                        </span>
-                        <strong className="shrink-0 text-sm text-[#263650]">
-                          {money(leonTransferTotal)}
-                        </strong>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => chooseLeonPayment("online")}
-                        className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
-                          leonPaymentMethod === "online"
-                            ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
-                            : "!border-[#c48d70]"
-                        }`}
-                      >
-                        <span className="flex min-w-0 items-start gap-2">
-                          <span className="mt-0.5 text-xs text-[#263650]">
-                            {leonPaymentMethod === "online" ? "●" : "○"}
-                          </span>
-                          <span className="min-w-0">
-                            <strong className="block text-[11px] text-[#263650]">
-                              Pago en línea
-                            </strong>
-                            <small className="block text-[9px] leading-4 text-[#5f4c45]">
-                              Pago seguro en Wix · precio con procesamiento incluido
-                            </small>
-                          </span>
-                        </span>
-                        <strong className="shrink-0 text-sm text-[#263650]">
-                          {money(leonOnlineTotal)}
-                        </strong>
-                      </button>
+                    <div className="mt-3">
+                      <LeonOrderPreferencesForm
+                        items={leonItems}
+                        value={leonOrderPreferences}
+                        onChange={updateLeonPreferences}
+                      />
                     </div>
 
-                    {leonPaymentMethod === "online" && (
-                      <button
-                        type="button"
-                        disabled={checkoutBusy}
-                        onClick={() =>
-                          proceedToCheckout(leonItems, "tu pago seguro en Wix")
-                        }
-                        className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
-                      >
-                        {checkoutBusy
-                          ? "Preparando pago…"
-                          : `Pagar ${money(leonOnlineTotal)} en línea`}
-                      </button>
-                    )}
+                    <div className="mt-3 rounded-lg border border-[#e5d2d7] bg-white/70 p-3">
+                      <p className="font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#6f6266]">
+                        2 · Pago del 100%
+                      </p>
 
-                    {leonPaymentMethod === "spei" && (
-                      <SpeiPaymentFlow items={leonItems} />
-                    )}
+                      {!leonReadyForPayment ? (
+                        <div className="mt-2 rounded-md border border-[#efd69d] bg-[#fff8e8] px-3 py-2 text-[9px] font-semibold leading-4 text-[#775b1f]">
+                          Para habilitar el pago, primero elige fecha, horario preferido y entrega; después confirma la disponibilidad con Guaurritas por WhatsApp.
+                        </div>
+                      ) : (
+                        <>
+                          <p className="mt-2 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#6f6266]">
+                            ¿Cómo quieres pagar?
+                          </p>
+
+                          <div className="mt-2 grid gap-2">
+                            <button
+                              type="button"
+                              onClick={() => chooseLeonPayment("spei")}
+                              className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
+                                leonPaymentMethod === "spei"
+                                  ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
+                                  : "!border-[#c48d70]"
+                              }`}
+                            >
+                              <span className="flex min-w-0 items-start gap-2">
+                                <span className="mt-0.5 text-xs text-[#263650]">
+                                  {leonPaymentMethod === "spei" ? "●" : "○"}
+                                </span>
+                                <span className="min-w-0">
+                                  <strong className="block text-[11px] text-[#263650]">
+                                    Transferencia SPEI
+                                  </strong>
+                                  <small className="block text-[9px] leading-4 text-[#5f4c45]">
+                                    Precio preferencial · pago completo
+                                  </small>
+                                </span>
+                              </span>
+                              <strong className="shrink-0 text-sm text-[#263650]">
+                                {money(leonTransferTotal)}
+                              </strong>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => chooseLeonPayment("online")}
+                              className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
+                                leonPaymentMethod === "online"
+                                  ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
+                                  : "!border-[#c48d70]"
+                              }`}
+                            >
+                              <span className="flex min-w-0 items-start gap-2">
+                                <span className="mt-0.5 text-xs text-[#263650]">
+                                  {leonPaymentMethod === "online" ? "●" : "○"}
+                                </span>
+                                <span className="min-w-0">
+                                  <strong className="block text-[11px] text-[#263650]">
+                                    Pago en línea
+                                  </strong>
+                                  <small className="block text-[9px] leading-4 text-[#5f4c45]">
+                                    Pago seguro en Wix · precio con procesamiento incluido
+                                  </small>
+                                </span>
+                              </span>
+                              <strong className="shrink-0 text-sm text-[#263650]">
+                                {money(leonOnlineTotal)}
+                              </strong>
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                      {leonReadyForPayment && leonPaymentMethod === "online" && (
+                        <button
+                          type="button"
+                          disabled={checkoutBusy}
+                          onClick={() =>
+                            proceedToCheckout(
+                              leonItems,
+                              "tu pago seguro en Wix",
+                              leonOrderPreferences,
+                            )
+                          }
+                          className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
+                        >
+                          {checkoutBusy
+                            ? "Preparando pago…"
+                            : `Pagar ${money(leonOnlineTotal)} en línea`}
+                        </button>
+                      )}
+
+                      {leonReadyForPayment && leonPaymentMethod === "spei" && (
+                        <SpeiPaymentFlow
+                          items={leonItems}
+                          preferences={leonOrderPreferences}
+                        />
+                      )}
+                    </div>
                   </section>
                 )}
 
