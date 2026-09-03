@@ -1,6 +1,10 @@
 import type { CartItem } from "@/lib/cart-store";
 import type { WixCatalogReference } from "@/lib/wix-commerce-map";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
+import {
+  buildOrderBuyerNote,
+  type LeonOrderPreferences,
+} from "@/lib/order-preferences";
 
 export const WIX_CHECKOUT_MESSAGE_TYPE = "guaurritas:checkout";
 export const GUAURRITAS_BRIDGE_SOURCE = "guaurritas-web";
@@ -27,19 +31,9 @@ export type WixCheckoutRequestResult =
   | { ok: true }
   | { ok: false; message: string; unsupportedNames?: string[] };
 
-function buildBuyerNote(items: CartItem[]) {
-  const lines = items.map(
-    (item) =>
-      `${item.quantity}x ${item.name}${item.detail ? ` — ${item.detail}` : ""}`,
-  );
-
-  return ["Pedido preparado desde Guaurritas OS", ...lines]
-    .join("\n")
-    .slice(0, 1000);
-}
-
 export function requestWixCheckout(
   items: CartItem[],
+  preferences?: LeonOrderPreferences | null,
 ): WixCheckoutRequestResult {
   if (!items.length) {
     return { ok: false, message: "Tu carrito está vacío." };
@@ -94,7 +88,7 @@ export function requestWixCheckout(
   const payload: WixCheckoutRequest = {
     source: GUAURRITAS_BRIDGE_SOURCE,
     type: WIX_CHECKOUT_MESSAGE_TYPE,
-    buyerNote: buildBuyerNote(items),
+    buyerNote: buildOrderBuyerNote(items, preferences),
     items: checkoutItems,
   };
 
