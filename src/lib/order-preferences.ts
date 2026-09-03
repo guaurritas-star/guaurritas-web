@@ -71,10 +71,10 @@ export function encodeOrderPreferencesMarker(preferences: LeonOrderPreferences) 
     d: preferences.deliveryDate,
     t: preferences.preferredTime,
     m: preferences.deliveryMethod,
-    p: preferences.deliveryPoint.trim(),
-    a: preferences.deliveryAddress.trim(),
+    p: preferences.deliveryPoint.trim().slice(0, 160),
+    a: preferences.deliveryAddress.trim().slice(0, 220),
     w: preferences.whatsappConfirmed ? 1 : 0,
-    n: preferences.personalizationNote.trim(),
+    n: preferences.personalizationNote.trim().slice(0, 240),
   };
 
   return `GUAURRITAS_PREFS:${JSON.stringify(compact)}`;
@@ -85,31 +85,34 @@ export function buildOrderBuyerNote(
   preferences?: LeonOrderPreferences | null,
   prefix = "Pedido preparado desde Guaurritas OS",
 ) {
-  const lines = [
+  const humanLines = [
     prefix,
     ...items.map(
       (item) => `${item.quantity}x ${item.name}${item.detail ? ` — ${item.detail}` : ""}`,
     ),
   ];
 
-  if (preferences) {
-    lines.push(
-      `Entrega solicitada: ${preferences.deliveryDate} · ${preferences.preferredTime} · ${deliveryMethodLabel(
-        preferences.deliveryMethod,
-      )}`,
-    );
-    if (preferences.deliveryPoint) lines.push(`Punto: ${preferences.deliveryPoint}`);
-    if (preferences.deliveryAddress) lines.push(`Dirección: ${preferences.deliveryAddress}`);
-    if (preferences.personalizationNote) {
-      lines.push(`Personalización: ${preferences.personalizationNote}`);
-    }
-    lines.push(
-      preferences.whatsappConfirmed
-        ? "Disponibilidad: cliente indica confirmación previa por WhatsApp"
-        : "Disponibilidad: pendiente de confirmar por WhatsApp",
-    );
-    lines.push(encodeOrderPreferencesMarker(preferences));
-  }
+  if (!preferences) return humanLines.join("\n").slice(0, 1000);
 
-  return lines.join("\n").slice(0, 1000);
+  humanLines.push(
+    `Entrega solicitada: ${preferences.deliveryDate} · ${preferences.preferredTime} · ${deliveryMethodLabel(
+      preferences.deliveryMethod,
+    )}`,
+  );
+  if (preferences.deliveryPoint) humanLines.push(`Punto: ${preferences.deliveryPoint}`);
+  if (preferences.deliveryAddress) humanLines.push(`Dirección: ${preferences.deliveryAddress}`);
+  if (preferences.personalizationNote) {
+    humanLines.push(`Personalización: ${preferences.personalizationNote}`);
+  }
+  humanLines.push(
+    preferences.whatsappConfirmed
+      ? "Disponibilidad: cliente indica confirmación previa por WhatsApp"
+      : "Disponibilidad: pendiente de confirmar por WhatsApp",
+  );
+
+  const marker = encodeOrderPreferencesMarker(preferences);
+  const separator = "\n";
+  const humanLimit = Math.max(0, 1000 - marker.length - separator.length);
+  const human = humanLines.join("\n").slice(0, humanLimit).trimEnd();
+  return `${human}${human ? separator : ""}${marker}`.slice(0, 1000);
 }
