@@ -5,6 +5,7 @@
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
+  const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
   const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
   const SPEI_PROOF_UPLOAD_URL_MESSAGE = "guaurritas:spei-proof-upload-url-request";
   const SPEI_PROOF_SUBMIT_MESSAGE = "guaurritas:spei-proof-submit";
@@ -22,6 +23,7 @@
       this._iframe = null;
       this._wrapper = null;
       this._messageHandler = null;
+      this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
 
@@ -37,6 +39,43 @@
         this._iframe.contentWindow.postMessage(payload, ALLOWED_ORIGIN);
       } catch (error) {
         console.warn("[GUAURRITAS EMBED] Respuesta SPEI inválida.", error);
+      }
+    }
+
+    _setPageScrollLocked(locked) {
+      const html = document.documentElement;
+      const body = document.body;
+      if (!html || !body) return;
+
+      if (locked && !this._pageScrollState) {
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        this._pageScrollState = {
+          scrollY,
+          htmlStyle: html.getAttribute("style"),
+          bodyStyle: body.getAttribute("style"),
+        };
+
+        html.style.setProperty("overflow", "hidden", "important");
+        body.style.setProperty("overflow", "hidden", "important");
+        body.style.setProperty("position", "fixed", "important");
+        body.style.setProperty("top", `-${scrollY}px`, "important");
+        body.style.setProperty("left", "0", "important");
+        body.style.setProperty("right", "0", "important");
+        body.style.setProperty("width", "100%", "important");
+        return;
+      }
+
+      if (!locked && this._pageScrollState) {
+        const { scrollY, htmlStyle, bodyStyle } = this._pageScrollState;
+        this._pageScrollState = null;
+
+        if (htmlStyle === null) html.removeAttribute("style");
+        else html.setAttribute("style", htmlStyle);
+
+        if (bodyStyle === null) body.removeAttribute("style");
+        else body.setAttribute("style", bodyStyle);
+
+        window.scrollTo(0, scrollY);
       }
     }
 
@@ -185,6 +224,14 @@
 
         if (
           message.source === BRIDGE_SOURCE &&
+          message.type === SCROLL_LOCK_MESSAGE
+        ) {
+          this._setPageScrollLocked(Boolean(message.locked));
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
           message.type === CHECKOUT_MESSAGE
         ) {
           forwardCheckout(message);
@@ -227,6 +274,8 @@
     }
 
     disconnectedCallback() {
+      this._setPageScrollLocked(false);
+
       if (this._messageHandler) {
         window.removeEventListener("message", this._messageHandler);
       }
