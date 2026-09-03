@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { CartItem } from "@/lib/cart-store";
 import {
-  LEON_PICKUP_POINTS,
   LEON_TIME_OPTIONS,
   isLeonOrderPreferencesComplete,
   type LeonOrderPreferences,
@@ -33,7 +32,7 @@ function prettyDate(value: string) {
 }
 
 function prettyTime(value: string) {
-  if (!value) return "Sin horario";
+  if (!value) return "Selecciona un horario";
   const [hour, minute] = value.split(":").map(Number);
   const date = new Date();
   date.setHours(hour, minute, 0, 0);
@@ -52,8 +51,6 @@ export default function LeonOrderPreferencesForm({
   value: LeonOrderPreferences;
   onChange: (next: LeonOrderPreferences) => void;
 }) {
-  const [expanded, setExpanded] = useState(true);
-  const [availabilityRequested, setAvailabilityRequested] = useState(false);
   const complete = isLeonOrderPreferencesComplete(value);
   const minDate = useMemo(() => minDateValue(), []);
 
@@ -66,10 +63,10 @@ export default function LeonOrderPreferencesForm({
       deliveryMethod: "pending_whatsapp",
       deliveryPoint: "",
       deliveryAddress: "",
+      personalizationNote: "",
       ...patch,
       ...(resetWhatsappConfirmation ? { whatsappConfirmed: false } : {}),
     });
-    if (resetWhatsappConfirmation) setAvailabilityRequested(false);
   };
 
   const whatsappMessage = useMemo(() => {
@@ -84,7 +81,7 @@ export default function LeonOrderPreferencesForm({
         `📅 Fecha: ${prettyDate(value.deliveryDate)}`,
         `🕐 Horario preferido: ${prettyTime(value.preferredTime)}`,
         products ? `🛍️ Pedido: ${products}` : "",
-        "¿Tienen disponibilidad en ese horario?",
+        "¿Tienen disponibilidad en esa fecha y horario?",
         "La forma de entrega la coordinamos después del pago.",
       ]
         .filter(Boolean)
@@ -92,147 +89,107 @@ export default function LeonOrderPreferencesForm({
     );
   }, [complete, items, value.deliveryDate, value.preferredTime]);
 
-  const summary = complete
-    ? `${prettyDate(value.deliveryDate)} · ${prettyTime(value.preferredTime)}`
-    : "Elige fecha y horario preferido";
-
   return (
-    <section className="overflow-hidden rounded-lg border border-[#c9d4e9] bg-white text-left">
-      <button
-        type="button"
-        onClick={() => setExpanded((current) => !current)}
-        className="!flex !w-full !items-center !justify-between !gap-3 !border-0 !bg-white !px-3 !py-3 !text-left !shadow-none"
-        aria-expanded={expanded}
-      >
-        <span className="min-w-0">
-          <span className="font-interface block text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
-            1 · Fecha y horario
-          </span>
-          <span className="mt-1 block truncate text-[10px] font-semibold text-[#344056]">
-            {summary}
-          </span>
+    <section className="rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
+      <div className="flex items-start gap-3">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#eef1ff] font-interface text-[10px] font-bold text-[#425BBC]">
+          1
         </span>
-        <span className="shrink-0 text-[10px] font-bold text-[#425b8c]">
-          {value.whatsappConfirmed ? "✓ Confirmado" : expanded ? "Cerrar" : "Completar"}
-        </span>
-      </button>
+        <div className="min-w-0">
+          <h3 className="font-interface text-[11px] font-bold text-[#27364f]">
+            Fecha y horario
+          </h3>
+          <p className="mt-0.5 text-[9px] leading-4 text-[#77849a]">
+            Elige una preferencia y confírmala con Guaurritas por WhatsApp.
+          </p>
+        </div>
+      </div>
 
-      {expanded && (
-        <div className="space-y-3 border-t border-[#e1e6f0] bg-[#f8f9fd] p-3">
-          <div>
-            <label className="font-interface block text-[9px] font-bold uppercase tracking-[0.08em] text-[#5d6879]">
-              Fecha de entrega
-            </label>
-            <input
-              type="date"
-              min={minDate}
-              value={value.deliveryDate}
-              onChange={(event) => update({ deliveryDate: event.target.value }, true)}
-              className="mt-1 h-10 w-full rounded-md border border-[#c9d4e9] bg-white px-3 text-[11px] text-[#263650] outline-none focus:border-[#425b8c]"
-            />
-            <p className="mt-1 text-[8px] leading-4 text-[#788297]">
-              Solicita con al menos 2 días de anticipación.
-            </p>
-          </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <label className="block">
+          <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
+            Fecha de entrega
+          </span>
+          <input
+            type="date"
+            min={minDate}
+            value={value.deliveryDate}
+            onChange={(event) => update({ deliveryDate: event.target.value }, true)}
+            className="mt-1.5 h-11 w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
+          />
+          <small className="mt-1 block text-[8px] leading-4 text-[#8a95a8]">
+            Mínimo 2 días de anticipación.
+          </small>
+        </label>
 
-          <div>
-            <p className="font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#5d6879]">
-              Horario preferido
-            </p>
-            <div className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-5">
-              {LEON_TIME_OPTIONS.map((time) => (
-                <button
-                  key={time}
-                  type="button"
-                  onClick={() => update({ preferredTime: time }, true)}
-                  className={`!min-h-9 !rounded-md !border !px-2 !py-1 !text-[9px] !font-bold !shadow-none ${
-                    value.preferredTime === time
-                      ? "!border-[#425b8c] !bg-[#425b8c] !text-white"
-                      : "!border-[#c9d4e9] !bg-white !text-[#425b8c]"
-                  }`}
-                >
-                  {prettyTime(time)}
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 rounded-md border border-[#efd69d] bg-[#fff8e8] px-2.5 py-2 text-[9px] font-semibold leading-4 text-[#775b1f]">
-              El horario es una preferencia. Confírmalo con nosotros por WhatsApp antes de pagar.
-            </p>
-          </div>
+        <label className="block">
+          <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
+            Horario preferido
+          </span>
+          <select
+            value={value.preferredTime}
+            onChange={(event) => update({ preferredTime: event.target.value }, true)}
+            className="mt-1.5 h-11 w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
+          >
+            <option value="">Selecciona un horario</option>
+            {LEON_TIME_OPTIONS.map((time) => (
+              <option key={time} value={time}>
+                {prettyTime(time)}
+              </option>
+            ))}
+          </select>
+          <small className="mt-1 block text-[8px] leading-4 text-[#8a95a8]">
+            Es una preferencia; no queda reservado automáticamente.
+          </small>
+        </label>
+      </div>
 
-          <div className="rounded-md border border-[#c9d4e9] bg-white px-3 py-2.5">
-            <p className="font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#425b8c]">
-              Entrega se coordina después del pago
+      <div className="mt-4 rounded-lg border border-[#dce3ef] bg-[#f8faff] p-3">
+        <div className="flex items-start gap-2">
+          <span className="mt-0.5 text-[13px]">💬</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-interface text-[9px] font-bold text-[#34486f]">
+              Confirma disponibilidad antes de pagar
             </p>
-            <p className="mt-1 text-[8px] leading-4 text-[#657287]">
-              Puntos medios: {LEON_PICKUP_POINTS.join(" · ")}. También podemos coordinar Uber con costo adicional al pedido. Te confirmamos la opción final por WhatsApp.
+            <p className="mt-1 text-[8px] leading-4 text-[#718096]">
+              Te respondemos por WhatsApp si podemos atenderte en esa fecha y horario.
             </p>
-          </div>
-
-          <div>
-            <label className="font-interface block text-[9px] font-bold uppercase tracking-[0.08em] text-[#5d6879]">
-              Nota de personalización · opcional
-            </label>
-            <textarea
-              value={value.personalizationNote}
-              onChange={(event) => update({ personalizationNote: event.target.value.slice(0, 350) })}
-              maxLength={350}
-              rows={2}
-              placeholder="Ej. nombre, colores, temática o indicación especial."
-              className="mt-1 w-full resize-none rounded-md border border-[#c9d4e9] bg-white px-3 py-2 text-[10px] leading-4 text-[#263650] outline-none focus:border-[#425b8c]"
-            />
-          </div>
-
-          <div className="rounded-lg border border-[#b9c9df] bg-white p-3">
-            <p className="font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#425b8c]">
-              Confirmar disponibilidad
-            </p>
-            <p className="mt-1 text-[9px] leading-4 text-[#657287]">
-              Solo confirmamos fecha y horario en este paso. La entrega se define después del pago.
-            </p>
-
-            <a
-              href={complete ? `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}` : undefined}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(event) => {
-                if (!complete) {
-                  event.preventDefault();
-                  return;
-                }
-                setAvailabilityRequested(true);
-              }}
-              aria-disabled={!complete}
-              className={`mt-3 flex min-h-10 w-full items-center justify-center rounded-md border px-3 text-center text-[10px] font-bold ${
-                complete
-                  ? "border-[#2f7b5e] bg-[#eaf8f1] text-[#246048]"
-                  : "pointer-events-none border-[#d7dde8] bg-[#f0f2f6] text-[#9aa3b2]"
-              }`}
-            >
-              Consultar fecha y horario por WhatsApp
-            </a>
-
-            <label
-              className={`mt-3 flex items-start gap-2 rounded-md border px-3 py-2 ${
-                availabilityRequested || value.whatsappConfirmed
-                  ? "border-[#c9d4e9] bg-[#f8f9fd]"
-                  : "border-[#e4e7ee] bg-[#f5f6f8] opacity-60"
-              }`}
-            >
-              <input
-                type="checkbox"
-                disabled={!complete || (!availabilityRequested && !value.whatsappConfirmed)}
-                checked={value.whatsappConfirmed}
-                onChange={(event) => update({ whatsappConfirmed: event.target.checked })}
-                className="mt-0.5 h-4 w-4 accent-[#425b8c]"
-              />
-              <span className="text-[9px] font-semibold leading-4 text-[#53627a]">
-                Ya confirmé con Guaurritas por WhatsApp que esta fecha y horario están disponibles.
-              </span>
-            </label>
           </div>
         </div>
-      )}
+
+        <a
+          href={complete ? `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}` : undefined}
+          target="_blank"
+          rel="noreferrer"
+          aria-disabled={!complete}
+          className={`mt-3 flex min-h-11 w-full items-center justify-center rounded-lg border px-3 text-center font-interface text-[9px] font-bold transition ${
+            complete
+              ? "border-[#a9d5bf] bg-[#edf9f3] text-[#236149] hover:bg-[#e3f5ec]"
+              : "pointer-events-none border-[#e0e4eb] bg-[#f2f4f7] text-[#a0a8b4]"
+          }`}
+        >
+          Consultar disponibilidad por WhatsApp
+        </a>
+
+        <label
+          className={`mt-2.5 flex items-start gap-2 rounded-lg border px-3 py-2.5 ${
+            complete
+              ? "border-[#dce3ef] bg-white"
+              : "border-[#e7eaf0] bg-[#f7f8fa] opacity-60"
+          }`}
+        >
+          <input
+            type="checkbox"
+            disabled={!complete}
+            checked={value.whatsappConfirmed}
+            onChange={(event) => update({ whatsappConfirmed: event.target.checked })}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[#425BBC]"
+          />
+          <span className="text-[8px] font-semibold leading-4 text-[#56647a]">
+            Ya confirmé esta fecha y horario con Guaurritas.
+          </span>
+        </label>
+      </div>
     </section>
   );
 }
