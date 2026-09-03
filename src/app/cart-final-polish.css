@@ -1,0 +1,34 @@
+/* Último pulido del checkout móvil: los CTA SPEI usan el mismo lenguaje retro café del carrito. */
+.taskbar-checkout-view .spei-primary-button {
+  min-height: 42px !important;
+  width: 100% !important;
+  padding: 0 16px !important;
+  border: 2px solid #efc8b1 !important;
+  border-right-color: #a96f53 !important;
+  border-bottom-color: #a96f53 !important;
+  border-radius: 0 !important;
+  background: #D9A689 !important;
+  background-image: none !important;
+  color: #263650 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 2px 0 #b47c61 !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  text-align: center !important;
+}
+
+.taskbar-checkout-view .spei-primary-button:hover,
+.taskbar-checkout-view .spei-primary-button:focus-visible {
+  background: #cf9a7d !important;
+  color: #263650 !important;
+  outline: none !important;
+}
+
+.taskbar-checkout-view .spei-primary-button:active {
+  border-color: #a96f53 #efc8b1 #efc8b1 #a96f53 !important;
+  box-shadow: inset 0 1px 2px rgba(90, 52, 34, 0.18) !important;
+  transform: translateY(1px);
+}
