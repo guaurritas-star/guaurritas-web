@@ -47,6 +47,44 @@ export const EMPTY_LEON_ORDER_PREFERENCES: LeonOrderPreferences = {
   whatsappConfirmed: false,
 };
 
+const LEON_TIME_ZONE = "America/Mexico_City";
+
+function mexicoDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: LEON_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${map.year}-${map.month}-${map.day}`;
+}
+
+function dateFromKey(dateKey: string) {
+  return new Date(`${dateKey}T12:00:00-06:00`);
+}
+
+function keyFromDate(date: Date) {
+  return mexicoDateKey(date);
+}
+
+export function minimumLeonDeliveryDate(now = new Date()) {
+  const today = dateFromKey(mexicoDateKey(now));
+  const candidate = new Date(today.getTime());
+
+  do {
+    candidate.setUTCDate(candidate.getUTCDate() + 1);
+  } while (candidate.getUTCDay() === 0 || candidate.getUTCDay() === 6);
+
+  return keyFromDate(candidate);
+}
+
+export function isLeonDeliveryDateAllowed(dateKey: string, now = new Date()) {
+  const normalized = String(dateKey || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) return false;
+  return normalized >= minimumLeonDeliveryDate(now);
+}
+
 export function deliveryMethodLabel(method: LeonOrderPreferences["deliveryMethod"]) {
   if (method === "pending_whatsapp") return "Por confirmar por WhatsApp";
   if (method === "pickup_point") return "Punto medio";
@@ -56,13 +94,12 @@ export function deliveryMethodLabel(method: LeonOrderPreferences["deliveryMethod
 }
 
 export function isLeonOrderPreferencesComplete(preferences: LeonOrderPreferences) {
-  // Safari/iOS puede representar los controles nativos de fecha/hora de forma
-  // distinta visualmente. Para el checkout solo necesitamos que ambas
-  // preferencias tengan un valor elegido; la fecha se conserva tal cual para
-  // el pedido y la validación operativa se hace después por WhatsApp.
   const deliveryDate = String(preferences.deliveryDate || "").trim();
   const preferredTime = String(preferences.preferredTime || "").trim();
-  return Boolean(deliveryDate && preferredTime);
+  return Boolean(
+    isLeonDeliveryDateAllowed(deliveryDate) &&
+      /^([01]\d|2[0-3]):[0-5]$/.test(preferredTime),
+  );
 }
 
 export function encodeOrderPreferencesMarker(preferences: LeonOrderPreferences) {
