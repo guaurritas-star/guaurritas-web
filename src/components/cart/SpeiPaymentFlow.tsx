@@ -287,11 +287,8 @@ export default function SpeiPaymentFlow({
   const startTransfer = () => {
     if (starting) return;
 
-    if (
-      !isLeonOrderPreferencesComplete(preferences) ||
-      !preferences.whatsappConfirmed
-    ) {
-      setStatus("Confirma primero la fecha y el horario con Guaurritas por WhatsApp.");
+    if (!isLeonOrderPreferencesComplete(preferences)) {
+      setStatus("Primero elige una fecha y un horario.");
       return;
     }
 
@@ -425,7 +422,7 @@ export default function SpeiPaymentFlow({
           type="button"
           disabled={starting}
           onClick={startTransfer}
-          className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
+          className="spei-primary-button mt-3 w-full disabled:cursor-wait disabled:opacity-60"
         >
           {starting ? "Generando referencia…" : "Continuar con transferencia"}
         </button>
@@ -517,7 +514,7 @@ export default function SpeiPaymentFlow({
             setShowProofForm(true);
             setStatus("");
           }}
-          className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white"
+          className="spei-primary-button mt-3 w-full"
         >
           ✓ Ya realicé mi pago
         </button>
@@ -585,7 +582,7 @@ export default function SpeiPaymentFlow({
             type="button"
             disabled={!selectedFile || uploading}
             onClick={submitProof}
-            className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="spei-primary-button mt-3 w-full disabled:cursor-not-allowed disabled:opacity-50"
           >
             {uploading ? "Guardando comprobante…" : "Confirmar mi pedido"}
           </button>
