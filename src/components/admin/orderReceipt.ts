@@ -223,9 +223,14 @@ function drawReceiptPage(
   ctx.font = `400 76px ${mansalva}`;
   ctx.fillText('PEDIDO N°', 1035, 145);
 
-  ctx.fillStyle = tan;
-  ctx.fillRect(1050, 88, 142, 112);
-  drawCentered(ctx, orderNumber(order), 1054, 144, 134, 25, mansalva, ink, '700');
+  // Folio completo, sin recuadro: conserva el identificador único y evita recortar referencias largas.
+  const receiptReference = orderNumber(order);
+  const referenceSize = fitFont(ctx, receiptReference, 390, 30, cinzel, 18);
+  ctx.fillStyle = '#555b6f';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.font = `700 ${referenceSize}px ${cinzel}`;
+  ctx.fillText(receiptReference, 1188, 194);
 
   // Datos del cliente
   const dataLabelX = 128;
@@ -329,12 +334,16 @@ function drawReceiptPage(
     drawWrapped(ctx, notesFor(order), 178, 1370, 882, 25, 3, `400 21px ${mansalva}`);
 
     const explicitPaid = Math.max(0, Number(order.paidAmount || 0));
-    const paid = String(order.statusGroup || '').toLowerCase() === 'paid' && explicitPaid <= 0
+    const isPaid = String(order.statusGroup || '').toLowerCase() === 'paid'
+      || String(order.paymentStatus || '').toUpperCase() === 'PAID';
+    const paid = isPaid
       ? Number(order.total || 0)
       : Math.min(Number(order.total || 0), explicitPaid);
-    const pending = Number(order.pendingAmount || 0) > 0
-      ? Number(order.pendingAmount || 0)
-      : Math.max(0, Number(order.total || 0) - paid);
+    const pending = isPaid
+      ? 0
+      : Number(order.pendingAmount || 0) > 0
+        ? Number(order.pendingAmount || 0)
+        : Math.max(0, Number(order.total || 0) - paid);
 
     const totalX = [155, 465, 775];
     const totalW = 250;
@@ -351,9 +360,9 @@ function drawReceiptPage(
       drawCentered(ctx, valuesMoney[index], totalX[index], 1555, totalW, 25, mansalva, ink);
     });
 
-    // Florecitas originales en las esquinas inferiores
-    ctx.drawImage(assets.flowerLeft, 45, 1482, 255, 230);
-    ctx.drawImage(assets.flowerRight, PAGE_W - 300, 1482, 255, 230);
+    // Florecitas originales: quedan debajo de los totales para no tapar los recuadros.
+    ctx.drawImage(assets.flowerLeft, 38, 1600, 205, 145);
+    ctx.drawImage(assets.flowerRight, PAGE_W - 243, 1600, 205, 145);
   } else {
     ctx.fillStyle = blue;
     ctx.textAlign = 'center';
@@ -481,7 +490,7 @@ export function openOrderReceipt(order: ReceiptOrder) {
       const filename = `${safeFileName(order)}.pdf`;
 
       popup.document.open();
-      popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${filename}</title><style>html,body{margin:0;height:100%;background:#111}iframe{width:100%;height:100%;border:0}a{position:fixed;z-index:2;right:14px;bottom:14px;border-radius:999px;background:#425BBC;color:#fff;padding:12px 16px;text-decoration:none;font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:0 8px 26px rgba(0,0,0,.22)}</style></head><body><iframe src="${url}" title="${filename}"></iframe><a href="${url}" download="${filename}">Guardar PDF</a></body></html>`);
+      popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${filename}</title><style>html,body{margin:0;height:100%;background:#111}iframe{width:100%;height:100%;border:0}.receipt-action{position:fixed;z-index:2;bottom:14px;border:0;border-radius:999px;padding:12px 16px;text-decoration:none;font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:0 8px 26px rgba(0,0,0,.22);cursor:pointer}.save{right:14px;background:#425BBC;color:#fff}.close{left:14px;background:#fff;color:#425BBC}</style></head><body><iframe src="${url}" title="${filename}"></iframe><button class="receipt-action close" type="button" onclick="window.close()">Cerrar</button><a class="receipt-action save" href="${url}" download="${filename}">Guardar PDF</a></body></html>`);
       popup.document.close();
 
       window.setTimeout(() => URL.revokeObjectURL(url), 10 * 60 * 1000);
