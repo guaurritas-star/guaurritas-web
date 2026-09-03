@@ -1,6 +1,10 @@
 import type { CartItem } from "@/lib/cart-store";
 
-export type LeonDeliveryMethod = "pickup_point" | "home_delivery" | "uber_eats";
+export type LeonDeliveryMethod =
+  | "pending_whatsapp"
+  | "pickup_point"
+  | "home_delivery"
+  | "uber_eats";
 
 export type LeonOrderPreferences = {
   deliveryDate: string;
@@ -36,7 +40,7 @@ export const LEON_TIME_OPTIONS = [
 export const EMPTY_LEON_ORDER_PREFERENCES: LeonOrderPreferences = {
   deliveryDate: "",
   preferredTime: "",
-  deliveryMethod: "",
+  deliveryMethod: "pending_whatsapp",
   deliveryPoint: "",
   deliveryAddress: "",
   personalizationNote: "",
@@ -44,25 +48,16 @@ export const EMPTY_LEON_ORDER_PREFERENCES: LeonOrderPreferences = {
 };
 
 export function deliveryMethodLabel(method: LeonOrderPreferences["deliveryMethod"]) {
+  if (method === "pending_whatsapp") return "Por confirmar por WhatsApp";
   if (method === "pickup_point") return "Punto medio";
   if (method === "home_delivery") return "Entrega a domicilio";
-  if (method === "uber_eats") return "Uber Eats";
-  return "Por definir";
+  if (method === "uber_eats") return "Uber";
+  return "Por confirmar por WhatsApp";
 }
 
 export function isLeonOrderPreferencesComplete(preferences: LeonOrderPreferences) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(preferences.deliveryDate)) return false;
   if (!/^([01]\d|2[0-3]):[0-5]$/.test(preferences.preferredTime)) return false;
-  if (!preferences.deliveryMethod) return false;
-  if (preferences.deliveryMethod === "pickup_point" && !preferences.deliveryPoint.trim()) {
-    return false;
-  }
-  if (
-    ["home_delivery", "uber_eats"].includes(preferences.deliveryMethod) &&
-    preferences.deliveryAddress.trim().length < 5
-  ) {
-    return false;
-  }
   return true;
 }
 
@@ -70,9 +65,7 @@ export function encodeOrderPreferencesMarker(preferences: LeonOrderPreferences) 
   const compact = {
     d: preferences.deliveryDate,
     t: preferences.preferredTime,
-    m: preferences.deliveryMethod,
-    p: preferences.deliveryPoint.trim().slice(0, 160),
-    a: preferences.deliveryAddress.trim().slice(0, 220),
+    m: "pending_whatsapp",
     w: preferences.whatsappConfirmed ? 1 : 0,
     n: preferences.personalizationNote.trim().slice(0, 240),
   };
@@ -95,19 +88,19 @@ export function buildOrderBuyerNote(
   if (!preferences) return humanLines.join("\n").slice(0, 1000);
 
   humanLines.push(
-    `Entrega solicitada: ${preferences.deliveryDate} · ${preferences.preferredTime} · ${deliveryMethodLabel(
-      preferences.deliveryMethod,
-    )}`,
+    `Fecha y horario solicitados: ${preferences.deliveryDate} · ${preferences.preferredTime}`,
+    "Entrega: se coordina por WhatsApp después del pago.",
+    "Opciones locales: HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos, Parque Panorama o Uber con costo adicional.",
   );
-  if (preferences.deliveryPoint) humanLines.push(`Punto: ${preferences.deliveryPoint}`);
-  if (preferences.deliveryAddress) humanLines.push(`Dirección: ${preferences.deliveryAddress}`);
+
   if (preferences.personalizationNote) {
     humanLines.push(`Personalización: ${preferences.personalizationNote}`);
   }
+
   humanLines.push(
     preferences.whatsappConfirmed
-      ? "Disponibilidad: cliente indica confirmación previa por WhatsApp"
-      : "Disponibilidad: pendiente de confirmar por WhatsApp",
+      ? "Disponibilidad de fecha/horario: confirmada previamente por WhatsApp"
+      : "Disponibilidad de fecha/horario: pendiente de confirmar por WhatsApp",
   );
 
   const marker = encodeOrderPreferencesMarker(preferences);
