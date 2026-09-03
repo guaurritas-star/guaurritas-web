@@ -12,6 +12,12 @@
   color: #263650 !important;
 }
 
+/* El resumen del carrito ya no repite fecha/horario; ese contexto vive en
+   “Completar pedido”. */
+.taskbar-cart-footer section > p:last-child {
+  display: none !important;
+}
+
 .taskbar-cart-footer .spei-copy-button {
   min-height: 28px !important;
   padding: 4px 9px !important;
