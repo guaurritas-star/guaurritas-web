@@ -48,23 +48,28 @@
   outline: 1px solid #9a654c;
 }
 
-/* En móvil el carrito completo debe ser la superficie de scroll. Antes solo
-   scrolleaba la lista de productos y el bloque de pago podía quedar fuera del
-   viewport, especialmente en Safari/iPhone. */
+/* En móvil el carrito normal se ajusta a su contenido para no dejar una gran
+   superficie blanca cuando hay pocos productos. Si el contenido crece, el
+   propio panel toma scroll. La vista de checkout sí usa la altura disponible. */
 @media (max-width: 900px) {
   .taskbar-cart-panel {
     position: fixed !important;
     top: 54px !important;
     right: 8px !important;
-    bottom: calc(58px + env(safe-area-inset-bottom)) !important;
+    bottom: auto !important;
     left: 8px !important;
     width: auto !important;
-    max-height: none !important;
+    max-height: calc(100dvh - 122px - env(safe-area-inset-bottom)) !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
+  }
+
+  .taskbar-cart-panel--checkout {
+    bottom: calc(58px + env(safe-area-inset-bottom)) !important;
+    max-height: none !important;
   }
 
   .taskbar-cart-titlebar {
@@ -81,5 +86,23 @@
   .taskbar-cart-footer {
     overflow: visible !important;
     padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .taskbar-checkout-view {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .taskbar-checkout-view input,
+  .taskbar-checkout-view select,
+  .taskbar-checkout-view button {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .taskbar-checkout-view p,
+  .taskbar-checkout-view small {
+    overflow-wrap: anywhere;
   }
 }
