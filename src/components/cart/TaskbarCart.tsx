@@ -14,6 +14,7 @@ import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
 import {
   EMPTY_LEON_ORDER_PREFERENCES,
+  LEON_PICKUP_POINTS,
   isLeonOrderPreferencesComplete,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
@@ -21,6 +22,7 @@ import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
 import LeonOrderPreferencesForm from "@/components/cart/LeonOrderPreferences";
 
 type LeonPaymentMethod = "spei" | "online";
+type CartView = "cart" | "leon-checkout";
 
 const CHECKOUT_RETRY_MS = 8000;
 
@@ -39,8 +41,13 @@ function itemTotal(items: CartItem[]) {
   );
 }
 
+function itemUnits(items: CartItem[]) {
+  return items.reduce((total, item) => total + item.quantity, 0);
+}
+
 export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<CartView>("cart");
   const [checkoutStatus, setCheckoutStatus] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [leonPaymentMethod, setLeonPaymentMethod] =
@@ -48,6 +55,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [leonOrderPreferences, setLeonOrderPreferences] =
     useState<LeonOrderPreferences>({ ...EMPTY_LEON_ORDER_PREFERENCES });
   const shellRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const checkoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cart = useCart();
 
@@ -72,8 +80,17 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) setCheckoutStatus("");
+    if (!open) {
+      setCheckoutStatus("");
+      setView("cart");
+    }
   }, [open]);
+
+  useEffect(() => {
+    if (view === "leon-checkout" && !cart.items.some((item) => item.fulfillment === "leon")) {
+      setView("cart");
+    }
+  }, [cart.items, view]);
 
   useEffect(() => {
     const clearCheckoutLock = () => {
@@ -117,6 +134,31 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const leonReadyForPayment =
     leonPreferencesComplete && leonOrderPreferences.whatsappConfirmed;
 
+  const scrollPanelTop = () => {
+    requestAnimationFrame(() => {
+      panelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+
+  const closeCart = () => {
+    setOpen(false);
+    setView("cart");
+    setCheckoutStatus("");
+  };
+
+  const goToLeonCheckout = () => {
+    setView("leon-checkout");
+    setCheckoutStatus("");
+    setLeonPaymentMethod(null);
+    scrollPanelTop();
+  };
+
+  const goBackToCart = () => {
+    setView("cart");
+    setCheckoutStatus("");
+    scrollPanelTop();
+  };
+
   const proceedToCheckout = (
     items: CartItem[],
     label: string,
@@ -156,7 +198,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
     if (!leonReadyForPayment) {
       setCheckoutStatus(
-        "Primero elige fecha y horario y confirma su disponibilidad con Guaurritas por WhatsApp.",
+        "Confirma primero la fecha y el horario con Guaurritas por WhatsApp.",
       );
       return;
     }
@@ -172,19 +214,122 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     setCheckoutStatus("");
   };
 
+  const renderCartItems = () => (
+    <div className="taskbar-cart-items">
+      {cart.items.map((item) => (
+        <article
+          key={`${item.fulfillment}:${item.id}`}
+          className="taskbar-cart-item"
+        >
+          <span className="taskbar-cart-item-image">
+            <Image
+              src={withBasePath(item.image)}
+              alt=""
+              fill
+              unoptimized
+              sizes="48px"
+              className="object-contain"
+            />
+          </span>
+          <span className="taskbar-cart-item-copy">
+            <strong>{item.name}</strong>
+            <small>{item.detail}</small>
+            <small
+              className={`mt-1 font-bold ${
+                item.fulfillment === "national"
+                  ? "text-[#487986]"
+                  : "text-[#9a6070]"
+              }`}
+            >
+              {item.fulfillment === "national"
+                ? "📦 Envío nacional"
+                : "📍 Entrega en León"}
+            </small>
+            {!item.wix.supported && (
+              <small className="mt-1 font-bold text-[#9f5860]">
+                Pendiente de conectar a Wix
+              </small>
+            )}
+          </span>
+          <span
+            className="taskbar-cart-quantity"
+            aria-label={`Cantidad de ${item.name}`}
+          >
+            <button
+              type="button"
+              aria-label={`Quitar una unidad de ${item.name}`}
+              onClick={() => {
+                setCheckoutStatus("");
+                changeCartQuantity(item.id, -1, item.fulfillment);
+              }}
+            >
+              −
+            </button>
+            <b>{item.quantity}</b>
+            <button
+              type="button"
+              aria-label={`Agregar otra unidad de ${item.name}`}
+              onClick={() => {
+                setCheckoutStatus("");
+                changeCartQuantity(item.id, 1, item.fulfillment);
+              }}
+            >
+              +
+            </button>
+          </span>
+          <strong className="taskbar-cart-price">
+            {money(item.unitPrice * item.quantity)}
+          </strong>
+          <button
+            type="button"
+            className="taskbar-cart-remove"
+            aria-label={`Eliminar ${item.name} del carrito`}
+            onClick={() => {
+              setCheckoutStatus("");
+              removeCartItem(item.id, item.fulfillment);
+            }}
+          >
+            ×
+          </button>
+        </article>
+      ))}
+    </div>
+  );
+
   return (
     <div ref={shellRef} className="taskbar-cart-shell">
       {open && (
         <section
+          ref={panelRef}
           id="taskbar-cart-panel"
-          className="taskbar-cart-panel"
-          aria-label="Artículos del carrito"
+          className={`taskbar-cart-panel ${
+            view === "leon-checkout" ? "taskbar-cart-panel--checkout" : ""
+          }`}
+          aria-label={view === "cart" ? "Artículos del carrito" : "Completar pedido"}
         >
           <header className="taskbar-cart-titlebar">
-            <span>Carrito</span>
-            <button type="button" aria-label="Cerrar carrito" onClick={() => setOpen(false)}>
-              ×
-            </button>
+            {view === "leon-checkout" ? (
+              <>
+                <button
+                  type="button"
+                  aria-label="Volver al carrito"
+                  onClick={goBackToCart}
+                >
+                  ‹
+                </button>
+                <span className="flex-1 px-2 text-center">Completar pedido</span>
+                <button type="button" aria-label="Cerrar carrito" onClick={closeCart}>
+                  ×
+                </button>
+              </>
+            ) : (
+              <>
+                <span>Carrito</span>
+                <button type="button" aria-label="Cerrar carrito" onClick={closeCart}>
+                  ×
+                </button>
+              </>
+            )}
           </header>
 
           {cart.items.length === 0 ? (
@@ -193,93 +338,43 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               <button
                 type="button"
                 onClick={() => {
-                  setOpen(false);
+                  closeCart();
                   onShop();
                 }}
               >
                 Ir a la tienda
               </button>
             </div>
-          ) : (
+          ) : view === "cart" ? (
             <>
-              <div className="taskbar-cart-items">
-                {cart.items.map((item) => (
-                  <article
-                    key={`${item.fulfillment}:${item.id}`}
-                    className="taskbar-cart-item"
-                  >
-                    <span className="taskbar-cart-item-image">
-                      <Image
-                        src={withBasePath(item.image)}
-                        alt=""
-                        fill
-                        unoptimized
-                        sizes="48px"
-                        className="object-contain"
-                      />
-                    </span>
-                    <span className="taskbar-cart-item-copy">
-                      <strong>{item.name}</strong>
-                      <small>{item.detail}</small>
-                      <small
-                        className={`mt-1 font-bold ${
-                          item.fulfillment === "national"
-                            ? "text-[#487986]"
-                            : "text-[#9a6070]"
-                        }`}
-                      >
-                        {item.fulfillment === "national"
-                          ? "📦 Envío nacional"
-                          : "📍 Entrega en León"}
-                      </small>
-                      {!item.wix.supported && (
-                        <small className="mt-1 font-bold text-[#9f5860]">
-                          Pendiente de conectar a Wix
-                        </small>
-                      )}
-                    </span>
-                    <span className="taskbar-cart-quantity" aria-label={`Cantidad de ${item.name}`}>
-                      <button
-                        type="button"
-                        aria-label={`Quitar una unidad de ${item.name}`}
-                        onClick={() => {
-                          setCheckoutStatus("");
-                          changeCartQuantity(item.id, -1, item.fulfillment);
-                        }}
-                      >
-                        −
-                      </button>
-                      <b>{item.quantity}</b>
-                      <button
-                        type="button"
-                        aria-label={`Agregar otra unidad de ${item.name}`}
-                        onClick={() => {
-                          setCheckoutStatus("");
-                          changeCartQuantity(item.id, 1, item.fulfillment);
-                        }}
-                      >
-                        +
-                      </button>
-                    </span>
-                    <strong className="taskbar-cart-price">
-                      {money(item.unitPrice * item.quantity)}
-                    </strong>
-                    <button
-                      type="button"
-                      className="taskbar-cart-remove"
-                      aria-label={`Eliminar ${item.name} del carrito`}
-                      onClick={() => {
-                        setCheckoutStatus("");
-                        removeCartItem(item.id, item.fulfillment);
-                      }}
-                    >
-                      ×
-                    </button>
-                  </article>
-                ))}
-              </div>
+              {renderCartItems()}
 
               <footer className="taskbar-cart-footer !block space-y-3">
+                {leonItems.length > 0 && (
+                  <section className="rounded-lg border border-[#d8c0c8] bg-white/70 p-3 text-left">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#955b69]">
+                          📍 Pedido en León
+                        </p>
+                        <p className="mt-1 text-[9px] leading-4 text-[#657287]">
+                          {itemUnits(leonItems)} {itemUnits(leonItems) === 1 ? "producto" : "productos"} · {money(leonTransferTotal)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={goToLeonCheckout}
+                        className="shrink-0"
+                      >
+                        Continuar pedido
+                      </button>
+                    </div>
+                    <p className="mt-2 text-[8px] leading-4 text-[#7a7180]">
+                      En el siguiente paso eliges fecha, horario y forma de pago. La personalización se conserva desde cada producto.
+                    </p>
+                  </section>
+                )}
+
                 {nationalItems.length > 0 && (
                   <section className="rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
                     <p className="font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#487986]">
@@ -300,140 +395,19 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }
-                        className="!border-[#425b8c] !bg-[#425b8c] !text-white shadow-[2px_2px_0_#aab8d2] disabled:cursor-wait disabled:opacity-60"
+                        className="!border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
                       >
                         {checkoutBusy ? "Preparando…" : "Pagar nacional"}
                       </button>
                     </div>
-                    <p className="mt-2 text-[9px] leading-4 text-[#657287]">
-                      El precio online ya contempla el costo de procesamiento. El envío nacional se calcula por separado.
+                    <p className="mt-2 text-[8px] leading-4 text-[#657287]">
+                      El envío nacional se calcula por separado.
                     </p>
-                  </section>
-                )}
-
-                {leonItems.length > 0 && (
-                  <section className="rounded-lg border border-[#ddb8c0] bg-[#fcf2f4] p-3 text-left">
-                    <p className="font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#955b69]">
-                      📍 Entrega en León · pago completo
-                    </p>
-
-                    <div className="mt-3">
-                      <LeonOrderPreferencesForm
-                        items={leonItems}
-                        value={leonOrderPreferences}
-                        onChange={updateLeonPreferences}
-                      />
-                    </div>
-
-                    <div className="mt-3 rounded-lg border border-[#e5d2d7] bg-white/70 p-3">
-                      <p className="font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#6f6266]">
-                        2 · Pago del 100%
-                      </p>
-
-                      {!leonReadyForPayment ? (
-                        <div className="mt-2 rounded-md border border-[#efd69d] bg-[#fff8e8] px-3 py-2 text-[9px] font-semibold leading-4 text-[#775b1f]">
-                          Para habilitar el pago, elige fecha y horario preferido y confirma su disponibilidad con Guaurritas por WhatsApp.
-                        </div>
-                      ) : (
-                        <>
-                          <p className="mt-2 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#6f6266]">
-                            ¿Cómo quieres pagar?
-                          </p>
-
-                          <div className="mt-2 grid gap-2">
-                            <button
-                              type="button"
-                              onClick={() => chooseLeonPayment("spei")}
-                              className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
-                                leonPaymentMethod === "spei"
-                                  ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
-                                  : "!border-[#c48d70]"
-                              }`}
-                            >
-                              <span className="flex min-w-0 items-start gap-2">
-                                <span className="mt-0.5 text-xs text-[#263650]">
-                                  {leonPaymentMethod === "spei" ? "●" : "○"}
-                                </span>
-                                <span className="min-w-0">
-                                  <strong className="block text-[11px] text-[#263650]">
-                                    Transferencia SPEI
-                                  </strong>
-                                  <small className="block text-[9px] leading-4 text-[#5f4c45]">
-                                    Precio preferencial · pago completo
-                                  </small>
-                                </span>
-                              </span>
-                              <strong className="shrink-0 text-sm text-[#263650]">
-                                {money(leonTransferTotal)}
-                              </strong>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => chooseLeonPayment("online")}
-                              className={`!flex !w-full !items-center !justify-between !gap-3 !rounded-md !border !p-3 !text-left !bg-[#D9A689] ${
-                                leonPaymentMethod === "online"
-                                  ? "!border-[#9a654c] shadow-[inset_3px_0_0_#9a654c]"
-                                  : "!border-[#c48d70]"
-                              }`}
-                            >
-                              <span className="flex min-w-0 items-start gap-2">
-                                <span className="mt-0.5 text-xs text-[#263650]">
-                                  {leonPaymentMethod === "online" ? "●" : "○"}
-                                </span>
-                                <span className="min-w-0">
-                                  <strong className="block text-[11px] text-[#263650]">
-                                    Pago en línea
-                                  </strong>
-                                  <small className="block text-[9px] leading-4 text-[#5f4c45]">
-                                    Pago seguro en Wix · precio con procesamiento incluido
-                                  </small>
-                                </span>
-                              </span>
-                              <strong className="shrink-0 text-sm text-[#263650]">
-                                {money(leonOnlineTotal)}
-                              </strong>
-                            </button>
-                          </div>
-
-                          <div className="mt-3 rounded-md border border-[#c9d4e9] bg-[#f8f9fd] px-3 py-2 text-[8px] leading-4 text-[#657287]">
-                            <strong className="block text-[#425b8c]">Entrega después del pago</strong>
-                            Por WhatsApp coordinamos si recoges en HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos o Parque Panorama. También podemos coordinar Uber con costo adicional al pedido.
-                          </div>
-                        </>
-                      )}
-
-                      {leonReadyForPayment && leonPaymentMethod === "online" && (
-                        <button
-                          type="button"
-                          disabled={checkoutBusy}
-                          onClick={() =>
-                            proceedToCheckout(
-                              leonItems,
-                              "tu pago seguro en Wix",
-                              leonOrderPreferences,
-                            )
-                          }
-                          className="mt-3 w-full !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
-                        >
-                          {checkoutBusy
-                            ? "Preparando pago…"
-                            : `Pagar ${money(leonOnlineTotal)} en línea`}
-                        </button>
-                      )}
-
-                      {leonReadyForPayment && leonPaymentMethod === "spei" && (
-                        <SpeiPaymentFlow
-                          items={leonItems}
-                          preferences={leonOrderPreferences}
-                        />
-                      )}
-                    </div>
                   </section>
                 )}
 
                 {nationalItems.length > 0 && leonItems.length > 0 && (
-                  <p className="text-left text-[9px] leading-4 text-[#718093]">
+                  <p className="text-left text-[8px] leading-4 text-[#718093]">
                     Los artículos nacionales y los de León se finalizan por separado porque usan logística distinta.
                   </p>
                 )}
@@ -452,7 +426,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                   <button
                     type="button"
                     onClick={() => {
-                      setOpen(false);
+                      closeCart();
                       onShop();
                     }}
                   >
@@ -461,6 +435,173 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 </div>
               </footer>
             </>
+          ) : (
+            <div className="taskbar-checkout-view p-3 sm:p-4">
+              <div className="mb-3 flex items-center gap-2" aria-label="Progreso del pedido">
+                <span className="rounded-full bg-[#425BBC] px-2.5 py-1 font-interface text-[8px] font-bold text-white">
+                  1 · Horario
+                </span>
+                <span className="h-px flex-1 bg-[#dbe1ed]" />
+                <span
+                  className={`rounded-full px-2.5 py-1 font-interface text-[8px] font-bold ${
+                    leonReadyForPayment
+                      ? "bg-[#425BBC] text-white"
+                      : "bg-[#edf0f5] text-[#8c96a7]"
+                  }`}
+                >
+                  2 · Pago
+                </span>
+              </div>
+
+              <section className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#ead7de] bg-[#fff9fb] px-3 py-2.5">
+                <div className="min-w-0">
+                  <p className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#955b69]">
+                    Tu pedido en León
+                  </p>
+                  <p className="mt-0.5 truncate text-[9px] text-[#657287]">
+                    {itemUnits(leonItems)} {itemUnits(leonItems) === 1 ? "producto" : "productos"} · pago completo
+                  </p>
+                </div>
+                <strong className="shrink-0 font-title text-[15px] text-[#263650]">
+                  {money(leonTransferTotal)}
+                </strong>
+              </section>
+
+              <LeonOrderPreferencesForm
+                items={leonItems}
+                value={leonOrderPreferences}
+                onChange={updateLeonPreferences}
+              />
+
+              <section className="mt-3 rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
+                <div className="flex items-start gap-3">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#eef1ff] font-interface text-[10px] font-bold text-[#425BBC]">
+                    2
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-interface text-[11px] font-bold text-[#27364f]">
+                          Pago del 100%
+                        </h3>
+                        <p className="mt-0.5 text-[8px] leading-4 text-[#77849a]">
+                          Elige SPEI o tarjeta. No manejamos anticipo del 50%.
+                        </p>
+                      </div>
+                      {!leonReadyForPayment && (
+                        <span className="shrink-0 rounded-full bg-[#fff4dc] px-2 py-1 text-[7px] font-bold text-[#80621f]">
+                          Por confirmar
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {!leonReadyForPayment && (
+                  <p className="mt-3 rounded-lg bg-[#f8f9fc] px-3 py-2 text-[8px] leading-4 text-[#7a8495]">
+                    Estas opciones se habilitan cuando marques que Guaurritas ya confirmó tu fecha y horario por WhatsApp.
+                  </p>
+                )}
+
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled={!leonReadyForPayment}
+                    onClick={() => chooseLeonPayment("spei")}
+                    className={`flex min-h-[68px] w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+                      leonPaymentMethod === "spei"
+                        ? "border-[#425BBC] bg-[#eef1ff] shadow-[inset_3px_0_0_#425BBC]"
+                        : "border-[#d7deea] bg-[#fbfcff]"
+                    }`}
+                  >
+                    <span className="min-w-0">
+                      <strong className="block font-interface text-[10px] text-[#263650]">
+                        Transferencia SPEI
+                      </strong>
+                      <small className="mt-0.5 block text-[8px] leading-4 text-[#738096]">
+                        Precio preferencial
+                      </small>
+                    </span>
+                    <strong className="shrink-0 font-title text-[13px] text-[#425BBC]">
+                      {money(leonTransferTotal)}
+                    </strong>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!leonReadyForPayment}
+                    onClick={() => chooseLeonPayment("online")}
+                    className={`flex min-h-[68px] w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+                      leonPaymentMethod === "online"
+                        ? "border-[#425BBC] bg-[#eef1ff] shadow-[inset_3px_0_0_#425BBC]"
+                        : "border-[#d7deea] bg-[#fbfcff]"
+                    }`}
+                  >
+                    <span className="min-w-0">
+                      <strong className="block font-interface text-[10px] text-[#263650]">
+                        Tarjeta / pago en línea
+                      </strong>
+                      <small className="mt-0.5 block text-[8px] leading-4 text-[#738096]">
+                        Pago seguro con Wix
+                      </small>
+                    </span>
+                    <strong className="shrink-0 font-title text-[13px] text-[#425BBC]">
+                      {money(leonOnlineTotal)}
+                    </strong>
+                  </button>
+                </div>
+
+                <p className="mt-3 border-t border-[#e3e7ef] pt-3 text-[8px] leading-4 text-[#69778c]">
+                  <strong className="text-[#425BBC]">Entrega después del pago:</strong>{" "}
+                  por WhatsApp coordinamos HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos o Parque Panorama. También podemos coordinar Uber con costo adicional.
+                </p>
+
+                {leonReadyForPayment && leonPaymentMethod === "online" && (
+                  <button
+                    type="button"
+                    disabled={checkoutBusy}
+                    onClick={() =>
+                      proceedToCheckout(
+                        leonItems,
+                        "tu pago seguro en Wix",
+                        leonOrderPreferences,
+                      )
+                    }
+                    className="mt-3 min-h-11 w-full rounded-lg border border-[#31499b] bg-[#425BBC] px-4 font-interface text-[10px] font-bold text-white shadow-[0_2px_0_#263f9a] disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {checkoutBusy
+                      ? "Preparando pago…"
+                      : `Pagar ${money(leonOnlineTotal)} con tarjeta`}
+                  </button>
+                )}
+
+                {leonReadyForPayment && leonPaymentMethod === "spei" && (
+                  <div className="mt-3">
+                    <SpeiPaymentFlow
+                      items={leonItems}
+                      preferences={leonOrderPreferences}
+                    />
+                  </div>
+                )}
+              </section>
+
+              {checkoutStatus && (
+                <p
+                  className="mt-3 rounded-lg border border-[#d7dde8] bg-white px-3 py-2 text-left text-[8px] font-semibold leading-4 text-[#53627a]"
+                  aria-live="polite"
+                >
+                  {checkoutStatus}
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={goBackToCart}
+                className="mt-3 w-full border-0 bg-transparent py-2 font-interface text-[9px] font-bold text-[#425BBC] underline decoration-[#b8c4e9] underline-offset-4"
+              >
+                ← Volver al carrito para editar productos
+              </button>
+            </div>
           )}
         </section>
       )}
