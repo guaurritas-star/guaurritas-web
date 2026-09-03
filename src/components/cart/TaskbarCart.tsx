@@ -14,7 +14,6 @@ import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
 import {
   EMPTY_LEON_ORDER_PREFERENCES,
-  LEON_PICKUP_POINTS,
   isLeonOrderPreferencesComplete,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
@@ -131,8 +130,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const nationalOnlineTotal = buildProtectedUnitPrices(nationalItems).protectedTotal;
   const leonOnlineTotal = buildProtectedUnitPrices(leonItems).protectedTotal;
   const leonPreferencesComplete = isLeonOrderPreferencesComplete(leonOrderPreferences);
-  const leonReadyForPayment =
-    leonPreferencesComplete && leonOrderPreferences.whatsappConfirmed;
+  const leonReadyForPayment = leonPreferencesComplete;
 
   const scrollPanelTop = () => {
     requestAnimationFrame(() => {
@@ -197,9 +195,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
     if (!leonReadyForPayment) {
-      setCheckoutStatus(
-        "Confirma primero la fecha y el horario con Guaurritas por WhatsApp.",
-      );
+      setCheckoutStatus("Primero elige una fecha y un horario.");
       return;
     }
     setLeonPaymentMethod(method);
@@ -208,7 +204,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
   const updateLeonPreferences = (next: LeonOrderPreferences) => {
     setLeonOrderPreferences(next);
-    if (!next.whatsappConfirmed || !isLeonOrderPreferencesComplete(next)) {
+    if (!isLeonOrderPreferencesComplete(next)) {
       setLeonPaymentMethod(null);
     }
     setCheckoutStatus("");
@@ -351,8 +347,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
               <footer className="taskbar-cart-footer !block space-y-3">
                 {leonItems.length > 0 && (
-                  <section className="rounded-lg border border-[#d8c0c8] bg-white/70 p-3 text-left">
-                    <div className="flex items-center justify-between gap-3">
+                  <section className="min-w-0 rounded-lg border border-[#d8c0c8] bg-white/70 p-3 text-left">
+                    <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#955b69]">
                           📍 Pedido en León
@@ -369,19 +365,19 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         Continuar pedido
                       </button>
                     </div>
-                    <p className="mt-2 text-[8px] leading-4 text-[#7a7180]">
-                      En el siguiente paso eliges fecha, horario y forma de pago. La personalización se conserva desde cada producto.
+                    <p className="mt-2 break-words text-[8px] leading-4 text-[#7a7180]">
+                      Después eliges fecha, horario y forma de pago.
                     </p>
                   </section>
                 )}
 
                 {nationalItems.length > 0 && (
-                  <section className="rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
+                  <section className="min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
                     <p className="font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#487986]">
                       📦 Envío nacional
                     </p>
-                    <div className="mt-2 flex items-end justify-between gap-3">
-                      <div>
+                    <div className="mt-2 flex min-w-0 items-end justify-between gap-3">
+                      <div className="min-w-0">
                         <small className="block text-[9px] text-[#657287]">
                           Productos {money(nationalBaseTotal)}
                         </small>
@@ -400,21 +396,21 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         {checkoutBusy ? "Preparando…" : "Pagar nacional"}
                       </button>
                     </div>
-                    <p className="mt-2 text-[8px] leading-4 text-[#657287]">
+                    <p className="mt-2 break-words text-[8px] leading-4 text-[#657287]">
                       El envío nacional se calcula por separado.
                     </p>
                   </section>
                 )}
 
                 {nationalItems.length > 0 && leonItems.length > 0 && (
-                  <p className="text-left text-[8px] leading-4 text-[#718093]">
+                  <p className="break-words text-left text-[8px] leading-4 text-[#718093]">
                     Los artículos nacionales y los de León se finalizan por separado porque usan logística distinta.
                   </p>
                 )}
 
                 {checkoutStatus && (
                   <p
-                    className="rounded-md border border-[#d7dde8] bg-white/80 px-3 py-2 text-left text-[9px] font-semibold leading-4 text-[#53627a]"
+                    className="break-words rounded-md border border-[#d7dde8] bg-white/80 px-3 py-2 text-left text-[9px] font-semibold leading-4 text-[#53627a]"
                     aria-live="polite"
                   >
                     {checkoutStatus}
@@ -436,14 +432,14 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               </footer>
             </>
           ) : (
-            <div className="taskbar-checkout-view p-3 sm:p-4">
-              <div className="mb-3 flex items-center gap-2" aria-label="Progreso del pedido">
-                <span className="rounded-full bg-[#425BBC] px-2.5 py-1 font-interface text-[8px] font-bold text-white">
+            <div className="taskbar-checkout-view min-w-0 p-3 sm:p-4">
+              <div className="mb-3 flex min-w-0 items-center gap-2" aria-label="Progreso del pedido">
+                <span className="shrink-0 rounded-full bg-[#425BBC] px-2.5 py-1 font-interface text-[8px] font-bold text-white">
                   1 · Horario
                 </span>
-                <span className="h-px flex-1 bg-[#dbe1ed]" />
+                <span className="h-px min-w-0 flex-1 bg-[#dbe1ed]" />
                 <span
-                  className={`rounded-full px-2.5 py-1 font-interface text-[8px] font-bold ${
+                  className={`shrink-0 rounded-full px-2.5 py-1 font-interface text-[8px] font-bold ${
                     leonReadyForPayment
                       ? "bg-[#425BBC] text-white"
                       : "bg-[#edf0f5] text-[#8c96a7]"
@@ -453,7 +449,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 </span>
               </div>
 
-              <section className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#ead7de] bg-[#fff9fb] px-3 py-2.5">
+              <section className="mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-[#ead7de] bg-[#fff9fb] px-3 py-2.5">
                 <div className="min-w-0">
                   <p className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#955b69]">
                     Tu pedido en León
@@ -468,29 +464,28 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               </section>
 
               <LeonOrderPreferencesForm
-                items={leonItems}
                 value={leonOrderPreferences}
                 onChange={updateLeonPreferences}
               />
 
-              <section className="mt-3 rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
-                <div className="flex items-start gap-3">
+              <section className="mt-3 min-w-0 rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
+                <div className="flex min-w-0 items-start gap-3">
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#eef1ff] font-interface text-[10px] font-bold text-[#425BBC]">
                     2
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
+                    <div className="flex min-w-0 items-start justify-between gap-2">
+                      <div className="min-w-0">
                         <h3 className="font-interface text-[11px] font-bold text-[#27364f]">
                           Pago del 100%
                         </h3>
                         <p className="mt-0.5 text-[8px] leading-4 text-[#77849a]">
-                          Elige SPEI o tarjeta. No manejamos anticipo del 50%.
+                          Elige SPEI o tarjeta.
                         </p>
                       </div>
                       {!leonReadyForPayment && (
                         <span className="shrink-0 rounded-full bg-[#fff4dc] px-2 py-1 text-[7px] font-bold text-[#80621f]">
-                          Por confirmar
+                          Falta horario
                         </span>
                       )}
                     </div>
@@ -498,27 +493,27 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 </div>
 
                 {!leonReadyForPayment && (
-                  <p className="mt-3 rounded-lg bg-[#f8f9fc] px-3 py-2 text-[8px] leading-4 text-[#7a8495]">
-                    Estas opciones se habilitan cuando marques que Guaurritas ya confirmó tu fecha y horario por WhatsApp.
+                  <p className="mt-3 break-words rounded-lg bg-[#f8f9fc] px-3 py-2 text-[8px] leading-4 text-[#7a8495]">
+                    Elige fecha y horario para habilitar el pago.
                   </p>
                 )}
 
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="mt-3 grid min-w-0 gap-2">
                   <button
                     type="button"
                     disabled={!leonReadyForPayment}
                     onClick={() => chooseLeonPayment("spei")}
-                    className={`flex min-h-[68px] w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+                    className={`flex min-h-[68px] min-w-0 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
                       leonPaymentMethod === "spei"
                         ? "border-[#425BBC] bg-[#eef1ff] shadow-[inset_3px_0_0_#425BBC]"
                         : "border-[#d7deea] bg-[#fbfcff]"
                     }`}
                   >
                     <span className="min-w-0">
-                      <strong className="block font-interface text-[10px] text-[#263650]">
+                      <strong className="block break-words font-interface text-[10px] text-[#263650]">
                         Transferencia SPEI
                       </strong>
-                      <small className="mt-0.5 block text-[8px] leading-4 text-[#738096]">
+                      <small className="mt-0.5 block break-words text-[8px] leading-4 text-[#738096]">
                         Precio preferencial
                       </small>
                     </span>
@@ -531,17 +526,17 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     type="button"
                     disabled={!leonReadyForPayment}
                     onClick={() => chooseLeonPayment("online")}
-                    className={`flex min-h-[68px] w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+                    className={`flex min-h-[68px] min-w-0 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
                       leonPaymentMethod === "online"
                         ? "border-[#425BBC] bg-[#eef1ff] shadow-[inset_3px_0_0_#425BBC]"
                         : "border-[#d7deea] bg-[#fbfcff]"
                     }`}
                   >
                     <span className="min-w-0">
-                      <strong className="block font-interface text-[10px] text-[#263650]">
+                      <strong className="block break-words font-interface text-[10px] text-[#263650]">
                         Tarjeta / pago en línea
                       </strong>
-                      <small className="mt-0.5 block text-[8px] leading-4 text-[#738096]">
+                      <small className="mt-0.5 block break-words text-[8px] leading-4 text-[#738096]">
                         Pago seguro con Wix
                       </small>
                     </span>
@@ -551,9 +546,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                   </button>
                 </div>
 
-                <p className="mt-3 border-t border-[#e3e7ef] pt-3 text-[8px] leading-4 text-[#69778c]">
+                <p className="mt-3 break-words border-t border-[#e3e7ef] pt-3 text-[8px] leading-4 text-[#69778c]">
                   <strong className="text-[#425BBC]">Entrega después del pago:</strong>{" "}
-                  por WhatsApp coordinamos HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos o Parque Panorama. También podemos coordinar Uber con costo adicional.
+                  coordinamos por WhatsApp el punto de entrega o Uber con costo adicional.
                 </p>
 
                 {leonReadyForPayment && leonPaymentMethod === "online" && (
@@ -567,7 +562,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         leonOrderPreferences,
                       )
                     }
-                    className="mt-3 min-h-11 w-full rounded-lg border border-[#31499b] bg-[#425BBC] px-4 font-interface text-[10px] font-bold text-white shadow-[0_2px_0_#263f9a] disabled:cursor-wait disabled:opacity-60"
+                    className="mt-3 min-h-11 min-w-0 w-full rounded-lg border border-[#31499b] bg-[#425BBC] px-4 font-interface text-[10px] font-bold text-white shadow-[0_2px_0_#263f9a] disabled:cursor-wait disabled:opacity-60"
                   >
                     {checkoutBusy
                       ? "Preparando pago…"
@@ -576,7 +571,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 )}
 
                 {leonReadyForPayment && leonPaymentMethod === "spei" && (
-                  <div className="mt-3">
+                  <div className="mt-3 min-w-0">
                     <SpeiPaymentFlow
                       items={leonItems}
                       preferences={leonOrderPreferences}
@@ -587,7 +582,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
               {checkoutStatus && (
                 <p
-                  className="mt-3 rounded-lg border border-[#d7dde8] bg-white px-3 py-2 text-left text-[8px] font-semibold leading-4 text-[#53627a]"
+                  className="mt-3 break-words rounded-lg border border-[#d7dde8] bg-white px-3 py-2 text-left text-[8px] font-semibold leading-4 text-[#53627a]"
                   aria-live="polite"
                 >
                   {checkoutStatus}
@@ -597,7 +592,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               <button
                 type="button"
                 onClick={goBackToCart}
-                className="mt-3 w-full border-0 bg-transparent py-2 font-interface text-[9px] font-bold text-[#425BBC] underline decoration-[#b8c4e9] underline-offset-4"
+                className="mt-3 min-w-0 w-full border-0 bg-transparent py-2 font-interface text-[9px] font-bold text-[#425BBC] underline decoration-[#b8c4e9] underline-offset-4"
               >
                 ← Volver al carrito para editar productos
               </button>
