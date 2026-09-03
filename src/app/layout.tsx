@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Cinzel, Mansalva, Open_Sans } from "next/font/google";
+import CartPersistenceGuard from "@/components/cart/CartPersistenceGuard";
 import "./globals.css";
 import "./iframe-scroll-fix.css";
 import "./mobile-launch-animations.css";
 import "./paint-icon-animation.css";
 import "./cart-payment-overrides.css";
+import "./cart-final-polish.css";
 
 const mansalva = Mansalva({
   weight: "400",
@@ -37,7 +39,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${mansalva.variable} ${cinzel.variable} ${openSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <CartPersistenceGuard />
+        {children}
+      </body>
     </html>
   );
 }
