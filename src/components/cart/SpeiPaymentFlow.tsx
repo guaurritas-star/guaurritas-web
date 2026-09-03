@@ -2,6 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CartItem } from "@/lib/cart-store";
+import {
+  buildOrderBuyerNote,
+  isLeonOrderPreferencesComplete,
+  type LeonOrderPreferences,
+} from "@/lib/order-preferences";
 
 type SpeiDetails = {
   clabe: string;
@@ -71,18 +76,6 @@ function orderItemsPayload(items: CartItem[]) {
   });
 }
 
-function buildBuyerNote(items: CartItem[]) {
-  return [
-    "Pedido SPEI preparado desde Guaurritas OS",
-    ...items.map(
-      (item) =>
-        `${item.quantity}x ${item.name}${item.detail ? ` — ${item.detail}` : ""}`,
-    ),
-  ]
-    .join("\n")
-    .slice(0, 1000);
-}
-
 function appendFilename(uploadUrl: string, fileName: string) {
   const separator = uploadUrl.includes("?") ? "&" : "?";
   return `${uploadUrl}${separator}filename=${encodeURIComponent(fileName)}`;
@@ -98,7 +91,13 @@ function formatExpiry(value: string) {
   }).format(date);
 }
 
-export default function SpeiPaymentFlow({ items }: { items: CartItem[] }) {
+export default function SpeiPaymentFlow({
+  items,
+  preferences,
+}: {
+  items: CartItem[];
+  preferences: LeonOrderPreferences;
+}) {
   const [details, setDetails] = useState<SpeiDetails | null>(null);
   const [order, setOrder] = useState<SpeiOrder | null>(null);
   const [proofResult, setProofResult] = useState<ProofReceivedOrder | null>(null);
@@ -120,6 +119,19 @@ export default function SpeiPaymentFlow({ items }: { items: CartItem[] }) {
         .join("|"),
     [items],
   );
+  const preferencesSignature = useMemo(
+    () =>
+      JSON.stringify([
+        preferences.deliveryDate,
+        preferences.preferredTime,
+        preferences.deliveryMethod,
+        preferences.deliveryPoint,
+        preferences.deliveryAddress,
+        preferences.personalizationNote,
+        preferences.whatsappConfirmed,
+      ]),
+    [preferences],
+  );
 
   useEffect(() => {
     setDetails(null);
@@ -129,7 +141,7 @@ export default function SpeiPaymentFlow({ items }: { items: CartItem[] }) {
     setSelectedFile(null);
     pendingFileRef.current = null;
     setStatus("");
-  }, [cartSignature]);
+  }, [cartSignature, preferencesSignature]);
 
   useEffect(() => {
     const handleWixMessage = async (event: MessageEvent) => {
@@ -275,6 +287,14 @@ export default function SpeiPaymentFlow({ items }: { items: CartItem[] }) {
   const startTransfer = () => {
     if (starting) return;
 
+    if (
+      !isLeonOrderPreferencesComplete(preferences) ||
+      !preferences.whatsappConfirmed
+    ) {
+      setStatus("Confirma primero la fecha y el horario con Guaurritas por WhatsApp.");
+      return;
+    }
+
     if (typeof window === "undefined" || window.self === window.top) {
       setStatus("Abre esta tienda desde guaurritas.com para usar transferencia SPEI.");
       return;
@@ -291,7 +311,11 @@ export default function SpeiPaymentFlow({ items }: { items: CartItem[] }) {
           type: START_MESSAGE,
           requestId: Date.now(),
           items: payloadItems,
-          buyerNote: buildBuyerNote(items),
+          buyerNote: buildOrderBuyerNote(
+            items,
+            preferences,
+            "Pedido SPEI preparado desde Guaurritas OS",
+          ),
         },
         "*",
       );
