@@ -202,13 +202,24 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     setCheckoutStatus("");
   };
 
-  const updateLeonPreferences = (next: LeonOrderPreferences) => {
-    setLeonOrderPreferences(next);
-    if (!isLeonOrderPreferencesComplete(next)) {
-      setLeonPaymentMethod(null);
-    }
+  const updateLeonPreferences = (patch: Partial<LeonOrderPreferences>) => {
+    setLeonOrderPreferences((current) => ({
+      ...current,
+      deliveryMethod: "pending_whatsapp",
+      deliveryPoint: "",
+      deliveryAddress: "",
+      personalizationNote: "",
+      whatsappConfirmed: false,
+      ...patch,
+    }));
     setCheckoutStatus("");
   };
+
+  useEffect(() => {
+    if (!isLeonOrderPreferencesComplete(leonOrderPreferences)) {
+      setLeonPaymentMethod(null);
+    }
+  }, [leonOrderPreferences]);
 
   const renderCartItems = () => (
     <div className="taskbar-cart-items">
