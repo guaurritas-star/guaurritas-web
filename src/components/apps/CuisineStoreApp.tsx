@@ -692,6 +692,16 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   }, [category, query]);
 
   const openProduct = (product: CuisineProduct) => {
+    if (typeof window !== "undefined" && window.self !== window.top) {
+      window.parent.postMessage(
+        {
+          source: "guaurritas-web",
+          type: "guaurritas:focus-os",
+        },
+        "*",
+      );
+    }
+
     setSelectedProduct(product);
     setSelectedOption(0);
     setCustomize(null);
