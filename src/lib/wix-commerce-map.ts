@@ -28,6 +28,7 @@ export type CuisineCartIdentity = {
   id: string;
   name: string;
   detail: string;
+  personalization?: string;
   unitPrice: number;
 };
 
@@ -221,7 +222,10 @@ function parseOptionIndex(parts: string[]) {
 }
 
 function customSummary(item: CuisineCartIdentity, maxLength = 500) {
-  const summary = item.detail.trim() || "Sin personalización adicional";
+  const summary =
+    String(item.personalization || "").trim() ||
+    item.detail.trim() ||
+    "Sin personalización adicional";
   return `Configuración Guaurritas: ${summary}`.slice(0, maxLength);
 }
 
