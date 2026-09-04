@@ -19,7 +19,18 @@ body {
  * blanca/scrollbar lateral y evita que la taskbar quede parcialmente fuera.
  */
 @media (min-width: 640px) {
+  html,
+  body {
+    background: #d9a6b9 !important;
+  }
+
   body > main.desktop-wallpaper {
+    /*
+     * Pequeño overscan horizontal para cubrir los 1–2 px que algunos
+     * navegadores/Wix dejan visibles por redondeo del iframe.
+     */
+    width: calc(100% + 4px) !important;
+    margin-left: -2px !important;
     height: 100% !important;
     min-height: 100% !important;
     max-height: 100% !important;
@@ -27,20 +38,28 @@ body {
   }
 
   body > main.desktop-wallpaper > .desktop-launcher {
-    height: calc(100% - 102px) !important;
+    /* 50 px header + 64 px taskbar */
+    height: calc(100% - 114px) !important;
     min-height: 0 !important;
     overflow-y: auto !important;
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar {
-    /*
-     * Sangrado técnico de 4 px: conserva exactamente la misma posición
-     * visual superior de la taskbar, pero extiende su fondo por debajo del
-     * viewport para tapar la microfranja que algunos navegadores dejan por
-     * redondeo entre el iframe y la barra inferior.
-     */
-    bottom: -4px !important;
-    height: 56px !important;
+    bottom: 0 !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-start {
+    height: 48px !important;
+  }
+
+  body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-clock {
+    min-height: 48px !important;
+    align-items: center !important;
   }
 }
 
