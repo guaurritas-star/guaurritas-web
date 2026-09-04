@@ -24,7 +24,6 @@
       this._wrapper = null;
       this._messageHandler = null;
       this._viewportResizeHandler = null;
-      this._desktopPageStyle = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
@@ -83,35 +82,6 @@
 
     connectedCallback() {
       if (this._iframe) return;
-
-      /*
-       * Wix/Chrome deja visible el track vertical del scrollbar como una
-       * franja blanca a la derecha. Lo ocultamos visualmente SOLO en desktop;
-       * la página sigue siendo desplazable con rueda/trackpad.
-       */
-      if (!this._desktopPageStyle) {
-        const desktopPageStyle = document.createElement("style");
-        desktopPageStyle.id = "guaurritas-desktop-page-fit";
-        desktopPageStyle.textContent = `
-          @media (min-width: 640px) {
-            html,
-            body {
-              scrollbar-width: none !important;
-              -ms-overflow-style: none !important;
-            }
-
-            html::-webkit-scrollbar,
-            body::-webkit-scrollbar {
-              width: 0 !important;
-              height: 0 !important;
-              display: none !important;
-              background: transparent !important;
-            }
-          }
-        `;
-        document.head.appendChild(desktopPageStyle);
-        this._desktopPageStyle = desktopPageStyle;
-      }
 
       this.style.setProperty("display", "block", "important");
       this.style.setProperty("width", "100%", "important");
@@ -259,8 +229,8 @@
           window.innerHeight ||
           1;
         const viewportWidth =
-          document.documentElement.clientWidth ||
           window.innerWidth ||
+          document.documentElement.clientWidth ||
           1;
         const viewportRight = viewportLeft + viewportWidth;
 
@@ -277,14 +247,9 @@
 
         const rect = this.getBoundingClientRect();
         const topInsideViewport = Math.max(0, rect.top - viewportTop);
-        /*
-         * 4 px de sangrado inferior compensan el último redondeo del wrapper
-         * de Wix: en algunas laptops la taskbar terminaba 2–3 px antes del
-         * borde visible.
-         */
         const availableHeight = Math.max(
           1,
-          Math.floor(viewportHeight - topInsideViewport) + 4,
+          Math.floor(viewportHeight - topInsideViewport),
         );
         const leftGap = rect.left - viewportLeft;
 
@@ -498,13 +463,8 @@
         );
       }
 
-      if (this._desktopPageStyle) {
-        this._desktopPageStyle.remove();
-      }
-
       this._messageHandler = null;
       this._viewportResizeHandler = null;
-      this._desktopPageStyle = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
       this._wrapper = null;
