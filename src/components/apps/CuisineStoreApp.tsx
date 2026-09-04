@@ -2061,7 +2061,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
           </label>
         </div>
 
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleProducts.map((product) => (
             <button
               key={product.id}
