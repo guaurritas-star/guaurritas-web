@@ -23,13 +23,12 @@ export default function LeonOrderPreferencesForm({
   onChange,
 }: {
   value: LeonOrderPreferences;
-  onChange: (next: LeonOrderPreferences) => void;
+  onChange: (patch: Partial<LeonOrderPreferences>) => void;
 }) {
   const minDate = useMemo(() => minimumLeonDeliveryDate(), []);
 
   const update = (patch: Partial<LeonOrderPreferences>) => {
     onChange({
-      ...value,
       deliveryMethod: "pending_whatsapp",
       deliveryPoint: "",
       deliveryAddress: "",
@@ -64,7 +63,10 @@ export default function LeonOrderPreferencesForm({
             type="date"
             min={minDate}
             value={value.deliveryDate}
-            onChange={(event) => update({ deliveryDate: event.target.value })}
+            onInput={(event) =>
+              update({ deliveryDate: (event.currentTarget as HTMLInputElement).value })
+            }
+            onChange={(event) => update({ deliveryDate: event.currentTarget.value })}
             className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
           />
           <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
@@ -78,7 +80,10 @@ export default function LeonOrderPreferencesForm({
           </span>
           <select
             value={value.preferredTime}
-            onChange={(event) => update({ preferredTime: event.target.value })}
+            onInput={(event) =>
+              update({ preferredTime: (event.currentTarget as HTMLSelectElement).value })
+            }
+            onChange={(event) => update({ preferredTime: event.currentTarget.value })}
             className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
           >
             <option value="">Selecciona un horario</option>
