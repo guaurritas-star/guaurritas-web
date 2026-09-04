@@ -120,11 +120,19 @@ export function buildOrderBuyerNote(
   preferences?: LeonOrderPreferences | null,
   prefix = "Pedido preparado desde Guaurritas OS",
 ) {
+  const itemPersonalizations = items
+    .map((item) => {
+      const text = String(item.personalization || "").trim();
+      return text ? `${item.name}: ${text}` : "";
+    })
+    .filter(Boolean);
+
   const humanLines = [
     prefix,
     ...items.map(
       (item) => `${item.quantity}x ${item.name}${item.detail ? ` — ${item.detail}` : ""}`,
     ),
+    ...itemPersonalizations.map((value) => `Personalización: ${value}`),
   ];
 
   if (!preferences) return humanLines.join("\n").slice(0, 1000);
@@ -135,9 +143,14 @@ export function buildOrderBuyerNote(
     "Opciones locales: HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos, Parque Panorama o Uber con costo adicional.",
   );
 
-  if (preferences.personalizationNote) {
-    humanLines.push(`Personalización: ${preferences.personalizationNote}`);
-  }
+  const combinedPersonalization = [
+    preferences.personalizationNote,
+    ...itemPersonalizations,
+  ]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join(" | ")
+    .slice(0, 500);
 
   humanLines.push(
     preferences.whatsappConfirmed
@@ -145,7 +158,10 @@ export function buildOrderBuyerNote(
       : "Disponibilidad de fecha/horario: pendiente de confirmar por WhatsApp",
   );
 
-  const marker = encodeOrderPreferencesMarker(preferences);
+  const marker = encodeOrderPreferencesMarker({
+    ...preferences,
+    personalizationNote: combinedPersonalization,
+  });
   const separator = "\n";
   const humanLimit = Math.max(0, 1000 - marker.length - separator.length);
   const human = humanLines.join("\n").slice(0, humanLimit).trimEnd();
