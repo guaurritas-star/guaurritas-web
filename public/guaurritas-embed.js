@@ -6,6 +6,7 @@
   const HEIGHT_MESSAGE = "guaurritas:height";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
   const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
+  const FOCUS_OS_MESSAGE = "guaurritas:focus-os";
   const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
   const SPEI_PROOF_UPLOAD_URL_MESSAGE = "guaurritas:spei-proof-upload-url-request";
   const SPEI_PROOF_SUBMIT_MESSAGE = "guaurritas:spei-proof-submit";
@@ -229,6 +230,34 @@
           this._setPageScrollLocked(Boolean(message.locked));
           return;
         }
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === FOCUS_OS_MESSAGE
+        ) {
+          if (window.matchMedia("(max-width: 639px)").matches) {
+            const focusOs = () => {
+              try {
+                this.scrollIntoView({
+                  block: "start",
+                  inline: "nearest",
+                  behavior: "auto",
+                });
+              } catch {
+                const top =
+                  this.getBoundingClientRect().top +
+                  (window.scrollY || window.pageYOffset || 0);
+                window.scrollTo(0, Math.max(0, top));
+              }
+            };
+
+            focusOs();
+            window.requestAnimationFrame(focusOs);
+            window.setTimeout(focusOs, 80);
+            window.setTimeout(focusOs, 180);
+          }
+          return;
+        }
+
 
         if (
           message.source === BRIDGE_SOURCE &&
