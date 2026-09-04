@@ -14,6 +14,7 @@ export type CartItem = {
   id: string;
   name: string;
   detail: string;
+  personalization?: string;
   unitPrice: number;
   image: string;
   quantity: number;
@@ -74,6 +75,8 @@ function enrichCartItem(item: StoredCartItem): CartItem {
     id: item.id,
     name: item.name,
     detail: item.detail,
+    personalization:
+      typeof item.personalization === "string" ? item.personalization : "",
     // Cuisine is the source of truth for the public price. Wix IDs remain
     // the source of truth for catalog identity, not for overriding our margin.
     unitPrice: item.unitPrice,
@@ -125,6 +128,7 @@ export function addCartItem(item: NewCartItem) {
           ? {
               ...current,
               unitPrice: enriched.unitPrice,
+              personalization: enriched.personalization,
               wix: enriched.wix,
               quantity: current.quantity + 1,
             }
