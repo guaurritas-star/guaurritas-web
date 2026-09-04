@@ -94,12 +94,13 @@ export function deliveryMethodLabel(method: LeonOrderPreferences["deliveryMethod
 }
 
 export function isLeonOrderPreferencesComplete(preferences: LeonOrderPreferences) {
+  // El navegador ya bloquea hoy mediante el atributo min del campo de fecha.
+  // Para habilitar el pago solo necesitamos que el cliente haya elegido
+  // efectivamente una fecha y un horario. Safari/iOS puede devolver formatos
+  // nativos distintos y no debe bloquear el checkout por esa representación.
   const deliveryDate = String(preferences.deliveryDate || "").trim();
   const preferredTime = String(preferences.preferredTime || "").trim();
-  return Boolean(
-    isLeonDeliveryDateAllowed(deliveryDate) &&
-      /^([01]\d|2[0-3]):[0-5]$/.test(preferredTime),
-  );
+  return Boolean(deliveryDate && preferredTime);
 }
 
 export function encodeOrderPreferencesMarker(preferences: LeonOrderPreferences) {
