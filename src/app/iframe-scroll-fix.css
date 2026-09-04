@@ -3,8 +3,6 @@ body {
   height: 100% !important;
   min-height: 100% !important;
   width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
   overflow-x: hidden !important;
   overflow-y: hidden !important;
   overscroll-behavior: none !important;
@@ -23,6 +21,8 @@ body {
 @media (min-width: 640px) {
   html,
   body {
+    margin: 0 !important;
+    padding: 0 !important;
     background: #d9a6b9 !important;
   }
 
