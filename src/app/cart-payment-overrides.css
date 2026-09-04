@@ -182,7 +182,9 @@
     left: auto !important;
     width: min(560px, calc(100vw - 32px)) !important;
     height: auto !important;
-    max-height: calc(100dvh - 80px) !important;
+    /* Deja libre la barra azul superior de Guaurritas OS para que la
+       titlebar rosa del checkout (incluida la X) nunca quede detrás. */
+    max-height: calc(100dvh - 128px) !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     overscroll-behavior-y: contain;
