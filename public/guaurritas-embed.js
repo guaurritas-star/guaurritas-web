@@ -140,26 +140,108 @@
       this._iframe = iframe;
       this._wrapper = wrapper;
 
+      const desktopAncestorStyles = new Map();
+      const desktopAncestorProperties = [
+        "overflow",
+        "overflow-x",
+        "overflow-y",
+        "contain",
+        "clip-path",
+      ];
+
+      const rememberAncestorStyle = (element) => {
+        if (desktopAncestorStyles.has(element)) return;
+
+        desktopAncestorStyles.set(
+          element,
+          desktopAncestorProperties.map((property) => ({
+            property,
+            value: element.style.getPropertyValue(property),
+            priority: element.style.getPropertyPriority(property),
+          })),
+        );
+      };
+
+      const restoreDesktopAncestorStyles = () => {
+        for (const [element, properties] of desktopAncestorStyles) {
+          if (!(element instanceof HTMLElement)) continue;
+
+          for (const { property, value, priority } of properties) {
+            if (value) {
+              element.style.setProperty(property, value, priority);
+            } else {
+              element.style.removeProperty(property);
+            }
+          }
+        }
+
+        desktopAncestorStyles.clear();
+      };
+
+      this._restoreDesktopAncestorStyles = restoreDesktopAncestorStyles;
+
+      const releaseDesktopHorizontalClipping = (
+        viewportLeft,
+        viewportRight,
+      ) => {
+        let ancestor = this.parentElement;
+
+        while (
+          ancestor instanceof HTMLElement &&
+          ancestor !== document.body &&
+          ancestor !== document.documentElement
+        ) {
+          const rect = ancestor.getBoundingClientRect();
+          const computed = window.getComputedStyle(ancestor);
+          const hasHorizontalInset =
+            rect.left > viewportLeft + 0.5 ||
+            rect.right < viewportRight - 0.5;
+          const clipsHorizontal =
+            computed.overflowX !== "visible" ||
+            computed.overflow !== "visible" ||
+            computed.contain.includes("paint") ||
+            computed.clipPath !== "none";
+
+          if (hasHorizontalInset && clipsHorizontal) {
+            rememberAncestorStyle(ancestor);
+            ancestor.style.setProperty("overflow", "visible", "important");
+            ancestor.style.setProperty("overflow-x", "visible", "important");
+            ancestor.style.setProperty("overflow-y", "visible", "important");
+            ancestor.style.setProperty("contain", "none", "important");
+            ancestor.style.setProperty("clip-path", "none", "important");
+          }
+
+          ancestor = ancestor.parentElement;
+        }
+      };
+
       const getDesktopViewportMetrics = () => {
-        const viewport = window.visualViewport;
-        const viewportTop = viewport?.offsetTop || 0;
-        const viewportLeft = viewport?.offsetLeft || 0;
+        /*
+         * En desktop usamos el layout viewport real del documento Wix.
+         * visualViewport puede devolver un alto distinto con zoom/escalado
+         * del navegador y era lo que estaba dejando la taskbar debajo del
+         * borde visible.
+         */
+        const viewportTop = 0;
+        const viewportLeft = 0;
         const viewportHeight =
-          viewport?.height ||
+          document.documentElement.clientHeight ||
           window.innerHeight ||
-          document.documentElement.clientHeight;
+          1;
         const viewportWidth =
-          viewport?.width ||
+          document.documentElement.clientWidth ||
           window.innerWidth ||
-          document.documentElement.clientWidth;
+          1;
+        const viewportRight = viewportLeft + viewportWidth;
 
         /*
-         * Primero medimos el Custom Element en su posición NORMAL dentro de
-         * Wix. Así el alto se calcula desde donde realmente empieza el embed
-         * hasta el borde inferior visible, en vez de asumir que empieza en y=0.
-         * También usamos la separación real a izquierda/derecha para cubrir
-         * únicamente los gutters que Wix esté dejando.
+         * Wix mete el Custom Element dentro de wrappers que pueden recortar
+         * cualquier sangrado lateral. Liberamos SOLO los ancestros que tienen
+         * inset horizontal para que el OS pueda llegar realmente a ambos
+         * bordes del viewport.
          */
+        releaseDesktopHorizontalClipping(viewportLeft, viewportRight);
+
         this.style.setProperty("left", "0px", "important");
         this.style.setProperty("width", "100%", "important");
 
@@ -180,6 +262,13 @@
 
       const applyHeight = (height) => {
         const isDesktop = window.matchMedia("(min-width: 640px)").matches;
+
+        if (!isDesktop) {
+          restoreDesktopAncestorStyles();
+          this.style.removeProperty("left");
+          this.style.removeProperty("position");
+        }
+
         const requestedHeight = Number(height);
         const desktopMetrics = isDesktop
           ? getDesktopViewportMetrics()
@@ -358,6 +447,10 @@
     disconnectedCallback() {
       this._setPageScrollLocked(false);
 
+      if (typeof this._restoreDesktopAncestorStyles === "function") {
+        this._restoreDesktopAncestorStyles();
+      }
+
       if (this._messageHandler) {
         window.removeEventListener("message", this._messageHandler);
       }
@@ -372,6 +465,7 @@
 
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
       this._wrapper = null;
       this._shadow.replaceChildren();
