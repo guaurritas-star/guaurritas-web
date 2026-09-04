@@ -4,13 +4,52 @@ body {
   min-height: 100% !important;
   width: 100% !important;
   overflow-x: hidden !important;
-  overflow-y: auto !important;
-  overscroll-behavior-x: none !important;
-  overscroll-behavior-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  overflow-y: hidden !important;
+  overscroll-behavior: none !important;
 }
 
 body {
   position: relative;
+}
+
+/*
+ * Desktop: Guaurritas OS debe ocupar exactamente el viewport del iframe.
+ * Evitamos usar el scroll del documento interno y hacemos que wallpaper,
+ * launcher y taskbar compartan el mismo alto real. Esto elimina la franja
+ * blanca/scrollbar lateral y evita que la taskbar quede parcialmente fuera.
+ */
+@media (min-width: 640px) {
+  body > main.desktop-wallpaper {
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  body > main.desktop-wallpaper > .desktop-launcher {
+    height: calc(100% - 102px) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  body > main.desktop-wallpaper > .desktop-taskbar {
+    bottom: 0 !important;
+  }
+}
+
+/*
+ * Mobile conserva el comportamiento natural que ya usa WixIframeBridge.
+ * El estilo dinámico del bridge puede llevarlo a auto/visible cuando una app
+ * está abierta, sin afectar desktop.
+ */
+@media (max-width: 639px) {
+  html,
+  body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-x: none !important;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
 }
