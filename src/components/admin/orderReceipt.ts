@@ -65,10 +65,14 @@ function formatReceiptDate(value?: string | null) {
   return `${map.day}/${map.month}/${map.year}`;
 }
 
-function notesFor(order: ReceiptOrder) {
-  const values = [order.notes, order.personalization, order.operationalNote]
+function personalizationFor(order: ReceiptOrder) {
+  const values = [
+    order.personalization,
+    ...(order.lines || []).map((line) => line.personalization),
+  ]
     .map((value) => String(value || '').trim())
     .filter(Boolean);
+
   return Array.from(new Set(values)).join(' · ');
 }
 
@@ -244,7 +248,7 @@ function drawReceiptPage(
     String(order.deliveryTime || '').trim(),
   ].filter(Boolean).join(' · ');
 
-  const address = String(order.deliveryPoint || order.address || order.deliveryType || '—').trim() || '—';
+  const address = String(order.deliveryPoint || order.address || '').trim();
   const values = [dateText, order.customerName || 'SIN NOMBRE', address];
 
   values.forEach((value, index) => {
@@ -315,15 +319,15 @@ function drawReceiptPage(
   }
 
   if (finalPage) {
-    // Notas
+    // Personalización: nunca mezcla notas operativas, textos internos ni fotos.
     ctx.fillStyle = ink;
     ctx.textAlign = 'left';
     ctx.font = `400 39px ${mansalva}`;
-    ctx.fillText('NOTAS DEL PEDIDO:', 155, 1325);
+    ctx.fillText('PERSONALIZACIÓN:', 155, 1325);
 
     ctx.fillStyle = blue;
     ctx.fillRect(155, 1350, 930, 100);
-    drawWrapped(ctx, notesFor(order), 178, 1370, 882, 25, 3, `400 21px ${mansalva}`);
+    drawWrapped(ctx, personalizationFor(order), 178, 1370, 882, 25, 3, `400 21px ${mansalva}`);
 
     const explicitPaid = Math.max(0, Number(order.paidAmount || 0));
     const isPaid = String(order.statusGroup || '').toLowerCase() === 'paid'
