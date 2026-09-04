@@ -8,18 +8,14 @@ const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
 const MOBILE_BREAKPOINT = 639;
 
 function getDesktopDocumentHeight() {
-  const body = document.body;
-  const html = document.documentElement;
+  // En desktop Guaurritas OS es una pantalla completa, no un documento que
+  // deba crecer según su scrollHeight. Si medimos el documento, Wix puede
+  // agrandar el iframe más que el viewport real y dejar una franja blanca en
+  // ciertas laptops/resoluciones. Usamos siempre el viewport visible.
+  const viewportHeight =
+    window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
 
-  return Math.ceil(
-    Math.max(
-      body.scrollHeight,
-      body.offsetHeight,
-      html.clientHeight,
-      html.scrollHeight,
-      html.offsetHeight,
-    ),
-  );
+  return Math.max(1, Math.ceil(viewportHeight));
 }
 
 function getMobileContentHeight() {
