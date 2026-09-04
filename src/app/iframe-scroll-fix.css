@@ -28,7 +28,7 @@ body {
 
   body > main.desktop-wallpaper {
     --guaurritas-header-height: 50px;
-    --guaurritas-taskbar-height: clamp(58px, 7.5dvh, 62px);
+    --guaurritas-taskbar-height: 52px;
 
     display: grid !important;
     grid-template-rows:
@@ -67,11 +67,11 @@ body {
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-start {
-    height: 44px !important;
+    height: 42px !important;
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-clock {
-    min-height: 44px !important;
+    min-height: 42px !important;
     align-items: center !important;
   }
 }

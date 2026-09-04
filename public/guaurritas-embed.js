@@ -140,28 +140,71 @@
       this._iframe = iframe;
       this._wrapper = wrapper;
 
-      const getDesktopViewportHeight = () =>
-        Math.max(
+      const getDesktopViewportMetrics = () => {
+        const viewport = window.visualViewport;
+        const viewportTop = viewport?.offsetTop || 0;
+        const viewportLeft = viewport?.offsetLeft || 0;
+        const viewportHeight =
+          viewport?.height ||
+          window.innerHeight ||
+          document.documentElement.clientHeight;
+        const viewportWidth =
+          viewport?.width ||
+          window.innerWidth ||
+          document.documentElement.clientWidth;
+
+        /*
+         * Primero medimos el Custom Element en su posición NORMAL dentro de
+         * Wix. Así el alto se calcula desde donde realmente empieza el embed
+         * hasta el borde inferior visible, en vez de asumir que empieza en y=0.
+         * También usamos la separación real a izquierda/derecha para cubrir
+         * únicamente los gutters que Wix esté dejando.
+         */
+        this.style.setProperty("left", "0px", "important");
+        this.style.setProperty("width", "100%", "important");
+
+        const rect = this.getBoundingClientRect();
+        const topInsideViewport = Math.max(0, rect.top - viewportTop);
+        const availableHeight = Math.max(
           1,
-          Math.ceil(
-            window.visualViewport?.height ||
-              window.innerHeight ||
-              document.documentElement.clientHeight,
-          ),
+          Math.floor(viewportHeight - topInsideViewport),
         );
+        const leftGap = rect.left - viewportLeft;
+
+        return {
+          height: availableHeight,
+          width: Math.max(1, Math.ceil(viewportWidth)),
+          left: -leftGap,
+        };
+      };
 
       const applyHeight = (height) => {
         const isDesktop = window.matchMedia("(min-width: 640px)").matches;
         const requestedHeight = Number(height);
-        const exactHeight = isDesktop
-          ? getDesktopViewportHeight()
-          : requestedHeight;
+        const desktopMetrics = isDesktop
+          ? getDesktopViewportMetrics()
+          : null;
+        const exactHeight = desktopMetrics?.height ?? requestedHeight;
 
         if (!Number.isFinite(exactHeight) || exactHeight <= 0) return;
 
         const cssHeight = `${exactHeight}px`;
         const wixElementWrapper = this.parentElement;
         const frameOverflow = isDesktop ? "hidden" : "visible";
+
+        if (desktopMetrics) {
+          this.style.setProperty(
+            "width",
+            `${desktopMetrics.width}px`,
+            "important",
+          );
+          this.style.setProperty(
+            "left",
+            `${desktopMetrics.left}px`,
+            "important",
+          );
+          this.style.setProperty("position", "relative", "important");
+        }
 
         this.style.setProperty("height", cssHeight, "important");
         this.style.setProperty("min-height", cssHeight, "important");
@@ -185,7 +228,11 @@
           if (isDesktop) {
             wixElementWrapper.style.setProperty("padding", "0px", "important");
             wixElementWrapper.style.setProperty("border", "0px", "important");
-            wixElementWrapper.style.setProperty("overflow", "hidden", "important");
+            /*
+             * El host puede necesitar sangrar unos px para cubrir gutters del
+             * layout de Wix. No lo recortamos en el wrapper padre.
+             */
+            wixElementWrapper.style.setProperty("overflow", "visible", "important");
           }
         }
 
@@ -297,7 +344,7 @@
 
       this._viewportResizeHandler = () => {
         if (!window.matchMedia("(min-width: 640px)").matches) return;
-        applyHeight(getDesktopViewportHeight());
+        applyHeight(1);
       };
 
       window.addEventListener("message", this._messageHandler);
