@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 
@@ -639,7 +639,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
   const [inspirationFeedback, setInspirationFeedback] = useState("");
   const [inspirationInputKey, setInspirationInputKey] = useState(0);
+  const [personalizationPetName, setPersonalizationPetName] = useState("");
+  const [personalizationIdea, setPersonalizationIdea] = useState("");
   const [notice, setNotice] = useState("");
+  const productViewRef = useRef<HTMLElement | null>(null);
   const { count: cartCount } = useCart();
 
   const inspirationPreviews = useMemo(
@@ -657,6 +660,19 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     },
     [inspirationPreviews],
   );
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const scrollContainer = productViewRef.current?.closest(".retro-window-content");
+      if (scrollContainer instanceof HTMLElement) {
+        scrollContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedProduct]);
 
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
@@ -691,6 +707,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setInspirationPhotos([]);
     setInspirationFeedback("");
     setInspirationInputKey((key) => key + 1);
+    setPersonalizationPetName("");
+    setPersonalizationIdea("");
     setNotice("");
   };
 
@@ -885,6 +903,19 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
               : "fotos de inspiración"
           }`
         : "";
+    const personalizationText =
+      customize === "yes"
+        ? [
+            personalizationPetName.trim()
+              ? `Mascota: ${personalizationPetName.trim()}`
+              : "",
+            personalizationIdea.trim()
+              ? `Idea: ${personalizationIdea.trim()}`
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" · ")
+        : "";
     const detail = [
       cartOption.label,
       petType,
@@ -894,9 +925,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       .filter(Boolean)
       .join(" · ");
     addCartItem({
-      id: `cuisine:${selectedProduct.id}:${optionIndex}:${petType ?? ""}:${petProtein ?? ""}:${customize ?? ""}:${inspirationPhotos.length}`,
+      id: `cuisine:${selectedProduct.id}:${optionIndex}:${petType ?? ""}:${petProtein ?? ""}:${customize ?? ""}:${inspirationPhotos.length}:${encodeURIComponent(personalizationText).slice(0, 72)}`,
       name: selectedProduct.name,
       detail,
+      personalization: personalizationText,
       unitPrice: cartOption.price,
       image: cartImage,
     });
@@ -975,7 +1007,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       !needsBulkDistribution;
 
     return (
-      <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
+      <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
         <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -1359,40 +1391,48 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     currentOption.guaranteedAnalysis?.length) && (
                     <section
                       key={currentOption.label}
-                      className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f8fbfc] p-4 sm:p-5"
+                      className="mt-7 grid gap-3"
                       aria-live="polite"
                     >
                       {!!currentOption.ingredients?.length && (
-                        <div>
-                          <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                            Ingredientes
-                          </p>
-                          <p className="mt-1 font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
-                            {currentOption.label}
-                          </p>
-                          <p className="mt-3 font-interface text-sm leading-6 text-[#657287]">
+                        <details className="group rounded-2xl border border-[#b9c8d8] bg-[#f8fbfc] p-4 sm:p-5">
+                          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 marker:content-none">
+                            <span>
+                              <span className="block font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                                Ingredientes
+                              </span>
+                              <span className="mt-1 block font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                                {currentOption.label}
+                              </span>
+                            </span>
+                            <span aria-hidden="true" className="shrink-0 font-interface text-lg font-bold text-[#425b8c]">
+                              <span className="group-open:hidden">+</span>
+                              <span className="hidden group-open:inline">−</span>
+                            </span>
+                          </summary>
+                          <p className="mt-3 border-t border-[#d7e0e5] pt-3 font-interface text-sm leading-6 text-[#657287]">
                             {currentOption.ingredients.join(", ")}.
                           </p>
-                        </div>
+                        </details>
                       )}
 
                       {!!currentOption.guaranteedAnalysis?.length && (
-                        <div
-                          className={
-                            currentOption.ingredients?.length
-                              ? "mt-5 border-t border-[#d7e0e5] pt-5"
-                              : ""
-                          }
-                        >
-                          <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                            Análisis garantizado
-                          </p>
-                          {!currentOption.ingredients?.length && (
-                            <p className="mt-1 font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
-                              {currentOption.label}
-                            </p>
-                          )}
-                          <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                        <details className="group rounded-2xl border border-[#b9c8d8] bg-[#f8fbfc] p-4 sm:p-5">
+                          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 marker:content-none">
+                            <span>
+                              <span className="block font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                                Análisis garantizado
+                              </span>
+                              <span className="mt-1 block font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                                {currentOption.label}
+                              </span>
+                            </span>
+                            <span aria-hidden="true" className="shrink-0 font-interface text-lg font-bold text-[#425b8c]">
+                              <span className="group-open:hidden">+</span>
+                              <span className="hidden group-open:inline">−</span>
+                            </span>
+                          </summary>
+                          <dl className="mt-3 grid gap-2 border-t border-[#d7e0e5] pt-3 sm:grid-cols-2">
                             {currentOption.guaranteedAnalysis.map((item) => (
                               <div
                                 key={item.label}
@@ -1407,7 +1447,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                               </div>
                             ))}
                           </dl>
-                        </div>
+                        </details>
                       )}
                     </section>
                   )}
@@ -1583,9 +1623,10 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                             <span>{flavor}</span>
                             <span
                               aria-hidden="true"
-                              className="text-base text-[#5e96a5] transition-transform group-open:rotate-45"
+                              className="text-base font-bold text-[#5e96a5]"
                             >
-                              +
+                              <span className="group-open:hidden">+</span>
+                              <span className="hidden group-open:inline">−</span>
                             </span>
                           </summary>
                           <dl className="mt-3 grid gap-1.5 border-t border-[#e0e6ea] pt-3">
@@ -1749,6 +1790,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       Nombre de tu mascota
                       <input
                         type="text"
+                        value={personalizationPetName}
+                        onChange={(event) => setPersonalizationPetName(event.target.value)}
                         className="mt-1.5 w-full rounded-lg border border-[#d2a5ad] bg-white px-3 py-2.5 text-xs outline-none focus:border-[#a66271]"
                         placeholder="Ej. Bruno"
                       />
@@ -1757,6 +1800,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       Tema, colores o número
                       <input
                         type="text"
+                        value={personalizationIdea}
+                        onChange={(event) => setPersonalizationIdea(event.target.value)}
                         className="mt-1.5 w-full rounded-lg border border-[#d2a5ad] bg-white px-3 py-2.5 text-xs outline-none focus:border-[#a66271]"
                         placeholder="Cuéntanos tu idea"
                       />
