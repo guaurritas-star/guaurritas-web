@@ -164,3 +164,48 @@
     word-break: normal;
   }
 }
+
+
+/*
+ * Desktop checkout:
+ * El panel de pago estaba anclado a la taskbar sin un límite vertical, así que
+ * en laptops/pantallas bajas su parte superior quedaba fuera del viewport.
+ * En escritorio lo mantenemos junto al borde derecho, limitado al alto real
+ * disponible y con un único scroll interno.
+ */
+@media (min-width: 901px) {
+  .taskbar-cart-panel--checkout {
+    position: fixed !important;
+    top: auto !important;
+    right: 16px !important;
+    bottom: 64px !important;
+    left: auto !important;
+    width: min(560px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 80px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+  }
+
+  .taskbar-cart-panel--checkout .taskbar-cart-titlebar {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+  }
+
+  .taskbar-cart-panel--checkout .taskbar-checkout-view {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .taskbar-cart-panel--checkout .taskbar-checkout-view *,
+  .taskbar-cart-panel--checkout .taskbar-checkout-view *::before,
+  .taskbar-cart-panel--checkout .taskbar-checkout-view *::after {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+}
