@@ -33,7 +33,14 @@ body {
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar {
-    bottom: 0 !important;
+    /*
+     * Sangrado técnico de 4 px: conserva exactamente la misma posición
+     * visual superior de la taskbar, pero extiende su fondo por debajo del
+     * viewport para tapar la microfranja que algunos navegadores dejan por
+     * redondeo entre el iframe y la barra inferior.
+     */
+    bottom: -4px !important;
+    height: 56px !important;
   }
 }
 
