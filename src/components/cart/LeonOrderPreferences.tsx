@@ -60,6 +60,7 @@ export default function LeonOrderPreferencesForm({
             Fecha de entrega
           </span>
           <input
+            data-leon-delivery-date
             type="date"
             min={minDate}
             value={value.deliveryDate}
@@ -79,6 +80,7 @@ export default function LeonOrderPreferencesForm({
             Horario preferido
           </span>
           <select
+            data-leon-preferred-time
             value={value.preferredTime}
             onInput={(event) =>
               update({ preferredTime: (event.currentTarget as HTMLSelectElement).value })
