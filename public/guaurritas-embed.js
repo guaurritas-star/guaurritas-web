@@ -23,6 +23,7 @@
       this._iframe = null;
       this._wrapper = null;
       this._messageHandler = null;
+      this._viewportResizeHandler = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
@@ -139,20 +140,38 @@
       this._iframe = iframe;
       this._wrapper = wrapper;
 
+      const getDesktopViewportHeight = () =>
+        Math.max(
+          1,
+          Math.ceil(
+            window.visualViewport?.height ||
+              window.innerHeight ||
+              document.documentElement.clientHeight,
+          ),
+        );
+
       const applyHeight = (height) => {
-        const exactHeight = Number(height);
+        const isDesktop = window.matchMedia("(min-width: 640px)").matches;
+        const requestedHeight = Number(height);
+        const exactHeight = isDesktop
+          ? getDesktopViewportHeight()
+          : requestedHeight;
+
         if (!Number.isFinite(exactHeight) || exactHeight <= 0) return;
 
         const cssHeight = `${exactHeight}px`;
         const wixElementWrapper = this.parentElement;
+        const frameOverflow = isDesktop ? "hidden" : "visible";
 
         this.style.setProperty("height", cssHeight, "important");
         this.style.setProperty("min-height", cssHeight, "important");
         this.style.setProperty("max-height", cssHeight, "important");
+        this.style.setProperty("overflow", frameOverflow, "important");
 
         wrapper.style.setProperty("height", cssHeight, "important");
         wrapper.style.setProperty("min-height", cssHeight, "important");
         wrapper.style.setProperty("max-height", cssHeight, "important");
+        wrapper.style.setProperty("overflow", frameOverflow, "important");
 
         iframe.style.setProperty("height", cssHeight, "important");
         iframe.style.setProperty("min-height", cssHeight, "important");
@@ -162,6 +181,12 @@
           wixElementWrapper.style.setProperty("height", cssHeight, "important");
           wixElementWrapper.style.setProperty("min-height", "0px", "important");
           wixElementWrapper.style.setProperty("max-height", "none", "important");
+
+          if (isDesktop) {
+            wixElementWrapper.style.setProperty("padding", "0px", "important");
+            wixElementWrapper.style.setProperty("border", "0px", "important");
+            wixElementWrapper.style.setProperty("overflow", "hidden", "important");
+          }
         }
 
         this.setAttribute("data-content-height", String(exactHeight));
@@ -270,7 +295,17 @@
         }
       };
 
+      this._viewportResizeHandler = () => {
+        if (!window.matchMedia("(min-width: 640px)").matches) return;
+        applyHeight(getDesktopViewportHeight());
+      };
+
       window.addEventListener("message", this._messageHandler);
+      window.addEventListener("resize", this._viewportResizeHandler);
+      window.visualViewport?.addEventListener(
+        "resize",
+        this._viewportResizeHandler,
+      );
     }
 
     disconnectedCallback() {
@@ -280,7 +315,16 @@
         window.removeEventListener("message", this._messageHandler);
       }
 
+      if (this._viewportResizeHandler) {
+        window.removeEventListener("resize", this._viewportResizeHandler);
+        window.visualViewport?.removeEventListener(
+          "resize",
+          this._viewportResizeHandler,
+        );
+      }
+
       this._messageHandler = null;
+      this._viewportResizeHandler = null;
       this._iframe = null;
       this._wrapper = null;
       this._shadow.replaceChildren();

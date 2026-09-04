@@ -13,10 +13,10 @@ body {
 }
 
 /*
- * Desktop: Guaurritas OS debe ocupar exactamente el viewport del iframe.
- * Evitamos usar el scroll del documento interno y hacemos que wallpaper,
- * launcher y taskbar compartan el mismo alto real. Esto elimina la franja
- * blanca/scrollbar lateral y evita que la taskbar quede parcialmente fuera.
+ * Desktop: el OS se reparte en tres filas reales (header, escritorio y
+ * taskbar) dentro del alto exacto del iframe. Así evitamos depender de
+ * restas fijas y de una taskbar absoluta, que eran la causa de pequeñas
+ * franjas visibles en algunas laptops/zooms.
  */
 @media (min-width: 640px) {
   html,
@@ -25,29 +25,39 @@ body {
   }
 
   body > main.desktop-wallpaper {
-    /*
-     * Pequeño overscan horizontal para cubrir los 1–2 px que algunos
-     * navegadores/Wix dejan visibles por redondeo del iframe.
-     */
-    width: calc(100% + 4px) !important;
-    margin-left: -2px !important;
+    --guaurritas-header-height: 50px;
+    --guaurritas-taskbar-height: clamp(68px, 10dvh, 78px);
+
+    display: grid !important;
+    grid-template-rows:
+      var(--guaurritas-header-height)
+      minmax(0, 1fr)
+      var(--guaurritas-taskbar-height);
+    width: 100% !important;
     height: 100% !important;
     min-height: 100% !important;
     max-height: 100% !important;
+    margin: 0 !important;
     overflow: hidden !important;
   }
 
+  body > main.desktop-wallpaper > .desktop-os-header {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
   body > main.desktop-wallpaper > .desktop-launcher {
-    /* 50 px header + 64 px taskbar */
-    height: calc(100% - 114px) !important;
+    height: auto !important;
     min-height: 0 !important;
     overflow-y: auto !important;
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar {
-    bottom: 0 !important;
-    height: 64px !important;
-    min-height: 64px !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
     padding-top: 4px !important;
     padding-bottom: 4px !important;
     box-sizing: border-box !important;
@@ -60,6 +70,12 @@ body {
   body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-clock {
     min-height: 48px !important;
     align-items: center !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 900px) {
+  body > main.desktop-wallpaper {
+    --guaurritas-header-height: 46px;
   }
 }
 
