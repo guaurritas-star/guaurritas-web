@@ -3,6 +3,8 @@ body {
   height: 100% !important;
   min-height: 100% !important;
   width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
   overflow-x: hidden !important;
   overflow-y: hidden !important;
   overscroll-behavior: none !important;
@@ -26,14 +28,15 @@ body {
 
   body > main.desktop-wallpaper {
     --guaurritas-header-height: 50px;
-    --guaurritas-taskbar-height: clamp(68px, 10dvh, 78px);
+    --guaurritas-taskbar-height: clamp(58px, 7.5dvh, 62px);
 
     display: grid !important;
     grid-template-rows:
       var(--guaurritas-header-height)
       minmax(0, 1fr)
       var(--guaurritas-taskbar-height);
-    width: 100% !important;
+    width: 100vw !important;
+    max-width: none !important;
     height: 100% !important;
     min-height: 100% !important;
     max-height: 100% !important;
@@ -64,11 +67,11 @@ body {
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-start {
-    height: 48px !important;
+    height: 44px !important;
   }
 
   body > main.desktop-wallpaper > .desktop-taskbar .desktop-taskbar-clock {
-    min-height: 48px !important;
+    min-height: 44px !important;
     align-items: center !important;
   }
 }
