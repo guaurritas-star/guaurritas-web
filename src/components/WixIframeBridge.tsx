@@ -5,8 +5,6 @@ import { useEffect } from "react";
 const BRIDGE_SOURCE = "guaurritas-web";
 const HEIGHT_MESSAGE = "guaurritas:height";
 const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
-const EMBED_SOURCE = "guaurritas-embed";
-const MOBILE_VIEWPORT_MESSAGE = "guaurritas:mobile-viewport";
 const MOBILE_BREAKPOINT = 639;
 
 function getDesktopDocumentHeight() {
@@ -152,96 +150,6 @@ export default function WixIframeBridge() {
 
     let animationFrame = 0;
     let pageScrollLocked = false;
-    let mobileViewportTop = 0;
-    let mobileViewportHeight = baseViewportHeight;
-    let mobileViewportActive = true;
-
-    function syncMobileViewportUi() {
-      if (window.innerWidth > MOBILE_BREAKPOINT) return;
-
-      const root = document.documentElement;
-      root.style.setProperty(
-        "--guaurritas-mobile-viewport-top",
-        `${Math.max(0, Math.round(mobileViewportTop))}px`,
-      );
-      root.style.setProperty(
-        "--guaurritas-mobile-viewport-height",
-        `${Math.max(1, Math.round(mobileViewportHeight))}px`,
-      );
-
-      document
-        .querySelectorAll<HTMLElement>(".cuisine-mobile-sticky-header")
-        .forEach((header) => {
-          const previousShift = Number(
-            header.dataset.guaurritasStickyShift || "0",
-          );
-          const originTop =
-            header.getBoundingClientRect().top - previousShift;
-          const section = header.closest("section");
-          const sectionElement =
-            section instanceof HTMLElement ? section : null;
-          const sectionRect = sectionElement?.getBoundingClientRect() ?? null;
-          const maxShift =
-            sectionRect && sectionElement
-              ? Math.max(
-                  0,
-                  sectionRect.top +
-                    sectionElement.scrollHeight -
-                    header.offsetHeight -
-                    originTop,
-                )
-              : Number.POSITIVE_INFINITY;
-          const nextShift = mobileViewportActive
-            ? Math.min(
-                maxShift,
-                Math.max(0, mobileViewportTop - originTop),
-              )
-            : 0;
-
-          header.dataset.guaurritasStickyShift = String(nextShift);
-          header.style.setProperty(
-            "--cuisine-mobile-sticky-shift",
-            `${Math.round(nextShift)}px`,
-          );
-        });
-    }
-
-    function handleParentViewportMessage(event: MessageEvent) {
-      if (event.source !== window.parent) return;
-
-      let message = event.data;
-
-      if (typeof message === "string") {
-        try {
-          message = JSON.parse(message);
-        } catch {
-          return;
-        }
-      }
-
-      if (
-        !message ||
-        typeof message !== "object" ||
-        message.source !== EMBED_SOURCE ||
-        message.type !== MOBILE_VIEWPORT_MESSAGE
-      ) {
-        return;
-      }
-
-      const nextTop = Number(message.top);
-      const nextHeight = Number(message.height);
-
-      mobileViewportTop = Number.isFinite(nextTop)
-        ? Math.max(0, nextTop)
-        : 0;
-      mobileViewportHeight =
-        Number.isFinite(nextHeight) && nextHeight > 0
-          ? nextHeight
-          : baseViewportHeight;
-      mobileViewportActive = message.active !== false;
-
-      syncMobileViewportUi();
-    }
 
     function getCurrentHeight() {
       if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -289,10 +197,9 @@ export default function WixIframeBridge() {
       }
 
       const shouldLock = Boolean(
-        document.documentElement.classList.contains(
-          "guaurritas-system-cart-open",
-        ) &&
-          document.querySelector("#taskbar-cart-panel"),
+        document.querySelector(
+          "#taskbar-cart-panel.taskbar-cart-panel--checkout",
+        ),
       );
 
       if (shouldLock === pageScrollLocked) return;
@@ -311,7 +218,6 @@ export default function WixIframeBridge() {
     const resizeObserver = new ResizeObserver(() => {
       enviarAltura();
       syncCheckoutScrollLock();
-      syncMobileViewportUi();
     });
     const main = document.querySelector("main");
 
@@ -324,7 +230,6 @@ export default function WixIframeBridge() {
     const mutationObserver = new MutationObserver(() => {
       enviarAltura();
       syncCheckoutScrollLock();
-      syncMobileViewportUi();
     });
     mutationObserver.observe(document.body, {
       attributes: true,
@@ -336,17 +241,14 @@ export default function WixIframeBridge() {
     const handleViewportChange = () => {
       enviarAltura();
       syncCheckoutScrollLock();
-      syncMobileViewportUi();
     };
 
-    window.addEventListener("message", handleParentViewportMessage);
     window.addEventListener("load", handleViewportChange);
     window.addEventListener("resize", handleViewportChange);
     window.addEventListener("orientationchange", handleViewportChange);
 
     enviarAltura();
     syncCheckoutScrollLock();
-    syncMobileViewportUi();
 
     const delayedMeasurements = [
       window.setTimeout(handleViewportChange, 100),
@@ -370,24 +272,9 @@ export default function WixIframeBridge() {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
       delayedMeasurements.forEach(window.clearTimeout);
-      window.removeEventListener("message", handleParentViewportMessage);
       window.removeEventListener("load", handleViewportChange);
       window.removeEventListener("resize", handleViewportChange);
       window.removeEventListener("orientationchange", handleViewportChange);
-
-      document.documentElement.style.removeProperty(
-        "--guaurritas-mobile-viewport-top",
-      );
-      document.documentElement.style.removeProperty(
-        "--guaurritas-mobile-viewport-height",
-      );
-      document
-        .querySelectorAll<HTMLElement>(".cuisine-mobile-sticky-header")
-        .forEach((header) => {
-          delete header.dataset.guaurritasStickyShift;
-          header.style.removeProperty("--cuisine-mobile-sticky-shift");
-        });
-
       style.remove();
     };
   }, []);

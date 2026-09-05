@@ -6,8 +6,6 @@
   const HEIGHT_MESSAGE = "guaurritas:height";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
   const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
-  const EMBED_SOURCE = "guaurritas-embed";
-  const MOBILE_VIEWPORT_MESSAGE = "guaurritas:mobile-viewport";
   const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
   const SPEI_PROOF_UPLOAD_URL_MESSAGE = "guaurritas:spei-proof-upload-url-request";
   const SPEI_PROOF_SUBMIT_MESSAGE = "guaurritas:spei-proof-submit";
@@ -26,8 +24,6 @@
       this._wrapper = null;
       this._messageHandler = null;
       this._viewportResizeHandler = null;
-      this._mobileViewportHandler = null;
-      this._mobileViewportFrame = 0;
       this._desktopOverflowStyle = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
@@ -173,64 +169,6 @@
       this._shadow.append(style, wrapper);
       this._iframe = iframe;
       this._wrapper = wrapper;
-
-      /*
-       * Mobile: Wix is the page that actually scrolls while the iframe grows
-       * with the app content. We only OBSERVE that scroll and tell the iframe
-       * which slice of Guaurritas OS is currently visible. This deliberately
-       * does not use scrollIntoView, focus(), or any parent scroll mutation.
-       */
-      const sendMobileViewportMetrics = () => {
-        if (!iframe.contentWindow) return;
-
-        if (this._mobileViewportFrame) {
-          window.cancelAnimationFrame(this._mobileViewportFrame);
-        }
-
-        this._mobileViewportFrame = window.requestAnimationFrame(() => {
-          this._mobileViewportFrame = 0;
-
-          if (!window.matchMedia("(max-width: 639px)").matches) return;
-
-          const rect = this.getBoundingClientRect();
-          const visualViewport = window.visualViewport;
-          const viewportTop = visualViewport?.offsetTop || 0;
-          const viewportHeight =
-            visualViewport?.height ||
-            window.innerHeight ||
-            document.documentElement.clientHeight ||
-            1;
-          const visibleTop = Math.max(
-            0,
-            Math.min(rect.height, viewportTop - rect.top),
-          );
-          const active =
-            rect.bottom > viewportTop &&
-            rect.top < viewportTop + viewportHeight;
-
-          iframe.contentWindow.postMessage(
-            {
-              source: EMBED_SOURCE,
-              type: MOBILE_VIEWPORT_MESSAGE,
-              top: visibleTop,
-              height: viewportHeight,
-              active,
-            },
-            ALLOWED_ORIGIN,
-          );
-        });
-      };
-
-      this._mobileViewportHandler = sendMobileViewportMetrics;
-      iframe.addEventListener("load", sendMobileViewportMetrics);
-      window.addEventListener("scroll", sendMobileViewportMetrics, {
-        passive: true,
-      });
-      window.visualViewport?.addEventListener(
-        "scroll",
-        sendMobileViewportMetrics,
-        { passive: true },
-      );
 
       const desktopAncestorStyles = new Map();
       const desktopAncestorProperties = [
@@ -498,7 +436,6 @@
           message.type === SCROLL_LOCK_MESSAGE
         ) {
           this._setPageScrollLocked(Boolean(message.locked));
-          this._mobileViewportHandler?.();
           return;
         }
 
@@ -543,11 +480,7 @@
       };
 
       this._viewportResizeHandler = () => {
-        if (window.matchMedia("(max-width: 639px)").matches) {
-          this._mobileViewportHandler?.();
-          return;
-        }
-
+        if (!window.matchMedia("(min-width: 640px)").matches) return;
         applyHeight(1);
       };
 
@@ -557,7 +490,6 @@
         "resize",
         this._viewportResizeHandler,
       );
-      this._mobileViewportHandler?.();
     }
 
     disconnectedCallback() {
@@ -579,30 +511,12 @@
         );
       }
 
-      if (this._mobileViewportHandler) {
-        window.removeEventListener("scroll", this._mobileViewportHandler);
-        window.visualViewport?.removeEventListener(
-          "scroll",
-          this._mobileViewportHandler,
-        );
-        this._iframe?.removeEventListener(
-          "load",
-          this._mobileViewportHandler,
-        );
-      }
-
-      if (this._mobileViewportFrame) {
-        window.cancelAnimationFrame(this._mobileViewportFrame);
-      }
-
       if (this._desktopOverflowStyle) {
         this._desktopOverflowStyle.remove();
       }
 
       this._messageHandler = null;
       this._viewportResizeHandler = null;
-      this._mobileViewportHandler = null;
-      this._mobileViewportFrame = 0;
       this._desktopOverflowStyle = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
