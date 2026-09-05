@@ -1357,38 +1357,25 @@ textarea {
 
 
 /* Cuisine cart uses the existing system/taskbar cart.
- * Raising only the taskbar while the cart is open keeps the active app/window
- * underneath on desktop and mobile without duplicating cart/checkout logic.
+ * Desktop keeps the floating taskbar panel. On mobile, Wix owns the page
+ * scroll, so the cart becomes a full-screen OS surface aligned to the slice
+ * of the iframe that is actually visible on the phone.
  */
 html.guaurritas-system-cart-open .desktop-taskbar {
   z-index: 80 !important;
 }
 
 @media (max-width: 639px) {
-  html.guaurritas-system-cart-open .mobile-app-open .desktop-taskbar {
-    position: fixed !important;
-    inset: auto 0 0 !important;
-    z-index: 80 !important;
-    display: flex !important;
-    justify-content: flex-end;
-  }
-
-  html.guaurritas-system-cart-open
-    .mobile-app-open
-    .desktop-taskbar
-    > :nth-child(2) {
-    display: none !important;
-  }
-}
-
-
-/* =========================================================
-   CUISINE · MOBILE CART FEEDBACK + STICKY HEADER
-   Visual only. The cart still uses the existing TaskbarCart.
-   ========================================================= */
-
-@media (max-width: 639px) {
   .cuisine-mobile-sticky-header {
+    position: relative !important;
+    top: auto !important;
+    z-index: 70 !important;
+    transform: translate3d(
+      0,
+      var(--cuisine-mobile-sticky-shift, 0px),
+      0
+    );
+    will-change: transform;
     box-shadow:
       0 1px 0 rgba(66, 91, 140, 0.18),
       0 6px 14px rgba(66, 91, 140, 0.08);
@@ -1396,6 +1383,11 @@ html.guaurritas-system-cart-open .desktop-taskbar {
 
   .cuisine-cart-trigger {
     transform-origin: center;
+    transition:
+      transform 120ms ease,
+      border-color 120ms ease,
+      background-color 120ms ease,
+      box-shadow 120ms ease;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -1405,46 +1397,161 @@ html.guaurritas-system-cart-open .desktop-taskbar {
     box-shadow:
       0 0 0 3px rgba(166, 109, 136, 0.16),
       1px 1px 0 rgba(66, 91, 140, 0.12) !important;
-    transform: scale(0.96);
+    transform: scale(0.94);
   }
 
-  .cuisine-cart-trigger:active .cuisine-cart-trigger-icon {
-    animation: cuisine-cart-tap 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar {
+    position: absolute !important;
+    top: var(--guaurritas-mobile-viewport-top, 0px) !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: 0 !important;
+    z-index: 180 !important;
+    display: block !important;
+    width: 100% !important;
+    height: var(--guaurritas-mobile-viewport-height, 100dvh) !important;
+    min-height: var(--guaurritas-mobile-viewport-height, 100dvh) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: rgba(38, 54, 80, 0.18) !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    pointer-events: none;
   }
 
-  html.guaurritas-system-cart-open .taskbar-cart-panel {
-    animation: cuisine-system-cart-in 220ms cubic-bezier(0.16, 1, 0.3, 1)
-      both;
-    transform-origin: 85% 100%;
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar
+    > .desktop-taskbar-start,
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar
+    > :nth-child(2) {
+    display: none !important;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar-clock {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    pointer-events: none;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar-divider,
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar-clock
+    > time {
+    display: none !important;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-shell {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-tray {
+    display: none !important;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-panel {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    flex-direction: column;
+    overflow: hidden !important;
+    border: 0 !important;
+    background: #fff9fb !important;
+    box-shadow: none !important;
+    pointer-events: auto;
+    animation: cuisine-mobile-cart-screen-in 260ms
+      cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: right center;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-titlebar {
+    min-height: 48px;
+    flex: 0 0 auto;
+    padding-inline: 12px;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-items {
+    min-height: 0;
+    max-height: none;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 8px 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-footer {
+    max-height: 46%;
+    flex: 0 0 auto;
+    overflow-y: auto;
+    padding: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-empty-message,
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-checkout-view {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-@keyframes cuisine-cart-tap {
-  0% {
-    transform: translateX(0) rotate(0deg) scale(1);
-  }
-  45% {
-    transform: translateX(4px) rotate(4deg) scale(1.08);
-  }
-  100% {
-    transform: translateX(0) rotate(0deg) scale(1);
-  }
-}
-
-@keyframes cuisine-system-cart-in {
+@keyframes cuisine-mobile-cart-screen-in {
   from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.97);
+    opacity: 0.45;
+    transform: translate3d(100%, 0, 0);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cuisine-cart-trigger:active .cuisine-cart-trigger-icon,
-  html.guaurritas-system-cart-open .taskbar-cart-panel {
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .taskbar-cart-panel {
     animation: none !important;
   }
 }
+
