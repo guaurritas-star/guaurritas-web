@@ -603,8 +603,7 @@ const products: CuisineProduct[] = [
       { label: "Velita grande", price: 40 },
     ],
     detail:
-      "Elige velita chica o grande y escribe el número al personalizar. Es un elemento decorativo: mantenlo fuera del alcance de la mascota y retíralo del pastel antes de servir.",
-    customizable: true,
+      "Elige velita chica o grande. La velita chica va sin personalización; en la velita grande indícanos el número del cumpleañero. Es un elemento decorativo: mantenlo fuera del alcance de la mascota y retíralo del pastel antes de servir.",
     badge: "Nuevo",
     imageTone: "#f4e2ea",
   },
@@ -669,6 +668,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [inspirationInputKey, setInspirationInputKey] = useState(0);
   const [personalizationPetName, setPersonalizationPetName] = useState("");
   const [personalizationIdea, setPersonalizationIdea] = useState("");
+  const [birthdayCandleNumber, setBirthdayCandleNumber] = useState("");
   const [notice, setNotice] = useState("");
   const [cartOpening, setCartOpening] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
@@ -874,6 +874,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setInspirationInputKey((key) => key + 1);
     setPersonalizationPetName("");
     setPersonalizationIdea("");
+    setBirthdayCandleNumber("");
     setNotice("");
   };
 
@@ -1008,6 +1009,29 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const cartOption =
       selectedProduct.options[optionIndex] ?? selectedProduct.options[0];
     const cartImage = cartOption.image ?? selectedProduct.image;
+
+    if (selectedProduct.id === "velitas") {
+      const isLargeCandle = selectedOption === 1;
+      const candleNumber = birthdayCandleNumber.trim();
+
+      if (isLargeCandle && !candleNumber) return;
+
+      addCartItem({
+        id: `cuisine:velitas:${selectedOption}:${isLargeCandle ? candleNumber : "sin-personalizacion"}`,
+        name: selectedProduct.name,
+        detail: isLargeCandle
+          ? `${cartOption.label} · Número: ${candleNumber}`
+          : cartOption.label,
+        unitPrice: cartOption.price,
+        image: cartImage,
+      });
+      setNotice(
+        isLargeCandle
+          ? `${cartOption.label} con número ${candleNumber} se agregó al carrito.`
+          : `${cartOption.label} se agregó al carrito.`,
+      );
+      return;
+    }
 
     if (selectedProduct.id === "gorrito") {
       if (!gorritoPetSize) return;
@@ -1145,6 +1169,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const isBulkCookies = selectedProduct.id === "guaurricookies";
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
     const isGorrito = selectedProduct.id === "gorrito";
+    const isVelitas = selectedProduct.id === "velitas";
     const isSticks = selectedProduct.id === "sticks";
     const isEdibleProduct = !nonFoodProductIds.has(selectedProduct.id);
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
@@ -1201,6 +1226,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const needsChilaquiConfiguration =
       isChilaquidogs && (chilaquiProtein === null || chilaquiSalsa === null);
     const needsGorritoSize = isGorrito && gorritoPetSize === null;
+    const needsBirthdayCandleNumber =
+      isVelitas && selectedOption === 1 && birthdayCandleNumber.trim() === "";
     const needsBulkDistribution =
       isBulkCookies &&
       (!bulkQuantityIsValid ||
@@ -1212,6 +1239,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       !needsPetcakeFinish &&
       !needsChilaquiConfiguration &&
       !needsGorritoSize &&
+      !needsBirthdayCandleNumber &&
       !needsBulkDistribution;
 
     return (
@@ -1587,6 +1615,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                           if (isBulkCookies) {
                             setBulkFlavorGrams(createEmptyBulkDistribution());
                           }
+                          if (isVelitas && index === 0) {
+                            setBirthdayCandleNumber("");
+                          }
                         }}
                         className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left font-interface text-xs transition ${
                           selectedOption === index
@@ -1620,6 +1651,34 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     ))}
                   </div>
                 </fieldset>
+                )}
+
+                {isVelitas && selectedOption === 1 && (
+                  <div className="mt-4 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5">
+                    <label className="block font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
+                      Número del cumpleañero
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={birthdayCandleNumber}
+                        onChange={(event) =>
+                          setBirthdayCandleNumber(
+                            event.target.value.replace(/\D/g, "").slice(0, 3),
+                          )
+                        }
+                        className="mt-3 w-full rounded-lg border border-[#d2a5ad] bg-white px-3 py-2.5 font-interface text-sm text-[#263650] outline-none focus:border-[#a66271]"
+                        placeholder="Ej. 5"
+                        aria-describedby="birthday-candle-help"
+                      />
+                    </label>
+                    <p
+                      id="birthday-candle-help"
+                      className="mt-2 font-interface text-[10px] leading-4 text-[#718093]"
+                    >
+                      La velita grande se prepara con el número que nos indiques.
+                    </p>
+                  </div>
                 )}
 
                 {!isBulkCookies &&
@@ -2158,6 +2217,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                         }`
                     : isGorrito
                       ? `Tamaño del lomito: ${gorritoPetSize ?? "elige tamaño"}`
+                    : isVelitas && selectedOption === 1
+                      ? `${currentOption.label} · Número: ${birthdayCandleNumber || "pendiente"}`
                     : currentOption.label}
                 </p>
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
@@ -2200,6 +2261,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                   ? "Selecciona la proteína y la salsa para agregar sus ChilaquiDogs."
                   : needsGorritoSize
                   ? "Selecciona si tu lomito es chico, mediano o grande para agregar el gorrito."
+                  : needsBirthdayCandleNumber
+                  ? "Escribe el número del cumpleañero para agregar la velita grande."
                   : needsPetcakeFinish || needsRecipeConfiguration
                   ? isPetcake
                     ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
