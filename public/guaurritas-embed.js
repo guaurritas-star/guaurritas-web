@@ -24,6 +24,8 @@
       this._wrapper = null;
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._desktopScrollbarStyle = null;
+      this._desktopScrollbarSyncHandler = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
@@ -82,6 +84,91 @@
 
     connectedCallback() {
       if (this._iframe) return;
+
+      /*
+       * La franja derecha que queda en desktop no pertenece al iframe: es el
+       * track nativo del scrollbar de Chrome/Wix. No lo ocultamos (eso impide
+       * al usuario arrastrarlo cuando el cursor está sobre el iframe);
+       * únicamente le damos continuidad visual con el borde derecho del OS.
+       */
+      if (!this._desktopScrollbarStyle) {
+        const desktopScrollbarStyle = document.createElement("style");
+        desktopScrollbarStyle.id = "guaurritas-desktop-scrollbar-skin";
+        desktopScrollbarStyle.textContent = `
+          @media (min-width: 640px) {
+            html.guaurritas-os-scrollbar-skin::-webkit-scrollbar-track {
+              background:
+                linear-gradient(
+                  to bottom,
+                  transparent 0 var(--guaurritas-header-start, 0px),
+                  #425bbc var(--guaurritas-header-start, 0px)
+                    var(--guaurritas-header-end, 0px),
+                  transparent var(--guaurritas-header-end, 0px)
+                    var(--guaurritas-taskbar-start, 100vh),
+                  #d9a6b9 var(--guaurritas-taskbar-start, 100vh)
+                    var(--guaurritas-taskbar-end, 100vh),
+                  transparent var(--guaurritas-taskbar-end, 100vh) 100%
+                ),
+                url("https://guaurritas-star.github.io/guaurritas-web/guaurritas-desktop-wallpaper.jpeg")
+                  right var(--guaurritas-os-top, 0px) /
+                  100vw var(--guaurritas-os-height, 100vh) no-repeat,
+                #476680 !important;
+            }
+
+            html.guaurritas-os-scrollbar-skin::-webkit-scrollbar-thumb {
+              border: 2px solid transparent;
+              border-radius: 999px;
+              background: rgba(38, 54, 80, 0.48);
+              background-clip: padding-box;
+            }
+
+            html.guaurritas-os-scrollbar-skin {
+              scrollbar-color: rgba(38, 54, 80, 0.48) #7fb4e4;
+            }
+          }
+        `;
+        document.head.appendChild(desktopScrollbarStyle);
+        this._desktopScrollbarStyle = desktopScrollbarStyle;
+      }
+
+      const syncDesktopScrollbarSkin = () => {
+        const html = document.documentElement;
+        if (!html) return;
+
+        const isDesktop = window.matchMedia("(min-width: 640px)").matches;
+        const rect = this.getBoundingClientRect();
+        const viewportHeight =
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          1;
+        const intersectsViewport =
+          rect.bottom > 0 && rect.top < viewportHeight;
+
+        if (!isDesktop || !intersectsViewport) {
+          html.classList.remove("guaurritas-os-scrollbar-skin");
+          return;
+        }
+
+        const clamp = (value) =>
+          Math.max(0, Math.min(viewportHeight, Math.round(value)));
+        const headerStart = clamp(rect.top);
+        const headerEnd = clamp(rect.top + 50);
+        const taskbarStart = clamp(rect.bottom - 52);
+        const taskbarEnd = clamp(rect.bottom);
+
+        html.style.setProperty("--guaurritas-os-top", `${Math.round(rect.top)}px`);
+        html.style.setProperty("--guaurritas-os-height", `${Math.max(1, Math.round(rect.height))}px`);
+        html.style.setProperty("--guaurritas-header-start", `${headerStart}px`);
+        html.style.setProperty("--guaurritas-header-end", `${headerEnd}px`);
+        html.style.setProperty("--guaurritas-taskbar-start", `${taskbarStart}px`);
+        html.style.setProperty("--guaurritas-taskbar-end", `${taskbarEnd}px`);
+        html.classList.add("guaurritas-os-scrollbar-skin");
+      };
+
+      this._desktopScrollbarSyncHandler = syncDesktopScrollbarSkin;
+      window.addEventListener("scroll", syncDesktopScrollbarSkin, {
+        passive: true,
+      });
 
       this.style.setProperty("display", "block", "important");
       this.style.setProperty("width", "100%", "important");
@@ -298,6 +385,16 @@
         const wixElementWrapper = this.parentElement;
         const frameOverflow = isDesktop ? "hidden" : "visible";
 
+        if (isDesktop) {
+          this.style.setProperty(
+            "box-shadow",
+            "0 8px 0 #476680",
+            "important",
+          );
+        } else {
+          this.style.removeProperty("box-shadow");
+        }
+
         if (desktopMetrics) {
           this.style.setProperty(
             "width",
@@ -449,8 +546,13 @@
       };
 
       this._viewportResizeHandler = () => {
-        if (!window.matchMedia("(min-width: 640px)").matches) return;
+        if (!window.matchMedia("(min-width: 640px)").matches) {
+          this._desktopScrollbarSyncHandler?.();
+          return;
+        }
+
         applyHeight(1);
+        this._desktopScrollbarSyncHandler?.();
       };
 
       window.addEventListener("message", this._messageHandler);
@@ -459,6 +561,7 @@
         "resize",
         this._viewportResizeHandler,
       );
+      syncDesktopScrollbarSkin();
     }
 
     disconnectedCallback() {
@@ -480,8 +583,34 @@
         );
       }
 
+      if (this._desktopScrollbarSyncHandler) {
+        window.removeEventListener(
+          "scroll",
+          this._desktopScrollbarSyncHandler,
+        );
+      }
+
+      const html = document.documentElement;
+      if (html) {
+        html.classList.remove("guaurritas-os-scrollbar-skin");
+        [
+          "--guaurritas-os-top",
+          "--guaurritas-os-height",
+          "--guaurritas-header-start",
+          "--guaurritas-header-end",
+          "--guaurritas-taskbar-start",
+          "--guaurritas-taskbar-end",
+        ].forEach((property) => html.style.removeProperty(property));
+      }
+
+      if (this._desktopScrollbarStyle) {
+        this._desktopScrollbarStyle.remove();
+      }
+
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._desktopScrollbarStyle = null;
+      this._desktopScrollbarSyncHandler = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
       this._wrapper = null;
