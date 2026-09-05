@@ -1022,6 +1022,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         detail: isLargeCandle
           ? `${cartOption.label} · Número: ${candleNumber}`
           : cartOption.label,
+        ...(isLargeCandle
+          ? { personalization: `Número del cumpleañero: ${candleNumber}` }
+          : {}),
         unitPrice: cartOption.price,
         image: cartImage,
       });
@@ -1040,6 +1043,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         id: `cuisine:gorrito:${gorritoPetSize.toLocaleLowerCase("es")}`,
         name: selectedProduct.name,
         detail: `Tamaño del lomito: ${gorritoPetSize}`,
+        personalization: `Tamaño del lomito: ${gorritoPetSize}`,
         unitPrice: cartOption.price,
         image: cartImage,
       });
