@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
-import CuisineCartDrawer from "@/components/cart/CuisineCartDrawer";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
 
@@ -644,27 +643,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [personalizationPetName, setPersonalizationPetName] = useState("");
   const [personalizationIdea, setPersonalizationIdea] = useState("");
   const [notice, setNotice] = useState("");
-  const [cartOpen, setCartOpen] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
   const { count: cartCount } = useCart();
-
-  const openCartDrawer = () => {
-    setCartOpen(true);
-
-    window.requestAnimationFrame(() => {
-      const scrollContainer =
-        productViewRef.current?.closest(".retro-window-content");
-
-      if (scrollContainer instanceof HTMLElement) {
-        scrollContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      }
-    });
-  };
-
-  const continueFromCuisineCart = () => {
-    setCartOpen(false);
-    requestSystemCartOpen();
-  };
 
   const inspirationPreviews = useMemo(
     () =>
@@ -959,7 +939,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const cuisineCartTrigger = (
     <button
       type="button"
-      onClick={openCartDrawer}
+      onClick={requestSystemCartOpen}
       aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
       className="group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c]"
     >
@@ -975,14 +955,6 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       </span>
       <span>Carrito · {cartCount}</span>
     </button>
-  );
-
-  const cuisineCartDrawer = (
-    <CuisineCartDrawer
-      open={cartOpen}
-      onClose={() => setCartOpen(false)}
-      onContinue={continueFromCuisineCart}
-    />
   );
 
   if (selectedProduct) {
@@ -1057,8 +1029,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       !needsBulkDistribution;
 
     return (
-      <section ref={productViewRef} className="relative -m-4 min-h-[32rem] bg-white sm:-m-6">
-        {cuisineCartDrawer}
+      <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
         <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -2032,8 +2003,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <section ref={productViewRef} className="relative -m-4 min-h-[32rem] bg-white sm:-m-6">
-      {cuisineCartDrawer}
+    <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
       <div className="border-b border-[#b9c8d8] bg-[#eef5f7] px-4 py-3 sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button

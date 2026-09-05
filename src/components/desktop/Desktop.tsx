@@ -10,7 +10,6 @@ import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
-import { OPEN_SYSTEM_CART_EVENT } from "@/lib/cart-events";
 
 const apps = [
   { id: "mundos", name: "Explora mundo", icon: "world" as const },
@@ -372,26 +371,6 @@ export default function Desktop() {
     return () => {
       if (launchTimer.current) clearTimeout(launchTimer.current);
     };
-  }, []);
-
-  useEffect(() => {
-    const revealSystemCartOnMobile = () => {
-      if (!window.matchMedia("(max-width: 639px)").matches) return;
-
-      setActiveApp(null);
-      setMinimizedApp(null);
-    };
-
-    window.addEventListener(
-      OPEN_SYSTEM_CART_EVENT,
-      revealSystemCartOnMobile,
-    );
-
-    return () =>
-      window.removeEventListener(
-        OPEN_SYSTEM_CART_EVENT,
-        revealSystemCartOnMobile,
-      );
   }, []);
 
   const openApp = (appId: string) => {

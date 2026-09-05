@@ -64,6 +64,15 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   useEffect(() => hydrateCart(), []);
 
   useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("guaurritas-system-cart-open", open);
+
+    return () => {
+      root.classList.remove("guaurritas-system-cart-open");
+    };
+  }, [open]);
+
+  useEffect(() => {
     const openSystemCart = () => {
       setView("cart");
       setCheckoutStatus("");

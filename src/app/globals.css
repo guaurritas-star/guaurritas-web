@@ -1354,3 +1354,29 @@ textarea {
     border-width: 2px;
   }
 }
+
+
+/* Cuisine cart uses the existing system/taskbar cart.
+ * Raising only the taskbar while the cart is open keeps the active app/window
+ * underneath on desktop and mobile without duplicating cart/checkout logic.
+ */
+html.guaurritas-system-cart-open .desktop-taskbar {
+  z-index: 80 !important;
+}
+
+@media (max-width: 639px) {
+  html.guaurritas-system-cart-open .mobile-app-open .desktop-taskbar {
+    position: fixed !important;
+    inset: auto 0 0 !important;
+    z-index: 80 !important;
+    display: flex !important;
+    justify-content: flex-end;
+  }
+
+  html.guaurritas-system-cart-open
+    .mobile-app-open
+    .desktop-taskbar
+    > :nth-child(2) {
+    display: none !important;
+  }
+}
