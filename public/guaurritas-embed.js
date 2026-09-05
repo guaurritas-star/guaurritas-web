@@ -121,6 +121,12 @@
           contain: none !important;
         }
 
+        @media (min-width: 640px) {
+          :host {
+            width: var(--guaurritas-desktop-width, 100%) !important;
+          }
+        }
+
         .guaurritas-frame-wrap {
           position: relative;
           display: block;
@@ -243,12 +249,15 @@
          * borde visible.
          */
         const viewportTop = 0;
-        const viewportLeft = 0;
+        const sectionRect = this.closest("section")?.getBoundingClientRect();
+        const viewportLeft = sectionRect?.left ?? 0;
         const viewportHeight =
           document.documentElement.clientHeight ||
           window.innerHeight ||
           1;
         const viewportWidth =
+          sectionRect?.width ||
+          document.body.clientWidth ||
           document.documentElement.clientWidth ||
           window.innerWidth ||
           1;
@@ -273,15 +282,14 @@
         );
 
         /*
-         * La franja blanca restante era el propio host encogido ~10px por la
-         * compensación de escala. El layout viewport ya excluye el scrollbar
-         * vertical, así que usamos ese ancho directamente.
+         * Usamos los límites reales de la sección Wix: su ancho útil ya
+         * excluye el scrollbar del body. No agregamos sangrado lateral.
          */
         const leftGap = rect.left - viewportLeft;
 
         return {
           height: availableHeight,
-          width: Math.max(1, Math.ceil(viewportWidth)),
+          width: Math.max(1, viewportWidth),
           left: -leftGap,
         };
       };
@@ -308,6 +316,12 @@
         const frameOverflow = isDesktop ? "hidden" : "visible";
 
         if (desktopMetrics) {
+          // :host !important prevalece sobre width inline; compartir el ancho
+          // mediante una variable consumida solo por la regla desktop.
+          this.style.setProperty(
+            "--guaurritas-desktop-width",
+            `${desktopMetrics.width}px`,
+          );
           this.style.setProperty(
             "width",
             `${desktopMetrics.width}px`,
