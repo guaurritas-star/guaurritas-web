@@ -33,6 +33,7 @@ type ProductOption = {
 
 type PetcakeFinish = "betún" | "fondant";
 type PetType = "lomito" | "michi";
+type GorritoPetSize = "Chico" | "Mediano" | "Grande";
 type ChilaquiProtein = "Pollo" | "Res";
 type ChilaquiSalsa = "Roja" | "Verde";
 
@@ -62,6 +63,24 @@ const categories: { id: CategoryId; label: string }[] = [
 ];
 
 const petcakeSizes = ["Chico", "Mediano", "Grande", "Plus grande"] as const;
+
+const gorritoPetSizes: {
+  size: GorritoPetSize;
+  examples: string;
+}[] = [
+  {
+    size: "Chico",
+    examples: "Chihuahua · Pomerania · Yorkie · Maltés",
+  },
+  {
+    size: "Mediano",
+    examples: "Frenchie · Pug · Beagle · Corgi",
+  },
+  {
+    size: "Grande",
+    examples: "Labrador · Golden · Pitbull · Pastor Alemán",
+  },
+];
 
 const proteinsByPetType: Record<PetType, readonly string[]> = {
   lomito: ["Pollo", "Res", "Mixto"],
@@ -632,6 +651,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [petcakeSize, setPetcakeSize] = useState(0);
   const [petcakeFinish, setPetcakeFinish] =
     useState<PetcakeFinish | null>(null);
+  const [gorritoPetSize, setGorritoPetSize] =
+    useState<GorritoPetSize | null>(null);
   const [petType, setPetType] = useState<PetType | null>(null);
   const [petProtein, setPetProtein] = useState<string | null>(null);
   const [chilaquiProtein, setChilaquiProtein] =
@@ -840,6 +861,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setCustomize(null);
     setPetcakeSize(0);
     setPetcakeFinish(null);
+    setGorritoPetSize(null);
     setPetType(null);
     setPetProtein(null);
     setChilaquiProtein(null);
@@ -987,6 +1009,22 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       selectedProduct.options[optionIndex] ?? selectedProduct.options[0];
     const cartImage = cartOption.image ?? selectedProduct.image;
 
+    if (selectedProduct.id === "gorrito") {
+      if (!gorritoPetSize) return;
+
+      addCartItem({
+        id: `cuisine:gorrito:${gorritoPetSize.toLocaleLowerCase("es")}`,
+        name: selectedProduct.name,
+        detail: `Tamaño del lomito: ${gorritoPetSize}`,
+        unitPrice: cartOption.price,
+        image: cartImage,
+      });
+      setNotice(
+        `${selectedProduct.name} para lomito ${gorritoPetSize.toLocaleLowerCase("es")} se agregó al carrito.`,
+      );
+      return;
+    }
+
     if (selectedProduct.id === "guaurricookies") {
       const quantityValue = Number(bulkQuantityInput);
       const totalGrams = Math.round(
@@ -1106,6 +1144,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const isPetcake = selectedProduct.id === "petcakes";
     const isBulkCookies = selectedProduct.id === "guaurricookies";
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
+    const isGorrito = selectedProduct.id === "gorrito";
     const isSticks = selectedProduct.id === "sticks";
     const isEdibleProduct = !nonFoodProductIds.has(selectedProduct.id);
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
@@ -1161,6 +1200,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const needsPetcakeFinish = isPetcake && petcakeFinish === null;
     const needsChilaquiConfiguration =
       isChilaquidogs && (chilaquiProtein === null || chilaquiSalsa === null);
+    const needsGorritoSize = isGorrito && gorritoPetSize === null;
     const needsBulkDistribution =
       isBulkCookies &&
       (!bulkQuantityIsValid ||
@@ -1171,6 +1211,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       !needsRecipeConfiguration &&
       !needsPetcakeFinish &&
       !needsChilaquiConfiguration &&
+      !needsGorritoSize &&
       !needsBulkDistribution;
 
     return (
@@ -1501,6 +1542,36 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                       </div>
                     </div>
                   </div>
+                ) : isGorrito ? (
+                  <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <legend className="px-1 font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                      ¿Qué tamaño es tu lomito?
+                    </legend>
+                    <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                      Elige la opción que más se parezca a su tamaño general.
+                    </p>
+                    <div className="mt-3 grid gap-2">
+                      {gorritoPetSizes.map(({ size, examples }) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setGorritoPetSize(size)}
+                          className={`rounded-xl border px-4 py-3 text-left font-interface transition ${
+                            gorritoPetSize === size
+                              ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
+                              : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                          }`}
+                        >
+                          <span className="block text-[11px] font-bold uppercase tracking-[0.1em]">
+                            {size}
+                          </span>
+                          <span className="mt-1 block text-[9px] leading-4 text-[#718093]">
+                            Ej. {examples}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
                 ) : (
                 <fieldset className="mt-7">
                   <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
@@ -2085,6 +2156,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                             ? `salsa ${chilaquiSalsa.toLocaleLowerCase("es")}`
                             : "elige salsa"
                         }`
+                    : isGorrito
+                      ? `Tamaño del lomito: ${gorritoPetSize ?? "elige tamaño"}`
                     : currentOption.label}
                 </p>
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
@@ -2125,6 +2198,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                           : `Faltan ${bulkRemainingGrams} g por asignar antes de continuar.`
                   : needsChilaquiConfiguration
                   ? "Selecciona la proteína y la salsa para agregar sus ChilaquiDogs."
+                  : needsGorritoSize
+                  ? "Selecciona si tu lomito es chico, mediano o grande para agregar el gorrito."
                   : needsPetcakeFinish || needsRecipeConfiguration
                   ? isPetcake
                     ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
