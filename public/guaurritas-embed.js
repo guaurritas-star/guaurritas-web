@@ -124,6 +124,10 @@
         @media (min-width: 640px) {
           :host {
             width: var(--guaurritas-desktop-width, 100%) !important;
+            flex-shrink: 0 !important;
+            height: var(--guaurritas-desktop-height, 100dvh) !important;
+            min-height: var(--guaurritas-desktop-height, 100dvh) !important;
+            max-height: var(--guaurritas-desktop-height, 100dvh) !important;
           }
         }
 
@@ -248,7 +252,6 @@
          * del navegador y era lo que estaba dejando la taskbar debajo del
          * borde visible.
          */
-        const viewportTop = 0;
         const sectionRect = this.closest("section")?.getBoundingClientRect();
         const viewportLeft = sectionRect?.left ?? 0;
         const viewportHeight =
@@ -275,10 +278,14 @@
         this.style.setProperty("width", "100%", "important");
 
         const rect = this.getBoundingClientRect();
-        const topInsideViewport = Math.max(0, rect.top - viewportTop);
+        // Medir dentro de la sección mantiene el alto estable al hacer scroll.
+        // El iframe debe terminar antes de Gallery, incluso con un inset superior.
+        const sectionAvailableHeight = sectionRect
+          ? sectionRect.bottom - rect.top
+          : viewportHeight - Math.max(0, rect.top);
         const availableHeight = Math.max(
           1,
-          Math.floor(viewportHeight - topInsideViewport),
+          Math.floor(Math.min(viewportHeight, sectionAvailableHeight)),
         );
 
         /*
@@ -316,6 +323,7 @@
         const frameOverflow = isDesktop ? "hidden" : "visible";
 
         if (desktopMetrics) {
+          this.style.setProperty("--guaurritas-desktop-height", cssHeight);
           // :host !important prevalece sobre width inline; compartir el ancho
           // mediante una variable consumida solo por la regla desktop.
           this.style.setProperty(
