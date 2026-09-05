@@ -24,6 +24,7 @@
       this._wrapper = null;
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._desktopPageStyle = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
@@ -82,6 +83,38 @@
 
     connectedCallback() {
       if (this._iframe) return;
+
+      /*
+       * En desktop la única franja blanca restante corresponde al gutter
+       * reservado por el scrollbar del documento Wix. Ahora que el ancho del
+       * OS ya usa window.innerWidth, podemos ocultar SOLO el scrollbar raíz
+       * sin volver a encoger el viewport.
+       */
+      if (!this._desktopPageStyle) {
+        const desktopPageStyle = document.createElement("style");
+        desktopPageStyle.id = "guaurritas-desktop-scrollbar-fit";
+        desktopPageStyle.textContent = `
+          @media (min-width: 640px) {
+            html {
+              scrollbar-width: none !important;
+              scrollbar-gutter: auto !important;
+              -ms-overflow-style: none !important;
+            }
+
+            body {
+              scrollbar-gutter: auto !important;
+            }
+
+            html::-webkit-scrollbar {
+              width: 0 !important;
+              height: 0 !important;
+              display: none !important;
+            }
+          }
+        `;
+        document.head.appendChild(desktopPageStyle);
+        this._desktopPageStyle = desktopPageStyle;
+      }
 
       this.style.setProperty("display", "block", "important");
       this.style.setProperty("width", "100%", "important");
@@ -225,8 +258,8 @@
         const viewportTop = 0;
         const viewportLeft = 0;
         const viewportHeight =
-          document.documentElement.clientHeight ||
           window.innerHeight ||
+          document.documentElement.clientHeight ||
           1;
         const viewportWidth =
           window.innerWidth ||
@@ -463,8 +496,13 @@
         );
       }
 
+      if (this._desktopPageStyle) {
+        this._desktopPageStyle.remove();
+      }
+
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._desktopPageStyle = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
       this._wrapper = null;
