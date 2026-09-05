@@ -19,7 +19,7 @@ import {
 } from "@/lib/order-preferences";
 import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
 import LeonOrderPreferencesForm from "@/components/cart/LeonOrderPreferences";
-import { OPEN_SYSTEM_CART_EVENT, type CartViewport } from "@/lib/cart-events";
+import { OPEN_SYSTEM_CART_EVENT } from "@/lib/cart-events";
 
 type LeonPaymentMethod = "spei" | "online";
 type CartView = "cart" | "leon-checkout";
@@ -47,7 +47,7 @@ function itemUnits(items: CartItem[]) {
 
 export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [open, setOpen] = useState(false);
-  const [openingViewport, setOpeningViewport] = useState<CartViewport | null>(null);
+  const revealCartRef = useRef(false);
   const [view, setView] = useState<CartView>("cart");
   const [checkoutStatus, setCheckoutStatus] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
@@ -74,14 +74,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   }, [open]);
 
   useEffect(() => {
-    const openSystemCart = (event: Event) => {
-      const viewport = (event as CustomEvent<{ viewport?: CartViewport }>).detail?.viewport;
-      setOpeningViewport(
-        window.matchMedia("(max-width: 639px)").matches &&
-        viewport && Number.isFinite(viewport.top) && viewport.top >= 0 &&
-        Number.isFinite(viewport.height) && viewport.height > 100
-          ? viewport : null,
-      );
+    const openSystemCart = () => {
+      revealCartRef.current =
+        window.self !== window.top && window.matchMedia("(max-width: 639px)").matches;
       setView("cart");
       setCheckoutStatus("");
       setOpen(true);
@@ -91,6 +86,33 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     return () =>
       window.removeEventListener(OPEN_SYSTEM_CART_EVENT, openSystemCart);
   }, []);
+
+  useEffect(() => {
+    if (!open || !revealCartRef.current) return;
+    let frame = 0;
+    // Wait for the existing panel and the iframe height bridge to lay out.
+    frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        const panel = panelRef.current;
+        if (!panel) return;
+        window.parent.postMessage({
+          source: "guaurritas-web",
+          type: "guaurritas:cart-navigation",
+          action: "reveal",
+          top: panel.getBoundingClientRect().top,
+        }, "*");
+      });
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      revealCartRef.current = false;
+      window.parent.postMessage({
+        source: "guaurritas-web",
+        type: "guaurritas:cart-navigation",
+        action: "return",
+      }, "*");
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -112,7 +134,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
   useEffect(() => {
     if (!open) {
-      setOpeningViewport(null);
       setCheckoutStatus("");
       setView("cart");
     }
@@ -370,13 +391,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
         <section
           ref={panelRef}
           id="taskbar-cart-panel"
-          style={openingViewport && view === "cart" ? {
-            // Position the existing panel in the visible Wix area; never move Wix.
-            top: openingViewport.top + 64,
-            bottom: "auto",
-            maxHeight: Math.max(1, openingViewport.height - 80),
-            overflowY: "auto",
-          } : undefined}
           className={`taskbar-cart-panel ${
             view === "leon-checkout" ? "taskbar-cart-panel--checkout" : ""
           }`}

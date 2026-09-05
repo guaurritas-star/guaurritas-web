@@ -286,6 +286,8 @@
       this._iframe = iframe;
       this._wrapper = wrapper;
 
+      let cuisineReturnPosition = null;
+
       const sendCuisineCommand = (action) => {
         if (!iframe.contentWindow) return;
 
@@ -294,12 +296,7 @@
             source: EMBED_SOURCE,
             type: CUISINE_COMMAND_MESSAGE,
             action,
-            ...(action === "open-cart" && window.matchMedia("(max-width: 639px)").matches
-              ? { viewport: {
-                  top: Math.max(0, (window.visualViewport?.offsetTop || 0) - iframe.getBoundingClientRect().top),
-                  height: window.visualViewport?.height || window.innerHeight,
-                } }
-              : {}),
+
           },
           ALLOWED_ORIGIN,
         );
@@ -620,6 +617,40 @@
         }
 
         if (!message || typeof message !== "object") return;
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === "guaurritas:cart-navigation" &&
+          window.matchMedia("(max-width: 639px)").matches
+        ) {
+          if (message.action === "return") {
+            const saved = cuisineReturnPosition;
+            cuisineReturnPosition = null;
+            if (saved) saved.element.scrollTo({ top: saved.top, left: saved.left, behavior: "instant" });
+            return;
+          }
+          if (message.action !== "reveal" || !Number.isFinite(message.top)) return;
+
+          // Scroll the actual Wix scroll container, never the Custom Element.
+          let scroller = this.parentElement;
+          while (scroller) {
+            const css = window.getComputedStyle(scroller);
+            if (/(auto|scroll)/.test(css.overflowY) && scroller.scrollHeight > scroller.clientHeight) break;
+            scroller = scroller.parentElement;
+          }
+          scroller = scroller || document.scrollingElement || document.documentElement;
+          if (!cuisineReturnPosition) {
+            cuisineReturnPosition = { element: scroller, top: scroller.scrollTop, left: scroller.scrollLeft };
+          }
+          const inset = Math.max(64, mobileCuisineSticky.getBoundingClientRect().height + 8);
+          const target = scroller.scrollTop + iframe.getBoundingClientRect().top + message.top - inset;
+          scroller.scrollTo({
+            top: Math.max(0, target),
+            left: scroller.scrollLeft,
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+          });
+          return;
+        }
 
         if (
           message.source === BRIDGE_SOURCE &&
