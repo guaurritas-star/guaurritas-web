@@ -941,9 +941,9 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       type="button"
       onClick={requestSystemCartOpen}
       aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
-      className="group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c]"
+      className="cuisine-cart-trigger group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c]"
     >
-      <span className="relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
+      <span className="cuisine-cart-trigger-icon relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
         <Image
           src={withBasePath("/icons/desktop/taskbar-cart.webp")}
           alt=""
@@ -1030,7 +1030,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
     return (
       <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
-        <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
             onClick={() => setSelectedProduct(null)}
@@ -2004,7 +2004,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
 
   return (
     <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
-      <div className="border-b border-[#b9c8d8] bg-[#eef5f7] px-4 py-3 sm:px-6">
+      <div className="cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button
             type="button"
