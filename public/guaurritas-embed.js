@@ -626,29 +626,99 @@
           if (message.action === "return") {
             const saved = cuisineReturnPosition;
             cuisineReturnPosition = null;
-            if (saved) saved.element.scrollTo({ top: saved.top, left: saved.left, behavior: "instant" });
+
+            if (saved) {
+              if (saved.root) {
+                window.scrollTo({
+                  top: saved.top,
+                  left: saved.left,
+                  behavior: "auto",
+                });
+              } else {
+                saved.element.scrollTo({
+                  top: saved.top,
+                  left: saved.left,
+                  behavior: "auto",
+                });
+              }
+            }
             return;
           }
           if (message.action !== "reveal" || !Number.isFinite(message.top)) return;
 
-          // Scroll the actual Wix scroll container, never the Custom Element.
+          // Scroll the real Wix scroll container, never the Custom Element.
+          // The cart sends its top INSIDE the iframe; here we translate that
+          // to the coordinate system of whichever Wix element actually scrolls.
           let scroller = this.parentElement;
           while (scroller) {
             const css = window.getComputedStyle(scroller);
-            if (/(auto|scroll)/.test(css.overflowY) && scroller.scrollHeight > scroller.clientHeight) break;
+            if (
+              /(auto|scroll)/.test(css.overflowY) &&
+              scroller.scrollHeight > scroller.clientHeight
+            ) {
+              break;
+            }
             scroller = scroller.parentElement;
           }
-          scroller = scroller || document.scrollingElement || document.documentElement;
+
+          const rootScroller =
+            document.scrollingElement || document.documentElement;
+          scroller = scroller || rootScroller;
+
+          const isRootScroller =
+            scroller === rootScroller ||
+            scroller === document.documentElement ||
+            scroller === document.body;
+
+          const currentTop = isRootScroller
+            ? window.scrollY || rootScroller.scrollTop || 0
+            : scroller.scrollTop;
+          const currentLeft = isRootScroller
+            ? window.scrollX || rootScroller.scrollLeft || 0
+            : scroller.scrollLeft;
+
           if (!cuisineReturnPosition) {
-            cuisineReturnPosition = { element: scroller, top: scroller.scrollTop, left: scroller.scrollLeft };
+            cuisineReturnPosition = {
+              element: scroller,
+              root: isRootScroller,
+              top: currentTop,
+              left: currentLeft,
+            };
           }
-          const inset = Math.max(64, mobileCuisineSticky.getBoundingClientRect().height + 8);
-          const target = scroller.scrollTop + iframe.getBoundingClientRect().top + message.top - inset;
-          scroller.scrollTo({
-            top: Math.max(0, target),
-            left: scroller.scrollLeft,
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
-          });
+
+          const inset = Math.max(
+            68,
+            mobileCuisineSticky.getBoundingClientRect().height + 10,
+          );
+          const iframeTop = iframe.getBoundingClientRect().top;
+          const prefersReducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+
+          if (isRootScroller) {
+            const target =
+              currentTop + iframeTop + message.top - inset;
+
+            window.scrollTo({
+              top: Math.max(0, target),
+              left: currentLeft,
+              behavior: prefersReducedMotion ? "auto" : "smooth",
+            });
+          } else {
+            const scrollerTop = scroller.getBoundingClientRect().top;
+            const target =
+              currentTop +
+              iframeTop +
+              message.top -
+              scrollerTop -
+              inset;
+
+            scroller.scrollTo({
+              top: Math.max(0, target),
+              left: currentLeft,
+              behavior: prefersReducedMotion ? "auto" : "smooth",
+            });
+          }
           return;
         }
 
