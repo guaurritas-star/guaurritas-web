@@ -178,19 +178,19 @@ export default function WixIframeBridge() {
           const originTop =
             header.getBoundingClientRect().top - previousShift;
           const section = header.closest("section");
-          const sectionRect =
-            section instanceof HTMLElement
-              ? section.getBoundingClientRect()
-              : null;
-          const maxShift = sectionRect
-            ? Math.max(
-                0,
-                sectionRect.top +
-                  section.scrollHeight -
-                  header.offsetHeight -
-                  originTop,
-              )
-            : Number.POSITIVE_INFINITY;
+          const sectionElement =
+            section instanceof HTMLElement ? section : null;
+          const sectionRect = sectionElement?.getBoundingClientRect() ?? null;
+          const maxShift =
+            sectionRect && sectionElement
+              ? Math.max(
+                  0,
+                  sectionRect.top +
+                    sectionElement.scrollHeight -
+                    header.offsetHeight -
+                    originTop,
+                )
+              : Number.POSITIVE_INFINITY;
           const nextShift = mobileViewportActive
             ? Math.min(
                 maxShift,
