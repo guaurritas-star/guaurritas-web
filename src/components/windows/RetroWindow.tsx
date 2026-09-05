@@ -121,7 +121,7 @@ export default function RetroWindow({
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
         }}
-        className={`retro-window-dialog pointer-events-auto flex h-full max-h-full w-full flex-col border-0 border-[#425b8c] bg-white shadow-none sm:h-auto sm:max-h-full sm:border-2 sm:shadow-[8px_8px_0_#425b8c] ${
+        className={`retro-window-dialog retro-window-shell pointer-events-auto flex h-full max-h-full w-full flex-col border-0 border-[#425b8c] bg-white shadow-none sm:h-auto sm:max-h-full sm:border-2 sm:shadow-[8px_8px_0_#425b8c] ${
           variant === "wide" ? "max-w-7xl" : "max-w-2xl"
         }`}
       >
@@ -130,28 +130,28 @@ export default function RetroWindow({
           onPointerMove={moveWindow}
           onPointerUp={stopDragging}
           onPointerCancel={stopDragging}
-          className="flex shrink-0 touch-none select-none items-center justify-between border-b-2 border-[#425b8c] bg-[#dce4f2] px-3 py-2 sm:cursor-grab sm:active:cursor-grabbing"
+          className="retro-window-titlebar flex shrink-0 touch-none select-none items-center justify-between border-b-2 border-[#425b8c] bg-[#dce4f2] px-3 py-2 sm:cursor-grab sm:active:cursor-grabbing"
         >
           <p
             id="retro-window-title"
-            className="truncate font-mono text-sm font-bold"
+            className="retro-window-caption truncate font-mono text-sm font-bold"
           >
             {icon && (
-              <span aria-hidden="true" className="mr-1 inline-flex h-5 w-5 shrink-0 overflow-hidden align-middle">
+              <span aria-hidden="true" className="retro-window-caption-icon mr-1 inline-flex h-5 w-5 shrink-0 overflow-hidden align-middle">
                 {icon}
               </span>
             )}
             {title}.exe
           </p>
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="retro-window-controls flex shrink-0 items-center gap-1">
             {onMinimize && (
               <button
                 type="button"
                 onClick={onMinimize}
                 aria-label={`Minimizar ${title}`}
                 title="Minimizar"
-                className="hidden h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono text-sm font-bold leading-none hover:bg-[#e4c56d] sm:flex"
+                className="retro-window-control retro-window-minimize hidden h-7 w-7 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white font-mono text-sm font-bold leading-none hover:bg-[#e4c56d] sm:flex"
               >
                 <span aria-hidden="true" className="-translate-y-0.5">_</span>
               </button>
@@ -162,7 +162,7 @@ export default function RetroWindow({
               onClick={onClose}
               aria-label={`Cerrar ${title} y volver a las aplicaciones`}
               title="Volver a las aplicaciones"
-              className="flex h-8 min-w-8 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white px-2 font-mono font-bold hover:bg-[#425b8c] hover:text-white sm:h-7 sm:min-w-7 sm:px-0"
+              className="retro-window-control retro-window-close flex h-8 min-w-8 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white px-2 font-mono font-bold hover:bg-[#425b8c] hover:text-white sm:h-7 sm:min-w-7 sm:px-0"
             >
               <span aria-hidden="true" className="sm:hidden">←</span>
               <span aria-hidden="true" className="hidden sm:inline">×</span>
@@ -171,7 +171,7 @@ export default function RetroWindow({
         </header>
 
         <div
-          className={`retro-window-content min-h-0 flex-1 overscroll-contain overflow-y-auto ${
+          className={`retro-window-content retro-window-client min-h-0 flex-1 overscroll-contain overflow-y-auto ${
             variant === "wide" ? "p-4 sm:p-6" : "p-6 sm:p-8"
           }`}
         >
