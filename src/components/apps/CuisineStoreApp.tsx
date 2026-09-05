@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
+import CuisineCartDrawer from "@/components/cart/CuisineCartDrawer";
+import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
 
 type CategoryId =
@@ -642,8 +644,27 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [personalizationPetName, setPersonalizationPetName] = useState("");
   const [personalizationIdea, setPersonalizationIdea] = useState("");
   const [notice, setNotice] = useState("");
+  const [cartOpen, setCartOpen] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
   const { count: cartCount } = useCart();
+
+  const openCartDrawer = () => {
+    setCartOpen(true);
+
+    window.requestAnimationFrame(() => {
+      const scrollContainer =
+        productViewRef.current?.closest(".retro-window-content");
+
+      if (scrollContainer instanceof HTMLElement) {
+        scrollContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }
+    });
+  };
+
+  const continueFromCuisineCart = () => {
+    setCartOpen(false);
+    requestSystemCartOpen();
+  };
 
   const inspirationPreviews = useMemo(
     () =>
@@ -935,6 +956,35 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     setNotice(`${selectedProduct.name}${inspirationSuffix} se agregó al carrito.`);
   };
 
+  const cuisineCartTrigger = (
+    <button
+      type="button"
+      onClick={openCartDrawer}
+      aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
+      className="group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c]"
+    >
+      <span className="relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
+        <Image
+          src={withBasePath("/icons/desktop/taskbar-cart.webp")}
+          alt=""
+          fill
+          unoptimized
+          sizes="28px"
+          className="object-contain"
+        />
+      </span>
+      <span>Carrito · {cartCount}</span>
+    </button>
+  );
+
+  const cuisineCartDrawer = (
+    <CuisineCartDrawer
+      open={cartOpen}
+      onClose={() => setCartOpen(false)}
+      onContinue={continueFromCuisineCart}
+    />
+  );
+
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";
     const isBulkCookies = selectedProduct.id === "guaurricookies";
@@ -1007,7 +1057,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       !needsBulkDistribution;
 
     return (
-      <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
+      <section ref={productViewRef} className="relative -m-4 min-h-[32rem] bg-white sm:-m-6">
+        {cuisineCartDrawer}
         <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -1016,9 +1067,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
           >
             ← Volver al catálogo
           </button>
-          <span className="rounded-full border border-[#8ba9b5] bg-[#e8f2f4] px-3 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650]">
-            Carrito · {cartCount}
-          </span>
+          {cuisineCartTrigger}
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
@@ -1983,7 +2032,8 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
+    <section ref={productViewRef} className="relative -m-4 min-h-[32rem] bg-white sm:-m-6">
+      {cuisineCartDrawer}
       <div className="border-b border-[#b9c8d8] bg-[#eef5f7] px-4 py-3 sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button
@@ -1996,9 +2046,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
           <p className="hidden font-interface text-[10px] font-bold uppercase tracking-[0.18em] text-[#5e7685] sm:block">
             GuaurritasCuisine.exe
           </p>
-          <span className="rounded-full border border-[#8ba9b5] bg-white px-3 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650]">
-            Carrito · {cartCount}
-          </span>
+          {cuisineCartTrigger}
         </div>
       </div>
 

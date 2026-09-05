@@ -19,6 +19,7 @@ import {
 } from "@/lib/order-preferences";
 import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
 import LeonOrderPreferencesForm from "@/components/cart/LeonOrderPreferences";
+import { OPEN_SYSTEM_CART_EVENT } from "@/lib/cart-events";
 
 type LeonPaymentMethod = "spei" | "online";
 type CartView = "cart" | "leon-checkout";
@@ -61,6 +62,18 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const cart = useCart();
 
   useEffect(() => hydrateCart(), []);
+
+  useEffect(() => {
+    const openSystemCart = () => {
+      setView("cart");
+      setCheckoutStatus("");
+      setOpen(true);
+    };
+
+    window.addEventListener(OPEN_SYSTEM_CART_EVENT, openSystemCart);
+    return () =>
+      window.removeEventListener(OPEN_SYSTEM_CART_EVENT, openSystemCart);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
