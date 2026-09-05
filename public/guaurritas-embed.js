@@ -6,6 +6,9 @@
   const HEIGHT_MESSAGE = "guaurritas:height";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
   const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
+  const CUISINE_UI_MESSAGE = "guaurritas:cuisine-ui";
+  const CUISINE_COMMAND_MESSAGE = "guaurritas:cuisine-command";
+  const EMBED_SOURCE = "guaurritas-embed";
   const SPEI_REQUEST_MESSAGE = "guaurritas:spei-request";
   const SPEI_PROOF_UPLOAD_URL_MESSAGE = "guaurritas:spei-proof-upload-url-request";
   const SPEI_PROOF_SUBMIT_MESSAGE = "guaurritas:spei-proof-submit";
@@ -24,6 +27,10 @@
       this._wrapper = null;
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._mobileCuisineStickyHandler = null;
+      this._mobileCuisineStickyFrame = 0;
+      this._mobileCuisineActive = false;
+      this._mobileCuisineBackTarget = "guaurriverse";
       this._desktopOverflowStyle = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
@@ -151,10 +158,119 @@
           background: transparent;
           overflow: hidden;
         }
+
+        .guaurritas-mobile-cuisine-sticky {
+          display: none;
+        }
+
+        @media (max-width: 639px) {
+          .guaurritas-mobile-cuisine-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 2147483000;
+            display: flex;
+            height: 58px;
+            margin-bottom: -58px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 12px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #b9c8d8;
+            background: rgba(238, 245, 247, 0.98);
+            box-shadow:
+              0 1px 0 rgba(66, 91, 140, 0.18),
+              0 6px 16px rgba(66, 91, 140, 0.12);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition:
+              opacity 160ms ease,
+              transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          .guaurritas-mobile-cuisine-sticky.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+          }
+
+          .guaurritas-mobile-cuisine-back {
+            border: 0;
+            background: transparent;
+            color: #425b8c;
+            font: 700 10px/1.2 Arial, sans-serif;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+          }
+
+          .guaurritas-mobile-cuisine-cart {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 12px;
+            border: 1px solid #8ba9b5;
+            border-radius: 999px;
+            background: #fff;
+            color: #263650;
+            box-shadow:
+              1px 1px 0 rgba(66, 91, 140, 0.12),
+              0 4px 10px rgba(66, 91, 140, 0.08);
+            font: 700 10px/1 Arial, sans-serif;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition:
+              transform 120ms ease,
+              background-color 120ms ease,
+              border-color 120ms ease;
+          }
+
+          .guaurritas-mobile-cuisine-cart.is-opening {
+            border-color: #a66d88;
+            background: #fff3f7;
+            transform: scale(0.94);
+          }
+
+          .guaurritas-mobile-cuisine-cart-icon {
+            font-size: 19px;
+            line-height: 1;
+          }
+        }
       `;
 
       const wrapper = document.createElement("div");
       wrapper.className = "guaurritas-frame-wrap";
+
+      const mobileCuisineSticky = document.createElement("div");
+      mobileCuisineSticky.className = "guaurritas-mobile-cuisine-sticky";
+      mobileCuisineSticky.setAttribute("aria-hidden", "true");
+
+      const mobileCuisineBack = document.createElement("button");
+      mobileCuisineBack.type = "button";
+      mobileCuisineBack.className = "guaurritas-mobile-cuisine-back";
+      mobileCuisineBack.textContent = "← Guaurriverse";
+
+      const mobileCuisineCart = document.createElement("button");
+      mobileCuisineCart.type = "button";
+      mobileCuisineCart.className = "guaurritas-mobile-cuisine-cart";
+
+      const mobileCuisineCartIcon = document.createElement("span");
+      mobileCuisineCartIcon.className = "guaurritas-mobile-cuisine-cart-icon";
+      mobileCuisineCartIcon.setAttribute("aria-hidden", "true");
+      mobileCuisineCartIcon.textContent = "🛒";
+
+      const mobileCuisineCartText = document.createElement("span");
+      mobileCuisineCartText.textContent = "Carrito · 0";
+
+      mobileCuisineCart.append(
+        mobileCuisineCartIcon,
+        mobileCuisineCartText,
+      );
+      mobileCuisineSticky.append(
+        mobileCuisineBack,
+        mobileCuisineCart,
+      );
 
       const iframe = document.createElement("iframe");
       iframe.src = this.getAttribute("data-src") || DEFAULT_SRC;
@@ -166,9 +282,84 @@
       iframe.style.setProperty("height", "100dvh", "important");
 
       wrapper.appendChild(iframe);
-      this._shadow.append(style, wrapper);
+      this._shadow.append(style, mobileCuisineSticky, wrapper);
       this._iframe = iframe;
       this._wrapper = wrapper;
+
+      const sendCuisineCommand = (action) => {
+        if (!iframe.contentWindow) return;
+
+        iframe.contentWindow.postMessage(
+          {
+            source: EMBED_SOURCE,
+            type: CUISINE_COMMAND_MESSAGE,
+            action,
+          },
+          ALLOWED_ORIGIN,
+        );
+      };
+
+      mobileCuisineBack.addEventListener("click", () => {
+        sendCuisineCommand("back");
+      });
+
+      mobileCuisineCart.addEventListener("click", () => {
+        if (mobileCuisineCart.classList.contains("is-opening")) return;
+
+        mobileCuisineCart.classList.add("is-opening");
+        mobileCuisineCartText.textContent = "Abriendo…";
+
+        window.requestAnimationFrame(() => {
+          sendCuisineCommand("open-cart");
+        });
+
+        window.setTimeout(() => {
+          mobileCuisineCart.classList.remove("is-opening");
+          mobileCuisineCartText.textContent =
+            `Carrito · ${mobileCuisineCart.dataset.count || "0"}`;
+        }, 520);
+      });
+
+      const syncMobileCuisineSticky = () => {
+        if (this._mobileCuisineStickyFrame) {
+          window.cancelAnimationFrame(this._mobileCuisineStickyFrame);
+        }
+
+        this._mobileCuisineStickyFrame = window.requestAnimationFrame(() => {
+          this._mobileCuisineStickyFrame = 0;
+
+          if (
+            !window.matchMedia("(max-width: 639px)").matches ||
+            !this._mobileCuisineActive
+          ) {
+            mobileCuisineSticky.classList.remove("is-visible");
+            mobileCuisineSticky.setAttribute("aria-hidden", "true");
+            return;
+          }
+
+          const rect = this.getBoundingClientRect();
+          const scrolledIntoEmbed = Math.max(0, -rect.top);
+          const shouldShow =
+            scrolledIntoEmbed > 112 &&
+            rect.bottom > 72;
+
+          mobileCuisineSticky.classList.toggle("is-visible", shouldShow);
+          mobileCuisineSticky.setAttribute(
+            "aria-hidden",
+            shouldShow ? "false" : "true",
+          );
+        });
+      };
+
+      this._mobileCuisineStickyHandler = syncMobileCuisineSticky;
+      window.addEventListener("scroll", syncMobileCuisineSticky, {
+        passive: true,
+      });
+      window.visualViewport?.addEventListener(
+        "scroll",
+        syncMobileCuisineSticky,
+        { passive: true },
+      );
 
       const desktopAncestorStyles = new Map();
       const desktopAncestorProperties = [
@@ -426,6 +617,28 @@
 
         if (!message || typeof message !== "object") return;
 
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === CUISINE_UI_MESSAGE
+        ) {
+          this._mobileCuisineActive = Boolean(message.active);
+          this._mobileCuisineBackTarget =
+            message.backTarget === "catalog"
+              ? "catalog"
+              : "guaurriverse";
+
+          const count = Math.max(0, Number(message.count) || 0);
+          mobileCuisineCart.dataset.count = String(count);
+          mobileCuisineCartText.textContent = `Carrito · ${count}`;
+          mobileCuisineBack.textContent =
+            this._mobileCuisineBackTarget === "catalog"
+              ? "← Volver al catálogo"
+              : "← Guaurriverse";
+
+          this._mobileCuisineStickyHandler?.();
+          return;
+        }
+
         if (message.type === "resize") {
           applyHeight(message.height);
           return;
@@ -480,6 +693,8 @@
       };
 
       this._viewportResizeHandler = () => {
+        this._mobileCuisineStickyHandler?.();
+
         if (!window.matchMedia("(min-width: 640px)").matches) return;
         applyHeight(1);
       };
@@ -511,12 +726,31 @@
         );
       }
 
+      if (this._mobileCuisineStickyHandler) {
+        window.removeEventListener(
+          "scroll",
+          this._mobileCuisineStickyHandler,
+        );
+        window.visualViewport?.removeEventListener(
+          "scroll",
+          this._mobileCuisineStickyHandler,
+        );
+      }
+
+      if (this._mobileCuisineStickyFrame) {
+        window.cancelAnimationFrame(this._mobileCuisineStickyFrame);
+      }
+
       if (this._desktopOverflowStyle) {
         this._desktopOverflowStyle.remove();
       }
 
       this._messageHandler = null;
       this._viewportResizeHandler = null;
+      this._mobileCuisineStickyHandler = null;
+      this._mobileCuisineStickyFrame = 0;
+      this._mobileCuisineActive = false;
+      this._mobileCuisineBackTarget = "guaurriverse";
       this._desktopOverflowStyle = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;

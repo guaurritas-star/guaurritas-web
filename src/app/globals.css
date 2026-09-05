@@ -1408,8 +1408,18 @@ html.guaurritas-system-cart-open .desktop-taskbar {
     transform: scale(0.96);
   }
 
-  .cuisine-cart-trigger:active .cuisine-cart-trigger-icon {
-    animation: cuisine-cart-tap 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  .cuisine-cart-trigger:active .cuisine-cart-trigger-icon,
+  .cuisine-cart-trigger--opening .cuisine-cart-trigger-icon {
+    animation: cuisine-cart-tap 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .cuisine-cart-trigger--opening {
+    border-color: #a66d88 !important;
+    background: #fff3f7 !important;
+    box-shadow:
+      0 0 0 3px rgba(166, 109, 136, 0.16),
+      1px 1px 0 rgba(66, 91, 140, 0.12) !important;
+    transform: scale(0.96);
   }
 
   html.guaurritas-system-cart-open .taskbar-cart-panel {
@@ -1444,6 +1454,7 @@ html.guaurritas-system-cart-open .desktop-taskbar {
 
 @media (prefers-reduced-motion: reduce) {
   .cuisine-cart-trigger:active .cuisine-cart-trigger-icon,
+  .cuisine-cart-trigger--opening .cuisine-cart-trigger-icon,
   html.guaurritas-system-cart-open .taskbar-cart-panel {
     animation: none !important;
   }

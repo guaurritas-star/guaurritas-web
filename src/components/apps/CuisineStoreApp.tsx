@@ -134,6 +134,12 @@ const nonFoodProductIds = new Set(["gorrito", "velitas", "pancarta"]);
 const MAX_INSPIRATION_PHOTOS = 5;
 const MAX_INSPIRATION_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_INSPIRATION_TOTAL_BYTES = 20 * 1024 * 1024;
+
+const CUISINE_UI_MESSAGE = "guaurritas:cuisine-ui";
+const CUISINE_COMMAND_MESSAGE = "guaurritas:cuisine-command";
+const EMBED_SOURCE = "guaurritas-embed";
+const WEB_SOURCE = "guaurritas-web";
+
 const inspirationPhotoTypes = new Set([
   "image/jpeg",
   "image/png",
@@ -643,8 +649,40 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const [personalizationPetName, setPersonalizationPetName] = useState("");
   const [personalizationIdea, setPersonalizationIdea] = useState("");
   const [notice, setNotice] = useState("");
+  const [cartOpening, setCartOpening] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
+  const cartOpeningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cartOpeningResetTimerRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cartOpeningRef = useRef(false);
   const { count: cartCount } = useCart();
+
+  const openCuisineCart = () => {
+    if (cartOpeningRef.current) return;
+
+    cartOpeningRef.current = true;
+    setCartOpening(true);
+
+    if (cartOpeningTimerRef.current) {
+      clearTimeout(cartOpeningTimerRef.current);
+    }
+    if (cartOpeningResetTimerRef.current) {
+      clearTimeout(cartOpeningResetTimerRef.current);
+    }
+
+    // Give Safari one visible frame of feedback before opening the real cart.
+    cartOpeningTimerRef.current = setTimeout(() => {
+      requestSystemCartOpen();
+
+      cartOpeningResetTimerRef.current = setTimeout(() => {
+        cartOpeningRef.current = false;
+        setCartOpening(false);
+        cartOpeningResetTimerRef.current = null;
+      }, 360);
+
+      cartOpeningTimerRef.current = null;
+    }, 90);
+  };
 
   const inspirationPreviews = useMemo(
     () =>
@@ -660,6 +698,83 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       inspirationPreviews.forEach(({ url }) => URL.revokeObjectURL(url));
     },
     [inspirationPreviews],
+  );
+
+  useEffect(() => {
+    if (window.self === window.top) return;
+
+    window.parent.postMessage(
+      {
+        source: WEB_SOURCE,
+        type: CUISINE_UI_MESSAGE,
+        active: true,
+        count: cartCount,
+        backTarget: selectedProduct ? "catalog" : "guaurriverse",
+      },
+      "*",
+    );
+  }, [cartCount, selectedProduct]);
+
+  useEffect(() => {
+    if (window.self === window.top) return;
+
+    const handleCuisineCommand = (event: MessageEvent) => {
+      if (event.source !== window.parent) return;
+
+      const message = event.data;
+      if (
+        !message ||
+        typeof message !== "object" ||
+        message.source !== EMBED_SOURCE ||
+        message.type !== CUISINE_COMMAND_MESSAGE
+      ) {
+        return;
+      }
+
+      if (message.action === "open-cart") {
+        openCuisineCart();
+        return;
+      }
+
+      if (message.action === "back") {
+        if (selectedProduct) {
+          setSelectedProduct(null);
+        } else {
+          onBack();
+        }
+      }
+    };
+
+    window.addEventListener("message", handleCuisineCommand);
+
+    return () => {
+      window.removeEventListener("message", handleCuisineCommand);
+    };
+  });
+
+  useEffect(
+    () => () => {
+      if (cartOpeningTimerRef.current) {
+        clearTimeout(cartOpeningTimerRef.current);
+      }
+      if (cartOpeningResetTimerRef.current) {
+        clearTimeout(cartOpeningResetTimerRef.current);
+      }
+
+      if (window.self !== window.top) {
+        window.parent.postMessage(
+          {
+            source: WEB_SOURCE,
+            type: CUISINE_UI_MESSAGE,
+            active: false,
+            count: 0,
+            backTarget: "guaurriverse",
+          },
+          "*",
+        );
+      }
+    },
+    [],
   );
 
   useEffect(() => {
@@ -939,9 +1054,12 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const cuisineCartTrigger = (
     <button
       type="button"
-      onClick={requestSystemCartOpen}
+      onClick={openCuisineCart}
+      aria-busy={cartOpening}
       aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
-      className="cuisine-cart-trigger group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c]"
+      className={`cuisine-cart-trigger group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c] ${
+        cartOpening ? "cuisine-cart-trigger--opening" : ""
+      }`}
     >
       <span className="cuisine-cart-trigger-icon relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
         <Image
@@ -953,7 +1071,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
           className="object-contain"
         />
       </span>
-      <span>Carrito · {cartCount}</span>
+      <span>{cartOpening ? "Abriendo…" : `Carrito · ${cartCount}`}</span>
     </button>
   );
 
