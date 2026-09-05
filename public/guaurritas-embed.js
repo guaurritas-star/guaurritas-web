@@ -52,99 +52,40 @@
     }
 
     _setPageScrollLocked(locked) {
-      const html = document.documentElement;
-      const body = document.body;
-      if (!html || !body) return;
-
       if (locked && !this._pageScrollState) {
-        let scroller = this.parentElement;
-        while (scroller) {
-          const css = window.getComputedStyle(scroller);
-          if (
-            /(auto|scroll)/.test(css.overflowY) &&
-            scroller.scrollHeight > scroller.clientHeight
-          ) {
-            break;
-          }
-          scroller = scroller.parentElement;
-        }
-
-        const rootScroller =
-          document.scrollingElement || document.documentElement;
-        scroller = scroller || rootScroller;
-
-        const isRootScroller =
-          scroller === rootScroller ||
-          scroller === document.documentElement ||
-          scroller === document.body;
-
-        const scrollTop = isRootScroller
-          ? window.scrollY || rootScroller.scrollTop || 0
-          : scroller.scrollTop;
-        const scrollLeft = isRootScroller
-          ? window.scrollX || rootScroller.scrollLeft || 0
-          : scroller.scrollLeft;
-
-        this._pageScrollState = {
-          element: scroller,
-          root: isRootScroller,
-          scrollTop,
-          scrollLeft,
-          elementStyle: isRootScroller ? null : scroller.getAttribute("style"),
-          htmlStyle: html.getAttribute("style"),
-          bodyStyle: body.getAttribute("style"),
+        /*
+         * Keep Wix exactly where it is visually. On mobile the checkout panel
+         * scrolls inside the iframe, so blocking parent touch/wheel gestures is
+         * enough to stop the background without changing overflow, position,
+         * scrollTop or layout on the Wix page.
+         */
+        const preventParentScroll = (event) => {
+          event.preventDefault();
         };
 
-        /*
-         * Do not freeze <body> with position:fixed/top:-scrollY here.
-         * On iOS/Wix, when Cuisine has scrolled deep into the tall iframe,
-         * that technique can move the whole Wix document out of the visible
-         * viewport and leave only fixed third-party widgets on screen.
-         * Lock only the element that actually scrolls, without translating
-         * the page away from its current visual position.
-         */
-        if (isRootScroller) {
-          html.style.setProperty("overflow", "hidden", "important");
-          body.style.setProperty("overflow", "hidden", "important");
-          html.style.setProperty("overscroll-behavior", "none", "important");
-          body.style.setProperty("overscroll-behavior", "none", "important");
-        } else {
-          scroller.style.setProperty("overflow-y", "hidden", "important");
-          scroller.style.setProperty("overscroll-behavior-y", "none", "important");
-        }
+        document.addEventListener("touchmove", preventParentScroll, {
+          passive: false,
+          capture: true,
+        });
+        document.addEventListener("wheel", preventParentScroll, {
+          passive: false,
+          capture: true,
+        });
+
+        this._pageScrollState = { preventParentScroll };
         return;
       }
 
       if (!locked && this._pageScrollState) {
-        const {
-          element,
-          root,
-          scrollTop,
-          scrollLeft,
-          elementStyle,
-          htmlStyle,
-          bodyStyle,
-        } = this._pageScrollState;
+        const { preventParentScroll } = this._pageScrollState;
         this._pageScrollState = null;
 
-        if (root) {
-          if (htmlStyle === null) html.removeAttribute("style");
-          else html.setAttribute("style", htmlStyle);
-
-          if (bodyStyle === null) body.removeAttribute("style");
-          else body.setAttribute("style", bodyStyle);
-
-          window.scrollTo(scrollLeft, scrollTop);
-        } else if (element) {
-          if (elementStyle === null) element.removeAttribute("style");
-          else element.setAttribute("style", elementStyle);
-
-          element.scrollTo({
-            top: scrollTop,
-            left: scrollLeft,
-            behavior: "auto",
-          });
-        }
+        document.removeEventListener("touchmove", preventParentScroll, {
+          capture: true,
+        });
+        document.removeEventListener("wheel", preventParentScroll, {
+          capture: true,
+        });
       }
     }
 
