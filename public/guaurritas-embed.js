@@ -233,8 +233,11 @@
           }
 
           .guaurritas-mobile-cuisine-cart-icon {
-            font-size: 19px;
-            line-height: 1;
+            display: block;
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            object-fit: contain;
           }
         }
       `;
@@ -255,10 +258,14 @@
       mobileCuisineCart.type = "button";
       mobileCuisineCart.className = "guaurritas-mobile-cuisine-cart";
 
-      const mobileCuisineCartIcon = document.createElement("span");
+      const mobileCuisineCartIcon = document.createElement("img");
       mobileCuisineCartIcon.className = "guaurritas-mobile-cuisine-cart-icon";
+      mobileCuisineCartIcon.alt = "";
       mobileCuisineCartIcon.setAttribute("aria-hidden", "true");
-      mobileCuisineCartIcon.textContent = "🛒";
+      mobileCuisineCartIcon.src = new URL(
+        "icons/desktop/taskbar-cart.webp",
+        this.getAttribute("data-src") || DEFAULT_SRC,
+      ).href;
 
       const mobileCuisineCartText = document.createElement("span");
       mobileCuisineCartText.textContent = "Carrito · 0";
