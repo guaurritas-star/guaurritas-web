@@ -623,6 +623,15 @@
 
         if (
           message.source === BRIDGE_SOURCE &&
+          message.type === "guaurritas:cuisine-cart-request" &&
+          window.matchMedia("(max-width: 639px)").matches
+        ) {
+          sendCuisineCommand("open-cart");
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
           message.type === CUISINE_UI_MESSAGE
         ) {
           this._mobileCuisineActive = Boolean(message.active);

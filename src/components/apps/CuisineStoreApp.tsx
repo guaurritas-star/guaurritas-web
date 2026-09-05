@@ -658,6 +658,15 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
   const { count: cartCount } = useCart();
 
   const openCuisineCart = () => {
+    // Both mobile entrances need the visible Wix viewport, not the tall iframe.
+    if (window.self !== window.top && window.matchMedia("(max-width: 639px)").matches) {
+      window.parent.postMessage(
+        { source: WEB_SOURCE, type: "guaurritas:cuisine-cart-request" },
+        "*",
+      );
+      return;
+    }
+
     if (cartOpeningRef.current) return;
 
     cartOpeningRef.current = true;
