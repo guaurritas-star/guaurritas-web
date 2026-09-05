@@ -627,6 +627,74 @@
 
         if (
           message.source === BRIDGE_SOURCE &&
+          message.type === "guaurritas:cuisine-navigation" &&
+          message.action === "reveal-product" &&
+          Number.isFinite(message.top) &&
+          window.matchMedia("(max-width: 639px)").matches
+        ) {
+          let scroller = this.parentElement;
+          while (scroller) {
+            const css = window.getComputedStyle(scroller);
+            if (
+              /(auto|scroll)/.test(css.overflowY) &&
+              scroller.scrollHeight > scroller.clientHeight
+            ) {
+              break;
+            }
+            scroller = scroller.parentElement;
+          }
+
+          const rootScroller =
+            document.scrollingElement || document.documentElement;
+          scroller = scroller || rootScroller;
+
+          const isRootScroller =
+            scroller === rootScroller ||
+            scroller === document.documentElement ||
+            scroller === document.body;
+
+          const currentTop = isRootScroller
+            ? window.scrollY || rootScroller.scrollTop || 0
+            : scroller.scrollTop;
+          const currentLeft = isRootScroller
+            ? window.scrollX || rootScroller.scrollLeft || 0
+            : scroller.scrollLeft;
+          const iframeTop = iframe.getBoundingClientRect().top;
+          const inset = Math.max(
+            68,
+            mobileCuisineSticky.getBoundingClientRect().height + 10,
+          );
+
+          if (isRootScroller) {
+            window.scrollTo({
+              top: Math.max(
+                0,
+                currentTop + iframeTop + message.top - inset,
+              ),
+              left: currentLeft,
+              behavior: "auto",
+            });
+          } else {
+            const scrollerTop = scroller.getBoundingClientRect().top;
+
+            scroller.scrollTo({
+              top: Math.max(
+                0,
+                currentTop +
+                  iframeTop +
+                  message.top -
+                  scrollerTop -
+                  inset,
+              ),
+              left: currentLeft,
+              behavior: "auto",
+            });
+          }
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
           message.type === "guaurritas:cart-navigation" &&
           window.matchMedia("(max-width: 639px)").matches
         ) {

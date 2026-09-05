@@ -790,9 +790,27 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     if (!selectedProduct) return;
 
     const frame = window.requestAnimationFrame(() => {
-      const scrollContainer = productViewRef.current?.closest(".retro-window-content");
+      const productView = productViewRef.current;
+      const scrollContainer = productView?.closest(".retro-window-content");
+
       if (scrollContainer instanceof HTMLElement) {
         scrollContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }
+
+      if (
+        productView &&
+        window.self !== window.top &&
+        window.matchMedia("(max-width: 639px)").matches
+      ) {
+        window.parent.postMessage(
+          {
+            source: WEB_SOURCE,
+            type: "guaurritas:cuisine-navigation",
+            action: "reveal-product",
+            top: productView.getBoundingClientRect().top,
+          },
+          "*",
+        );
       }
     });
 
