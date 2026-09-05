@@ -732,7 +732,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       }
 
       if (message.action === "open-cart") {
-        openCuisineCart();
+        requestSystemCartOpen(message.viewport);
         return;
       }
 

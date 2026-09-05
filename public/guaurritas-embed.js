@@ -294,6 +294,12 @@
             source: EMBED_SOURCE,
             type: CUISINE_COMMAND_MESSAGE,
             action,
+            ...(action === "open-cart" && window.matchMedia("(max-width: 639px)").matches
+              ? { viewport: {
+                  top: Math.max(0, (window.visualViewport?.offsetTop || 0) - iframe.getBoundingClientRect().top),
+                  height: window.visualViewport?.height || window.innerHeight,
+                } }
+              : {}),
           },
           ALLOWED_ORIGIN,
         );
@@ -309,9 +315,7 @@
         mobileCuisineCart.classList.add("is-opening");
         mobileCuisineCartText.textContent = "Abriendo…";
 
-        window.requestAnimationFrame(() => {
-          sendCuisineCommand("open-cart");
-        });
+        sendCuisineCommand("open-cart");
 
         window.setTimeout(() => {
           mobileCuisineCart.classList.remove("is-opening");
