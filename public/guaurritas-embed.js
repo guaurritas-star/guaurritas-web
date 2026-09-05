@@ -24,7 +24,6 @@
       this._wrapper = null;
       this._messageHandler = null;
       this._viewportResizeHandler = null;
-      this._desktopPageStyle = null;
       this._pageScrollState = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
@@ -83,38 +82,6 @@
 
     connectedCallback() {
       if (this._iframe) return;
-
-      /*
-       * En desktop la única franja blanca restante corresponde al gutter
-       * reservado por el scrollbar del documento Wix. Ahora que el ancho del
-       * OS ya usa window.innerWidth, podemos ocultar SOLO el scrollbar raíz
-       * sin volver a encoger el viewport.
-       */
-      if (!this._desktopPageStyle) {
-        const desktopPageStyle = document.createElement("style");
-        desktopPageStyle.id = "guaurritas-desktop-scrollbar-fit";
-        desktopPageStyle.textContent = `
-          @media (min-width: 640px) {
-            html {
-              scrollbar-width: none !important;
-              scrollbar-gutter: auto !important;
-              -ms-overflow-style: none !important;
-            }
-
-            body {
-              scrollbar-gutter: auto !important;
-            }
-
-            html::-webkit-scrollbar {
-              width: 0 !important;
-              height: 0 !important;
-              display: none !important;
-            }
-          }
-        `;
-        document.head.appendChild(desktopPageStyle);
-        this._desktopPageStyle = desktopPageStyle;
-      }
 
       this.style.setProperty("display", "block", "important");
       this.style.setProperty("width", "100%", "important");
@@ -258,8 +225,8 @@
         const viewportTop = 0;
         const viewportLeft = 0;
         const viewportHeight =
-          window.innerHeight ||
           document.documentElement.clientHeight ||
+          window.innerHeight ||
           1;
         const viewportWidth =
           window.innerWidth ||
@@ -284,12 +251,29 @@
           1,
           Math.floor(viewportHeight - topInsideViewport),
         );
+
+        /*
+         * Wix puede aplicar una escala fraccional al wrapper del Custom
+         * Element. En ese caso, asignar innerWidth directamente al host se
+         * renderiza unos píxeles más angosto y deja la franja derecha.
+         * Medimos esa escala real y compensamos con el ancho/offset exactos.
+         */
+        const layoutWidth = this.offsetWidth || rect.width || 1;
+        const scaleX =
+          layoutWidth > 0 && rect.width > 0
+            ? rect.width / layoutWidth
+            : 1;
+        const safeScaleX =
+          Number.isFinite(scaleX) && scaleX > 0 ? scaleX : 1;
         const leftGap = rect.left - viewportLeft;
 
         return {
           height: availableHeight,
-          width: Math.max(1, Math.ceil(viewportWidth)),
-          left: -leftGap,
+          width: Math.max(
+            1,
+            Math.ceil(viewportWidth / safeScaleX),
+          ),
+          left: -(leftGap / safeScaleX),
         };
       };
 
@@ -496,13 +480,8 @@
         );
       }
 
-      if (this._desktopPageStyle) {
-        this._desktopPageStyle.remove();
-      }
-
       this._messageHandler = null;
       this._viewportResizeHandler = null;
-      this._desktopPageStyle = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
       this._wrapper = null;
