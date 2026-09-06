@@ -216,6 +216,72 @@ textarea {
   box-shadow: 0 0 5px #84ff9d;
 }
 
+.desktop-os-member {
+  display: inline-flex;
+  height: 34px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-family: var(--font-open-sans), sans-serif;
+  white-space: nowrap;
+}
+
+.desktop-os-member--login {
+  padding: 0 10px;
+  border: 2px solid #7590e2;
+  border-right-color: #172f76;
+  border-bottom-color: #172f76;
+  background: rgba(54, 80, 173, 0.9);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 7px rgba(255, 255, 255, 0.16);
+}
+
+.desktop-os-member--login:active {
+  border-color: #172f76 #7590e2 #7590e2 #172f76;
+}
+
+.desktop-os-member-user-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.desktop-os-member--profile {
+  max-width: 138px;
+  padding: 0 8px 0 4px;
+  border: 1px solid rgba(145, 167, 241, 0.72);
+  background: rgba(19, 49, 137, 0.35);
+}
+
+.desktop-os-member-avatar {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  background: #eef3ff;
+  object-fit: cover;
+  box-shadow: 1px 1px 0 #193476;
+}
+
+.desktop-os-member-avatar--fallback {
+  display: grid;
+  place-items: center;
+  color: #425bbc;
+  font-size: 15px;
+}
+
+.desktop-os-member-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+
 .desktop-os-menu-toggle,
 .desktop-os-mobile-menu {
   display: none;
@@ -498,6 +564,42 @@ textarea {
     border: 0;
     background: transparent;
     box-shadow: none;
+  }
+
+  .desktop-os-member {
+    height: 30px;
+  }
+
+  .desktop-os-member--login {
+    gap: 4px;
+    padding: 0 7px;
+    font-size: 8px;
+  }
+
+  .desktop-os-member-login-label {
+    font-size: 0;
+  }
+
+  .desktop-os-member-login-label::after {
+    content: "Entrar";
+    font-size: 8px;
+  }
+
+  .desktop-os-member--profile {
+    max-width: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .desktop-os-member-avatar {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .desktop-os-member-name {
+    display: none;
   }
 
   .desktop-os-menu-toggle {

@@ -13,12 +13,16 @@
   const SPEI_PROOF_UPLOAD_URL_MESSAGE = "guaurritas:spei-proof-upload-url-request";
   const SPEI_PROOF_SUBMIT_MESSAGE = "guaurritas:spei-proof-submit";
   const SPEI_RESPONSE_ATTRIBUTE = "data-spei-response";
+  const MEMBER_STATE_ATTRIBUTE = "data-member-state";
+  const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
+  const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
+  const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
 
   if (customElements.get(TAG_NAME)) return;
 
   class GuaurritasEmbed extends HTMLElement {
     static get observedAttributes() {
-      return [SPEI_RESPONSE_ATTRIBUTE];
+      return [SPEI_RESPONSE_ATTRIBUTE, MEMBER_STATE_ATTRIBUTE];
     }
 
     constructor() {
@@ -37,10 +41,14 @@
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-      if (name !== SPEI_RESPONSE_ATTRIBUTE || !newValue || newValue === oldValue) {
+      if (!newValue || newValue === oldValue) return;
+
+      if (name === MEMBER_STATE_ATTRIBUTE) {
+        this._forwardMemberState(newValue);
         return;
       }
 
+      if (name !== SPEI_RESPONSE_ATTRIBUTE) return;
       if (!this._iframe?.contentWindow) return;
 
       try {
@@ -48,6 +56,27 @@
         this._iframe.contentWindow.postMessage(payload, ALLOWED_ORIGIN);
       } catch (error) {
         console.warn("[GUAURRITAS EMBED] Respuesta SPEI inválida.", error);
+      }
+    }
+
+    _forwardMemberState(serialized = this.getAttribute(MEMBER_STATE_ATTRIBUTE)) {
+      if (!serialized || !this._iframe?.contentWindow) return;
+
+      try {
+        const state = JSON.parse(serialized);
+        this._iframe.contentWindow.postMessage(
+          {
+            source: EMBED_SOURCE,
+            type: MEMBER_STATE_MESSAGE,
+            loggedIn: Boolean(state?.loggedIn),
+            name: typeof state?.name === "string" ? state.name : "",
+            photoUrl:
+              typeof state?.photoUrl === "string" ? state.photoUrl : "",
+          },
+          ALLOWED_ORIGIN,
+        );
+      } catch (error) {
+        console.warn("[GUAURRITAS EMBED] Estado de miembro inválido.", error);
       }
     }
 
@@ -293,6 +322,10 @@
       this._shadow.append(style, mobileCuisineSticky, wrapper);
       this._iframe = iframe;
       this._wrapper = wrapper;
+
+      iframe.addEventListener("load", () => {
+        this._forwardMemberState();
+      });
 
       let cuisineReturnPosition = null;
 
@@ -625,6 +658,34 @@
         }
 
         if (!message || typeof message !== "object") return;
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === MEMBER_LOGIN_REQUEST_MESSAGE
+        ) {
+          this.dispatchEvent(
+            new CustomEvent("guaurritas-member-login", {
+              detail: {},
+              bubbles: true,
+              composed: true,
+            }),
+          );
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === MEMBER_STATE_REQUEST_MESSAGE
+        ) {
+          this.dispatchEvent(
+            new CustomEvent("guaurritas-member-state-request", {
+              detail: {},
+              bubbles: true,
+              composed: true,
+            }),
+          );
+          return;
+        }
 
         if (
           message.source === BRIDGE_SOURCE &&

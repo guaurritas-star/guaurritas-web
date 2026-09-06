@@ -186,6 +186,18 @@ function DesktopAppIcon({
   );
 }
 
+type WixMemberState = {
+  loggedIn: boolean;
+  name: string;
+  photoUrl: string;
+};
+
+const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
+const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
+const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
+const WEB_SOURCE = "guaurritas-web";
+const EMBED_SOURCE = "guaurritas-embed";
+
 const wixPages = {
   home: "https://www.guaurritas.com/guaurrinicio",
   blog: "https://www.guaurritas.com/blog",
@@ -213,6 +225,99 @@ function WixPageLink({
     <a href={href} target="_top" className={className} onClick={onClick}>
       {children}
     </a>
+  );
+}
+
+function WixMemberAccess() {
+  const [member, setMember] = useState<WixMemberState>({
+    loggedIn: false,
+    name: "",
+    photoUrl: "",
+  });
+
+  useEffect(() => {
+    if (window.self === window.top) return;
+
+    const handleMemberState = (event: MessageEvent) => {
+      if (event.source !== window.parent) return;
+
+      const message = event.data;
+      if (
+        !message ||
+        typeof message !== "object" ||
+        message.source !== EMBED_SOURCE ||
+        message.type !== MEMBER_STATE_MESSAGE
+      ) {
+        return;
+      }
+
+      setMember({
+        loggedIn: Boolean(message.loggedIn),
+        name: typeof message.name === "string" ? message.name : "",
+        photoUrl: typeof message.photoUrl === "string" ? message.photoUrl : "",
+      });
+    };
+
+    window.addEventListener("message", handleMemberState);
+    window.parent.postMessage(
+      {
+        source: WEB_SOURCE,
+        type: MEMBER_STATE_REQUEST_MESSAGE,
+      },
+      "*",
+    );
+
+    return () => window.removeEventListener("message", handleMemberState);
+  }, []);
+
+  if (member.loggedIn) {
+    return (
+      <span
+        className="desktop-os-member desktop-os-member--profile"
+        aria-label={member.name ? `Sesión iniciada como ${member.name}` : "Sesión iniciada"}
+        title={member.name || "Mi perfil"}
+      >
+        {member.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={member.photoUrl}
+            alt=""
+            className="desktop-os-member-avatar"
+          />
+        ) : (
+          <span className="desktop-os-member-avatar desktop-os-member-avatar--fallback" aria-hidden="true">
+            ♡
+          </span>
+        )}
+        {member.name && (
+          <span className="desktop-os-member-name">{member.name}</span>
+        )}
+      </span>
+    );
+  }
+
+  const requestLogin = () => {
+    if (window.self === window.top) return;
+
+    window.parent.postMessage(
+      {
+        source: WEB_SOURCE,
+        type: MEMBER_LOGIN_REQUEST_MESSAGE,
+      },
+      "*",
+    );
+  };
+
+  return (
+    <button
+      type="button"
+      className="desktop-os-member desktop-os-member--login"
+      onClick={requestLogin}
+      aria-label="Iniciar sesión en Guaurritas"
+    >
+      <span className="desktop-os-member-user-icon" aria-hidden="true">♙</span>
+      <span className="desktop-os-member-login-label">Iniciar sesión</span>
+    </button>
   );
 }
 
@@ -292,6 +397,8 @@ function GuaurritasHeader({
         <span className="desktop-os-online-led" aria-hidden="true" />
         <span>En línea</span>
       </div>
+
+      <WixMemberAccess />
 
       <button
         type="button"
