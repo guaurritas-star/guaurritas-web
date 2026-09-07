@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
 import PetProfilesGate from "@/components/apps/PetProfilesGate";
 import { withBasePath } from "@/lib/base-path";
@@ -9,6 +9,20 @@ import { createClient } from "@/lib/supabase/client";
 type AuthMode = "signup" | "signin";
 
 const PASSWORD_REQUIREMENTS = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+const WEB_SOURCE = "guaurritas-web";
+const EMBED_SOURCE = "guaurritas-embed";
+const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
+const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
+const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
+const GUAURRINOTAS_SESSION_REQUEST_MESSAGE =
+  "guaurritas:guaurrinotas-session-request";
+const GUAURRINOTAS_SESSION_MESSAGE = "guaurritas:guaurrinotas-session";
+
+type WixMemberState = {
+  loggedIn: boolean;
+  name: string;
+};
 
 const translateAuthError = (error: AuthError) => {
   const normalized = error.message.toLowerCase();
@@ -98,6 +112,11 @@ export default function GuaurrinotasAuthGate() {
   const [feedbackKind, setFeedbackKind] = useState<"success" | "error">(
     "success",
   );
+  const [wixMemberState, setWixMemberState] =
+    useState<WixMemberState | null>(null);
+  const [isWixConnecting, setIsWixConnecting] = useState(false);
+  const [wixBridgeError, setWixBridgeError] = useState("");
+  const wixSessionRequestedRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -132,6 +151,113 @@ export default function GuaurrinotasAuthGate() {
 
     void loadUser();
 
+    const requestWixSession = () => {
+      if (
+        wixSessionRequestedRef.current ||
+        window.self === window.top
+      ) {
+        return;
+      }
+
+      wixSessionRequestedRef.current = true;
+      setIsWixConnecting(true);
+      setWixBridgeError("");
+
+      window.parent.postMessage(
+        {
+          source: WEB_SOURCE,
+          type: GUAURRINOTAS_SESSION_REQUEST_MESSAGE,
+        },
+        "*",
+      );
+    };
+
+    const handleWixBridgeMessage = (event: MessageEvent) => {
+      if (event.source !== window.parent) return;
+
+      const message = event.data;
+      if (
+        !message ||
+        typeof message !== "object" ||
+        message.source !== EMBED_SOURCE
+      ) {
+        return;
+      }
+
+      if (message.type === MEMBER_STATE_MESSAGE) {
+        const loggedIn = Boolean(message.loggedIn);
+        setWixMemberState({
+          loggedIn,
+          name: typeof message.name === "string" ? message.name : "",
+        });
+
+        if (loggedIn) {
+          requestWixSession();
+        } else {
+          wixSessionRequestedRef.current = false;
+          setIsWixConnecting(false);
+          setWixBridgeError("");
+        }
+        return;
+      }
+
+      if (message.type !== GUAURRINOTAS_SESSION_MESSAGE) return;
+
+      if (
+        message.ok === true &&
+        typeof message.accessToken === "string" &&
+        typeof message.refreshToken === "string"
+      ) {
+        void supabase.auth
+          .setSession({
+            access_token: message.accessToken,
+            refresh_token: message.refreshToken,
+          })
+          .then(({ data, error }) => {
+            if (!isMounted) return;
+
+            setIsWixConnecting(false);
+
+            if (error || !data.user) {
+              setWixBridgeError(
+                "No pudimos terminar de vincular tu cuenta Guaurritas con Guaurrinotas.",
+              );
+              return;
+            }
+
+            setWixBridgeError("");
+            setUser(data.user);
+          });
+        return;
+      }
+
+      setIsWixConnecting(false);
+      setWixBridgeError(
+        typeof message.message === "string" && message.message
+          ? message.message
+          : "La vinculación automática de Guaurrinotas todavía no está disponible.",
+      );
+      setMode("signin");
+      setFeedbackKind("error");
+      setFeedback(
+        "Tu cuenta Wix sí está iniciada. Mientras terminamos la vinculación automática puedes usar tu acceso anterior de Guaurrinotas.",
+      );
+    };
+
+    window.addEventListener("message", handleWixBridgeMessage);
+
+    if (window.self !== window.top) {
+      window.parent.postMessage(
+        {
+          source: WEB_SOURCE,
+          type: MEMBER_STATE_REQUEST_MESSAGE,
+        },
+        "*",
+      );
+    } else {
+      setWixMemberState({ loggedIn: false, name: "" });
+    }
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -144,9 +270,22 @@ export default function GuaurrinotasAuthGate() {
     return () => {
       isMounted = false;
       if (noticeTimer !== null) window.clearTimeout(noticeTimer);
+      window.removeEventListener("message", handleWixBridgeMessage);
       subscription.unsubscribe();
     };
   }, [supabase]);
+
+  const requestWixLogin = () => {
+    if (window.self === window.top) return;
+
+    window.parent.postMessage(
+      {
+        source: WEB_SOURCE,
+        type: MEMBER_LOGIN_REQUEST_MESSAGE,
+      },
+      "*",
+    );
+  };
 
   const changeMode = (nextMode: AuthMode) => {
     setMode(nextMode);
@@ -253,6 +392,55 @@ export default function GuaurrinotasAuthGate() {
         isSigningOut={isSubmitting}
         onSignOut={signOut}
       />
+    );
+  }
+
+  if (wixMemberState === null) {
+    return (
+      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white p-6 text-center shadow-[4px_4px_0_#425b8c]">
+        <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
+          Revisando tu cuenta Guaurritas...
+        </p>
+      </section>
+    );
+  }
+
+  if (!wixMemberState.loggedIn) {
+    return (
+      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
+        <header className="border-b-2 border-[#425b8c] bg-[#dce4f2] p-5">
+          <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
+            Guaurrinotas.exe
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-[#263650]">
+            Entra con tu cuenta Guaurritas
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#53627a]">
+            Usa la misma cuenta de Guaurritas para entrar a Guaurrinotas. Puedes
+            continuar con Google, Facebook o correo desde Wix.
+          </p>
+        </header>
+
+        <div className="p-5">
+          <button
+            type="button"
+            onClick={requestWixLogin}
+            className="w-full border-2 border-[#425b8c] bg-[#425b8c] px-4 py-3 font-mono text-xs font-bold text-white shadow-[3px_3px_0_#263650] hover:bg-[#263650]"
+          >
+            Entrar con Guaurritas
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (isWixConnecting && !wixBridgeError) {
+    return (
+      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white p-6 text-center shadow-[4px_4px_0_#425b8c]">
+        <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
+          Abriendo Guaurrinotas para {wixMemberState.name || "tu cuenta"}...
+        </p>
+      </section>
     );
   }
 

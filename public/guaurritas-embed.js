@@ -17,12 +17,21 @@
   const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
   const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
   const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
+  const GUAURRINOTAS_SESSION_RESPONSE_ATTRIBUTE =
+    "data-guaurrinotas-session-response";
+  const GUAURRINOTAS_SESSION_REQUEST_MESSAGE =
+    "guaurritas:guaurrinotas-session-request";
+  const GUAURRINOTAS_SESSION_MESSAGE = "guaurritas:guaurrinotas-session";
 
   if (customElements.get(TAG_NAME)) return;
 
   class GuaurritasEmbed extends HTMLElement {
     static get observedAttributes() {
-      return [SPEI_RESPONSE_ATTRIBUTE, MEMBER_STATE_ATTRIBUTE];
+      return [
+        SPEI_RESPONSE_ATTRIBUTE,
+        MEMBER_STATE_ATTRIBUTE,
+        GUAURRINOTAS_SESSION_RESPONSE_ATTRIBUTE,
+      ];
     }
 
     constructor() {
@@ -45,6 +54,29 @@
 
       if (name === MEMBER_STATE_ATTRIBUTE) {
         this._forwardMemberState(newValue);
+        return;
+      }
+
+      if (name === GUAURRINOTAS_SESSION_RESPONSE_ATTRIBUTE) {
+        if (!this._iframe?.contentWindow) return;
+
+        try {
+          const payload = JSON.parse(newValue);
+          this._iframe.contentWindow.postMessage(
+            {
+              source: EMBED_SOURCE,
+              type: GUAURRINOTAS_SESSION_MESSAGE,
+              ...payload,
+            },
+            ALLOWED_ORIGIN,
+          );
+          this.removeAttribute(GUAURRINOTAS_SESSION_RESPONSE_ATTRIBUTE);
+        } catch (error) {
+          console.warn(
+            "[GUAURRITAS EMBED] Respuesta de sesión Guaurrinotas inválida.",
+            error,
+          );
+        }
         return;
       }
 
@@ -679,6 +711,20 @@
         ) {
           this.dispatchEvent(
             new CustomEvent("guaurritas-member-state-request", {
+              detail: {},
+              bubbles: true,
+              composed: true,
+            }),
+          );
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === GUAURRINOTAS_SESSION_REQUEST_MESSAGE
+        ) {
+          this.dispatchEvent(
+            new CustomEvent("guaurritas-guaurrinotas-session-request", {
               detail: {},
               bubbles: true,
               composed: true,
