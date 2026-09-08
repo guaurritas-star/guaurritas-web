@@ -3,6 +3,7 @@ import { NATIONAL_COMMERCE } from "@/lib/national-pricing";
 
 export const NATIONAL_SHIPPING_PROMO = {
   minimumOrder: NATIONAL_COMMERCE.minimumOrderMxn,
+  minimumOrderGrace: NATIONAL_COMMERCE.minimumOrderGraceMxn,
   standardRate: NATIONAL_COMMERCE.standardShippingMxn,
   freeShippingThreshold: NATIONAL_COMMERCE.freeShippingThresholdMxn,
   maxWeightKg: NATIONAL_COMMERCE.maxStandardWeightKg,
@@ -77,7 +78,10 @@ export function getNationalShippingPromoState(
 
   if (!withinWeightLimit) {
     state = "overweight";
-  } else if (cartValue < NATIONAL_SHIPPING_PROMO.minimumOrder) {
+  } else if (
+    cartValue <
+    NATIONAL_SHIPPING_PROMO.minimumOrder - NATIONAL_SHIPPING_PROMO.minimumOrderGrace
+  ) {
     state = "below_minimum";
   } else if (cartValue >= NATIONAL_SHIPPING_PROMO.freeShippingThreshold) {
     state = "free";
