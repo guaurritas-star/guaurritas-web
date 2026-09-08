@@ -489,15 +489,15 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                 {nationalItems.length > 0 && (
                   <section className="min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
-                    <p className="font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#487986]">
+                    <p className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#487986]">
                       📦 Envío nacional
                     </p>
                     <div className="mt-2 flex min-w-0 items-end justify-between gap-3">
                       <div className="min-w-0">
-                        <small className="block text-[9px] text-[#657287]">
+                        <small className="block text-[10px] text-[#657287]">
                           Productos {money(nationalBaseTotal)}
                         </small>
-                        <strong className="text-sm text-[#263650]">
+                        <strong className="text-base text-[#263650]">
                           Pago online: {money(nationalOnlineTotal)}
                         </strong>
                       </div>
@@ -507,23 +507,23 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }
-                        className="!border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
+                        className="!min-h-10 !px-4 !text-[11px] !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
                       >
                         {checkoutBusy ? "Preparando…" : "Pagar nacional"}
                       </button>
                     </div>
                     <div className="mt-3 rounded-lg border border-[#b8d2d9] bg-white/75 p-2.5">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-interface text-[8px] font-bold uppercase tracking-[0.1em] text-[#487986]">
+                        <p className="font-interface text-[10px] font-bold uppercase tracking-[0.1em] text-[#487986]">
                           Beneficio de envío
                         </p>
-                        <span className="text-[7px] font-bold text-[#718093]">
+                        <span className="text-[9px] font-bold text-[#718093]">
                           Hasta 3 kg
                         </span>
                       </div>
 
                       <p
-                        className={`mt-1.5 break-words text-[8px] font-semibold leading-4 ${
+                        className={`mt-2 break-words text-[10px] font-semibold leading-5 ${
                           nationalShippingPromo.state === "overweight"
                             ? "text-[#9f5860]"
                             : nationalShippingPromo.state === "free"
@@ -537,7 +537,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                       <div className="mt-2.5 space-y-2">
                         <div>
-                          <div className="mb-1 flex items-center justify-between gap-2 text-[7px] font-semibold text-[#657287]">
+                          <div className="mb-1 flex items-center justify-between gap-2 text-[9px] font-semibold text-[#657287]">
                             <span>Compra</span>
                             <span>
                               {money(nationalOnlineTotal)} /{" "}
@@ -545,7 +545,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                             </span>
                           </div>
                           <div
-                            className="h-1.5 overflow-hidden rounded-full bg-[#dce7ea]"
+                            className="h-2.5 overflow-hidden rounded-full bg-[#dce7ea]"
                             role="progressbar"
                             aria-label="Progreso para envío gratis"
                             aria-valuemin={0}
@@ -565,7 +565,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         </div>
 
                         <div>
-                          <div className="mb-1 flex items-center justify-between gap-2 text-[7px] font-semibold text-[#657287]">
+                          <div className="mb-1 flex items-center justify-between gap-2 text-[9px] font-semibold text-[#657287]">
                             <span>Peso promocional</span>
                             <span>
                               {shippingWeight(nationalShippingPromo.weightKg)} /{" "}
@@ -573,7 +573,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                             </span>
                           </div>
                           <div
-                            className="h-1.5 overflow-hidden rounded-full bg-[#dce7ea]"
+                            className="h-2.5 overflow-hidden rounded-full bg-[#dce7ea]"
                             role="progressbar"
                             aria-label="Peso usado para promociones de envío"
                             aria-valuemin={0}
@@ -600,13 +600,13 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </div>
 
                       {nationalShippingPromo.nearWeightLimit && (
-                        <p className="mt-2 break-words text-[7px] font-semibold leading-3 text-[#8a6a43]">
+                        <p className="mt-2.5 break-words text-[9px] font-semibold leading-4 text-[#8a6a43]">
                           Estás cerca del límite de 3 kg para promociones de envío.
                         </p>
                       )}
                     </div>
 
-                    <p className="mt-2 break-words text-[8px] leading-4 text-[#657287]">
+                    <p className="mt-2.5 break-words text-[9px] leading-4 text-[#657287]">
                       La promoción se confirma en Wix según el peso y destino del pedido.
                     </p>
                   </section>
