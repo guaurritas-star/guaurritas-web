@@ -1,20 +1,21 @@
 import type { CartItem } from "@/lib/cart-store";
+import { NATIONAL_COMMERCE } from "@/lib/national-pricing";
 
 export const NATIONAL_SHIPPING_PROMO = {
-  discountThreshold: 499,
-  freeShippingThreshold: 799,
-  discountAmount: 30,
-  maxWeightKg: 3,
-  nearWeightLimitKg: 2.6,
+  minimumOrder: NATIONAL_COMMERCE.minimumOrderMxn,
+  standardRate: NATIONAL_COMMERCE.standardShippingMxn,
+  freeShippingThreshold: NATIONAL_COMMERCE.freeShippingThresholdMxn,
+  maxWeightKg: NATIONAL_COMMERCE.maxStandardWeightKg,
+  nearWeightLimitKg: 4.5,
 } as const;
 
 export type NationalShippingPromoState =
+  | "below_minimum"
   | "standard"
-  | "discount"
   | "free"
   | "overweight";
 
-const SKYDROPX_FALLBACK_PRODUCT_WEIGHT_KG = 1;
+const FALLBACK_PRODUCT_WEIGHT_KG = 1;
 
 function positiveNumber(value: string | undefined) {
   const parsed = Number(value);
@@ -22,22 +23,20 @@ function positiveNumber(value: string | undefined) {
 }
 
 /**
- * Mirrors the weights currently configured in Wix/SkydropX for Cuisine.
+ * Shipping weights used by the national storefront.
  *
- * Important: products without a reliable catalog weight deliberately fall back
- * to 1 kg because that is the backup product weight configured in SkydropX.
- * This keeps the storefront conservative and prevents promising a promotion
- * that SkydropX may reject at checkout.
+ * Unknown products deliberately fall back to 1 kg so the storefront never
+ * promises a fixed/free rate for an item whose shipping weight is uncertain.
  */
 export function getCartItemShippingWeightKg(item: CartItem) {
   const parts = item.id.split(":");
-  if (parts[0] !== "cuisine") return SKYDROPX_FALLBACK_PRODUCT_WEIGHT_KG;
+  if (parts[0] !== "cuisine") return FALLBACK_PRODUCT_WEIGHT_KG;
 
   const productKey = parts[1];
 
   if (productKey === "guaurricookies") {
     const grams = positiveNumber(parts[2]);
-    return grams ? grams / 1000 : SKYDROPX_FALLBACK_PRODUCT_WEIGHT_KG;
+    return grams ? grams / 1000 : FALLBACK_PRODUCT_WEIGHT_KG;
   }
 
   if (productKey === "happy-bag") return 0.12;
@@ -56,7 +55,7 @@ export function getCartItemShippingWeightKg(item: CartItem) {
     return optionIndex === 1 ? 0.35 : 0.2;
   }
 
-  return SKYDROPX_FALLBACK_PRODUCT_WEIGHT_KG;
+  return FALLBACK_PRODUCT_WEIGHT_KG;
 }
 
 export function getNationalCartShippingWeightKg(items: CartItem[]) {
@@ -78,10 +77,10 @@ export function getNationalShippingPromoState(
 
   if (!withinWeightLimit) {
     state = "overweight";
+  } else if (cartValue < NATIONAL_SHIPPING_PROMO.minimumOrder) {
+    state = "below_minimum";
   } else if (cartValue >= NATIONAL_SHIPPING_PROMO.freeShippingThreshold) {
     state = "free";
-  } else if (cartValue >= NATIONAL_SHIPPING_PROMO.discountThreshold) {
-    state = "discount";
   }
 
   return {
@@ -91,14 +90,20 @@ export function getNationalShippingPromoState(
     nearWeightLimit:
       withinWeightLimit &&
       weightKg >= NATIONAL_SHIPPING_PROMO.nearWeightLimitKg,
-    amountToDiscount: Math.max(
+    amountToMinimumOrder: Math.max(
       0,
-      NATIONAL_SHIPPING_PROMO.discountThreshold - cartValue,
+      NATIONAL_SHIPPING_PROMO.minimumOrder - cartValue,
     ),
     amountToFreeShipping: Math.max(
       0,
       NATIONAL_SHIPPING_PROMO.freeShippingThreshold - cartValue,
     ),
+    shippingCharge:
+      state === "free"
+        ? 0
+        : state === "standard"
+          ? NATIONAL_SHIPPING_PROMO.standardRate
+          : null,
     purchaseProgress: Math.min(
       1,
       Math.max(0, cartValue / NATIONAL_SHIPPING_PROMO.freeShippingThreshold),

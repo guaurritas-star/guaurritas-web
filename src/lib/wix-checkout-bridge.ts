@@ -62,16 +62,21 @@ export function requestWixCheckout(
     };
   }
 
-  const protectedPricing = buildProtectedUnitPrices(items);
+  const protectedPricing = items.some((item) => item.fulfillment === "leon")
+    ? buildProtectedUnitPrices(items)
+    : null;
 
   const checkoutItems: WixCheckoutPayloadItem[] = items.map((item) => {
     if (!item.wix.supported) {
       throw new Error(`Unsupported Wix cart item: ${item.id}`);
     }
 
-    const protectedUnitPrice =
-      protectedPricing.unitPrices.get(`${item.fulfillment}:${item.id}`) ??
-      item.unitPrice;
+    const checkoutUnitPrice =
+      item.fulfillment === "national"
+        ? item.unitPrice
+        : protectedPricing?.unitPrices.get(
+            `${item.fulfillment}:${item.id}`,
+          ) ?? item.unitPrice;
 
     return {
       cartItemId: item.id,
@@ -80,7 +85,7 @@ export function requestWixCheckout(
       quantity: item.quantity,
       catalogReference: item.wix.catalogReference,
       catalogOverrideFields: {
-        price: protectedUnitPrice.toFixed(2),
+        price: checkoutUnitPrice.toFixed(2),
       },
     };
   });

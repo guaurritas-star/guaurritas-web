@@ -192,20 +192,23 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
   const nationalBaseTotal = itemTotal(nationalItems);
   const leonTransferTotal = itemTotal(leonItems);
-  const nationalOnlineTotal = buildProtectedUnitPrices(nationalItems).protectedTotal;
+  // Los precios nacionales ya incluyen procesamiento + reserva logística.
+  const nationalOnlineTotal = nationalBaseTotal;
   const leonOnlineTotal = buildProtectedUnitPrices(leonItems).protectedTotal;
   const nationalShippingPromo = getNationalShippingPromoState(
     nationalItems,
     nationalOnlineTotal,
   );
+  const nationalMeetsMinimum =
+    nationalOnlineTotal >= NATIONAL_SHIPPING_PROMO.minimumOrder;
   const nationalShippingPromoMessage =
     nationalShippingPromo.state === "overweight"
-      ? "Tu pedido supera los 3 kg. El envío se calculará según peso y destino."
+      ? `Este pedido supera ${NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. Te confirmaremos una tarifa especial de envío antes de cobrarlo.`
       : nationalShippingPromo.state === "free"
         ? "¡Envío gratis nacional desbloqueado! ✨"
-        : nationalShippingPromo.state === "discount"
-          ? `¡Ya tienes ${money(NATIONAL_SHIPPING_PROMO.discountAmount)} de descuento en envío! Te faltan ${money(nationalShippingPromo.amountToFreeShipping)} para envío gratis ✨`
-          : `Te faltan ${money(nationalShippingPromo.amountToDiscount)} para desbloquear ${money(NATIONAL_SHIPPING_PROMO.discountAmount)} de descuento en envío 🐾`;
+        : nationalShippingPromo.state === "below_minimum"
+          ? `Te faltan ${money(nationalShippingPromo.amountToMinimumOrder)} para alcanzar el mínimo nacional de ${money(NATIONAL_SHIPPING_PROMO.minimumOrder)}.`
+          : `Envío estándar nacional: ${money(NATIONAL_SHIPPING_PROMO.standardRate)}. Te faltan ${money(nationalShippingPromo.amountToFreeShipping)} para que vaya por nuestra cuenta 🐾`;
   const leonPreferencesComplete = isLeonOrderPreferencesComplete(leonOrderPreferences);
   const leonReadyForPayment = leonPreferencesComplete || Boolean(resolvedPaymentPreferences);
 
@@ -492,33 +495,39 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     <p className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#487986]">
                       📦 Envío nacional
                     </p>
+
                     <div className="mt-2 flex min-w-0 items-end justify-between gap-3">
                       <div className="min-w-0">
                         <small className="block text-[10px] text-[#657287]">
-                          Productos {money(nationalBaseTotal)}
+                          Productos
                         </small>
                         <strong className="text-base text-[#263650]">
-                          Pago online: {money(nationalOnlineTotal)}
+                          {money(nationalOnlineTotal)}
                         </strong>
                       </div>
                       <button
                         type="button"
-                        disabled={checkoutBusy}
+                        disabled={checkoutBusy || !nationalMeetsMinimum}
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }
-                        className="!min-h-10 !px-4 !text-[11px] !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-wait disabled:opacity-60"
+                        className="!min-h-10 !px-4 !text-[11px] !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {checkoutBusy ? "Preparando…" : "Pagar nacional"}
+                        {checkoutBusy
+                          ? "Preparando…"
+                          : nationalMeetsMinimum
+                            ? "Pagar nacional"
+                            : `Mín. ${money(NATIONAL_SHIPPING_PROMO.minimumOrder)}`}
                       </button>
                     </div>
+
                     <div className="mt-3 rounded-lg border border-[#b8d2d9] bg-white/75 p-2.5">
                       <div className="flex items-center justify-between gap-2">
                         <p className="font-interface text-[10px] font-bold uppercase tracking-[0.1em] text-[#487986]">
-                          Beneficio de envío
+                          Envío Guaurritas
                         </p>
                         <span className="text-[9px] font-bold text-[#718093]">
-                          Hasta 3 kg
+                          Hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg
                         </span>
                       </div>
 
@@ -528,7 +537,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                             ? "text-[#9f5860]"
                             : nationalShippingPromo.state === "free"
                               ? "text-[#446454]"
-                              : "text-[#53627a]"
+                              : nationalShippingPromo.state === "below_minimum"
+                                ? "text-[#8a6a43]"
+                                : "text-[#53627a]"
                         }`}
                         aria-live="polite"
                       >
@@ -538,7 +549,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <div className="mt-2.5 space-y-2">
                         <div>
                           <div className="mb-1 flex items-center justify-between gap-2 text-[9px] font-semibold text-[#657287]">
-                            <span>Compra</span>
+                            <span>Envío gratis</span>
                             <span>
                               {money(nationalOnlineTotal)} /{" "}
                               {money(NATIONAL_SHIPPING_PROMO.freeShippingThreshold)}
@@ -566,7 +577,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                         <div>
                           <div className="mb-1 flex items-center justify-between gap-2 text-[9px] font-semibold text-[#657287]">
-                            <span>Peso promocional</span>
+                            <span>Peso del pedido</span>
                             <span>
                               {shippingWeight(nationalShippingPromo.weightKg)} /{" "}
                               {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg
@@ -575,7 +586,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                           <div
                             className="h-2.5 overflow-hidden rounded-full bg-[#dce7ea]"
                             role="progressbar"
-                            aria-label="Peso usado para promociones de envío"
+                            aria-label="Peso del pedido nacional"
                             aria-valuemin={0}
                             aria-valuemax={NATIONAL_SHIPPING_PROMO.maxWeightKg}
                             aria-valuenow={Math.min(
@@ -601,14 +612,23 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                       {nationalShippingPromo.nearWeightLimit && (
                         <p className="mt-2.5 break-words text-[9px] font-semibold leading-4 text-[#8a6a43]">
-                          Estás cerca del límite de 3 kg para promociones de envío.
+                          Estás cerca del límite de {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg para la tarifa estándar.
                         </p>
                       )}
                     </div>
 
-                    <p className="mt-2.5 break-words text-[9px] leading-4 text-[#657287]">
-                      La promoción se confirma en Wix según el peso y destino del pedido.
-                    </p>
+                    <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[9px] leading-4 text-[#657287]">
+                      <span>
+                        {nationalShippingPromo.state === "free"
+                          ? "Envío: GRATIS"
+                          : nationalShippingPromo.state === "standard"
+                            ? `Envío estándar: ${money(NATIONAL_SHIPPING_PROMO.standardRate)}`
+                            : nationalShippingPromo.state === "below_minimum"
+                              ? `Pedido mínimo: ${money(NATIONAL_SHIPPING_PROMO.minimumOrder)}`
+                              : "Envío: tarifa especial"}
+                      </span>
+                      <span>Gratis desde {money(NATIONAL_SHIPPING_PROMO.freeShippingThreshold)}</span>
+                    </div>
                   </section>
                 )}
 

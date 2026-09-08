@@ -5,6 +5,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
+import type { FulfillmentMode } from "@/lib/fulfillment-store";
+import {
+  getCuisineCookiePrice,
+  getCuisineOptionPrice,
+} from "@/lib/national-pricing";
 
 type CategoryId =
   | "all"
@@ -632,15 +637,23 @@ function money(value: number) {
   }).format(value);
 }
 
-function priceFrom(product: CuisineProduct) {
-  const prices = product.options.map((option) => option.price);
+function priceFrom(product: CuisineProduct, fulfillmentMode: FulfillmentMode) {
+  const prices = product.options.map((option, index) =>
+    getCuisineOptionPrice(product.id, index, option.price, fulfillmentMode),
+  );
   const lowest = Math.min(...prices);
   return prices.some((price) => price !== lowest)
     ? `Desde ${money(lowest)}`
     : money(lowest);
 }
 
-export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
+export default function CuisineStoreApp({
+  onBack,
+  fulfillmentMode = "leon",
+}: {
+  onBack: () => void;
+  fulfillmentMode?: FulfillmentMode;
+}) {
   const [category, setCategory] = useState<CategoryId>("all");
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] =
@@ -1025,8 +1038,14 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         ...(isLargeCandle
           ? { personalization: `Número del cumpleañero: ${candleNumber}` }
           : {}),
-        unitPrice: cartOption.price,
+        unitPrice: getCuisineOptionPrice(
+          selectedProduct.id,
+          selectedOption,
+          cartOption.price,
+          fulfillmentMode,
+        ),
         image: cartImage,
+        fulfillment: fulfillmentMode,
       });
       setNotice(
         isLargeCandle
@@ -1044,8 +1063,14 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         name: selectedProduct.name,
         detail: `Tamaño del lomito: ${gorritoPetSize}`,
         personalization: `Tamaño del lomito: ${gorritoPetSize}`,
-        unitPrice: cartOption.price,
+        unitPrice: getCuisineOptionPrice(
+          selectedProduct.id,
+          0,
+          cartOption.price,
+          fulfillmentMode,
+        ),
         image: cartImage,
+        fulfillment: fulfillmentMode,
       });
       setNotice(
         `${selectedProduct.name} para lomito ${gorritoPetSize.toLocaleLowerCase("es")} se agregó al carrito.`,
@@ -1071,8 +1096,13 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       }
 
       const discountRate = totalGrams >= 2000 ? 0.05 : 0;
-      const calculatedPrice = Math.round(
+      const localCalculatedPrice = Math.round(
         totalGrams * 0.6 * (1 - discountRate),
+      );
+      const calculatedPrice = getCuisineCookiePrice(
+        totalGrams,
+        localCalculatedPrice,
+        fulfillmentMode,
       );
       const detail = `${formatBulkWeight(totalGrams)} · ${distribution}`;
       addCartItem({
@@ -1081,6 +1111,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         detail,
         unitPrice: calculatedPrice,
         image: cartImage,
+        fulfillment: fulfillmentMode,
       });
       setNotice(
         `${selectedProduct.name} ${formatBulkWeight(totalGrams)} por ${money(calculatedPrice)}: ${distribution}. Se agregó al carrito.`,
@@ -1097,6 +1128,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
         detail,
         unitPrice: cartOption.price,
         image: cartImage,
+        fulfillment: fulfillmentMode,
       });
       setNotice(
         `${selectedProduct.name} ${detail} se agregó al carrito.`,
@@ -1138,8 +1170,14 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
       name: selectedProduct.name,
       detail,
       personalization: personalizationText,
-      unitPrice: cartOption.price,
+      unitPrice: getCuisineOptionPrice(
+        selectedProduct.id,
+        optionIndex,
+        cartOption.price,
+        fulfillmentMode,
+      ),
       image: cartImage,
+      fulfillment: fulfillmentMode,
     });
     setNotice(`${selectedProduct.name}${inspirationSuffix} se agregó al carrito.`);
   };
@@ -1179,9 +1217,16 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const needsRecipe = recipeProductIds.has(selectedProduct.id);
     const usesDecorationPersonalization = recipeProductIds.has(selectedProduct.id);
     const petcakeFinishOffset = petcakeFinish === "fondant" ? 1 : 0;
-    const currentOption = isPetcake
-      ? selectedProduct.options[petcakeSize * 2 + petcakeFinishOffset]
-      : selectedProduct.options[selectedOption];
+    const currentOptionIndex = isPetcake
+      ? petcakeSize * 2 + petcakeFinishOffset
+      : selectedOption;
+    const currentOption = selectedProduct.options[currentOptionIndex];
+    const currentDisplayPrice = getCuisineOptionPrice(
+      selectedProduct.id,
+      currentOptionIndex,
+      currentOption.price,
+      fulfillmentMode,
+    );
     const currentProductImage = currentOption.image ?? selectedProduct.image;
     const currentProductImageAlt =
       currentOption.imageAlt ?? selectedProduct.imageAlt;
@@ -1200,12 +1245,21 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
     const bulkTargetGrams = bulkQuantityIsValid ? bulkEnteredGrams : 0;
     const isBulkWholesaleQuote = bulkQuantityIsValid && bulkTargetGrams >= 5000;
     const bulkBasePrice = bulkTargetGrams * 0.6;
-    const bulkDiscountRate =
+    const bulkLocalDiscountRate =
       bulkQuantityIsValid && !isBulkWholesaleQuote && bulkTargetGrams >= 2000
         ? 0.05
         : 0;
-    const bulkPrice = Math.round(bulkBasePrice * (1 - bulkDiscountRate));
-    const bulkSavings = Math.round(bulkBasePrice - bulkPrice);
+    const bulkLocalPrice = Math.round(
+      bulkBasePrice * (1 - bulkLocalDiscountRate),
+    );
+    const bulkPrice = getCuisineCookiePrice(
+      bulkTargetGrams,
+      bulkLocalPrice,
+      fulfillmentMode,
+    );
+    const bulkDiscountRate =
+      fulfillmentMode === "national" ? 0 : bulkLocalDiscountRate;
+    const bulkSavings = Math.round(bulkBasePrice - bulkLocalPrice);
     const bulkAssignedGrams = Object.values(bulkFlavorGrams).reduce(
       (total, grams) => total + grams,
       0,
@@ -1650,7 +1704,16 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                           )}
                           <span>{option.label}</span>
                         </span>
-                        <strong>{money(option.price)}</strong>
+                        <strong>
+                          {money(
+                            getCuisineOptionPrice(
+                              selectedProduct.id,
+                              index,
+                              option.price,
+                              fulfillmentMode,
+                            ),
+                          )}
+                        </strong>
                       </button>
                     ))}
                   </div>
@@ -2234,7 +2297,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                         : money(bulkPrice)
                     : isPetcake && petcakeFinish === null
                       ? "Selecciona el acabado"
-                      : money(currentOption.price)}
+                      : money(currentDisplayPrice)}
                 </p>
               </div>
               <button
@@ -2406,7 +2469,7 @@ export default function CuisineStoreApp({ onBack }: { onBack: () => void }) {
                     {product.name}
                   </span>
                   <span className="shrink-0 font-interface text-xs font-bold text-[#a66271]">
-                    {priceFrom(product)}
+                    {priceFrom(product, fulfillmentMode)}
                   </span>
                 </span>
                 <span className="mt-2 block min-h-10 font-interface text-[11px] leading-5 text-[#718093]">
