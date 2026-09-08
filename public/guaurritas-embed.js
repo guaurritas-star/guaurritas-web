@@ -709,6 +709,8 @@
           message.source === BRIDGE_SOURCE &&
           message.type === MEMBER_STATE_REQUEST_MESSAGE
         ) {
+          this._forwardMemberState();
+
           this.dispatchEvent(
             new CustomEvent("guaurritas-member-state-request", {
               detail: {},
