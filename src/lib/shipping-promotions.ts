@@ -53,7 +53,9 @@ export function getCartItemShippingWeightKg(item: CartItem) {
 
   if (productKey === "happy-box") {
     const optionIndex = Number(parts[2]);
-    return optionIndex === 1 ? 0.35 : 0.2;
+    // Wix Stores: Normal = 0.35 kg, Deluxe = 0.20 kg.
+    // Cuisine orders them Normal (0) then Deluxe (1).
+    return optionIndex === 1 ? 0.2 : 0.35;
   }
 
   return FALLBACK_PRODUCT_WEIGHT_KG;
