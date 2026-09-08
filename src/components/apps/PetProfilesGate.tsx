@@ -7,6 +7,7 @@ import PetNotesFeed, {
 } from "@/components/apps/PetNotesFeed";
 import PetProfileNotes from "@/components/apps/PetProfileNotes";
 import { createClient } from "@/lib/supabase/client";
+import styles from "./Guaurrinotas.module.css";
 
 type PetProfile = CommunityPetProfile;
 
@@ -309,7 +310,7 @@ export default function PetProfilesGate({
     closeProfile();
     setIsChoosingNoteAuthor(true);
     setFeedbackKind("success");
-    setFeedback("Elige la mascota que quiere publicar una nota.");
+    setFeedback("");
   };
 
   const startEditingProfile = (profile: PetProfile) => {
@@ -615,57 +616,49 @@ export default function PetProfilesGate({
   }
 
   return (
-    <div className="space-y-5">
-      <section className="border-2 border-[#425b8c] bg-[#dce4f2] p-5 shadow-[4px_4px_0_#425b8c]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className={styles.workspace}>
+      <div className={styles.accountBar}>
+        <span className={styles.connection}><span aria-hidden="true" /> Dentro del Guarriverse</span>
+        <details className={styles.accountMenu}>
+          <summary>Mi cuenta</summary>
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-              Cuenta conectada ✓
-            </p>
-            <p className="mt-2 break-all text-sm text-[#53627a]">
-              {user.email}
-            </p>
+            <p>{user.email}</p>
+            <button type="button" onClick={() => void onSignOut()}
+              disabled={isSigningOut || isSubmitting || isSavingProfile}>
+              {isSigningOut ? "Cerrando sesión…" : "Cerrar sesión"}
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => void onSignOut()}
-            disabled={isSigningOut || isSubmitting || isSavingProfile}
-            className="border-2 border-[#425b8c] bg-white px-4 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#f0f3f8] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Cerrar sesión
-          </button>
-        </div>
-      </section>
+        </details>
+      </div>
 
       {profiles.length > 0 && !showForm && (
         <nav
-          className="grid grid-cols-2 border-2 border-[#425b8c] bg-white shadow-[3px_3px_0_#425b8c]"
+          className={styles.navigation}
           aria-label="Secciones de Guaurrinotas"
         >
           <button
             type="button"
             onClick={() => changeView("feed")}
-            aria-current={activeView === "feed" ? "page" : undefined}
+            aria-current={activeView === "feed" && !selectedProfile ? "page" : undefined}
             className={`border-r-2 border-[#425b8c] px-4 py-3 font-mono text-xs font-bold ${
               activeView === "feed" && !selectedProfile
                 ? "bg-[#425b8c] text-white"
                 : "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
             }`}
           >
-            📝 Inicio
+            El muro
           </button>
           <button
             type="button"
             onClick={() => changeView("pets")}
-            aria-current={activeView === "pets" ? "page" : undefined}
+            aria-current={activeView === "pets" && !selectedProfile ? "page" : undefined}
             className={`px-4 py-3 font-mono text-xs font-bold ${
               activeView === "pets" && !selectedProfile
                 ? "bg-[#425b8c] text-white"
                 : "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
             }`}
           >
-            🐾 Mis mascotas
+            Mis mascotas
           </button>
         </nav>
       )}
@@ -1183,34 +1176,23 @@ export default function PetProfilesGate({
         </div>
       ) : activeView === "feed" ? (
         <PetNotesFeed
+          profiles={profiles}
           currentOwnerId={user.id}
           onOpenProfile={openProfile}
           onCreateNote={startCreatingNote}
         />
       ) : (
-        <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+        <section className={styles.album}>
+          <div className={styles.albumHeader}>
             <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-                Tus mascotas
-              </p>
-              <h2 className="mt-2 text-2xl font-bold text-[#263650]">
-                {profiles.length === 1
-                  ? "Perfil guardado"
-                  : `${profiles.length} perfiles guardados`}
-              </h2>
+              <p className={styles.eyebrow}>EL ÁLBUM DE TU MANADA</p>
+              <h2>{isChoosingNoteAuthor ? "¿Quién sale hoy?" : "Mis mascotas"}</h2>
+              <p>{isChoosingNoteAuthor
+                ? "Elige quién protagoniza este momento."
+                : `${profiles.length} ${profiles.length === 1 ? "protagonista con" : "protagonistas con"} mucho que contar.`}</p>
             </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setFeedback("");
-                setShowForm(true);
-              }}
-              className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650]"
-            >
-              + Agregar otra mascota
-            </button>
+            <button type="button" onClick={() => { setFeedback(""); setShowForm(true); }}
+              className={styles.secondary}>+ Agregar mascota</button>
           </div>
 
           {feedback && (
@@ -1223,15 +1205,15 @@ export default function PetProfilesGate({
             </p>
           )}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className={styles.petGrid}>
             {profiles.map((profile) => (
               <button
                 key={profile.id}
                 type="button"
                 onClick={() => openProfile(profile, isChoosingNoteAuthor)}
-                className="flex w-full items-start gap-3 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 text-left shadow-[3px_3px_0_#cbd4e4] transition-transform hover:-translate-y-0.5 hover:bg-[#f0f3f8] focus:outline-none focus:ring-2 focus:ring-[#425b8c] focus:ring-offset-2"
+                className={styles.petCard}
               >
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-2xl">
+                <div className={styles.petPortrait}>
                   {profile.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -1251,11 +1233,11 @@ export default function PetProfilesGate({
                   <p className="truncate font-mono text-xs text-[#425b8c]">
                     @{profile.username}
                   </p>
-                  <p className="mt-2 text-xs text-[#637497]">
-                    📍 {getLocationLabel(profile)}
-                  </p>
+                  {(profile.city || profile.region) && <p className={styles.location}>
+                    {getLocationLabel(profile)}
+                  </p>}
                   <p className="mt-3 font-mono text-[10px] font-bold uppercase tracking-wider text-[#425b8c]">
-                    Ver perfil →
+                    {isChoosingNoteAuthor ? "Publicar como " + profile.name : "Ver su mundo"} →
                   </p>
                 </div>
               </button>
@@ -1263,8 +1245,7 @@ export default function PetProfilesGate({
           </div>
 
           <p className="mt-5 border-t-2 border-dashed border-[#cbd4e4] pt-4 text-sm leading-6 text-[#53627a]">
-            Entra al perfil de una mascota para publicar, editar o compartir
-            sus historias.
+            Sus travesuras, sus paseos, su vida contigo. Todo empieza con un momento.
           </p>
         </section>
       )}

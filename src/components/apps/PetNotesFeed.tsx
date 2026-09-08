@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import styles from "./Guaurrinotas.module.css";
 
 export type CommunityPetProfile = {
   id: string;
@@ -30,6 +31,7 @@ type FeedNote = PetNoteRow & {
 };
 
 type PetNotesFeedProps = {
+  profiles: CommunityPetProfile[];
   currentOwnerId: string;
   onOpenProfile: (profile: CommunityPetProfile) => void;
   onCreateNote: () => void;
@@ -53,6 +55,7 @@ const getLocationLabel = (profile: CommunityPetProfile) =>
   [profile.city, profile.region].filter(Boolean).join(", ");
 
 export default function PetNotesFeed({
+  profiles,
   currentOwnerId,
   onOpenProfile,
   onCreateNote,
@@ -134,33 +137,34 @@ export default function PetNotesFeed({
   }, [loadFeed]);
 
   return (
-    <section className="border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
-      <header className="border-b-2 border-[#425b8c] bg-[#f0f3f8] p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-              Inicio
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-[#263650]">
-              El muro de Guaurrinotas
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#53627a]">
-              Historias reales de las mascotas de la comunidad, de la más nueva
-              a la más antigua.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onCreateNote}
-            className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650]"
-          >
-            + Escribir nota
-          </button>
+    <section className={styles.feed}>
+      <header className={styles.feedHeader}>
+        <div>
+          <p className={styles.eyebrow}>GUAURRINOTAS · VIDA PET, EN COMUNIDAD</p>
+          <h2>Su pequeño gran mundo<span aria-hidden="true">✦</span></h2>
+          <p>Travesuras, paseos y momentos que merecen presumirse.</p>
         </div>
       </header>
-
-      <div className="p-5">
+      <div className={styles.petStrip} aria-label="Tus mascotas: abrir perfil">
+        {profiles.map((profile) => (
+          <button key={profile.id} type="button" onClick={() => onOpenProfile(profile)}>
+            <span className={styles.stripAvatar}>
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt="" />
+              ) : <span aria-hidden="true">🐾</span>}
+            </span>
+            <span>{profile.name}</span>
+          </button>
+        ))}
+      </div>
+      <button type="button" className={styles.composerPrompt} onClick={onCreateNote}>
+        <span aria-hidden="true" className={styles.composeIcon}>＋</span>
+        <span><strong>¿Qué hizo hoy tu mascota?</strong><small>Comparte una foto o una anécdota</small></span>
+        <span className={styles.publishLabel}>Publicar ↗</span>
+      </button>
+      <div className={styles.feedLabel}><span>Momentos de la comunidad</span><small>Más recientes</small></div>
+      <div>
         {feedback && (
           <div className="border-2 border-dashed border-[#9b3a3a] bg-[#fff0f0] p-4">
             <p
@@ -187,23 +191,15 @@ export default function PetNotesFeed({
             </p>
           </div>
         ) : feedback ? null : notes.length === 0 ? (
-          <div className="border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-8 text-center">
-            <span aria-hidden="true" className="text-4xl">
-              📝
-            </span>
-            <h3 className="mt-3 font-bold text-[#263650]">
-              El muro está listo para su primera historia
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#637497]">
-              Publica una nota desde el perfil de una de tus mascotas y
-              aparecerá aquí.
-            </p>
-            <button
-              type="button"
-              onClick={onCreateNote}
-              className="mt-4 border-2 border-[#425b8c] bg-white px-4 py-2 font-mono text-xs font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#dce4f2]"
-            >
-              Elegir mascota
+          <div className={styles.emptyState}>
+            <div className={styles.emptyArtwork} aria-hidden="true">
+              <span>MI PRIMERA<br />GUAURRINOTA <b>✦</b></span><span>🐾</span>
+            </div>
+            <p className={styles.eyebrow}>AQUÍ CABE TODA SU PERSONALIDAD</p>
+            <h3>El primer momento puede ser suyo.</h3>
+            <p>Una siesta épica, su paseo favorito o esa cara de “yo no fui”.<br />No tiene que ser perfecto. Tiene que ser suyo.</p>
+            <button type="button" onClick={onCreateNote} className={styles.primary}>
+              Compartir su primer momento ↗
             </button>
           </div>
         ) : (
@@ -215,7 +211,7 @@ export default function PetNotesFeed({
               return (
                 <article
                   key={note.id}
-                  className="border-2 border-[#425b8c] bg-[#f8f8f8] p-4 shadow-[3px_3px_0_#cbd4e4]"
+                  className={styles.noteCard}
                 >
                   <header className="flex flex-wrap items-start justify-between gap-3">
                     <button
@@ -264,16 +260,12 @@ export default function PetNotesFeed({
                       onClick={() => onOpenProfile(note.profile)}
                       className="shrink-0 border-2 border-[#425b8c] bg-white px-3 py-2 font-mono text-[10px] font-bold text-[#425b8c] shadow-[2px_2px_0_#425b8c] hover:bg-[#dce4f2]"
                     >
-                      {isOwnProfile ? "Administrar nota" : "Ver perfil"} →
+                      Ver perfil →
                     </button>
                   </header>
 
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-[#263650]">
-                    {note.message}
-                  </p>
-
                   {note.image_url && (
-                    <div className="mt-4 overflow-hidden border-2 border-[#425b8c] bg-white">
+                    <div className={styles.notePhoto}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={note.image_url}
@@ -282,6 +274,7 @@ export default function PetNotesFeed({
                       />
                     </div>
                   )}
+                  <p className={styles.noteMessage}>{note.message}</p>
                 </article>
               );
             })}
