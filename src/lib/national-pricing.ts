@@ -2,6 +2,7 @@ import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
 export const NATIONAL_COMMERCE = {
   minimumOrderMxn: 299,
+  minimumOrderGraceMxn: 5,
   standardShippingMxn: 79,
   freeShippingThresholdMxn: 899,
   maxStandardWeightKg: 4.9,
