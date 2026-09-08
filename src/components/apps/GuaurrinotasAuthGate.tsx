@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
+import GuaurrinotasLoading from "./GuaurrinotasLoading";
+import styles from "./Guaurrinotas.module.css";
 import PetProfilesGate from "@/components/apps/PetProfilesGate";
 import { withBasePath } from "@/lib/base-path";
 import { createClient } from "@/lib/supabase/client";
@@ -376,13 +378,7 @@ export default function GuaurrinotasAuthGate() {
   };
 
   if (isCheckingSession) {
-    return (
-      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white p-6 text-center shadow-[4px_4px_0_#425b8c]">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-          Conectando con Guaurrinotas...
-        </p>
-      </section>
-    );
+    return <GuaurrinotasLoading label="Conectando con tu comunidad…" />;
   }
 
   if (user) {
@@ -396,28 +392,22 @@ export default function GuaurrinotasAuthGate() {
   }
 
   if (wixMemberState === null) {
-    return (
-      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white p-6 text-center shadow-[4px_4px_0_#425b8c]">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-          Revisando tu cuenta Guaurritas...
-        </p>
-      </section>
-    );
+    return <GuaurrinotasLoading label="Preparando tu cuenta…" />;
   }
 
   if (!wixMemberState.loggedIn) {
     return (
-      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
+      <section className={`${styles.workspace} ${styles.authPanel}`}>
         <header className="border-b-2 border-[#425b8c] bg-[#dce4f2] p-5">
           <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
             Guaurrinotas.exe
           </p>
           <h2 className="mt-2 text-2xl font-bold text-[#263650]">
-            Entra con tu cuenta Guaurritas
+            Su mundo empieza contigo
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#53627a]">
-            Usa la misma cuenta de Guaurritas para entrar a Guaurrinotas. Puedes
-            continuar con Google, Facebook o correo desde Wix.
+            Comparte sus momentos y descubre a otras mascotas. Entra con tu cuenta
+            Guaurritas; si ya tienes una, usa la misma.
           </p>
         </header>
 
@@ -435,17 +425,11 @@ export default function GuaurrinotasAuthGate() {
   }
 
   if (isWixConnecting && !wixBridgeError) {
-    return (
-      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white p-6 text-center shadow-[4px_4px_0_#425b8c]">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-          Abriendo Guaurrinotas para {wixMemberState.name || "tu cuenta"}...
-        </p>
-      </section>
-    );
+    return <GuaurrinotasLoading label="Abriendo tu Guarriverse…" />;
   }
 
   return (
-    <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
+    <section className={`${styles.workspace} ${styles.authPanel}`}>
       <header className="border-b-2 border-[#425b8c] bg-[#dce4f2] p-5">
         <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
           Guaurrinotas.exe
@@ -456,7 +440,7 @@ export default function GuaurrinotasAuthGate() {
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-[#53627a]">
-          Crea su perfil para compartir notas, seguir amistades y formar parte de
+          Crea su perfil, comparte sus momentos y descubre las historias de
           la comunidad Guaurritas.
         </p>
       </header>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import GuaurrinotasLoading from "./GuaurrinotasLoading";
 import styles from "./Guaurrinotas.module.css";
 
 export type CommunityPetProfile = {
@@ -145,6 +146,7 @@ export default function PetNotesFeed({
           <p>Travesuras, paseos y momentos que merecen presumirse.</p>
         </div>
       </header>
+      <p className={styles.stripLabel}>Tus protagonistas <span>Toca para ver su perfil</span></p>
       <div className={styles.petStrip} aria-label="Tus mascotas: abrir perfil">
         {profiles.map((profile) => (
           <button key={profile.id} type="button" onClick={() => onOpenProfile(profile)}>
@@ -185,11 +187,7 @@ export default function PetNotesFeed({
         )}
 
         {isLoading ? (
-          <div className="border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-8 text-center">
-            <p className="font-mono text-xs font-bold text-[#637497]">
-              Cargando historias de la comunidad...
-            </p>
-          </div>
+          <GuaurrinotasLoading compact label="Cargando momentos de la comunidad…" />
         ) : feedback ? null : notes.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyArtwork} aria-hidden="true">

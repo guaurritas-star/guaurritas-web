@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import GuaurrinotasLoading from "./GuaurrinotasLoading";
+import styles from "./Guaurrinotas.module.css";
 import { createClient } from "@/lib/supabase/client";
 
 type NotesProfile = {
@@ -83,6 +85,7 @@ export default function PetProfileNotes({
   canManage,
   initialComposerOpen,
 }: PetProfileNotesProps) {
+  const composerRef = useRef<HTMLFormElement>(null);
   const [supabase] = useState(() => createClient());
   const [notes, setNotes] = useState<PetNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -168,6 +171,10 @@ export default function PetProfileNotes({
       isMounted = false;
     };
   }, [profile.id, supabase]);
+
+  useEffect(() => {
+    if (isComposerOpen) composerRef.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
+  }, [isComposerOpen]);
 
   const selectImage = (file?: File) => {
     if (!file) {
@@ -416,7 +423,7 @@ export default function PetProfileNotes({
   };
 
   return (
-    <section className="border-2 border-[#425b8c] bg-white p-5 shadow-[5px_5px_0_#425b8c]">
+    <section className={styles.profileNotes}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
@@ -443,15 +450,16 @@ export default function PetProfileNotes({
             aria-expanded={isComposerOpen}
             className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#263650] hover:bg-[#263650] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isComposerOpen ? "× Cerrar" : "+ Nueva nota"}
+            {isComposerOpen ? "Cerrar editor" : "+ Publicar momento"}
           </button>
         )}
       </div>
 
       {canManage && isComposerOpen && (
         <form
+          ref={composerRef}
           onSubmit={publishNote}
-          className="mt-5 space-y-4 border-2 border-[#425b8c] bg-[#f8f8f8] p-4 shadow-[3px_3px_0_#cbd4e4]"
+          className={`${styles.noteComposer} space-y-4`}
         >
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-xl">
@@ -584,11 +592,7 @@ export default function PetProfileNotes({
       )}
 
       {isLoading ? (
-        <div className="mt-5 border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-6 text-center">
-          <p className="font-mono text-xs font-bold text-[#637497]">
-            Cargando las notas de {profile.name}...
-          </p>
-        </div>
+        <GuaurrinotasLoading compact label={`Cargando los momentos de ${profile.name}…`} />
       ) : hasLoadError ? null : notes.length === 0 ? (
         <div className="mt-5 border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-6 text-center">
           <span aria-hidden="true" className="text-3xl">

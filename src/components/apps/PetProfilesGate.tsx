@@ -7,6 +7,7 @@ import PetNotesFeed, {
 } from "@/components/apps/PetNotesFeed";
 import PetProfileNotes from "@/components/apps/PetProfileNotes";
 import { createClient } from "@/lib/supabase/client";
+import GuaurrinotasLoading from "./GuaurrinotasLoading";
 import styles from "./Guaurrinotas.module.css";
 
 type PetProfile = CommunityPetProfile;
@@ -133,6 +134,7 @@ export default function PetProfilesGate({
   const [composerProfileId, setComposerProfileId] = useState<string | null>(
     null,
   );
+  const [composerRequest, setComposerRequest] = useState(0);
   const [isChoosingNoteAuthor, setIsChoosingNoteAuthor] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [draft, setDraft] = useState<ProfileDraft>(EMPTY_DRAFT);
@@ -272,6 +274,7 @@ export default function PetProfilesGate({
     profile: CommunityPetProfile,
     openComposer = false,
   ) => {
+    if (openComposer) setComposerRequest((value) => value + 1);
     setSelectedProfileId(profile.id);
     setSelectedCommunityProfile(
       profile.owner_id === user.id ? null : profile,
@@ -606,13 +609,7 @@ export default function PetProfilesGate({
   };
 
   if (isLoading) {
-    return (
-      <section className="mx-auto max-w-xl border-2 border-[#425b8c] bg-white p-6 text-center shadow-[4px_4px_0_#425b8c]">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-          Buscando perfiles de mascota...
-        </p>
-      </section>
-    );
+    return <GuaurrinotasLoading label="Buscando a tus protagonistas…" />;
   }
 
   return (
@@ -646,7 +643,7 @@ export default function PetProfilesGate({
                 : "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
             }`}
           >
-            El muro
+            <span aria-hidden="true">▦</span> El muro
           </button>
           <button
             type="button"
@@ -658,13 +655,15 @@ export default function PetProfilesGate({
                 : "bg-white text-[#425b8c] hover:bg-[#f0f3f8]"
             }`}
           >
-            Mis mascotas
+            <span aria-hidden="true">♡</span> Mis mascotas
           </button>
+          <button type="button" onClick={startCreatingNote} className={styles.navPublish}
+            aria-label="Crear una publicación"><span aria-hidden="true">＋</span> Publicar</button>
         </nav>
       )}
 
       {showForm ? (
-        <section className="border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
+        <section className={styles.profilePanel}>
           <header className="border-b-2 border-[#425b8c] bg-[#f0f3f8] p-5">
             <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
               Nuevo perfil
@@ -894,7 +893,7 @@ export default function PetProfilesGate({
         </section>
       ) : selectedProfile ? (
         <div className="space-y-5">
-          <section className="border-2 border-[#425b8c] bg-white shadow-[5px_5px_0_#425b8c]">
+          <section className={styles.profilePanel}>
             <header className="border-b-2 border-[#425b8c] bg-[#f0f3f8] p-4">
               <button
                 type="button"
@@ -907,7 +906,7 @@ export default function PetProfilesGate({
             </header>
 
             <div className="p-5">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+              <div className={styles.profileIdentity}>
                 <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden border-2 border-[#425b8c] bg-[#dce4f2] text-4xl shadow-[3px_3px_0_#425b8c]">
                   {selectedProfile.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -1140,11 +1139,10 @@ export default function PetProfilesGate({
               ) : (
                 <div className="mt-6 space-y-4">
                   <p className="text-sm leading-6 text-[#263650]">
-                    {selectedProfile.bio ||
-                      "Este perfil todavía no tiene una descripción."}
+                    {selectedProfile.bio || (selectedProfileIsOwned ? "Cuenta algo de su personalidad desde Editar perfil." : "Conoce sus momentos en las publicaciones de abajo.")}
                   </p>
                   <div className="space-y-1 border-t-2 border-dashed border-[#cbd4e4] pt-4 font-mono text-xs text-[#637497]">
-                    <p>📍 {getLocationLabel(selectedProfile)}</p>
+                    {(selectedProfile.city || selectedProfile.region) && <p>📍 {getLocationLabel(selectedProfile)}</p>}
                     <p>🗓 {getJoinedLabel(selectedProfile.created_at)}</p>
                   </div>
                 </div>
@@ -1167,7 +1165,7 @@ export default function PetProfilesGate({
           </section>
 
           <PetProfileNotes
-            key={selectedProfile.id}
+            key={`${selectedProfile.id}-${composerRequest}`}
             ownerId={user.id}
             profile={selectedProfile}
             canManage={Boolean(selectedProfileIsOwned)}
