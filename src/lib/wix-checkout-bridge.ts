@@ -14,6 +14,7 @@ export type WixCheckoutPayloadItem = {
   name: string;
   detail: string;
   quantity: number;
+  fulfillment: CartItem["fulfillment"];
   catalogReference: WixCatalogReference;
   catalogOverrideFields?: {
     price: string;
@@ -83,6 +84,7 @@ export function requestWixCheckout(
       name: item.name,
       detail: item.detail,
       quantity: item.quantity,
+      fulfillment: item.fulfillment,
       catalogReference: item.wix.catalogReference,
       catalogOverrideFields: {
         price: checkoutUnitPrice.toFixed(2),
