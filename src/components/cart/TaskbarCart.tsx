@@ -57,6 +57,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [leonPaymentMethod, setLeonPaymentMethod] =
     useState<LeonPaymentMethod | null>(null);
+  const [leonFulfillmentConfirmed, setLeonFulfillmentConfirmed] = useState(false);
   const [leonOrderPreferences, setLeonOrderPreferences] =
     useState<LeonOrderPreferences>({ ...EMPTY_LEON_ORDER_PREFERENCES });
   const [resolvedPaymentPreferences, setResolvedPaymentPreferences] =
@@ -140,6 +141,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     if (!open) {
       setCheckoutStatus("");
       setView("cart");
+      setLeonFulfillmentConfirmed(false);
     }
   }, [open]);
 
@@ -288,6 +290,15 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   };
 
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
+    if (!leonFulfillmentConfirmed) {
+      setLeonPaymentMethod(null);
+      setResolvedPaymentPreferences(null);
+      setCheckoutStatus(
+        "Confirma que este pedido se entregará o recogerá en León, Gto. Para otra ciudad usa Envío nacional.",
+      );
+      return;
+    }
+
     const resolved = readLeonPreferencesFromControls();
 
     if (!isLeonOrderPreferencesComplete(resolved)) {
@@ -676,6 +687,28 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 <p className="mt-3 break-words rounded-lg bg-[#f8f9fc] px-3 py-2 text-[8px] leading-4 text-[#7a8495]">
                   Al tocar SPEI o tarjeta verificamos la fecha y el horario seleccionados.
                 </p>
+
+                <label className="mt-3 flex cursor-pointer items-start gap-2 rounded-lg border border-[#ead7de] bg-[#fff9fb] px-3 py-2.5 text-[8px] leading-4 text-[#5f6c80]">
+                  <input
+                    type="checkbox"
+                    checked={leonFulfillmentConfirmed}
+                    onChange={(event) => {
+                      setLeonFulfillmentConfirmed(event.target.checked);
+                      setLeonPaymentMethod(null);
+                      setResolvedPaymentPreferences(null);
+                      setCheckoutStatus("");
+                    }}
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#425BBC]"
+                  />
+                  <span>
+                    <strong className="block text-[#425BBC]">
+                      Este pedido se entrega o recoge en León, Gto.
+                    </strong>
+                    <span>
+                      Los precios locales no incluyen envío nacional. Si necesitas recibirlo en otra ciudad, usa Envío nacional.
+                    </span>
+                  </span>
+                </label>
 
                 <div className="mt-3 grid min-w-0 gap-2">
                   <button
