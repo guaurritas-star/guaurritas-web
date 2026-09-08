@@ -13,6 +13,10 @@ import { withBasePath } from "@/lib/base-path";
 import { requestWixCheckout } from "@/lib/wix-checkout-bridge";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
 import {
+  NATIONAL_SHIPPING_PROMO,
+  getNationalShippingPromoState,
+} from "@/lib/shipping-promotions";
+import {
   EMPTY_LEON_ORDER_PREFERENCES,
   isLeonOrderPreferencesComplete,
   type LeonOrderPreferences,
@@ -32,6 +36,13 @@ function money(value: number) {
     currency: "MXN",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function shippingWeight(value: number) {
+  return `${new Intl.NumberFormat("es-MX", {
+    minimumFractionDigits: value < 1 ? 2 : 1,
+    maximumFractionDigits: 2,
+  }).format(value)} kg`;
 }
 
 function itemTotal(items: CartItem[]) {
@@ -183,6 +194,18 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const leonTransferTotal = itemTotal(leonItems);
   const nationalOnlineTotal = buildProtectedUnitPrices(nationalItems).protectedTotal;
   const leonOnlineTotal = buildProtectedUnitPrices(leonItems).protectedTotal;
+  const nationalShippingPromo = getNationalShippingPromoState(
+    nationalItems,
+    nationalOnlineTotal,
+  );
+  const nationalShippingPromoMessage =
+    nationalShippingPromo.state === "overweight"
+      ? "Tu pedido supera los 3 kg. El envío se calculará según peso y destino."
+      : nationalShippingPromo.state === "free"
+        ? "¡Envío gratis nacional desbloqueado! ✨"
+        : nationalShippingPromo.state === "discount"
+          ? `¡Ya tienes ${money(NATIONAL_SHIPPING_PROMO.discountAmount)} de descuento en envío! Te faltan ${money(nationalShippingPromo.amountToFreeShipping)} para envío gratis ✨`
+          : `Te faltan ${money(nationalShippingPromo.amountToDiscount)} para desbloquear ${money(NATIONAL_SHIPPING_PROMO.discountAmount)} de descuento en envío 🐾`;
   const leonPreferencesComplete = isLeonOrderPreferencesComplete(leonOrderPreferences);
   const leonReadyForPayment = leonPreferencesComplete || Boolean(resolvedPaymentPreferences);
 
@@ -489,8 +512,102 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         {checkoutBusy ? "Preparando…" : "Pagar nacional"}
                       </button>
                     </div>
+                    <div className="mt-3 rounded-lg border border-[#b8d2d9] bg-white/75 p-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-interface text-[8px] font-bold uppercase tracking-[0.1em] text-[#487986]">
+                          Beneficio de envío
+                        </p>
+                        <span className="text-[7px] font-bold text-[#718093]">
+                          Hasta 3 kg
+                        </span>
+                      </div>
+
+                      <p
+                        className={`mt-1.5 break-words text-[8px] font-semibold leading-4 ${
+                          nationalShippingPromo.state === "overweight"
+                            ? "text-[#9f5860]"
+                            : nationalShippingPromo.state === "free"
+                              ? "text-[#446454]"
+                              : "text-[#53627a]"
+                        }`}
+                        aria-live="polite"
+                      >
+                        {nationalShippingPromoMessage}
+                      </p>
+
+                      <div className="mt-2.5 space-y-2">
+                        <div>
+                          <div className="mb-1 flex items-center justify-between gap-2 text-[7px] font-semibold text-[#657287]">
+                            <span>Compra</span>
+                            <span>
+                              {money(nationalOnlineTotal)} /{" "}
+                              {money(NATIONAL_SHIPPING_PROMO.freeShippingThreshold)}
+                            </span>
+                          </div>
+                          <div
+                            className="h-1.5 overflow-hidden rounded-full bg-[#dce7ea]"
+                            role="progressbar"
+                            aria-label="Progreso para envío gratis"
+                            aria-valuemin={0}
+                            aria-valuemax={NATIONAL_SHIPPING_PROMO.freeShippingThreshold}
+                            aria-valuenow={Math.min(
+                              nationalOnlineTotal,
+                              NATIONAL_SHIPPING_PROMO.freeShippingThreshold,
+                            )}
+                          >
+                            <span
+                              className="block h-full rounded-full bg-[#425BBC] transition-[width] duration-200"
+                              style={{
+                                width: `${nationalShippingPromo.purchaseProgress * 100}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="mb-1 flex items-center justify-between gap-2 text-[7px] font-semibold text-[#657287]">
+                            <span>Peso promocional</span>
+                            <span>
+                              {shippingWeight(nationalShippingPromo.weightKg)} /{" "}
+                              {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg
+                            </span>
+                          </div>
+                          <div
+                            className="h-1.5 overflow-hidden rounded-full bg-[#dce7ea]"
+                            role="progressbar"
+                            aria-label="Peso usado para promociones de envío"
+                            aria-valuemin={0}
+                            aria-valuemax={NATIONAL_SHIPPING_PROMO.maxWeightKg}
+                            aria-valuenow={Math.min(
+                              nationalShippingPromo.weightKg,
+                              NATIONAL_SHIPPING_PROMO.maxWeightKg,
+                            )}
+                          >
+                            <span
+                              className={`block h-full rounded-full transition-[width] duration-200 ${
+                                nationalShippingPromo.state === "overweight"
+                                  ? "bg-[#b86470]"
+                                  : nationalShippingPromo.nearWeightLimit
+                                    ? "bg-[#b7864f]"
+                                    : "bg-[#5e96a5]"
+                              }`}
+                              style={{
+                                width: `${nationalShippingPromo.weightProgress * 100}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {nationalShippingPromo.nearWeightLimit && (
+                        <p className="mt-2 break-words text-[7px] font-semibold leading-3 text-[#8a6a43]">
+                          Estás cerca del límite de 3 kg para promociones de envío.
+                        </p>
+                      )}
+                    </div>
+
                     <p className="mt-2 break-words text-[8px] leading-4 text-[#657287]">
-                      El envío nacional se calcula por separado.
+                      La promoción se confirma en Wix según el peso y destino del pedido.
                     </p>
                   </section>
                 )}
