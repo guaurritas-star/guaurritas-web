@@ -96,7 +96,7 @@ const petcakeVariants: Array<Variant & { productId: string }> = [
   {
     productId: "c80169f0-c65e-5b81-00b5-106ef502d1af",
     variantId: "e928103b-fc9e-4ce8-b43a-e601b9e5480c",
-    price: 200,
+    price: 250,
   },
   // Mediano: betún, fondant
   {
@@ -113,7 +113,7 @@ const petcakeVariants: Array<Variant & { productId: string }> = [
   {
     productId: "e21e120c-b1be-2ca6-6b6a-ee088589a912",
     variantId: "4d572ed6-dc92-496c-986c-c9994360fbca",
-    price: 395,
+    price: 405,
   },
   {
     productId: "e21e120c-b1be-2ca6-6b6a-ee088589a912",
@@ -124,7 +124,7 @@ const petcakeVariants: Array<Variant & { productId: string }> = [
   {
     productId: "f04202ed-1640-7d21-431e-397ff972a326",
     variantId: "4545c007-10b5-488d-8cce-537e8e3987be",
-    price: 655,
+    price: 625,
   },
   {
     productId: "f04202ed-1640-7d21-431e-397ff972a326",
