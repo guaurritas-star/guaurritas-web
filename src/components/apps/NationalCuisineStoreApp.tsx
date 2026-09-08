@@ -72,7 +72,7 @@ export default function NationalCuisineStoreApp({ onBack }: { onBack: () => void
 
   return (
     <div ref={rootRef} className="contents">
-      <CuisineStoreApp onBack={onBack} />
+      <CuisineStoreApp onBack={onBack} fulfillmentMode="national" />
     </div>
   );
 }
