@@ -119,9 +119,19 @@ export default function GuaurrinotasAuthGate() {
   const [isWixConnecting, setIsWixConnecting] = useState(false);
   const [wixBridgeError, setWixBridgeError] = useState("");
   const wixSessionRequestedRef = useRef(false);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
+    let sessionEstablished = false;
+    wixSessionRequestedRef.current = false;
+    const connectionExpired = () => {
+      if (!isMounted) return;
+      setIsCheckingSession(false);
+      setIsWixConnecting(false);
+      setWixBridgeError("La conexión con tu cuenta no terminó. Puedes volver a intentar sin crear otra cuenta ni modificar tus perfiles.");
+    };
+    let connectionTimer = window.setTimeout(connectionExpired, 20000);
 
     const searchParams = new URLSearchParams(window.location.search);
     const authNotice = searchParams.get("auth_notice");
@@ -145,13 +155,18 @@ export default function GuaurrinotasAuthGate() {
         data: { user: currentUser },
       } = await supabase.auth.getUser();
 
-      if (!isMounted) return;
+      if (!isMounted || sessionEstablished) return;
 
       setUser(currentUser);
       setIsCheckingSession(false);
+      if (currentUser) window.clearTimeout(connectionTimer);
     };
 
-    void loadUser();
+    void loadUser().catch(() => {
+      if (!isMounted) return;
+      setIsCheckingSession(false);
+      // The Wix bridge may still restore the session before the deadline.
+    });
 
     const requestWixSession = () => {
       if (
@@ -162,6 +177,8 @@ export default function GuaurrinotasAuthGate() {
       }
 
       wixSessionRequestedRef.current = true;
+      window.clearTimeout(connectionTimer);
+      connectionTimer = window.setTimeout(connectionExpired, 20000);
       setIsWixConnecting(true);
       setWixBridgeError("");
 
@@ -196,6 +213,7 @@ export default function GuaurrinotasAuthGate() {
         if (loggedIn) {
           requestWixSession();
         } else {
+          window.clearTimeout(connectionTimer);
           wixSessionRequestedRef.current = false;
           setIsWixConnecting(false);
           setWixBridgeError("");
@@ -218,6 +236,7 @@ export default function GuaurrinotasAuthGate() {
           .then(({ data, error }) => {
             if (!isMounted) return;
 
+            window.clearTimeout(connectionTimer);
             setIsWixConnecting(false);
 
             if (error || !data.user) {
@@ -228,12 +247,20 @@ export default function GuaurrinotasAuthGate() {
             }
 
             setWixBridgeError("");
+            sessionEstablished = true;
             setUser(data.user);
+          })
+          .catch(() => {
+            if (!isMounted) return;
+            window.clearTimeout(connectionTimer);
+            setIsWixConnecting(false);
+            setWixBridgeError("No pudimos confirmar tu sesión. Vuelve a intentar la conexión con Wix.");
           });
         return;
       }
 
       setIsWixConnecting(false);
+      window.clearTimeout(connectionTimer);
       setWixBridgeError(
         typeof message.message === "string" && message.message
           ? message.message
@@ -257,6 +284,7 @@ export default function GuaurrinotasAuthGate() {
         "*",
       );
     } else {
+      window.clearTimeout(connectionTimer);
       setWixMemberState({ loggedIn: false, name: "" });
     }
 
@@ -266,16 +294,19 @@ export default function GuaurrinotasAuthGate() {
       if (!isMounted) return;
 
       setUser(session?.user ?? null);
+      sessionEstablished = Boolean(session?.user);
       setIsCheckingSession(false);
+      if (session?.user) window.clearTimeout(connectionTimer);
     });
 
     return () => {
       isMounted = false;
+      window.clearTimeout(connectionTimer);
       if (noticeTimer !== null) window.clearTimeout(noticeTimer);
       window.removeEventListener("message", handleWixBridgeMessage);
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, connectionAttempt]);
 
   const requestWixLogin = () => {
     if (window.self === window.top) return;
@@ -388,6 +419,25 @@ export default function GuaurrinotasAuthGate() {
         isSigningOut={isSubmitting}
         onSignOut={signOut}
       />
+    );
+  }
+
+  if (wixBridgeError) {
+    return (
+      <section className={`${styles.workspace} ${styles.authPanel}`}>
+        <header>
+          <h2>Vamos a reconectar tu cuenta</h2>
+          <p role="alert" className="mt-3 text-sm">{wixBridgeError}</p>
+        </header>
+        <div className="p-5">
+          <button type="button" className={styles.primary} onClick={() => {
+            setWixBridgeError("");
+            setIsCheckingSession(true);
+            setConnectionAttempt((attempt) => attempt + 1);
+          }}>Reintentar conexión</button>
+          <p className="mt-3 text-xs">Si vuelve a fallar, comparte este aviso: conexión Wix–Guaurrinotas sin completar.</p>
+        </div>
+      </section>
     );
   }
 
