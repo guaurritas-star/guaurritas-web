@@ -709,6 +709,11 @@ export default function CuisineStoreApp({
   >(createEmptyBulkDistribution);
   const [bulkUnit, setBulkUnit] = useState<BulkUnit>("g");
   const [bulkQuantityInput, setBulkQuantityInput] = useState("300");
+  const [kitConfig, setKitConfig] = useState<KitGuaurriCookiesConfig | null>(null);
+  const [kitConfigLoading, setKitConfigLoading] = useState(false);
+  const [kitConfigError, setKitConfigError] = useState("");
+  const [kitConfigRetry, setKitConfigRetry] = useState(0);
+  const [kitFlavorCounts, setKitFlavorCounts] = useState<Record<string, number>>({});
   const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
   const [inspirationFeedback, setInspirationFeedback] = useState("");
   const [inspirationInputKey, setInspirationInputKey] = useState(0);
@@ -775,6 +780,43 @@ export default function CuisineStoreApp({
     },
     [inspirationPreviews],
   );
+
+  useEffect(() => {
+    if (fulfillmentMode !== "national") {
+      setKitConfig(null);
+      setKitConfigError("");
+      setKitConfigLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setKitConfigLoading(true);
+    setKitConfigError("");
+
+    fetchKitGuaurriCookiesConfig(controller.signal)
+      .then((config) => {
+        setKitConfig(config);
+        setKitFlavorCounts((current) =>
+          Object.fromEntries(
+            config.flavors.map((flavor) => [flavor.label, current[flavor.label] ?? 0]),
+          ),
+        );
+      })
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        setKitConfig(null);
+        setKitConfigError(
+          error instanceof Error
+            ? error.message
+            : "No pudimos sincronizar los sabores del kit con Wix.",
+        );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setKitConfigLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [fulfillmentMode, kitConfigRetry]);
 
   useEffect(() => {
     if (window.self === window.top) return;
