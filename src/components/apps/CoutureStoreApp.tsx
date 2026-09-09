@@ -4,6 +4,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
+import {
+  setFulfillmentMode,
+  type FulfillmentMode,
+} from "@/lib/fulfillment-store";
 
 type CollectionId = "amuleto" | "clasica" | "encanto";
 type ViewMode = "product" | "worn";
@@ -135,6 +139,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
   const [fitHelperOpen, setFitHelperOpen] = useState(false);
   const [neckInput, setNeckInput] = useState("");
   const [notice, setNotice] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState<FulfillmentMode | null>(null);
   const { count: cartCount } = useCart();
 
   const collection = collections.find((item) => item.id === collectionId)!;
@@ -160,13 +165,22 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
     setNotice("");
   };
 
+  const selectDeliveryMode = (mode: FulfillmentMode) => {
+    setDeliveryMode(mode);
+    setFulfillmentMode(mode);
+    setNotice("");
+  };
+
   const addToCart = () => {
+    if (!deliveryMode) return;
+
     addCartItem({
       id: `couture:${collection.id}:${color.id}:${size.id}`,
       name: collection.name,
       detail: `${color.name} · talla ${size.name}`,
       unitPrice: price,
       image: color.productImage,
+      fulfillment: deliveryMode,
     });
     setNotice(
       `${collection.name} · ${color.name} · talla ${size.name} se agregó al carrito.`,
@@ -198,6 +212,47 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
         <p className="mx-auto mt-3 max-w-2xl font-brand text-lg leading-7 text-[#644e5b] sm:text-xl">
           Elige su colección, descubre cada color puesto y encuentra la talla correcta sin adivinar.
         </p>
+
+        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-[#d8c8d0] bg-white/85 p-3 text-left shadow-sm backdrop-blur sm:p-4">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 px-1">
+            <p className="font-interface text-[9px] font-bold uppercase tracking-[0.15em] text-[#614456] sm:text-[10px]">
+              ¿Dónde recibirás tu pedido?
+            </p>
+            <span className="font-brand text-xs text-[#806c77]">Mismo precio de producto</span>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2" aria-label="Destino del pedido">
+            {(["leon", "national"] as const).map((mode) => {
+              const active = deliveryMode === mode;
+              return (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => selectDeliveryMode(mode)}
+                  aria-pressed={active}
+                  className={`min-h-12 rounded-xl border px-3 py-2.5 text-left transition sm:px-4 ${
+                    active
+                      ? "border-[#70425a] bg-[#f5eaf0] shadow-[2px_2px_0_#70425a]"
+                      : "border-[#ddcfd6] bg-white hover:border-[#a77d91]"
+                  }`}
+                >
+                  <span className="block font-interface text-[10px] font-bold uppercase tracking-[0.08em] text-[#3a2030]">
+                    {mode === "leon" ? "📍 León" : "📦 Otra ciudad"}
+                  </span>
+                  <span className="mt-1 hidden font-brand text-xs leading-4 text-[#786771] sm:block">
+                    {mode === "leon"
+                      ? "Entrega local o recolección"
+                      : "Envío nacional se suma al pedido"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {!deliveryMode && (
+            <p className="mt-2 px-1 font-brand text-xs text-[#806c77]">
+              Elígelo una vez antes de agregar tu bandana.
+            </p>
+          )}
+        </div>
       </header>
 
       <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-7 lg:px-9">
@@ -534,6 +589,9 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                 <div>
                   <p className="font-interface text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a7380]">
                     {color.name} · Talla {size.name}
+                    {deliveryMode
+                      ? ` · ${deliveryMode === "leon" ? "León" : "Envío nacional"}`
+                      : ""}
                   </p>
                   <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]">{money(price)}</p>
                 </div>
@@ -544,9 +602,12 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={addToCart}
-                className="mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0"
+                disabled={!deliveryMode}
+                className="mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[#b8adb3] disabled:bg-[#b8adb3] disabled:shadow-none disabled:hover:translate-y-0"
               >
-                Agregar al carrito · {money(price)}
+                {deliveryMode
+                  ? `Agregar al carrito · ${money(price)}`
+                  : "Elige dónde recibirlo"}
               </button>
               {notice && (
                 <p className="mt-3 rounded-xl border border-[#b8ccb9] bg-[#eef7ee] px-4 py-3 font-brand text-sm text-[#3d6544]" role="status">
