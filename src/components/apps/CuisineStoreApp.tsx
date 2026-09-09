@@ -320,7 +320,7 @@ const products: CuisineProduct[] = [
     description:
       "4 bolsitas de GuaurriCookies de 100 g para armar tu propia combinación de sabores.",
     image:
-      "https://static.wixstatic.com/media/24a095_ba6ebf753a754b37bc0a50429535d3fc~mv2.png",
+      "https://static.wixstatic.com/media/24a095_11e1b8c7af7440ea9f48f739fdff0ea4~mv2.jpg",
     imageAlt:
       "Kit GuaurriCookies con cuatro bolsas de sabores dentro de una caja Guaurritas",
     options: [
