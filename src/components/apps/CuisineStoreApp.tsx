@@ -2749,7 +2749,7 @@ export default function CuisineStoreApp({
                   </span>
                 )}
               </span>
-              <span className="block p-4">
+              <span className="block px-4 pb-8 pt-0">
                 <span className="font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
                   {product.eyebrow}
                 </span>
