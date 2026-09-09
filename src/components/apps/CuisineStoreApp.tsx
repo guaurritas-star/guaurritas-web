@@ -1529,7 +1529,7 @@ export default function CuisineStoreApp({
                       Completa las cuatro elecciones para continuar.
                     </p>
                   </div>
-                  <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c] sm:mt-auto">
+                  <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
                     Paso a paso
                   </span>
                 </div>
@@ -2764,7 +2764,7 @@ export default function CuisineStoreApp({
                 <span className="mt-2 block min-h-10 font-interface text-[11px] leading-5 text-[#718093]">
                   {product.description}
                 </span>
-                <span className="mt-4 flex items-center justify-between border-t border-[#d7dfe3] pt-3 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#425b8c]">
+                <span className="mt-4 flex items-center justify-between border-t border-[#d7dfe3] pt-3 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#425b8c] sm:mt-auto">
                   Ver producto
                   <span
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e4f0f2] text-base transition group-hover:bg-[#5e96a5] group-hover:text-white"
