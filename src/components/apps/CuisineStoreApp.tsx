@@ -2545,6 +2545,8 @@ export default function CuisineStoreApp({
                         } · ${
                           bulkDistributionSummary || "distribuye los sabores"
                         }`
+                    : isGuaurriCookiesKit
+                      ? `Elige tus bolsas · ${kitSelectedCount}/${KIT_GUAURRICOOKIES_BAG_COUNT}`
                     : isChilaquidogs
                       ? `${currentOption.label} · ${chilaquiProtein ?? "elige proteína"} · ${
                           chilaquiSalsa
@@ -2564,6 +2566,8 @@ export default function CuisineStoreApp({
                       : isBulkWholesaleQuote
                         ? "Cotización de mayoreo"
                         : money(bulkPrice)
+                    : isGuaurriCookiesKit
+                      ? money(KIT_GUAURRICOOKIES_PRICE)
                     : isPetcake && petcakeFinish === null
                       ? "Selecciona el acabado"
                       : money(currentDisplayPrice)}
@@ -2575,15 +2579,25 @@ export default function CuisineStoreApp({
                 disabled={!canAdd}
                 className="border-2 border-[#263650] bg-[#263650] px-6 py-3.5 font-interface text-xs font-bold uppercase tracking-[0.12em] text-white shadow-[3px_3px_0_#77aab6] transition hover:-translate-y-0.5 hover:bg-[#425b8c] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
               >
-                {isBulkWholesaleQuote
-                  ? "Solicitar cotización"
-                  : "Agregar al carrito"}
+                {isGuaurriCookiesKit
+                  ? kitSelectionComplete
+                    ? `Agregar kit al carrito · ${money(KIT_GUAURRICOOKIES_PRICE)}`
+                    : "Elige 4 bolsas para continuar"
+                  : isBulkWholesaleQuote
+                    ? "Solicitar cotización"
+                    : "Agregar al carrito"}
               </button>
             </div>
 
             {!canAdd && (
               <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
-                {needsBulkDistribution
+                {needsKitSelection
+                  ? kitConfigLoading
+                    ? "Estamos sincronizando sabores e inventario con Wix."
+                    : kitConfigError
+                      ? "No pudimos leer los sabores desde Wix. Reintenta desde el selector."
+                      : `Elige exactamente ${KIT_GUAURRICOOKIES_BAG_COUNT} bolsas para continuar.`
+                : needsBulkDistribution
                   ? !bulkQuantityIsValid
                     ? "Ingresa una cantidad entre 300 g y 10 kg en múltiplos de 100 g."
                     : !bulkFlavorIncrementsAreValid
