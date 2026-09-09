@@ -767,6 +767,30 @@ textarea {
   }
 }
 
+/* Desktop cart: keep the panel inside the viewport and let the whole cart scroll.
+ * This avoids clipping the first products when the national/León summary grows taller
+ * than the available desktop height. Mobile keeps its existing behavior below. */
+@media (min-width: 640px) {
+  .taskbar-cart-panel {
+    max-height: calc(100dvh - 72px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .taskbar-cart-titlebar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+
+  .taskbar-cart-items {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 @media (max-width: 639px) {
   .desktop-taskbar-start {
     display: none;
