@@ -1594,7 +1594,7 @@ export default function CuisineStoreApp({
               </div>
             ) : (
               <>
-                {!isBulkCookies && (
+                {!isBulkCookies && !isGuaurriCookiesKit && (
                   <div
                     key={`${selectedProduct.id}-${currentOption.label}`}
                     className="mt-6 flex items-center gap-3 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-3 lg:hidden"
@@ -1777,6 +1777,126 @@ export default function CuisineStoreApp({
                       </div>
                     </div>
                   </div>
+                ) : isGuaurriCookiesKit ? (
+                  <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Elige tus bolsas
+                        </legend>
+                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                          Puedes repetir sabores. La selección se sincroniza con Wix.
+                        </p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] ${
+                          kitSelectionComplete
+                            ? "bg-[#e3f1e7] text-[#456a4e]"
+                            : "bg-[#dceef0] text-[#425b8c]"
+                        }`}
+                        aria-live="polite"
+                      >
+                        {kitSelectedCount}/{KIT_GUAURRICOOKIES_BAG_COUNT}
+                      </span>
+                    </div>
+
+                    {kitConfigLoading ? (
+                      <div className="mt-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-4 font-interface text-[10px] text-[#718093]">
+                        Sincronizando sabores e inventario con Wix…
+                      </div>
+                    ) : kitConfigError || !kitConfig ? (
+                      <div className="mt-4 rounded-xl border border-[#e3c4c8] bg-[#fff7f8] p-4">
+                        <p className="font-interface text-[10px] font-semibold leading-5 text-[#8c555e]">
+                          {kitConfigError || "No pudimos cargar los sabores desde Wix."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setKitConfigRetry((value) => value + 1)}
+                          className="mt-3 rounded-lg border border-[#a66271] bg-white px-3 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#7a4c57]"
+                        >
+                          Reintentar
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 grid gap-2">
+                        {kitConfig.flavors.map((flavor) => {
+                          const count = kitFlavorCounts[flavor.label] ?? 0;
+                          const reachedFlavorStock =
+                            flavor.quantity !== null &&
+                            Number.isFinite(flavor.quantity) &&
+                            count >= flavor.quantity;
+                          const plusDisabled =
+                            !flavor.available ||
+                            kitSelectedCount >= KIT_GUAURRICOOKIES_BAG_COUNT ||
+                            reachedFlavorStock;
+
+                          return (
+                            <div
+                              key={flavor.sourceProductId || flavor.label}
+                              className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
+                                flavor.available
+                                  ? "border-[#d1dce1] bg-white"
+                                  : "border-[#e1d5d8] bg-[#f7f4f5] opacity-70"
+                              }`}
+                            >
+                              <div className="min-w-0">
+                                <p className="font-interface text-[10px] font-bold leading-4 text-[#53627a]">
+                                  {flavor.label}
+                                </p>
+                                <p className="mt-0.5 font-interface text-[9px] text-[#718093]">
+                                  {!flavor.available
+                                    ? "Agotado en Wix"
+                                    : flavor.quantity !== null
+                                      ? `${flavor.quantity} disponibles`
+                                      : "Disponible"}
+                                </p>
+                              </div>
+
+                              <div className="flex shrink-0 items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => adjustKitFlavor(flavor.label, -1)}
+                                  disabled={count <= 0}
+                                  aria-label={`Quitar una bolsa de ${flavor.label}`}
+                                  className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b9c8d8] bg-white font-interface text-lg font-bold text-[#425b8c] disabled:cursor-not-allowed disabled:opacity-30"
+                                >
+                                  −
+                                </button>
+                                <span className="min-w-7 text-center font-interface text-sm font-bold text-[#263650]">
+                                  {count}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => adjustKitFlavor(flavor.label, 1)}
+                                  disabled={plusDisabled}
+                                  aria-label={`Agregar una bolsa de ${flavor.label}`}
+                                  className="flex h-9 w-9 items-center justify-center rounded-full border border-[#5e96a5] bg-[#e8f2f4] font-interface text-lg font-bold text-[#263650] disabled:cursor-not-allowed disabled:opacity-30"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <p
+                      className={`mt-3 font-interface text-[10px] font-semibold ${
+                        kitSelectionComplete
+                          ? "text-[#456a4e]"
+                          : "text-[#718093]"
+                      }`}
+                    >
+                      {kitSelectionComplete
+                        ? "✓ Tus 4 bolsas están listas"
+                        : `Elige ${KIT_GUAURRICOOKIES_BAG_COUNT - kitSelectedCount} ${
+                            KIT_GUAURRICOOKIES_BAG_COUNT - kitSelectedCount === 1
+                              ? "bolsa"
+                              : "bolsas"
+                          } más para continuar.`}
+                    </p>
+                  </fieldset>
                 ) : isGorrito ? (
                   <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <legend className="px-1 font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
