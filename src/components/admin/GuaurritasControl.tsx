@@ -285,6 +285,57 @@ export default function GuaurritasControl() {
   useEffect(() => { if (!authenticated || !password || !periodInitialized) return; const effectiveMode: Mode = nav === 'spei' ? 'spei' : mode; loadOrders(password, effectiveMode, period, search, page); }, [authenticated, password, nav, mode, period, search, page, periodInitialized, loadOrders]);
   useEffect(() => { if (nav === 'agenda' && password) loadUpcoming(password); }, [nav, password, loadUpcoming]);
 
+  // Keep Guaurritas Control in sync with Wix eCommerce while the admin panel is open.
+  // The backend bootstrap already imports both LOCAL_SPEI and WIX_ECOM orders into
+  // GuaurritasOrdersLedger; this refresh makes León card and national card payments
+  // appear without requiring the admin to close/reopen the panel.
+  useEffect(() => {
+    if (!authenticated || !password || !periodInitialized) return;
+
+    let refreshing = false;
+    const refreshCommerce = async () => {
+      if (refreshing || document.visibilityState !== 'visible') return;
+      refreshing = true;
+      try {
+        await loadBootstrap(password);
+        await Promise.all([
+          loadDashboard(password, period),
+          loadOrders(password, nav === 'spei' ? 'spei' : mode, period, search, page),
+          loadUpcoming(password),
+        ]);
+      } catch (err) {
+        setError(handleApiError(err));
+      } finally {
+        refreshing = false;
+      }
+    };
+
+    const intervalId = window.setInterval(refreshCommerce, 120000);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') void refreshCommerce();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [
+    authenticated,
+    password,
+    periodInitialized,
+    period,
+    nav,
+    mode,
+    search,
+    page,
+    loadBootstrap,
+    loadDashboard,
+    loadOrders,
+    loadUpcoming,
+    handleApiError,
+  ]);
+
   const archiveTree = useMemo(() => {
     const tree = new Map<number, Map<number, ArchiveEntry[]>>();
     for (const entry of bootstrap?.archive || []) { const [year, month] = entry.dateKey.split('-').map(Number); if (!year || !month) continue; if (!tree.has(year)) tree.set(year, new Map()); const months = tree.get(year)!; if (!months.has(month)) months.set(month, []); months.get(month)!.push(entry); }
