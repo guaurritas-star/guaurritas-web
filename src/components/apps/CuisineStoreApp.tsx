@@ -2065,6 +2065,173 @@ export default function CuisineStoreApp({
                           } más para continuar.`}
                     </p>
                   </fieldset>
+                ) : isDescubreGuaurritas ? (
+                  <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Elige tus GuaurriCookies
+                        </legend>
+                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                          Elige 2 bolsas. Puedes repetir sabor.
+                        </p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] ${
+                          descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT
+                            ? "bg-[#e3f1e7] text-[#456a4e]"
+                            : "bg-[#dceef0] text-[#425b8c]"
+                        }`}
+                        aria-live="polite"
+                      >
+                        {descubreSelectedCount}/{DESCUBRE_GUAURRITAS_COOKIE_COUNT}
+                      </span>
+                    </div>
+
+                    {kitConfigLoading || descubreConfigLoading ? (
+                      <div className="mt-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-4 font-interface text-[10px] text-[#718093]">
+                        Sincronizando sabores e inventario con Wix…
+                      </div>
+                    ) : kitConfigError ||
+                      descubreConfigError ||
+                      !kitConfig ||
+                      !descubreConfig ? (
+                      <div className="mt-4 rounded-xl border border-[#e3c4c8] bg-[#fff7f8] p-4">
+                        <p className="font-interface text-[10px] font-semibold leading-5 text-[#8c555e]">
+                          {kitConfigError ||
+                            descubreConfigError ||
+                            "No pudimos cargar las opciones desde Wix."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setKitConfigRetry((value) => value + 1);
+                            setDescubreConfigRetry((value) => value + 1);
+                          }}
+                          className="mt-3 rounded-lg border border-[#a66271] bg-white px-3 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#7a4c57]"
+                        >
+                          Reintentar
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="mt-4 grid gap-2">
+                          {kitConfig.flavors.map((flavor) => {
+                            const count = descubreFlavorCounts[flavor.label] ?? 0;
+                            const reachedFlavorStock =
+                              flavor.quantity !== null &&
+                              Number.isFinite(flavor.quantity) &&
+                              count >= flavor.quantity;
+                            const plusDisabled =
+                              !flavor.available ||
+                              descubreSelectedCount >=
+                                DESCUBRE_GUAURRITAS_COOKIE_COUNT ||
+                              reachedFlavorStock;
+
+                            return (
+                              <div
+                                key={`descubre-${flavor.sourceProductId || flavor.label}`}
+                                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
+                                  flavor.available
+                                    ? "border-[#d1dce1] bg-white"
+                                    : "border-[#e1d5d8] bg-[#f7f4f5] opacity-70"
+                                }`}
+                              >
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <p className="font-interface text-[10px] font-bold leading-4 text-[#53627a]">
+                                      {flavor.label}
+                                    </p>
+                                    {flavor.label === "Cacahuate + Tocino" && (
+                                      <span className="rounded-full bg-[#f5e7b8] px-2 py-0.5 font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#6f5b24]">
+                                        Recomendado
+                                      </span>
+                                    )}
+                                  </div>
+                                  {!flavor.available && (
+                                    <p className="mt-0.5 font-interface text-[9px] font-semibold text-[#9f5860]">
+                                      Agotado
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="flex shrink-0 items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      adjustDescubreFlavor(flavor.label, -1)
+                                    }
+                                    disabled={count <= 0}
+                                    aria-label={`Quitar una bolsa de ${flavor.label}`}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b9c8d8] bg-white font-interface text-lg font-bold text-[#425b8c] disabled:cursor-not-allowed disabled:opacity-30"
+                                  >
+                                    −
+                                  </button>
+                                  <span className="min-w-7 text-center font-interface text-sm font-bold text-[#263650]">
+                                    {count}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      adjustDescubreFlavor(flavor.label, 1)
+                                    }
+                                    disabled={plusDisabled}
+                                    aria-label={`Agregar una bolsa de ${flavor.label}`}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#5e96a5] bg-[#e8f2f4] font-interface text-lg font-bold text-[#263650] disabled:cursor-not-allowed disabled:opacity-30"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="mt-5 border-t border-[#d7e0e5] pt-5">
+                          <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                            Elige tu Sazonador
+                          </p>
+                          <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                            Selecciona exactamente un sabor.
+                          </p>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            {descubreConfig.sazonadores.map((choice) => (
+                              <button
+                                key={choice.label}
+                                type="button"
+                                onClick={() => setDescubreSazonador(choice.label)}
+                                disabled={!choice.available}
+                                className={`rounded-xl border px-4 py-3 text-left font-interface text-[10px] font-bold transition ${
+                                  descubreSazonador === choice.label
+                                    ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
+                                    : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                                } disabled:cursor-not-allowed disabled:opacity-40`}
+                              >
+                                {choice.label}
+                                {!choice.available && (
+                                  <span className="mt-1 block text-[9px] text-[#9f5860]">
+                                    Agotado
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    <p
+                      className={`mt-4 font-interface text-[10px] font-semibold ${
+                        descubreSelectionComplete
+                          ? "text-[#456a4e]"
+                          : "text-[#718093]"
+                      }`}
+                    >
+                      {descubreSelectionComplete
+                        ? "✓ Tu kit está completo"
+                        : "Completa tus 2 GuaurriCookies y elige 1 Sazonador."}
+                    </p>
+                  </fieldset>
                 ) : isGorrito ? (
                   <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <legend className="px-1 font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
