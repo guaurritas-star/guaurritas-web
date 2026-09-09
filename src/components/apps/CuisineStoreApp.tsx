@@ -1476,7 +1476,9 @@ export default function CuisineStoreApp({
                   priority
                   unoptimized
                   sizes="(max-width: 1024px) 90vw, 28rem"
-                  className="object-contain p-7 sm:p-10 lg:p-12"
+                  className={`object-contain p-7 sm:p-10 lg:p-12 ${
+                    isGuaurriCookiesKit ? "mix-blend-multiply" : ""
+                  }`}
                 />
               </span>
               {selectedProduct.badge && (
