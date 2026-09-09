@@ -10,6 +10,15 @@ import {
   getCuisineCookiePrice,
   getCuisineOptionPrice,
 } from "@/lib/national-pricing";
+import {
+  KIT_GUAURRICOOKIES_BAG_COUNT,
+  KIT_GUAURRICOOKIES_PRICE,
+  KIT_GUAURRICOOKIES_PRODUCT_KEY,
+  encodeKitGuaurriCookiesSlots,
+  fetchKitGuaurriCookiesConfig,
+  summarizeKitGuaurriCookiesSlots,
+  type KitGuaurriCookiesConfig,
+} from "@/lib/kit-guaurricookies";
 
 type CategoryId =
   | "all"
@@ -302,6 +311,30 @@ const products: CuisineProduct[] = [
     badge: "Favorito",
     imageTone: "#f0e5ea",
     imageScale: 1.18,
+  },
+  {
+    id: KIT_GUAURRICOOKIES_PRODUCT_KEY,
+    name: "Kit GuaurriCookies",
+    eyebrow: "Kit nacional",
+    category: "snacks",
+    description:
+      "4 bolsitas de GuaurriCookies de 100 g para armar tu propia combinación de sabores.",
+    image:
+      "https://static.wixstatic.com/media/24a095_11e1b8c7af7440ea9f48f739fdff0ea4~mv2.jpg",
+    imageAlt:
+      "Kit GuaurriCookies con cuatro bolsas de sabores dentro de una caja Guaurritas",
+    options: [
+      {
+        label: "4 bolsitas · arma tu combinación",
+        price: KIT_GUAURRICOOKIES_PRICE,
+        grams: 400,
+      },
+    ],
+    detail:
+      "Elige exactamente 4 bolsas. Puedes repetir sabores; Wix conserva la combinación elegida dentro del pedido.",
+    badge: "Nuevo",
+    imageTone: "#f3ece7",
+    imageScale: 1,
   },
   {
     id: "sazonadores",
@@ -676,6 +709,11 @@ export default function CuisineStoreApp({
   >(createEmptyBulkDistribution);
   const [bulkUnit, setBulkUnit] = useState<BulkUnit>("g");
   const [bulkQuantityInput, setBulkQuantityInput] = useState("300");
+  const [kitConfig, setKitConfig] = useState<KitGuaurriCookiesConfig | null>(null);
+  const [kitConfigLoading, setKitConfigLoading] = useState(false);
+  const [kitConfigError, setKitConfigError] = useState("");
+  const [kitConfigRetry, setKitConfigRetry] = useState(0);
+  const [kitFlavorCounts, setKitFlavorCounts] = useState<Record<string, number>>({});
   const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
   const [inspirationFeedback, setInspirationFeedback] = useState("");
   const [inspirationInputKey, setInspirationInputKey] = useState(0);
@@ -742,6 +780,43 @@ export default function CuisineStoreApp({
     },
     [inspirationPreviews],
   );
+
+  useEffect(() => {
+    if (fulfillmentMode !== "national") {
+      setKitConfig(null);
+      setKitConfigError("");
+      setKitConfigLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setKitConfigLoading(true);
+    setKitConfigError("");
+
+    fetchKitGuaurriCookiesConfig(controller.signal)
+      .then((config) => {
+        setKitConfig(config);
+        setKitFlavorCounts((current) =>
+          Object.fromEntries(
+            config.flavors.map((flavor) => [flavor.label, current[flavor.label] ?? 0]),
+          ),
+        );
+      })
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        setKitConfig(null);
+        setKitConfigError(
+          error instanceof Error
+            ? error.message
+            : "No pudimos sincronizar los sabores del kit con Wix.",
+        );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setKitConfigLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [fulfillmentMode, kitConfigRetry]);
 
   useEffect(() => {
     if (window.self === window.top) return;
@@ -855,6 +930,9 @@ export default function CuisineStoreApp({
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
 
     return products.filter((product) => {
+      const matchesFulfillment =
+        product.id !== KIT_GUAURRICOOKIES_PRODUCT_KEY ||
+        fulfillmentMode === "national";
       const matchesCategory =
         category === "all" || product.category === category;
       const matchesSearch =
@@ -864,9 +942,9 @@ export default function CuisineStoreApp({
           .toLocaleLowerCase("es")
           .includes(normalizedQuery);
 
-      return matchesCategory && matchesSearch;
+      return matchesFulfillment && matchesCategory && matchesSearch;
     });
-  }, [category, query]);
+  }, [category, query, fulfillmentMode]);
 
   const openProduct = (product: CuisineProduct) => {
     setSelectedProduct(product);
@@ -882,6 +960,9 @@ export default function CuisineStoreApp({
     setBulkFlavorGrams(createEmptyBulkDistribution());
     setBulkUnit("g");
     setBulkQuantityInput("300");
+    setKitFlavorCounts(
+      Object.fromEntries((kitConfig?.flavors ?? []).map((flavor) => [flavor.label, 0])),
+    );
     setInspirationPhotos([]);
     setInspirationFeedback("");
     setInspirationInputKey((key) => key + 1);
@@ -1012,6 +1093,33 @@ export default function CuisineStoreApp({
     });
   };
 
+  const adjustKitFlavor = (label: string, delta: -1 | 1) => {
+    setKitFlavorCounts((current) => {
+      const flavor = kitConfig?.flavors.find((item) => item.label === label);
+      if (!flavor || !flavor.available) return current;
+
+      const selected = Object.values(current).reduce(
+        (total, count) => total + count,
+        0,
+      );
+      const currentCount = current[label] ?? 0;
+      const nextCount = currentCount + delta;
+
+      if (nextCount < 0) return current;
+      if (delta > 0 && selected >= KIT_GUAURRICOOKIES_BAG_COUNT) return current;
+      if (
+        delta > 0 &&
+        flavor.quantity !== null &&
+        Number.isFinite(flavor.quantity) &&
+        nextCount > flavor.quantity
+      ) {
+        return current;
+      }
+
+      return { ...current, [label]: nextCount };
+    });
+  };
+
   const addToCart = () => {
     if (!selectedProduct) return;
 
@@ -1022,6 +1130,33 @@ export default function CuisineStoreApp({
     const cartOption =
       selectedProduct.options[optionIndex] ?? selectedProduct.options[0];
     const cartImage = cartOption.image ?? selectedProduct.image;
+
+    if (selectedProduct.id === KIT_GUAURRICOOKIES_PRODUCT_KEY) {
+      if (fulfillmentMode !== "national" || !kitConfig) return;
+
+      const slots = kitConfig.flavors.flatMap((flavor) =>
+        Array.from({ length: kitFlavorCounts[flavor.label] ?? 0 }, () => flavor.label),
+      );
+
+      if (slots.length !== KIT_GUAURRICOOKIES_BAG_COUNT) return;
+
+      const summary = summarizeKitGuaurriCookiesSlots(slots);
+
+      addCartItem({
+        id: `cuisine:${KIT_GUAURRICOOKIES_PRODUCT_KEY}:${encodeKitGuaurriCookiesSlots(slots)}`,
+        name: selectedProduct.name,
+        detail: `4 bolsas de 100 g · ${summary}`,
+        personalization: `Combinación del kit: ${summary}`,
+        unitPrice: KIT_GUAURRICOOKIES_PRICE,
+        image: cartImage,
+        fulfillment: "national",
+      });
+
+      setNotice(
+        `${selectedProduct.name} · ${summary}. Se agregó al carrito.`,
+      );
+      return;
+    }
 
     if (selectedProduct.id === "velitas") {
       const isLargeCandle = selectedOption === 1;
@@ -1209,6 +1344,8 @@ export default function CuisineStoreApp({
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";
     const isBulkCookies = selectedProduct.id === "guaurricookies";
+    const isGuaurriCookiesKit =
+      selectedProduct.id === KIT_GUAURRICOOKIES_PRODUCT_KEY;
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
     const isGorrito = selectedProduct.id === "gorrito";
     const isVelitas = selectedProduct.id === "velitas";
@@ -1277,6 +1414,14 @@ export default function CuisineStoreApp({
       bulkQuantityIsValid &&
       bulkFlavorIncrementsAreValid &&
       bulkAssignedGrams === bulkTargetGrams;
+    const kitSelectedCount = Object.values(kitFlavorCounts).reduce(
+      (total, count) => total + count,
+      0,
+    );
+    const kitSelectionComplete =
+      isGuaurriCookiesKit &&
+      Boolean(kitConfig?.flavors.length) &&
+      kitSelectedCount === KIT_GUAURRICOOKIES_BAG_COUNT;
     const needsChoice = selectedProduct.customizable && customize === null;
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
@@ -1291,6 +1436,9 @@ export default function CuisineStoreApp({
       (!bulkQuantityIsValid ||
         !bulkFlavorIncrementsAreValid ||
         bulkAssignedGrams !== bulkTargetGrams);
+    const needsKitSelection =
+      isGuaurriCookiesKit &&
+      (!kitConfig || !kitSelectionComplete || kitConfigLoading);
     const canAdd =
       !needsChoice &&
       !needsRecipeConfiguration &&
@@ -1298,7 +1446,8 @@ export default function CuisineStoreApp({
       !needsChilaquiConfiguration &&
       !needsGorritoSize &&
       !needsBirthdayCandleNumber &&
-      !needsBulkDistribution;
+      !needsBulkDistribution &&
+      !needsKitSelection;
 
     return (
       <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
@@ -1445,7 +1594,7 @@ export default function CuisineStoreApp({
               </div>
             ) : (
               <>
-                {!isBulkCookies && (
+                {!isBulkCookies && !isGuaurriCookiesKit && (
                   <div
                     key={`${selectedProduct.id}-${currentOption.label}`}
                     className="mt-6 flex items-center gap-3 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-3 lg:hidden"
@@ -1628,6 +1777,126 @@ export default function CuisineStoreApp({
                       </div>
                     </div>
                   </div>
+                ) : isGuaurriCookiesKit ? (
+                  <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Elige tus bolsas
+                        </legend>
+                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                          Puedes repetir sabores. La selección se sincroniza con Wix.
+                        </p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] ${
+                          kitSelectionComplete
+                            ? "bg-[#e3f1e7] text-[#456a4e]"
+                            : "bg-[#dceef0] text-[#425b8c]"
+                        }`}
+                        aria-live="polite"
+                      >
+                        {kitSelectedCount}/{KIT_GUAURRICOOKIES_BAG_COUNT}
+                      </span>
+                    </div>
+
+                    {kitConfigLoading ? (
+                      <div className="mt-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-4 font-interface text-[10px] text-[#718093]">
+                        Sincronizando sabores e inventario con Wix…
+                      </div>
+                    ) : kitConfigError || !kitConfig ? (
+                      <div className="mt-4 rounded-xl border border-[#e3c4c8] bg-[#fff7f8] p-4">
+                        <p className="font-interface text-[10px] font-semibold leading-5 text-[#8c555e]">
+                          {kitConfigError || "No pudimos cargar los sabores desde Wix."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setKitConfigRetry((value) => value + 1)}
+                          className="mt-3 rounded-lg border border-[#a66271] bg-white px-3 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] text-[#7a4c57]"
+                        >
+                          Reintentar
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 grid gap-2">
+                        {kitConfig.flavors.map((flavor) => {
+                          const count = kitFlavorCounts[flavor.label] ?? 0;
+                          const reachedFlavorStock =
+                            flavor.quantity !== null &&
+                            Number.isFinite(flavor.quantity) &&
+                            count >= flavor.quantity;
+                          const plusDisabled =
+                            !flavor.available ||
+                            kitSelectedCount >= KIT_GUAURRICOOKIES_BAG_COUNT ||
+                            reachedFlavorStock;
+
+                          return (
+                            <div
+                              key={flavor.sourceProductId || flavor.label}
+                              className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
+                                flavor.available
+                                  ? "border-[#d1dce1] bg-white"
+                                  : "border-[#e1d5d8] bg-[#f7f4f5] opacity-70"
+                              }`}
+                            >
+                              <div className="min-w-0">
+                                <p className="font-interface text-[10px] font-bold leading-4 text-[#53627a]">
+                                  {flavor.label}
+                                </p>
+                                <p className="mt-0.5 font-interface text-[9px] text-[#718093]">
+                                  {!flavor.available
+                                    ? "Agotado en Wix"
+                                    : flavor.quantity !== null
+                                      ? `${flavor.quantity} disponibles`
+                                      : "Disponible"}
+                                </p>
+                              </div>
+
+                              <div className="flex shrink-0 items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => adjustKitFlavor(flavor.label, -1)}
+                                  disabled={count <= 0}
+                                  aria-label={`Quitar una bolsa de ${flavor.label}`}
+                                  className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b9c8d8] bg-white font-interface text-lg font-bold text-[#425b8c] disabled:cursor-not-allowed disabled:opacity-30"
+                                >
+                                  −
+                                </button>
+                                <span className="min-w-7 text-center font-interface text-sm font-bold text-[#263650]">
+                                  {count}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => adjustKitFlavor(flavor.label, 1)}
+                                  disabled={plusDisabled}
+                                  aria-label={`Agregar una bolsa de ${flavor.label}`}
+                                  className="flex h-9 w-9 items-center justify-center rounded-full border border-[#5e96a5] bg-[#e8f2f4] font-interface text-lg font-bold text-[#263650] disabled:cursor-not-allowed disabled:opacity-30"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <p
+                      className={`mt-3 font-interface text-[10px] font-semibold ${
+                        kitSelectionComplete
+                          ? "text-[#456a4e]"
+                          : "text-[#718093]"
+                      }`}
+                    >
+                      {kitSelectionComplete
+                        ? "✓ Tus 4 bolsas están listas"
+                        : `Elige ${KIT_GUAURRICOOKIES_BAG_COUNT - kitSelectedCount} ${
+                            KIT_GUAURRICOOKIES_BAG_COUNT - kitSelectedCount === 1
+                              ? "bolsa"
+                              : "bolsas"
+                          } más para continuar.`}
+                    </p>
+                  </fieldset>
                 ) : isGorrito ? (
                   <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <legend className="px-1 font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
@@ -2276,6 +2545,8 @@ export default function CuisineStoreApp({
                         } · ${
                           bulkDistributionSummary || "distribuye los sabores"
                         }`
+                    : isGuaurriCookiesKit
+                      ? `Elige tus bolsas · ${kitSelectedCount}/${KIT_GUAURRICOOKIES_BAG_COUNT}`
                     : isChilaquidogs
                       ? `${currentOption.label} · ${chilaquiProtein ?? "elige proteína"} · ${
                           chilaquiSalsa
@@ -2295,6 +2566,8 @@ export default function CuisineStoreApp({
                       : isBulkWholesaleQuote
                         ? "Cotización de mayoreo"
                         : money(bulkPrice)
+                    : isGuaurriCookiesKit
+                      ? money(KIT_GUAURRICOOKIES_PRICE)
                     : isPetcake && petcakeFinish === null
                       ? "Selecciona el acabado"
                       : money(currentDisplayPrice)}
@@ -2306,15 +2579,25 @@ export default function CuisineStoreApp({
                 disabled={!canAdd}
                 className="border-2 border-[#263650] bg-[#263650] px-6 py-3.5 font-interface text-xs font-bold uppercase tracking-[0.12em] text-white shadow-[3px_3px_0_#77aab6] transition hover:-translate-y-0.5 hover:bg-[#425b8c] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
               >
-                {isBulkWholesaleQuote
-                  ? "Solicitar cotización"
-                  : "Agregar al carrito"}
+                {isGuaurriCookiesKit
+                  ? kitSelectionComplete
+                    ? `Agregar kit al carrito · ${money(KIT_GUAURRICOOKIES_PRICE)}`
+                    : "Elige 4 bolsas para continuar"
+                  : isBulkWholesaleQuote
+                    ? "Solicitar cotización"
+                    : "Agregar al carrito"}
               </button>
             </div>
 
             {!canAdd && (
               <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
-                {needsBulkDistribution
+                {needsKitSelection
+                  ? kitConfigLoading
+                    ? "Estamos sincronizando sabores e inventario con Wix."
+                    : kitConfigError
+                      ? "No pudimos leer los sabores desde Wix. Reintenta desde el selector."
+                      : `Elige exactamente ${KIT_GUAURRICOOKIES_BAG_COUNT} bolsas para continuar.`
+                : needsBulkDistribution
                   ? !bulkQuantityIsValid
                     ? "Ingresa una cantidad entre 300 g y 10 kg en múltiplos de 100 g."
                     : !bulkFlavorIncrementsAreValid

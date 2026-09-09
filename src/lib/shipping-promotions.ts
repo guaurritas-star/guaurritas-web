@@ -40,6 +40,7 @@ export function getCartItemShippingWeightKg(item: CartItem) {
     return grams ? grams / 1000 : FALLBACK_PRODUCT_WEIGHT_KG;
   }
 
+  if (productKey === "guaurricookies-kit") return 0.4;
   if (productKey === "happy-bag") return 0.12;
   if (productKey === "sazonadores") return 0.08;
   if (productKey === "sticks") return 0.2;
