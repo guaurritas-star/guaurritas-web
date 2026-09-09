@@ -349,7 +349,8 @@ const products: CuisineProduct[] = [
     name: "Descubre Guaurritas",
     eyebrow: "Kit nacional",
     category: "snacks",
-    description: "Prueba un poquito de todo.",
+    description:
+      "2 GuaurriCookies + Sticks + Sazonador. Prueba un poquito de todo.",
     image: DESCUBRE_GUAURRITAS_IMAGE_URL,
     imageAlt:
       "Kit Descubre Guaurritas con dos GuaurriCookies, GuaurriSticks y Sazonador",
