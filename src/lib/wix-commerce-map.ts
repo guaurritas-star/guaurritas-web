@@ -4,6 +4,12 @@ import {
   KIT_GUAURRICOOKIES_WIX_PRODUCT_ID,
   decodeKitGuaurriCookiesSlots,
 } from "@/lib/kit-guaurricookies";
+import {
+  DESCUBRE_GUAURRITAS_PRICE,
+  DESCUBRE_GUAURRITAS_PRODUCT_KEY,
+  DESCUBRE_GUAURRITAS_WIX_PRODUCT_ID,
+  decodeDescubreGuaurritasSelection,
+} from "@/lib/descubre-guaurritas";
 
 export const WIX_STORES_APP_ID = "215238eb-22a5-4c36-9e7b-e7c08025e04e";
 
@@ -267,6 +273,33 @@ export function resolveCuisineWixBinding(
         "Bolsa 4": slots[3],
       },
     });
+  }
+
+  if (productKey === DESCUBRE_GUAURRITAS_PRODUCT_KEY) {
+    const selection = decodeDescubreGuaurritasSelection(
+      parts.slice(2).join(":"),
+    );
+
+    if (selection.cookies.length !== 2 || !selection.sazonador) {
+      return {
+        supported: false,
+        reason:
+          "Descubre Guaurritas necesita exactamente 2 GuaurriCookies y 1 Sazonador.",
+      };
+    }
+
+    return supported(
+      DESCUBRE_GUAURRITAS_WIX_PRODUCT_ID,
+      DESCUBRE_GUAURRITAS_PRICE,
+      {
+        options: {
+          "Bolsa 1": selection.cookies[0],
+          "Bolsa 2": selection.cookies[1],
+          Sazonador: selection.sazonador,
+          GuaurriSticks: "×1",
+        },
+      },
+    );
   }
 
   if (productKey === "guaurricookies") {
