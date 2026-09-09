@@ -1344,6 +1344,8 @@ export default function CuisineStoreApp({
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";
     const isBulkCookies = selectedProduct.id === "guaurricookies";
+    const isGuaurriCookiesKit =
+      selectedProduct.id === KIT_GUAURRICOOKIES_PRODUCT_KEY;
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
     const isGorrito = selectedProduct.id === "gorrito";
     const isVelitas = selectedProduct.id === "velitas";
@@ -1412,6 +1414,14 @@ export default function CuisineStoreApp({
       bulkQuantityIsValid &&
       bulkFlavorIncrementsAreValid &&
       bulkAssignedGrams === bulkTargetGrams;
+    const kitSelectedCount = Object.values(kitFlavorCounts).reduce(
+      (total, count) => total + count,
+      0,
+    );
+    const kitSelectionComplete =
+      isGuaurriCookiesKit &&
+      Boolean(kitConfig?.flavors.length) &&
+      kitSelectedCount === KIT_GUAURRICOOKIES_BAG_COUNT;
     const needsChoice = selectedProduct.customizable && customize === null;
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
@@ -1426,6 +1436,9 @@ export default function CuisineStoreApp({
       (!bulkQuantityIsValid ||
         !bulkFlavorIncrementsAreValid ||
         bulkAssignedGrams !== bulkTargetGrams);
+    const needsKitSelection =
+      isGuaurriCookiesKit &&
+      (!kitConfig || !kitSelectionComplete || kitConfigLoading);
     const canAdd =
       !needsChoice &&
       !needsRecipeConfiguration &&
@@ -1433,7 +1446,8 @@ export default function CuisineStoreApp({
       !needsChilaquiConfiguration &&
       !needsGorritoSize &&
       !needsBirthdayCandleNumber &&
-      !needsBulkDistribution;
+      !needsBulkDistribution &&
+      !needsKitSelection;
 
     return (
       <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
