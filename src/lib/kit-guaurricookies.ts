@@ -23,54 +23,108 @@ export type KitGuaurriCookiesConfig = {
   flavors: KitGuaurriCookiesFlavor[];
 };
 
+const FALLBACK_KIT_GUAURRICOOKIES_CONFIG: KitGuaurriCookiesConfig = {
+  id: KIT_GUAURRICOOKIES_WIX_PRODUCT_ID,
+  name: "Kit GuaurriCookies",
+  price: KIT_GUAURRICOOKIES_PRICE,
+  weight: 0.4,
+  image:
+    "https://static.wixstatic.com/media/24a095_11e1b8c7af7440ea9f48f739fdff0ea4~mv2.jpg",
+  flavors: [
+    {
+      label: "Cacahuate + Tocino",
+      sourceProductId: "1a61cf70-7d92-79ab-20f1-4f30eef3b1b7",
+      available: true,
+      quantity: null,
+      image: "",
+    },
+    {
+      label: "Manzana + Plátano",
+      sourceProductId: "a1a1f670-ba83-ed8e-8b4c-e6d43f637348",
+      available: true,
+      quantity: null,
+      image: "",
+    },
+    {
+      label: "Pollo + Calabaza",
+      sourceProductId: "96eaf1f0-561b-4adc-0240-f7981b97bb4f",
+      available: true,
+      quantity: null,
+      image: "",
+    },
+    {
+      label: "Pollo + Zanahoria",
+      sourceProductId: "9876918f-25af-9234-fb0f-2656775b664d",
+      available: true,
+      quantity: null,
+      image: "",
+    },
+  ],
+};
+
 export async function fetchKitGuaurriCookiesConfig(
   signal?: AbortSignal,
 ): Promise<KitGuaurriCookiesConfig> {
-  const response = await fetch(KIT_GUAURRICOOKIES_CONFIG_URL, {
-    method: "GET",
-    cache: "no-store",
-    signal,
-  });
+  try {
+    const response = await fetch(KIT_GUAURRICOOKIES_CONFIG_URL, {
+      method: "GET",
+      cache: "no-store",
+      signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      `No pudimos leer la disponibilidad del kit desde Wix (${response.status}).`,
+    if (!response.ok) {
+      throw new Error(
+        `No pudimos leer la disponibilidad del kit desde Wix (${response.status}).`,
+      );
+    }
+
+    const payload = await response.json();
+    const config = payload?.data ?? payload;
+
+    if (
+      !config ||
+      config.id !== KIT_GUAURRICOOKIES_WIX_PRODUCT_ID ||
+      !Array.isArray(config.flavors)
+    ) {
+      throw new Error("Wix devolvió una configuración incompleta para el kit.");
+    }
+
+    return {
+      id: String(config.id),
+      name: String(config.name || "Kit GuaurriCookies"),
+      price: Number(config.price || KIT_GUAURRICOOKIES_PRICE),
+      weight: Number(config.weight || 0.4),
+      image: String(config.image || ""),
+      flavors: config.flavors
+        .map((flavor: unknown) => {
+          const item = flavor as Partial<KitGuaurriCookiesFlavor>;
+          return {
+            label: String(item.label || "").trim(),
+            sourceProductId: String(item.sourceProductId || "").trim(),
+            available: Boolean(item.available),
+            quantity:
+              item.quantity === null || item.quantity === undefined
+                ? null
+                : Number(item.quantity),
+            image: String(item.image || ""),
+          };
+        })
+        .filter((flavor: KitGuaurriCookiesFlavor) => flavor.label),
+    };
+  } catch (error) {
+    if (signal?.aborted) throw error;
+
+    // El OS no debe bloquear el configurador si el endpoint Wix todavía no
+    // está publicado. Usamos los cuatro sabores reales ya registrados en Wix
+    // como respaldo y, cuando el endpoint esté disponible, el inventario en
+    // vivo vuelve a tener prioridad automáticamente.
+    console.warn(
+      "[KIT GUAURRICOOKIES] Wix no respondió; usando sabores de respaldo.",
+      error,
     );
+
+    return FALLBACK_KIT_GUAURRICOOKIES_CONFIG;
   }
-
-  const payload = await response.json();
-  const config = payload?.data ?? payload;
-
-  if (
-    !config ||
-    config.id !== KIT_GUAURRICOOKIES_WIX_PRODUCT_ID ||
-    !Array.isArray(config.flavors)
-  ) {
-    throw new Error("Wix devolvió una configuración incompleta para el kit.");
-  }
-
-  return {
-    id: String(config.id),
-    name: String(config.name || "Kit GuaurriCookies"),
-    price: Number(config.price || KIT_GUAURRICOOKIES_PRICE),
-    weight: Number(config.weight || 0.4),
-    image: String(config.image || ""),
-    flavors: config.flavors
-      .map((flavor: unknown) => {
-        const item = flavor as Partial<KitGuaurriCookiesFlavor>;
-        return {
-          label: String(item.label || "").trim(),
-          sourceProductId: String(item.sourceProductId || "").trim(),
-          available: Boolean(item.available),
-          quantity:
-            item.quantity === null || item.quantity === undefined
-              ? null
-              : Number(item.quantity),
-          image: String(item.image || ""),
-        };
-      })
-      .filter((flavor: KitGuaurriCookiesFlavor) => flavor.label),
-  };
 }
 
 export function encodeKitGuaurriCookiesSlots(slots: string[]) {
