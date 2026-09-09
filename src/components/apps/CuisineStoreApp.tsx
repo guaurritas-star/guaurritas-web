@@ -1529,7 +1529,7 @@ export default function CuisineStoreApp({
                       Completa las cuatro elecciones para continuar.
                     </p>
                   </div>
-                  <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
+                  <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c] sm:mt-auto">
                     Paso a paso
                   </span>
                 </div>
@@ -2724,10 +2724,10 @@ export default function CuisineStoreApp({
               key={product.id}
               type="button"
               onClick={() => openProduct(product)}
-              className="group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5]"
+              className="group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
             >
               <span
-                className="relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da]"
+                className="relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da] sm:shrink-0"
                 style={{ backgroundColor: product.imageTone }}
               >
                 <span
@@ -2749,7 +2749,7 @@ export default function CuisineStoreApp({
                   </span>
                 )}
               </span>
-              <span className="block px-4 pb-8 pt-0">
+              <span className="block p-4 sm:flex sm:flex-1 sm:flex-col">
                 <span className="font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
                   {product.eyebrow}
                 </span>
