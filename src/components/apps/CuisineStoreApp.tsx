@@ -1842,9 +1842,16 @@ export default function CuisineStoreApp({
                               }`}
                             >
                               <div className="min-w-0">
-                                <p className="font-interface text-[10px] font-bold leading-4 text-[#53627a]">
-                                  {flavor.label}
-                                </p>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-interface text-[10px] font-bold leading-4 text-[#53627a]">
+                                    {flavor.label}
+                                  </p>
+                                  {flavor.label === "Cacahuate + Tocino" && (
+                                    <span className="rounded-full bg-[#f5e7b8] px-2 py-0.5 font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#6f5b24]">
+                                      Recomendado
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="mt-0.5 font-interface text-[9px] text-[#718093]">
                                   {!flavor.available
                                     ? "Agotado en Wix"
