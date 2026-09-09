@@ -1131,6 +1131,33 @@ export default function CuisineStoreApp({
       selectedProduct.options[optionIndex] ?? selectedProduct.options[0];
     const cartImage = cartOption.image ?? selectedProduct.image;
 
+    if (selectedProduct.id === KIT_GUAURRICOOKIES_PRODUCT_KEY) {
+      if (fulfillmentMode !== "national" || !kitConfig) return;
+
+      const slots = kitConfig.flavors.flatMap((flavor) =>
+        Array.from({ length: kitFlavorCounts[flavor.label] ?? 0 }, () => flavor.label),
+      );
+
+      if (slots.length !== KIT_GUAURRICOOKIES_BAG_COUNT) return;
+
+      const summary = summarizeKitGuaurriCookiesSlots(slots);
+
+      addCartItem({
+        id: `cuisine:${KIT_GUAURRICOOKIES_PRODUCT_KEY}:${encodeKitGuaurriCookiesSlots(slots)}`,
+        name: selectedProduct.name,
+        detail: `4 bolsas de 100 g · ${summary}`,
+        personalization: `Combinación del kit: ${summary}`,
+        unitPrice: KIT_GUAURRICOOKIES_PRICE,
+        image: cartImage,
+        fulfillment: "national",
+      });
+
+      setNotice(
+        `${selectedProduct.name} · ${summary}. Se agregó al carrito.`,
+      );
+      return;
+    }
+
     if (selectedProduct.id === "velitas") {
       const isLargeCandle = selectedOption === 1;
       const candleNumber = birthdayCandleNumber.trim();
