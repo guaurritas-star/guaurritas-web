@@ -334,7 +334,6 @@ const products: CuisineProduct[] = [
       "Elige exactamente 4 bolsas. Puedes repetir sabores; Wix conserva la combinación elegida dentro del pedido.",
     badge: "Nuevo",
     imageTone: "#dce8ef",
-    imageScale: 0.92,
   },
   {
     id: "sazonadores",
@@ -2741,37 +2740,30 @@ export default function CuisineStoreApp({
                     fill
                     unoptimized
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
-                    className={`object-contain p-5 transition duration-500 group-hover:scale-105 ${
-                      [
-                        KIT_GUAURRICOOKIES_PRODUCT_KEY,
-                        "happy-box",
-                        "gorrito",
-                        "velitas",
-                      ].includes(product.id)
-                        ? "mix-blend-multiply"
-                        : ""
-                    }`}
+                    className="object-contain p-5 transition duration-500 group-hover:scale-105"
                   />
                 </span>
-                {[
-                  KIT_GUAURRICOOKIES_PRODUCT_KEY,
-                  "happy-box",
-                  "gorrito",
-                  "velitas",
-                ].includes(product.id) && (
-                  <span
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-5"
-                    style={{ backgroundColor: product.imageTone }}
-                    aria-hidden="true"
-                  />
-                )}
                 {product.badge && (
                   <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#263650] px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
                     {product.badge}
                   </span>
                 )}
               </span>
-              <span className="block p-4">
+              <span
+                className="block p-4"
+                style={
+                  [
+                    KIT_GUAURRICOOKIES_PRODUCT_KEY,
+                    "happy-box",
+                    "gorrito",
+                    "velitas",
+                  ].includes(product.id)
+                    ? {
+                        background: `linear-gradient(to bottom, ${product.imageTone} 0 16px, #ffffff 16px 100%)`,
+                      }
+                    : undefined
+                }
+              >
                 <span className="font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
                   {product.eyebrow}
                 </span>
