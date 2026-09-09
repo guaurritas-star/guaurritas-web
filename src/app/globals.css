@@ -779,6 +779,10 @@ textarea {
     scrollbar-gutter: stable;
   }
 
+  .taskbar-cart-panel--national {
+    max-height: min(620px, 68dvh);
+  }
+
   .taskbar-cart-titlebar {
     position: sticky;
     top: 0;
