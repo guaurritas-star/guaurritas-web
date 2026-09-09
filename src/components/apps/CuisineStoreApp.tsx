@@ -10,6 +10,15 @@ import {
   getCuisineCookiePrice,
   getCuisineOptionPrice,
 } from "@/lib/national-pricing";
+import {
+  KIT_GUAURRICOOKIES_BAG_COUNT,
+  KIT_GUAURRICOOKIES_PRICE,
+  KIT_GUAURRICOOKIES_PRODUCT_KEY,
+  encodeKitGuaurriCookiesSlots,
+  fetchKitGuaurriCookiesConfig,
+  summarizeKitGuaurriCookiesSlots,
+  type KitGuaurriCookiesConfig,
+} from "@/lib/kit-guaurricookies";
 
 type CategoryId =
   | "all"
