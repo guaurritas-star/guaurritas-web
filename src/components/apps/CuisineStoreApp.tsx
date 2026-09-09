@@ -364,7 +364,7 @@ const products: CuisineProduct[] = [
     detail:
       "Incluye 2 GuaurriCookies de 100 g, 1 bolsa de GuaurriSticks y 1 Sazonador Guaurritas. Elige los dos sabores de galletas y el sabor del sazonador.",
     badge: "Nuevo",
-    imageTone: "#e8eef1",
+    imageTone: "#f2dfe7",
   },
   {
     id: "sazonadores",
