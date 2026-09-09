@@ -2753,6 +2753,18 @@ export default function CuisineStoreApp({
                     }`}
                   />
                 </span>
+                {[
+                  KIT_GUAURRICOOKIES_PRODUCT_KEY,
+                  "happy-box",
+                  "gorrito",
+                  "velitas",
+                ].includes(product.id) && (
+                  <span
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-5"
+                    style={{ backgroundColor: product.imageTone }}
+                    aria-hidden="true"
+                  />
+                )}
                 {product.badge && (
                   <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#263650] px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
                     {product.badge}
