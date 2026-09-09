@@ -41,6 +41,7 @@ export function getCartItemShippingWeightKg(item: CartItem) {
   }
 
   if (productKey === "guaurricookies-kit") return 0.4;
+  if (productKey === "descubre-guaurritas") return 0.52;
   if (productKey === "happy-bag") return 0.12;
   if (productKey === "sazonadores") return 0.08;
   if (productKey === "sticks") return 0.2;
