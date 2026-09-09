@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
   assetPrefix: basePath || undefined,
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "static.wixstatic.com",
+        pathname: "/media/**",
+      },
+    ],
   },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
