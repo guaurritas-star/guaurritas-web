@@ -313,6 +313,30 @@ const products: CuisineProduct[] = [
     imageScale: 1.18,
   },
   {
+    id: KIT_GUAURRICOOKIES_PRODUCT_KEY,
+    name: "Kit GuaurriCookies",
+    eyebrow: "Kit nacional",
+    category: "snacks",
+    description:
+      "4 bolsitas de GuaurriCookies de 100 g para armar tu propia combinación de sabores.",
+    image:
+      "https://static.wixstatic.com/media/24a095_ba6ebf753a754b37bc0a50429535d3fc~mv2.png",
+    imageAlt:
+      "Kit GuaurriCookies con cuatro bolsas de sabores dentro de una caja Guaurritas",
+    options: [
+      {
+        label: "4 bolsitas · arma tu combinación",
+        price: KIT_GUAURRICOOKIES_PRICE,
+        grams: 400,
+      },
+    ],
+    detail:
+      "Elige exactamente 4 bolsas. Puedes repetir sabores; Wix conserva la combinación elegida dentro del pedido.",
+    badge: "Nuevo",
+    imageTone: "#f3ece7",
+    imageScale: 1,
+  },
+  {
     id: "sazonadores",
     name: "Sazonadores",
     eyebrow: "Para elevar su bowl",
