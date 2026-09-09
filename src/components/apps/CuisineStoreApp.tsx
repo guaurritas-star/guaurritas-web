@@ -2741,7 +2741,11 @@ export default function CuisineStoreApp({
                     fill
                     unoptimized
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
-                    className="object-contain p-5 transition duration-500 group-hover:scale-105"
+                    className={`object-contain p-5 transition duration-500 group-hover:scale-105 ${
+                      product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY
+                        ? "mix-blend-multiply"
+                        : ""
+                    }`}
                   />
                 </span>
                 {product.badge && (
