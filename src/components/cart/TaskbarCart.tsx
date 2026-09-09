@@ -424,7 +424,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
           id="taskbar-cart-panel"
           className={`taskbar-cart-panel ${
             view === "leon-checkout" ? "taskbar-cart-panel--checkout" : ""
-          }`}
+          } ${view === "cart" && nationalItems.length > 0 ? "taskbar-cart-panel--national" : ""}`}
           aria-label={view === "cart" ? "Artículos del carrito" : "Completar pedido"}
         >
           <header className="taskbar-cart-titlebar">
