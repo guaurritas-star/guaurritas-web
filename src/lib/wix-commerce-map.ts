@@ -1,3 +1,10 @@
+import {
+  KIT_GUAURRICOOKIES_PRICE,
+  KIT_GUAURRICOOKIES_PRODUCT_KEY,
+  KIT_GUAURRICOOKIES_WIX_PRODUCT_ID,
+  decodeKitGuaurriCookiesSlots,
+} from "@/lib/kit-guaurricookies";
+
 export const WIX_STORES_APP_ID = "215238eb-22a5-4c36-9e7b-e7c08025e04e";
 
 export type WixCatalogReferenceOptions = {
@@ -241,6 +248,26 @@ export function resolveCuisineWixBinding(
 
   const parts = item.id.split(":");
   const productKey = parts[1];
+
+  if (productKey === KIT_GUAURRICOOKIES_PRODUCT_KEY) {
+    const slots = decodeKitGuaurriCookiesSlots(parts.slice(2).join(":"));
+
+    if (slots.length !== 4) {
+      return {
+        supported: false,
+        reason: "El Kit GuaurriCookies necesita exactamente 4 bolsas.",
+      };
+    }
+
+    return supported(KIT_GUAURRICOOKIES_WIX_PRODUCT_ID, KIT_GUAURRICOOKIES_PRICE, {
+      options: {
+        "Bolsa 1": slots[0],
+        "Bolsa 2": slots[1],
+        "Bolsa 3": slots[2],
+        "Bolsa 4": slots[3],
+      },
+    });
+  }
 
   if (productKey === "guaurricookies") {
     const grams = Number(parts[2]);
