@@ -333,8 +333,8 @@ const products: CuisineProduct[] = [
     detail:
       "Elige exactamente 4 bolsas. Puedes repetir sabores; Wix conserva la combinación elegida dentro del pedido.",
     badge: "Nuevo",
-    imageTone: "#f3ece7",
-    imageScale: 1,
+    imageTone: "#e7edf2",
+    imageScale: 0.92,
   },
   {
     id: "sazonadores",
@@ -2741,9 +2741,7 @@ export default function CuisineStoreApp({
                     fill
                     unoptimized
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
-                    className={`object-contain transition duration-500 group-hover:scale-105 ${
-                      product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY ? "p-0" : "p-5"
-                    }`}
+                    className="object-contain p-5 transition duration-500 group-hover:scale-105"
                   />
                 </span>
                 {product.badge && (
