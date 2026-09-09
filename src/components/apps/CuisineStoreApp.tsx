@@ -713,9 +713,11 @@ function priceFrom(product: CuisineProduct, fulfillmentMode: FulfillmentMode) {
 export default function CuisineStoreApp({
   onBack,
   fulfillmentMode = "leon",
+  onModeChange,
 }: {
   onBack: () => void;
   fulfillmentMode?: FulfillmentMode;
+  onModeChange?: (mode: FulfillmentMode) => void;
 }) {
   const [category, setCategory] = useState<CategoryId>("all");
   const [query, setQuery] = useState("");
@@ -2996,11 +2998,34 @@ export default function CuisineStoreApp({
             onClick={onBack}
             className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#425b8c] hover:text-[#263650] sm:text-xs"
           >
-            ← Guaurriverse
+            ← Elegir entrega
           </button>
-          <p className="hidden font-interface text-[10px] font-bold uppercase tracking-[0.18em] text-[#5e7685] sm:block">
-            GuaurritasCuisine.exe
-          </p>
+          {onModeChange ? (
+            <div
+              className="flex rounded-full border border-[#b9c8d8] bg-white p-1 shadow-sm"
+              aria-label="Modalidad de entrega"
+            >
+              {(["national", "leon"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => onModeChange(mode)}
+                  aria-pressed={fulfillmentMode === mode}
+                  className={`rounded-full px-2.5 py-1.5 font-interface text-[8px] font-bold uppercase tracking-[0.08em] transition sm:px-3 sm:text-[9px] ${
+                    fulfillmentMode === mode
+                      ? "bg-[#263650] text-white"
+                      : "text-[#657287] hover:bg-[#eef5f7]"
+                  }`}
+                >
+                  {mode === "national" ? "📦 Nacional" : "📍 León"}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="hidden font-interface text-[10px] font-bold uppercase tracking-[0.18em] text-[#5e7685] sm:block">
+              GuaurritasCuisine.exe
+            </p>
+          )}
           {cuisineCartTrigger}
         </div>
       </div>
@@ -3018,6 +3043,11 @@ export default function CuisineStoreApp({
               Elige según especie, proteína y momento de consumo. Para celebrar,
               premiar o consentir sin improvisar.
             </p>
+            <span className="mt-4 inline-flex rounded-full border border-[#c4d2d9] bg-[#f6fafb] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#536a78]">
+              {fulfillmentMode === "national"
+                ? "📦 Catálogo con envío nacional"
+                : "📍 Catálogo completo de León"}
+            </span>
           </div>
           <div className="hidden rotate-1 border-2 border-[#425b8c] bg-white px-5 py-4 text-center shadow-[4px_4px_0_#9bc3ca] lg:block">
             <span className="block font-serif text-lg font-semibold text-[#263650]">
