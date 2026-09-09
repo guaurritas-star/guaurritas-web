@@ -2903,6 +2903,8 @@ export default function CuisineStoreApp({
                         : money(bulkPrice)
                     : isGuaurriCookiesKit
                       ? money(KIT_GUAURRICOOKIES_PRICE)
+                    : isDescubreGuaurritas
+                      ? money(DESCUBRE_GUAURRITAS_PRICE)
                     : isPetcake && petcakeFinish === null
                       ? "Selecciona el acabado"
                       : money(currentDisplayPrice)}
@@ -2918,9 +2920,13 @@ export default function CuisineStoreApp({
                   ? kitSelectionComplete
                     ? `Agregar kit al carrito · ${money(KIT_GUAURRICOOKIES_PRICE)}`
                     : "Elige 4 bolsas para continuar"
-                  : isBulkWholesaleQuote
-                    ? "Solicitar cotización"
-                    : "Agregar al carrito"}
+                  : isDescubreGuaurritas
+                    ? descubreSelectionComplete
+                      ? `Agregar al carrito · ${money(DESCUBRE_GUAURRITAS_PRICE)}`
+                      : "Completa tu kit para continuar"
+                    : isBulkWholesaleQuote
+                      ? "Solicitar cotización"
+                      : "Agregar al carrito"}
               </button>
             </div>
 
@@ -2932,6 +2938,12 @@ export default function CuisineStoreApp({
                     : kitConfigError
                       ? "No pudimos leer los sabores desde Wix. Reintenta desde el selector."
                       : `Elige exactamente ${KIT_GUAURRICOOKIES_BAG_COUNT} bolsas para continuar.`
+                : needsDescubreSelection
+                  ? kitConfigLoading || descubreConfigLoading
+                    ? "Estamos sincronizando las opciones del kit con Wix."
+                    : kitConfigError || descubreConfigError
+                      ? "No pudimos leer las opciones desde Wix. Reintenta desde el selector."
+                      : "Elige exactamente 2 GuaurriCookies y 1 Sazonador para continuar."
                 : needsBulkDistribution
                   ? !bulkQuantityIsValid
                     ? "Ingresa una cantidad entre 300 g y 10 kg en múltiplos de 100 g."
