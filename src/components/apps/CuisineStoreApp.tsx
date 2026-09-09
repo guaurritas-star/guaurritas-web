@@ -333,7 +333,7 @@ const products: CuisineProduct[] = [
     detail:
       "Elige exactamente 4 bolsas. Puedes repetir sabores; Wix conserva la combinación elegida dentro del pedido.",
     badge: "Nuevo",
-    imageTone: "#e7edf2",
+    imageTone: "#dce8ef",
     imageScale: 0.92,
   },
   {
