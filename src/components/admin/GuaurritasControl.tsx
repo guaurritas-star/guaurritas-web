@@ -298,11 +298,15 @@ export default function GuaurritasControl() {
       refreshing = true;
       try {
         await loadBootstrap(password);
-        await Promise.all([
-          loadDashboard(password, period),
-          loadOrders(password, nav === 'spei' ? 'spei' : mode, period, search, page),
-          loadUpcoming(password),
+        const effectiveMode: Mode = nav === 'spei' ? 'spei' : mode;
+        const [freshDashboard, freshList, freshUpcoming] = await Promise.all([
+          panelApi<DashboardData>(password, 'dashboard', period),
+          panelApi<OrderList>(password, 'list', { mode: effectiveMode, ...period, search, page }),
+          panelApi<ControlOrder[]>(password, 'upcoming', { limit: 150 }),
         ]);
+        setDashboard(freshDashboard);
+        setList(freshList);
+        setUpcoming(freshUpcoming);
       } catch (err) {
         setError(handleApiError(err));
       } finally {
@@ -330,9 +334,6 @@ export default function GuaurritasControl() {
     search,
     page,
     loadBootstrap,
-    loadDashboard,
-    loadOrders,
-    loadUpcoming,
     handleApiError,
   ]);
 
