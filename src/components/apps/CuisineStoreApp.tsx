@@ -2749,21 +2749,7 @@ export default function CuisineStoreApp({
                   </span>
                 )}
               </span>
-              <span
-                className="block p-4"
-                style={
-                  [
-                    KIT_GUAURRICOOKIES_PRODUCT_KEY,
-                    "happy-box",
-                    "gorrito",
-                    "velitas",
-                  ].includes(product.id)
-                    ? {
-                        background: `linear-gradient(to bottom, ${product.imageTone} 0 16px, #ffffff 16px 100%)`,
-                      }
-                    : undefined
-                }
-              >
+              <span className="block p-4">
                 <span className="font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
                   {product.eyebrow}
                 </span>
