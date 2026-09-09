@@ -2730,7 +2730,7 @@ export default function CuisineStoreApp({
               <span
                 className={`relative block overflow-hidden border-b border-[#cbd5da] ${
                   product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY
-                    ? "aspect-[16/10]"
+                    ? "aspect-square"
                     : "aspect-[4/3]"
                 }`}
                 style={{ backgroundColor: product.imageTone }}
@@ -2740,7 +2740,7 @@ export default function CuisineStoreApp({
                   style={{
                     transform: `scale(${
                       product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY
-                        ? 1.16
+                        ? 1
                         : product.imageScale ?? 1
                     })`,
                   }}
@@ -2752,7 +2752,7 @@ export default function CuisineStoreApp({
                     unoptimized
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
                     className={`object-contain transition duration-500 group-hover:scale-105 ${
-                      product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY ? "p-1" : "p-5"
+                      product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY ? "p-0" : "p-5"
                     }`}
                   />
                 </span>
