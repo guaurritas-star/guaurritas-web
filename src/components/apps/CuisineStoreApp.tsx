@@ -1265,6 +1265,7 @@ export default function CuisineStoreApp({
         fulfillmentMode !== "national" ||
         !kitConfig ||
         !descubreConfig ||
+        descubreConfig.sticksAvailable === false ||
         !descubreSazonador
       ) {
         return;
@@ -1573,6 +1574,7 @@ export default function CuisineStoreApp({
       isDescubreGuaurritas &&
       Boolean(kitConfig?.flavors.length) &&
       Boolean(descubreConfig?.sazonadores.length) &&
+      descubreConfig?.sticksAvailable !== false &&
       descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT &&
       Boolean(descubreSazonador);
     const needsChoice = selectedProduct.customizable && customize === null;
@@ -2227,9 +2229,11 @@ export default function CuisineStoreApp({
                           : "text-[#718093]"
                       }`}
                     >
-                      {descubreSelectionComplete
-                        ? "✓ Tu kit está completo"
-                        : "Completa tus 2 GuaurriCookies y elige 1 Sazonador."}
+                      {descubreConfig?.sticksAvailable === false
+                        ? "GuaurriSticks agotados temporalmente"
+                        : descubreSelectionComplete
+                          ? "✓ Tu kit está completo"
+                          : "Completa tus 2 GuaurriCookies y elige 1 Sazonador."}
                     </p>
                   </fieldset>
                 ) : isGorrito ? (
