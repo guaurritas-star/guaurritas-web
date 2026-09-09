@@ -425,6 +425,11 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
           className={`taskbar-cart-panel ${
             view === "leon-checkout" ? "taskbar-cart-panel--checkout" : ""
           } ${view === "cart" && nationalItems.length > 0 ? "taskbar-cart-panel--national" : ""}`}
+          style={
+            view === "cart" && nationalItems.length > 0
+              ? { maxHeight: "min(560px, 62dvh)", overflowY: "auto", overflowX: "hidden" }
+              : undefined
+          }
           aria-label={view === "cart" ? "Artículos del carrito" : "Completar pedido"}
         >
           <header className="taskbar-cart-titlebar">
@@ -496,7 +501,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 )}
 
                 {nationalItems.length > 0 && (
-                  <section className="min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
+                  <section className="taskbar-cart-national-summary min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
                     <p className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#487986]">
                       📦 Envío nacional
                     </p>
@@ -528,7 +533,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </button>
                     </div>
 
-                    <div className="mt-3 rounded-lg border border-[#b8d2d9] bg-white/75 p-2.5">
+                    <div className="taskbar-cart-national-shipping-card mt-3 rounded-lg border border-[#b8d2d9] bg-white/75 p-2.5">
                       <div className="flex items-center justify-between gap-2">
                         <p className="font-interface text-[10px] font-bold uppercase tracking-[0.1em] text-[#487986]">
                           Envío Guaurritas
