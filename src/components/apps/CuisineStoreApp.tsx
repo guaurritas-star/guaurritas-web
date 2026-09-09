@@ -1193,6 +1193,35 @@ export default function CuisineStoreApp({
     });
   };
 
+  const adjustDescubreFlavor = (label: string, delta: -1 | 1) => {
+    setDescubreFlavorCounts((current) => {
+      const flavor = kitConfig?.flavors.find((item) => item.label === label);
+      if (!flavor || !flavor.available) return current;
+
+      const selected = Object.values(current).reduce(
+        (total, count) => total + count,
+        0,
+      );
+      const currentCount = current[label] ?? 0;
+      const nextCount = currentCount + delta;
+
+      if (nextCount < 0) return current;
+      if (delta > 0 && selected >= DESCUBRE_GUAURRITAS_COOKIE_COUNT) {
+        return current;
+      }
+      if (
+        delta > 0 &&
+        flavor.quantity !== null &&
+        Number.isFinite(flavor.quantity) &&
+        nextCount > flavor.quantity
+      ) {
+        return current;
+      }
+
+      return { ...current, [label]: nextCount };
+    });
+  };
+
   const addToCart = () => {
     if (!selectedProduct) return;
 
@@ -1228,6 +1257,45 @@ export default function CuisineStoreApp({
       setNotice(
         `${selectedProduct.name} · ${summary}. Se agregó al carrito.`,
       );
+      return;
+    }
+
+    if (selectedProduct.id === DESCUBRE_GUAURRITAS_PRODUCT_KEY) {
+      if (
+        fulfillmentMode !== "national" ||
+        !kitConfig ||
+        !descubreConfig ||
+        !descubreSazonador
+      ) {
+        return;
+      }
+
+      const cookieSlots = kitConfig.flavors.flatMap((flavor) =>
+        Array.from(
+          { length: descubreFlavorCounts[flavor.label] ?? 0 },
+          () => flavor.label,
+        ),
+      );
+
+      if (cookieSlots.length !== DESCUBRE_GUAURRITAS_COOKIE_COUNT) return;
+
+      const cookieSummary = summarizeKitGuaurriCookiesSlots(cookieSlots);
+      const detail = `2 GuaurriCookies · ${cookieSummary} · Sazonador: ${descubreSazonador} · GuaurriSticks ×1`;
+
+      addCartItem({
+        id: `cuisine:${DESCUBRE_GUAURRITAS_PRODUCT_KEY}:${encodeDescubreGuaurritasSelection(
+          cookieSlots,
+          descubreSazonador,
+        )}`,
+        name: selectedProduct.name,
+        detail,
+        personalization: `GuaurriCookies: ${cookieSummary} · Sazonador: ${descubreSazonador} ×1 · GuaurriSticks ×1`,
+        unitPrice: DESCUBRE_GUAURRITAS_PRICE,
+        image: cartImage,
+        fulfillment: "national",
+      });
+
+      setNotice(`${selectedProduct.name} · ${detail}. Se agregó al carrito.`);
       return;
     }
 
