@@ -425,11 +425,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
           className={`taskbar-cart-panel ${
             view === "leon-checkout" ? "taskbar-cart-panel--checkout" : ""
           } ${view === "cart" && nationalItems.length > 0 ? "taskbar-cart-panel--national" : ""}`}
-          style={
-            view === "cart" && nationalItems.length > 0
-              ? { maxHeight: "min(420px, calc(100dvh - 90px))", overflowY: "auto", overflowX: "hidden" }
-              : undefined
-          }
           aria-label={view === "cart" ? "Artículos del carrito" : "Completar pedido"}
         >
           <header className="taskbar-cart-titlebar">
@@ -501,7 +496,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 )}
 
                 {nationalItems.length > 0 && (
-                  <section className="taskbar-cart-national-summary min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left">
+                  <section className="taskbar-cart-national-summary hidden min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left sm:block">
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#487986]">
@@ -568,6 +563,86 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                             width: `${nationalShippingPromo.purchaseProgress * 100}%`,
                           }}
                         />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {nationalItems.length > 0 && (
+                  <section className="min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left sm:hidden">
+                    <p className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#487986]">
+                      📦 Envío nacional
+                    </p>
+
+                    <div className="mt-2 flex min-w-0 items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <small className="block text-[10px] text-[#657287]">
+                          Productos
+                        </small>
+                        <strong className="text-base text-[#263650]">
+                          {money(nationalOnlineTotal)}
+                        </strong>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={checkoutBusy || !nationalCanCheckout}
+                        onClick={() =>
+                          proceedToCheckout(nationalItems, "tu envío nacional")
+                        }
+                        className="!min-h-10 !px-4 !text-[11px] !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {checkoutBusy
+                          ? "Preparando…"
+                          : nationalShippingPromo.state === "overweight"
+                            ? "Envío especial"
+                            : nationalCanCheckout
+                              ? "Pagar nacional"
+                              : `Mín. ${money(NATIONAL_SHIPPING_PROMO.minimumOrder)}`}
+                      </button>
+                    </div>
+
+                    <div className="mt-3 rounded-lg border border-[#b8d2d9] bg-white/75 p-2.5">
+                      <p
+                        className={`break-words text-[10px] font-semibold leading-5 ${
+                          nationalShippingPromo.state === "overweight"
+                            ? "text-[#9f5860]"
+                            : nationalShippingPromo.state === "free"
+                              ? "text-[#446454]"
+                              : nationalShippingPromo.state === "below_minimum"
+                                ? "text-[#8a6a43]"
+                                : "text-[#53627a]"
+                        }`}
+                        aria-live="polite"
+                      >
+                        {nationalShippingPromoMessage}
+                      </p>
+
+                      <div className="mt-2">
+                        <div className="mb-1 flex items-center justify-between gap-2 text-[9px] font-semibold text-[#657287]">
+                          <span>Envío gratis</span>
+                          <span>
+                            {money(nationalOnlineTotal)} /{" "}
+                            {money(NATIONAL_SHIPPING_PROMO.freeShippingThreshold)}
+                          </span>
+                        </div>
+                        <div
+                          className="h-2.5 overflow-hidden rounded-full bg-[#dce7ea]"
+                          role="progressbar"
+                          aria-label="Progreso para envío gratis"
+                          aria-valuemin={0}
+                          aria-valuemax={NATIONAL_SHIPPING_PROMO.freeShippingThreshold}
+                          aria-valuenow={Math.min(
+                            nationalOnlineTotal,
+                            NATIONAL_SHIPPING_PROMO.freeShippingThreshold,
+                          )}
+                        >
+                          <span
+                            className="block h-full rounded-full bg-[#425BBC]"
+                            style={{
+                              width: `${nationalShippingPromo.purchaseProgress * 100}%`,
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </section>
