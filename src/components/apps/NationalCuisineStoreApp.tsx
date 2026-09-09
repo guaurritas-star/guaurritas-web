@@ -5,6 +5,7 @@ import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
 
 const NATIONAL_PRODUCT_NAMES = [
   "Guaurricookies",
+  "Kit GuaurriCookies",
   "Happy Bag",
   "Sazonadores",
   "GuaurriSticks",
