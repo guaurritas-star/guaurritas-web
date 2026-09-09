@@ -20,6 +20,7 @@ export type DescubreGuaurritasConfig = {
   price: number;
   weight: number;
   image: string;
+  sticksAvailable: boolean;
   sazonadores: DescubreGuaurritasSazonador[];
 };
 
@@ -29,6 +30,7 @@ const FALLBACK_DESCUBRE_GUAURRITAS_CONFIG: DescubreGuaurritasConfig = {
   price: DESCUBRE_GUAURRITAS_PRICE,
   weight: 0.52,
   image: DESCUBRE_GUAURRITAS_IMAGE_URL,
+  sticksAvailable: true,
   sazonadores: [
     {
       label: "Pollo + Calabaza",
@@ -78,6 +80,7 @@ export async function fetchDescubreGuaurritasConfig(
       price: Number(config.price || DESCUBRE_GUAURRITAS_PRICE),
       weight: Number(config.weight || 0.52),
       image: String(config.image || DESCUBRE_GUAURRITAS_IMAGE_URL),
+      sticksAvailable: config.sticksAvailable !== false,
       sazonadores: config.sazonadores
         .map((choice: unknown) => {
           const item = choice as Partial<DescubreGuaurritasSazonador>;
