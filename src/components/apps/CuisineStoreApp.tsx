@@ -19,6 +19,15 @@ import {
   summarizeKitGuaurriCookiesSlots,
   type KitGuaurriCookiesConfig,
 } from "@/lib/kit-guaurricookies";
+import {
+  DESCUBRE_GUAURRITAS_COOKIE_COUNT,
+  DESCUBRE_GUAURRITAS_IMAGE_URL,
+  DESCUBRE_GUAURRITAS_PRICE,
+  DESCUBRE_GUAURRITAS_PRODUCT_KEY,
+  encodeDescubreGuaurritasSelection,
+  fetchDescubreGuaurritasConfig,
+  type DescubreGuaurritasConfig,
+} from "@/lib/descubre-guaurritas";
 
 type CategoryId =
   | "all"
@@ -334,6 +343,27 @@ const products: CuisineProduct[] = [
       "Elige exactamente 4 bolsas. Puedes repetir sabores; Wix conserva la combinación elegida dentro del pedido.",
     badge: "Nuevo",
     imageTone: "#dce8ef",
+  },
+  {
+    id: DESCUBRE_GUAURRITAS_PRODUCT_KEY,
+    name: "Descubre Guaurritas",
+    eyebrow: "Kit nacional",
+    category: "snacks",
+    description: "Prueba un poquito de todo.",
+    image: DESCUBRE_GUAURRITAS_IMAGE_URL,
+    imageAlt:
+      "Kit Descubre Guaurritas con dos GuaurriCookies, GuaurriSticks y Sazonador",
+    options: [
+      {
+        label: "2 GuaurriCookies + Sticks + Sazonador",
+        price: DESCUBRE_GUAURRITAS_PRICE,
+        grams: 520,
+      },
+    ],
+    detail:
+      "Incluye 2 GuaurriCookies de 100 g, 1 bolsa de GuaurriSticks y 1 Sazonador Guaurritas. Elige los dos sabores de galletas y el sabor del sazonador.",
+    badge: "Nuevo",
+    imageTone: "#e8eef1",
   },
   {
     id: "sazonadores",
@@ -713,6 +743,14 @@ export default function CuisineStoreApp({
   const [kitConfigError, setKitConfigError] = useState("");
   const [kitConfigRetry, setKitConfigRetry] = useState(0);
   const [kitFlavorCounts, setKitFlavorCounts] = useState<Record<string, number>>({});
+  const [descubreConfig, setDescubreConfig] =
+    useState<DescubreGuaurritasConfig | null>(null);
+  const [descubreConfigLoading, setDescubreConfigLoading] = useState(false);
+  const [descubreConfigError, setDescubreConfigError] = useState("");
+  const [descubreConfigRetry, setDescubreConfigRetry] = useState(0);
+  const [descubreFlavorCounts, setDescubreFlavorCounts] =
+    useState<Record<string, number>>({});
+  const [descubreSazonador, setDescubreSazonador] = useState<string | null>(null);
   const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
   const [inspirationFeedback, setInspirationFeedback] = useState("");
   const [inspirationInputKey, setInspirationInputKey] = useState(0);
@@ -816,6 +854,36 @@ export default function CuisineStoreApp({
 
     return () => controller.abort();
   }, [fulfillmentMode, kitConfigRetry]);
+
+  useEffect(() => {
+    if (fulfillmentMode !== "national") {
+      setDescubreConfig(null);
+      setDescubreConfigError("");
+      setDescubreConfigLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setDescubreConfigLoading(true);
+    setDescubreConfigError("");
+
+    fetchDescubreGuaurritasConfig(controller.signal)
+      .then((config) => setDescubreConfig(config))
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        setDescubreConfig(null);
+        setDescubreConfigError(
+          error instanceof Error
+            ? error.message
+            : "No pudimos sincronizar Descubre Guaurritas con Wix.",
+        );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setDescubreConfigLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [fulfillmentMode, descubreConfigRetry]);
 
   useEffect(() => {
     if (window.self === window.top) return;
@@ -930,8 +998,10 @@ export default function CuisineStoreApp({
 
     return products.filter((product) => {
       const matchesFulfillment =
-        product.id !== KIT_GUAURRICOOKIES_PRODUCT_KEY ||
-        fulfillmentMode === "national";
+        ![
+          KIT_GUAURRICOOKIES_PRODUCT_KEY,
+          DESCUBRE_GUAURRITAS_PRODUCT_KEY,
+        ].includes(product.id) || fulfillmentMode === "national";
       const matchesCategory =
         category === "all" || product.category === category;
       const matchesSearch =
@@ -962,6 +1032,10 @@ export default function CuisineStoreApp({
     setKitFlavorCounts(
       Object.fromEntries((kitConfig?.flavors ?? []).map((flavor) => [flavor.label, 0])),
     );
+    setDescubreFlavorCounts(
+      Object.fromEntries((kitConfig?.flavors ?? []).map((flavor) => [flavor.label, 0])),
+    );
+    setDescubreSazonador(null);
     setInspirationPhotos([]);
     setInspirationFeedback("");
     setInspirationInputKey((key) => key + 1);
