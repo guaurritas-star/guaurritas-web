@@ -427,7 +427,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
           } ${view === "cart" && nationalItems.length > 0 ? "taskbar-cart-panel--national" : ""}`}
           style={
             view === "cart" && nationalItems.length > 0
-              ? { maxHeight: "min(560px, 62dvh)", overflowY: "auto", overflowX: "hidden" }
+              ? { maxHeight: "min(420px, calc(100dvh - 90px))", overflowY: "auto", overflowX: "hidden" }
               : undefined
           }
           aria-label={view === "cart" ? "Artículos del carrito" : "Completar pedido"}

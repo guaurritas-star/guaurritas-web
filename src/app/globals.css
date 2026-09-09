@@ -780,7 +780,7 @@ textarea {
   }
 
   .taskbar-cart-panel--national {
-    max-height: min(560px, 62dvh);
+    max-height: min(420px, calc(100dvh - 90px));
   }
 
   .taskbar-cart-panel--national .taskbar-cart-footer {
