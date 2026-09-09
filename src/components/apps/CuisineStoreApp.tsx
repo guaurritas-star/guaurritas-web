@@ -320,7 +320,7 @@ const products: CuisineProduct[] = [
     description:
       "4 bolsitas de GuaurriCookies de 100 g para armar tu propia combinación de sabores.",
     image:
-      "https://static.wixstatic.com/media/24a095_11e1b8c7af7440ea9f48f739fdff0ea4~mv2.jpg",
+      "https://static.wixstatic.com/media/24a095_23e0b3c256d24dd98249401230fbd06f~mv2.png",
     imageAlt:
       "Kit GuaurriCookies con cuatro bolsas de sabores dentro de una caja Guaurritas",
     options: [
@@ -1852,13 +1852,11 @@ export default function CuisineStoreApp({
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-0.5 font-interface text-[9px] text-[#718093]">
-                                  {!flavor.available
-                                    ? "Agotado en Wix"
-                                    : flavor.quantity !== null
-                                      ? `${flavor.quantity} disponibles`
-                                      : "Disponible"}
-                                </p>
+                                {!flavor.available && (
+                                  <p className="mt-0.5 font-interface text-[9px] font-semibold text-[#9f5860]">
+                                    Agotado
+                                  </p>
+                                )}
                               </div>
 
                               <div className="flex shrink-0 items-center gap-2">
