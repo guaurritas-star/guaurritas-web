@@ -772,11 +772,15 @@ textarea {
  * than the available desktop height. Mobile keeps its existing behavior below. */
 @media (min-width: 640px) {
   .taskbar-cart-panel {
-    max-height: min(620px, 68dvh);
+    max-height: calc(100dvh - 72px);
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
+  }
+
+  .taskbar-cart-panel--national {
+    max-height: min(620px, 68dvh);
   }
 
   .taskbar-cart-titlebar {
