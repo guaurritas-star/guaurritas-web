@@ -930,6 +930,9 @@ export default function CuisineStoreApp({
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
 
     return products.filter((product) => {
+      const matchesFulfillment =
+        product.id !== KIT_GUAURRICOOKIES_PRODUCT_KEY ||
+        fulfillmentMode === "national";
       const matchesCategory =
         category === "all" || product.category === category;
       const matchesSearch =
@@ -939,9 +942,9 @@ export default function CuisineStoreApp({
           .toLocaleLowerCase("es")
           .includes(normalizedQuery);
 
-      return matchesCategory && matchesSearch;
+      return matchesFulfillment && matchesCategory && matchesSearch;
     });
-  }, [category, query]);
+  }, [category, query, fulfillmentMode]);
 
   const openProduct = (product: CuisineProduct) => {
     setSelectedProduct(product);
@@ -957,6 +960,9 @@ export default function CuisineStoreApp({
     setBulkFlavorGrams(createEmptyBulkDistribution());
     setBulkUnit("g");
     setBulkQuantityInput("300");
+    setKitFlavorCounts(
+      Object.fromEntries((kitConfig?.flavors ?? []).map((flavor) => [flavor.label, 0])),
+    );
     setInspirationPhotos([]);
     setInspirationFeedback("");
     setInspirationInputKey((key) => key + 1);
@@ -1084,6 +1090,33 @@ export default function CuisineStoreApp({
       }
 
       return { ...current, [flavor]: nextFlavorGrams };
+    });
+  };
+
+  const adjustKitFlavor = (label: string, delta: -1 | 1) => {
+    setKitFlavorCounts((current) => {
+      const flavor = kitConfig?.flavors.find((item) => item.label === label);
+      if (!flavor || !flavor.available) return current;
+
+      const selected = Object.values(current).reduce(
+        (total, count) => total + count,
+        0,
+      );
+      const currentCount = current[label] ?? 0;
+      const nextCount = currentCount + delta;
+
+      if (nextCount < 0) return current;
+      if (delta > 0 && selected >= KIT_GUAURRICOOKIES_BAG_COUNT) return current;
+      if (
+        delta > 0 &&
+        flavor.quantity !== null &&
+        Number.isFinite(flavor.quantity) &&
+        nextCount > flavor.quantity
+      ) {
+        return current;
+      }
+
+      return { ...current, [label]: nextCount };
     });
   };
 
