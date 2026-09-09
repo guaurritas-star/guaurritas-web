@@ -29,7 +29,7 @@ const FALLBACK_KIT_GUAURRICOOKIES_CONFIG: KitGuaurriCookiesConfig = {
   price: KIT_GUAURRICOOKIES_PRICE,
   weight: 0.4,
   image:
-    "https://static.wixstatic.com/media/24a095_11e1b8c7af7440ea9f48f739fdff0ea4~mv2.jpg",
+    "https://static.wixstatic.com/media/24a095_23e0b3c256d24dd98249401230fbd06f~mv2.png",
   flavors: [
     {
       label: "Cacahuate + Tocino",
