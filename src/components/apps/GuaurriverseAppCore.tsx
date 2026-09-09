@@ -29,6 +29,7 @@ type World = {
   accent: string;
   accentSoft: string;
   symbol: string;
+  available: boolean;
   media?: WorldMedia;
 };
 
@@ -46,6 +47,7 @@ const worlds: World[] = [
     accent: "#c9a97a",
     accentSoft: "#f0d898",
     symbol: "✦",
+    available: false,
     media: {
       type: "image",
       src: "/guaurriverse/worlds/club.gif",
@@ -60,6 +62,7 @@ const worlds: World[] = [
     accent: "#5ea0b0",
     accentSoft: "#a8dde8",
     symbol: "♨",
+    available: true,
     media: {
       type: "image",
       src: "/guaurriverse/worlds/cuisine.gif",
@@ -74,6 +77,7 @@ const worlds: World[] = [
     accent: "#e07a85",
     accentSoft: "#f5b8be",
     symbol: "★",
+    available: false,
     media: {
       type: "image",
       src: "/guaurriverse/worlds/guaupalooza.jpg",
@@ -88,6 +92,7 @@ const worlds: World[] = [
     accent: "#8c9f87",
     accentSoft: "#c8d8c0",
     symbol: "◇",
+    available: true,
     media: {
       type: "image",
       src: "/guaurriverse/worlds/couture.jpg",
@@ -102,6 +107,7 @@ const worlds: World[] = [
     accent: "#c3a07a",
     accentSoft: "#e8d5b0",
     symbol: "✎",
+    available: false,
     media: {
       type: "image",
       src: "/guaurriverse/worlds/academy.jpg",
@@ -206,8 +212,8 @@ function CuisineDeliveryChooser({
             ¿Cómo quieres recibir tu pedido?
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#657287]">
-            Primero elegimos la logística. Así solo te mostramos productos que
-            realmente pueden llegar como deben.
+            Elige tu ubicación y te mostraremos únicamente los productos que
+            pueden llegar bien hasta ti.
           </p>
         </header>
 
@@ -217,19 +223,20 @@ function CuisineDeliveryChooser({
             onClick={() => onChoose("national")}
             className="group rounded-[1.6rem] border-2 border-[#7fa5b3] bg-white p-6 text-left shadow-[5px_5px_0_#b9d7df] transition hover:-translate-y-1"
           >
-            <span className="text-4xl" aria-hidden="true">📦</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e8f2f4] text-3xl transition group-hover:scale-105" aria-hidden="true">📦</span>
             <span className="mt-5 block font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#5e96a5]">
               Envío nacional
             </span>
             <strong className="mt-1 block font-serif text-2xl text-[#263650]">
-              Recíbelo en México
+              Productos que sí pueden viajar
             </strong>
-            <span className="mt-3 block text-sm leading-6 text-[#657287]">
-              Premios, snacks y accesorios preparados para viajar por paquetería.
-              Los kits especiales se sumarán después de sus pruebas de empaque.
+            <span className="mt-4 grid gap-2 text-sm leading-5 text-[#657287]">
+              <span>✓ Disponible en todo México</span>
+              <span>✓ Snacks, accesorios y kits</span>
+              <span>✓ Envío nacional dentro de tu pedido</span>
             </span>
-            <span className="mt-5 inline-flex rounded-full bg-[#e8f2f4] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
-              Ver catálogo nacional →
+            <span className="mt-6 inline-flex rounded-full bg-[#e8f2f4] px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c] transition group-hover:bg-[#d6e9ed]">
+              Comprar con envío nacional →
             </span>
           </button>
 
@@ -238,18 +245,19 @@ function CuisineDeliveryChooser({
             onClick={() => onChoose("leon")}
             className="group rounded-[1.6rem] border-2 border-[#d2a5ad] bg-white p-6 text-left shadow-[5px_5px_0_#edd0d6] transition hover:-translate-y-1"
           >
-            <span className="text-4xl" aria-hidden="true">📍</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fcf2f4] text-3xl transition group-hover:scale-105" aria-hidden="true">📍</span>
             <span className="mt-5 block font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#a66271]">
               Entrega en León
             </span>
             <strong className="mt-1 block font-serif text-2xl text-[#263650]">
-              Cuisine completo
+              Todo Cuisine en León
             </strong>
-            <span className="mt-3 block text-sm leading-6 text-[#657287]">
-              Petcakes, cupcakes, antojitos, repostería y todo el catálogo con
-              entrega local. El pedido se confirma con pago completo.
+            <span className="mt-4 grid gap-2 text-sm leading-5 text-[#657287]">
+              <span>✓ Petcakes y productos frescos</span>
+              <span>✓ Repostería, antojitos y accesorios</span>
+              <span>✓ Recolección o entrega local</span>
             </span>
-            <span className="mt-5 inline-flex rounded-full bg-[#fcf2f4] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#8f5663]">
+            <span className="mt-6 inline-flex rounded-full bg-[#fcf2f4] px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#8f5663] transition group-hover:bg-[#f7e2e7]">
               Ver catálogo León →
             </span>
           </button>
@@ -302,11 +310,22 @@ export default function GuaurriverseApp() {
 
   if (selectedWorld?.id === "cuisine") {
     if (cuisineMode === "national") {
-      return <NationalCuisineStoreApp onBack={() => setCuisineMode(null)} />;
+      return (
+        <NationalCuisineStoreApp
+          onBack={() => setCuisineMode(null)}
+          onModeChange={chooseCuisineMode}
+        />
+      );
     }
 
     if (cuisineMode === "leon") {
-      return <CuisineStoreApp onBack={() => setCuisineMode(null)} />;
+      return (
+        <CuisineStoreApp
+          onBack={() => setCuisineMode(null)}
+          fulfillmentMode="leon"
+          onModeChange={chooseCuisineMode}
+        />
+      );
     }
 
     return (
@@ -373,7 +392,7 @@ export default function GuaurriverseApp() {
           </p>
         </header>
 
-        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-5 lg:overflow-visible">
+        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-12 lg:overflow-visible">
           {worlds.map((world) => (
             <button
               key={world.id}
@@ -386,11 +405,20 @@ export default function GuaurriverseApp() {
                   "--world-accent-soft": world.accentSoft,
                 } as WorldCardStyle
               }
-              className="world-card group relative aspect-[2/3] w-[70vw] max-w-[15rem] shrink-0 snap-center overflow-hidden rounded-[1.35rem] border bg-[#263650] text-left shadow-[0_12px_24px_rgba(64,43,28,0.13)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#ad9279] sm:w-[15rem] lg:w-full"
+              className={`world-card group relative aspect-[2/3] w-[70vw] max-w-[15rem] shrink-0 snap-center overflow-hidden rounded-[1.35rem] border bg-[#263650] text-left shadow-[0_12px_24px_rgba(64,43,28,0.13)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#ad9279] sm:w-[15rem] lg:h-[22rem] lg:w-full lg:max-w-none ${
+                world.available ? "lg:col-span-3" : "lg:col-span-2"
+              }`}
             >
               <WorldMediaPreview world={world} />
 
               <span className="world-card-overlay absolute inset-0" />
+              <span className={`absolute right-3 top-3 z-20 rounded-full border border-white/50 px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] shadow-sm backdrop-blur ${
+                world.available
+                  ? "bg-white/90 text-[#263650]"
+                  : "bg-[#263650]/75 text-white"
+              }`}>
+                {world.available ? "Explorar" : "Próximamente"}
+              </span>
               <span className="world-card-content absolute inset-x-0 bottom-0 z-10 block p-5">
                 <span className="world-card-tag inline-flex items-center rounded-full border px-2.5 py-1 font-sans text-[8px] font-bold uppercase tracking-[0.18em]">
                   ✦ Guaurriverse
