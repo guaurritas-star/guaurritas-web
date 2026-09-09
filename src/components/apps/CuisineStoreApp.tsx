@@ -2728,12 +2728,22 @@ export default function CuisineStoreApp({
               className="group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5]"
             >
               <span
-                className="relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da]"
+                className={`relative block overflow-hidden border-b border-[#cbd5da] ${
+                  product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY
+                    ? "aspect-[16/10]"
+                    : "aspect-[4/3]"
+                }`}
                 style={{ backgroundColor: product.imageTone }}
               >
                 <span
                   className="absolute inset-0"
-                  style={{ transform: `scale(${product.imageScale ?? 1})` }}
+                  style={{
+                    transform: `scale(${
+                      product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY
+                        ? 1.16
+                        : product.imageScale ?? 1
+                    })`,
+                  }}
                 >
                   <Image
                     src={withBasePath(product.image)}
@@ -2741,7 +2751,9 @@ export default function CuisineStoreApp({
                     fill
                     unoptimized
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
-                    className="object-contain p-5 transition duration-500 group-hover:scale-105"
+                    className={`object-contain transition duration-500 group-hover:scale-105 ${
+                      product.id === KIT_GUAURRICOOKIES_PRODUCT_KEY ? "p-1" : "p-5"
+                    }`}
                   />
                 </span>
                 {product.badge && (
