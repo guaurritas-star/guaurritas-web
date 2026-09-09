@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
+import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
 const NATIONAL_PRODUCT_NAMES = [
   "Guaurricookies",
@@ -34,7 +35,13 @@ function normalizeText(value: string) {
  * Esto garantiza que imágenes, tamaños, cards, detalle, GuaurriCookies, hover,
  * selectores y futuras mejoras visuales permanezcan sincronizadas con León.
  */
-export default function NationalCuisineStoreApp({ onBack }: { onBack: () => void }) {
+export default function NationalCuisineStoreApp({
+  onBack,
+  onModeChange,
+}: {
+  onBack: () => void;
+  onModeChange: (mode: FulfillmentMode) => void;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,7 +81,11 @@ export default function NationalCuisineStoreApp({ onBack }: { onBack: () => void
 
   return (
     <div ref={rootRef} className="contents">
-      <CuisineStoreApp onBack={onBack} fulfillmentMode="national" />
+      <CuisineStoreApp
+        onBack={onBack}
+        fulfillmentMode="national"
+        onModeChange={onModeChange}
+      />
     </div>
   );
 }
