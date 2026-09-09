@@ -1487,6 +1487,8 @@ export default function CuisineStoreApp({
     const isBulkCookies = selectedProduct.id === "guaurricookies";
     const isGuaurriCookiesKit =
       selectedProduct.id === KIT_GUAURRICOOKIES_PRODUCT_KEY;
+    const isDescubreGuaurritas =
+      selectedProduct.id === DESCUBRE_GUAURRITAS_PRODUCT_KEY;
     const isChilaquidogs = selectedProduct.id === "chilaquidogs";
     const isGorrito = selectedProduct.id === "gorrito";
     const isVelitas = selectedProduct.id === "velitas";
@@ -1563,6 +1565,16 @@ export default function CuisineStoreApp({
       isGuaurriCookiesKit &&
       Boolean(kitConfig?.flavors.length) &&
       kitSelectedCount === KIT_GUAURRICOOKIES_BAG_COUNT;
+    const descubreSelectedCount = Object.values(descubreFlavorCounts).reduce(
+      (total, count) => total + count,
+      0,
+    );
+    const descubreSelectionComplete =
+      isDescubreGuaurritas &&
+      Boolean(kitConfig?.flavors.length) &&
+      Boolean(descubreConfig?.sazonadores.length) &&
+      descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT &&
+      Boolean(descubreSazonador);
     const needsChoice = selectedProduct.customizable && customize === null;
     const needsRecipeConfiguration =
       needsRecipe && (petType === null || petProtein === null);
@@ -1580,6 +1592,13 @@ export default function CuisineStoreApp({
     const needsKitSelection =
       isGuaurriCookiesKit &&
       (!kitConfig || !kitSelectionComplete || kitConfigLoading);
+    const needsDescubreSelection =
+      isDescubreGuaurritas &&
+      (!kitConfig ||
+        !descubreConfig ||
+        !descubreSelectionComplete ||
+        kitConfigLoading ||
+        descubreConfigLoading);
     const canAdd =
       !needsChoice &&
       !needsRecipeConfiguration &&
@@ -1588,7 +1607,8 @@ export default function CuisineStoreApp({
       !needsGorritoSize &&
       !needsBirthdayCandleNumber &&
       !needsBulkDistribution &&
-      !needsKitSelection;
+      !needsKitSelection &&
+      !needsDescubreSelection;
 
     return (
       <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
