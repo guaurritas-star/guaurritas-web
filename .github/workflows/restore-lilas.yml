@@ -1,0 +1,78 @@
+name: Restore verified Lilas color
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-lilas.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download exact Lilas originals from Drive
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=18VQ4XR7mwhk8vh6wEQ5KtNZr_CofJMKX&export=download&confirm=t' -o /tmp/lilas-product.png
+          curl -fL --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=1YTXjBQu7_JxLWGKr0G8p4L02SSN7mXp2&export=download&confirm=t' -o /tmp/lilas-worn.png
+
+      - name: Verify exact Lilas binaries
+        run: |
+          set -euo pipefail
+          test "$(stat -c%s /tmp/lilas-product.png)" = "2077607"
+          test "$(stat -c%s /tmp/lilas-worn.png)" = "1900830"
+          echo '5f559d0433c6666eb44eb6e5526c89a07ee5a822453129c7977e133939061c98  /tmp/lilas-product.png' | sha256sum -c -
+          echo '7a138fb560779947328190931a8860f0d5dc3aa6fcbf279993a8cd8530f12ed6  /tmp/lilas-worn.png' | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          sig = b'\x89PNG\r\n\x1a\n'
+          for p in ['/tmp/lilas-product.png', '/tmp/lilas-worn.png']:
+              assert Path(p).read_bytes()[:8] == sig, f'Invalid PNG signature: {p}'
+          PY
+
+      - name: Replace only Lilas images and enable Lilas
+        run: |
+          set -euo pipefail
+          cp /tmp/lilas-product.png public/couture/bandanas/amulette-lilas.png
+          cp /tmp/lilas-worn.png public/couture/bandanas/amulette-lilas-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/components/apps/CoutureStoreApp.tsx')
+          s = p.read_text()
+          entry = '  { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/amulette-lilas.png", wornImage: "/couture/bandanas/amulette-lilas-perro.png" },\n'
+          if 'id: "lilas"' not in s:
+              anchor = '  { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/amulette-ivoire.png", wornImage: "/couture/bandanas/amulette-ivoire-perro.png" },\n'
+              if anchor not in s:
+                  raise SystemExit('Ivoire anchor not found; refusing to edit')
+              s = s.replace(anchor, anchor + entry, 1)
+              p.write_text(s)
+          PY
+
+      - name: Verify build and diff
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+          changed="$(git diff --name-only | sort)"
+          expected="$(printf '%s\n' 'public/couture/bandanas/amulette-lilas-perro.png' 'public/couture/bandanas/amulette-lilas.png' 'src/components/apps/CoutureStoreApp.tsx' | sort)"
+          test "$changed" = "$expected"
+
+      - name: Commit only Lilas changes and remove helper
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/amulette-lilas.png public/couture/bandanas/amulette-lilas-perro.png src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-lilas.yml
+          git diff --cached --check
+          git commit -m 'feat(couture): restore and enable verified Lilas color'
+          git push origin HEAD:main
