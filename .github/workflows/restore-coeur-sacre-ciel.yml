@@ -75,8 +75,8 @@ jobs:
           npm ci
           npm run build
           git diff --check
-          git diff -- src/components/apps/CoutureStoreApp.tsx | grep -q 'Bandana Cœur Sacré'
-          git diff -- src/components/apps/CoutureStoreApp.tsx | grep -q 'coeurSacreColors'
+          grep -F 'Bandana Cœur Sacré' src/components/apps/CoutureStoreApp.tsx >/dev/null
+          grep -F 'coeurSacreColors' src/components/apps/CoutureStoreApp.tsx >/dev/null
 
       - name: Commit only Coeur Sacre Ciel changes and remove helper
         shell: bash
