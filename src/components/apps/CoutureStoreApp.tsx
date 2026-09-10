@@ -78,6 +78,7 @@ const abeilleColors: BandanaColor[] = [
 
 const coeurSacreColors: BandanaColor[] = [
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/coeur-sacre-ciel.png", wornImage: "/couture/bandanas/coeur-sacre-ciel-perro.png" },
+  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/coeur-sacre-foret.png", wornImage: "/couture/bandanas/coeur-sacre-foret-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
