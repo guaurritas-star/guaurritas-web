@@ -62,6 +62,7 @@ const amuletteColors: BandanaColor[] = [
   { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/amulette-lilas.png", wornImage: "/couture/bandanas/amulette-lilas-perro.png" },
   { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/amulette-soleil.png", wornImage: "/couture/bandanas/amulette-soleil-perro.png" },
   { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/amulette-tangerine.png", wornImage: "/couture/bandanas/amulette-tangerine-perro.png" },
+  { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/amulette-terracotta.png", wornImage: "/couture/bandanas/amulette-terracotta-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
