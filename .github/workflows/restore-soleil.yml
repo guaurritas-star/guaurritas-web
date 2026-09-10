@@ -81,6 +81,7 @@ jobs:
           git diff --cached --check
           mapfile -t changed < <(git diff --cached --name-only | sort)
           expected=(
+            '.github/workflows/restore-soleil.yml'
             'public/couture/bandanas/amulette-soleil-perro.png'
             'public/couture/bandanas/amulette-soleil.png'
             'src/components/apps/CoutureStoreApp.tsx'
