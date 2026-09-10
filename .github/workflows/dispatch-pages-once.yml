@@ -1,0 +1,41 @@
+name: Dispatch Pages once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dispatch-pages-once.yml'
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Dispatch existing manual Pages workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST \
+            repos/${{ github.repository }}/actions/workflows/deploy-pages.yml/dispatches \
+            -f ref=main
+
+      - name: Remove this temporary helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/dispatch-pages-once.yml
+          git commit -m 'chore: remove temporary Pages dispatch helper'
+          git push origin HEAD:main
