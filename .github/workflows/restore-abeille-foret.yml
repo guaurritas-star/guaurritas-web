@@ -1,0 +1,97 @@
+name: Restore verified Abeille Foret color
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-abeille-foret.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Abeille Foret originals from Drive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1Ss-ZuGWWa8EkY2jzmk_urUYtAXWFRJUu&export=download&confirm=t' \
+            -o /tmp/abeille-foret-product.png
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1k6q-nmSyg4bEwmQi2d3sFSRzo_1mCDUX&export=download&confirm=t' \
+            -o /tmp/abeille-foret-worn.png
+
+      - name: Verify exact Abeille Foret binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/abeille-foret-product.png)" -eq 2435163
+          test "$(wc -c < /tmp/abeille-foret-worn.png)" -eq 2559005
+          echo '601ab38da1cfaf31d40ce9425b5fc01b122c337393a2e77c471c84fa6b9b66b8  /tmp/abeille-foret-product.png' | sha256sum -c -
+          echo '547fba139960ddb3171b7a61d26a90dcb13a88ee54d8923e62ad42e39f537efc  /tmp/abeille-foret-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/abeille-foret-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/abeille-foret-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add only Abeille Foret assets and selector entry
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/abeille-foret-product.png public/couture/bandanas/abeille-foret.png
+          cp /tmp/abeille-foret-worn.png public/couture/bandanas/abeille-foret-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if 'productImage: "/couture/bandanas/abeille-foret.png"' in text:
+              raise SystemExit('Abeille Foret already exists; refusing duplicate')
+          old = '''const abeilleColors: BandanaColor[] = [\n  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/abeille-ciel.png", wornImage: "/couture/bandanas/abeille-ciel-perro.png" },\n];'''
+          new = '''const abeilleColors: BandanaColor[] = [\n  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/abeille-ciel.png", wornImage: "/couture/bandanas/abeille-ciel-perro.png" },\n  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/abeille-foret.png", wornImage: "/couture/bandanas/abeille-foret-perro.png" },\n];'''
+          if text.count(old) != 1:
+              raise SystemExit('Exact Abeille color anchor changed; refusing broad edit')
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+          grep -F 'id: "abeille"' src/components/apps/CoutureStoreApp.tsx
+          grep -F 'id: "clasica"' src/components/apps/CoutureStoreApp.tsx
+          grep -F 'id: "encanto"' src/components/apps/CoutureStoreApp.tsx
+
+      - name: Commit only Abeille Foret changes and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/abeille-foret.png
+          git add public/couture/bandanas/abeille-foret-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-abeille-foret.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-abeille-foret.yml'
+            'public/couture/bandanas/abeille-foret-perro.png'
+            'public/couture/bandanas/abeille-foret.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Abeille Foret color'
+          git push origin HEAD:main
