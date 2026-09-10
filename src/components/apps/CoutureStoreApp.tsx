@@ -73,6 +73,7 @@ const abeilleColors: BandanaColor[] = [
   { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/abeille-ivoire.png", wornImage: "/couture/bandanas/abeille-ivoire-perro.png" },
   { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/abeille-framboise.png", wornImage: "/couture/bandanas/abeille-framboise-perro.png" },
   { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/abeille-soleil.png", wornImage: "/couture/bandanas/abeille-soleil-perro.png" },
+  { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/abeille-terracotta.png", wornImage: "/couture/bandanas/abeille-terracotta-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
