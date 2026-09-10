@@ -68,6 +68,7 @@ const amuletteColors: BandanaColor[] = [
 const abeilleColors: BandanaColor[] = [
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/abeille-ciel.png", wornImage: "/couture/bandanas/abeille-ciel-perro.png" },
   { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/abeille-foret.png", wornImage: "/couture/bandanas/abeille-foret-perro.png" },
+  { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/abeille-tangerine.jpg", wornImage: "/couture/bandanas/abeille-tangerine-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
