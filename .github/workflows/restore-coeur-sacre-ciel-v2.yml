@@ -1,0 +1,91 @@
+name: Restore verified Coeur Sacre Ciel v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-coeur-sacre-ciel-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact public temp copies
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=1bEyKp095cW4P-MVFf_qfu1MTHEhvbwdY&export=download&confirm=t' -o /tmp/coeur-sacre-ciel-product.png
+          curl -L --fail --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=19mi7SwbKbGBIbgQ5z1C5bTAnz-JU3E03&export=download&confirm=t' -o /tmp/coeur-sacre-ciel-worn.png
+
+      - name: Verify exact Coeur Sacre Ciel binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/coeur-sacre-ciel-product.png)" -eq 2370625
+          test "$(wc -c < /tmp/coeur-sacre-ciel-worn.png)" -eq 1917043
+          echo '59dca14e0f4a29df67921afc9a4f75f02b972e74f02fe6ee7bbe3fb40adc22ff  /tmp/coeur-sacre-ciel-product.png' | sha256sum -c -
+          echo '3e1d280ff63783bd20196ed220fe3120e64a294921ecc740641bbf56f30cca9d  /tmp/coeur-sacre-ciel-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/coeur-sacre-ciel-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/coeur-sacre-ciel-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add only Coeur Sacre Ciel assets and colors array
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/coeur-sacre-ciel-product.png public/couture/bandanas/coeur-sacre-ciel.png
+          cp /tmp/coeur-sacre-ciel-worn.png public/couture/bandanas/coeur-sacre-ciel-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if 'const coeurSacreColors' in text:
+              raise SystemExit('coeurSacreColors already exists; refusing duplicate')
+          anchor = '];\n\nconst collections: BandanaCollection[] = ['
+          block = '''\n\nconst coeurSacreColors: BandanaColor[] = [\n  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/coeur-sacre-ciel.png", wornImage: "/couture/bandanas/coeur-sacre-ciel-perro.png" },\n];'''
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected collection anchor exactly once')
+          path.write_text(text.replace(anchor, '];' + block + '\n\nconst collections: BandanaCollection[] = [', 1))
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+          git diff -- src/components/apps/CoutureStoreApp.tsx | grep -q 'coeurSacreColors'
+
+      - name: Commit only Coeur Sacre Ciel and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/coeur-sacre-ciel.png
+          git add public/couture/bandanas/coeur-sacre-ciel-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-coeur-sacre-ciel-v2.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-coeur-sacre-ciel-v2.yml'
+            'public/couture/bandanas/coeur-sacre-ciel-perro.png'
+            'public/couture/bandanas/coeur-sacre-ciel.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Coeur Sacre Ciel assets'
+          git push origin HEAD:main
