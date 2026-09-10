@@ -48,9 +48,16 @@ jobs:
           echo 'f91c448d74f8b3533ea41055186d78d8873b05df3b71034ce697e1448e277fc2  /tmp/confetti-framboise-perro.png' | sha256sum -c -
           python - <<'PY'
           from pathlib import Path
-          for p in [Path('/tmp/confetti-rose.png'),Path('/tmp/confetti-rose-perro.png'),Path('/tmp/confetti-macaron.png'),Path('/tmp/confetti-framboise.png'),Path('/tmp/confetti-framboise-perro.png')]:
+          pngs = [
+              Path('/tmp/confetti-rose.png'),
+              Path('/tmp/confetti-rose-perro.png'),
+              Path('/tmp/confetti-macaron.png'),
+              Path('/tmp/confetti-framboise.png'),
+              Path('/tmp/confetti-framboise-perro.png'),
+          ]
+          for p in pngs:
               assert p.read_bytes()[:8] == b'\x89PNG\r\n\x1a\n', p
-          b=Path('/tmp/confetti-macaron-perro.jpg').read_bytes()
+          b = Path('/tmp/confetti-macaron-perro.jpg').read_bytes()
           assert b[:2] == b'\xff\xd8' and b[-2:] == b'\xff\xd9'
           PY
 
@@ -68,39 +75,40 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-          p=Path('src/components/apps/CoutureStoreApp.tsx')
-          s=p.read_text()
-          old='type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "encanto";'
-          new='type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "confetti";'
+          p = Path('src/components/apps/CoutureStoreApp.tsx')
+          s = p.read_text()
+          old = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "encanto";'
+          new = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "confetti";'
           assert s.count(old) == 1
-          s=s.replace(old,new)
-          marker='\nconst collections: BandanaCollection[] = ['
+          s = s.replace(old, new)
+          marker = '\nconst collections: BandanaCollection[] = ['
           assert s.count(marker) == 1
-          confetti='''\nconst confettiColors: BandanaColor[] = [
-  { id: "rose", name: "Rosé", swatch: "linear-gradient(135deg,#ed93d4 0 68%,#ff6f19 68%)", productImage: "/couture/bandanas/confetti-rose.png", wornImage: "/couture/bandanas/confetti-rose-perro.png" },
-  { id: "macaron", name: "Macaron", swatch: "linear-gradient(135deg,#f4accb 0 33%,#cbe6ef 33% 66%,#f4dfa4 66%)", productImage: "/couture/bandanas/confetti-macaron.png", wornImage: "/couture/bandanas/confetti-macaron-perro.jpg" },
-  { id: "framboise", name: "Framboise", swatch: "linear-gradient(135deg,#c91577 0 68%,#baf0dc 68%)", productImage: "/couture/bandanas/confetti-framboise.png", wornImage: "/couture/bandanas/confetti-framboise-perro.png" },
-];
-'''
-          s=s.replace(marker,confetti+marker)
-          pattern=r'\n  \{\n    id: "encanto",.*?\n  \},\n\];\n\nconst sizes:'
-          replacement='''
-  {
-    id: "confetti",
-    name: "Bandana Confetti",
-    eyebrow: "Colección Confetti",
-    symbol: "✺",
-    description: "Pompones, color y detalles joya para celebrar cada paseo como una fiesta.",
-    detail:
-      "Bandana artesanal tejida a mano con flecos, pompones y detalles decorativos. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
-    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
-    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
-    colors: confettiColors,
-  },
-];
-
-const sizes:'''
-          s2,n=re.subn(pattern,replacement,s,flags=re.S)
+          confetti = (
+              '\nconst confettiColors: BandanaColor[] = [\n'
+              '  { id: "rose", name: "Rosé", swatch: "linear-gradient(135deg,#ed93d4 0 68%,#ff6f19 68%)", productImage: "/couture/bandanas/confetti-rose.png", wornImage: "/couture/bandanas/confetti-rose-perro.png" },\n'
+              '  { id: "macaron", name: "Macaron", swatch: "linear-gradient(135deg,#f4accb 0 33%,#cbe6ef 33% 66%,#f4dfa4 66%)", productImage: "/couture/bandanas/confetti-macaron.png", wornImage: "/couture/bandanas/confetti-macaron-perro.jpg" },\n'
+              '  { id: "framboise", name: "Framboise", swatch: "linear-gradient(135deg,#c91577 0 68%,#baf0dc 68%)", productImage: "/couture/bandanas/confetti-framboise.png", wornImage: "/couture/bandanas/confetti-framboise-perro.png" },\n'
+              '];\n'
+          )
+          s = s.replace(marker, confetti + marker)
+          pattern = r'\n  \{\n    id: "encanto",.*?\n  \},\n\];\n\nconst sizes:'
+          replacement = (
+              '\n  {\n'
+              '    id: "confetti",\n'
+              '    name: "Bandana Confetti",\n'
+              '    eyebrow: "Colección Confetti",\n'
+              '    symbol: "✺",\n'
+              '    description: "Pompones, color y detalles joya para celebrar cada paseo como una fiesta.",\n'
+              '    detail:\n'
+              '      "Bandana artesanal tejida a mano con flecos, pompones y detalles decorativos. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",\n'
+              '    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },\n'
+              '    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },\n'
+              '    colors: confettiColors,\n'
+              '  },\n'
+              '];\n\n'
+              'const sizes:'
+          )
+          s2, n = re.subn(pattern, replacement, s, flags=re.S)
           assert n == 1, n
           assert 'Bandana Encanto' not in s2
           assert 'id: "encanto"' not in s2
@@ -115,7 +123,6 @@ const sizes:'''
           npm ci
           npm run build
           git diff --check
-          git diff -- src/components/apps/CoutureStoreApp.tsx
           git status --short
 
       - name: Commit Confetti replacement and remove helper
