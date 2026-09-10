@@ -55,12 +55,6 @@ function collectionColors(prefix: "clasica") {
 
 const amuletteColors: BandanaColor[] = [
   { id: "crepuscule", name: "Crépuscule", swatch: "#3b3455", productImage: "/couture/bandanas/amulette-crepuscule.png", wornImage: "/couture/bandanas/amulette-crepuscule-perro.png" },
-  { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/amulette-terracotta.png", wornImage: "/couture/bandanas/amulette-terracotta-perro.png" },
-  { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/amulette-tangerine.png", wornImage: "/couture/bandanas/amulette-tangerine-perro.png" },
-  { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/amulette-soleil.png", wornImage: "/couture/bandanas/amulette-soleil-perro.png" },
-  { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/amulette-lilas.png", wornImage: "/couture/bandanas/amulette-lilas-perro.png" },
-  { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/amulette-ivoire.png", wornImage: "/couture/bandanas/amulette-ivoire-perro.png" },
-  { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/amulette-framboise.jpg", wornImage: "/couture/bandanas/amulette-framboise-perro.png" },
   { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/amulette-foret.png", wornImage: "/couture/bandanas/amulette-foret-perro.png" },
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/amulette-ciel.png", wornImage: "/couture/bandanas/amulette-ciel-perro.png" },
 ];
