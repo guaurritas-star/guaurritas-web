@@ -92,6 +92,7 @@ const oracleColors: BandanaColor[] = [
   { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/oracle-foret.png", wornImage: "/couture/bandanas/oracle-foret-perro.png" },
   { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/oracle-framboise.png", wornImage: "/couture/bandanas/oracle-framboise-perro.png" },
   { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/oracle-ivoire.png", wornImage: "/couture/bandanas/oracle-ivoire-perro.png" },
+  { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/oracle-lilas.png", wornImage: "/couture/bandanas/oracle-lilas-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
