@@ -58,6 +58,7 @@ const amuletteColors: BandanaColor[] = [
   { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/amulette-foret.png", wornImage: "/couture/bandanas/amulette-foret-perro.png" },
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/amulette-ciel.png", wornImage: "/couture/bandanas/amulette-ciel-perro.png" },
   { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/amulette-framboise.jpg", wornImage: "/couture/bandanas/amulette-framboise-perro.png" },
+  { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/amulette-ivoire.png", wornImage: "/couture/bandanas/amulette-ivoire-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
