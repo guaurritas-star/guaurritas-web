@@ -6,7 +6,7 @@ import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
-type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "encanto";
+type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "confetti";
 type ViewMode = "product" | "worn";
 type SizeId = "mini" | "chica" | "mediana" | "grande" | "xl";
 
@@ -98,6 +98,12 @@ const oracleColors: BandanaColor[] = [
   { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/oracle-terracotta.png", wornImage: "/couture/bandanas/oracle-terracotta-perro.png" },
 ];
 
+const confettiColors: BandanaColor[] = [
+  { id: "rose", name: "Rosé", swatch: "linear-gradient(135deg,#ed93d4 0 68%,#ff6f19 68%)", productImage: "/couture/bandanas/confetti-rose.png", wornImage: "/couture/bandanas/confetti-rose-perro.png" },
+  { id: "macaron", name: "Macaron", swatch: "linear-gradient(135deg,#f4accb 0 33%,#cbe6ef 33% 66%,#f4dfa4 66%)", productImage: "/couture/bandanas/confetti-macaron.png", wornImage: "/couture/bandanas/confetti-macaron-perro.jpg" },
+  { id: "framboise", name: "Framboise", swatch: "linear-gradient(135deg,#c91577 0 68%,#baf0dc 68%)", productImage: "/couture/bandanas/confetti-framboise.png", wornImage: "/couture/bandanas/confetti-framboise-perro.png" },
+];
+
 const collections: BandanaCollection[] = [
   {
     id: "amulette",
@@ -160,31 +166,16 @@ const collections: BandanaCollection[] = [
     colors: collectionColors("clasica"),
   },
   {
-    id: "encanto",
-    name: "Bandana Encanto",
-    eyebrow: "Colección Encanto",
-    symbol: "❈",
-    description: "Textura, color y pompones para personalidades que no pasan desapercibidas.",
+    id: "confetti",
+    name: "Bandana Confetti",
+    eyebrow: "Colección Confetti",
+    symbol: "✺",
+    description: "Pompones, color y detalles joya para celebrar cada paseo como una fiesta.",
     detail:
-      "Bandana artesanal tejida a mano con flecos, pompones y ajuste mediante tiras. Una pieza alegre para celebrar el estilo único de cada lomito.",
+      "Bandana artesanal tejida a mano con flecos, pompones y detalles decorativos. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
     nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
-    colors: [
-      {
-        id: "fucsia",
-        name: "Fucsia",
-        swatch: "#df2f95",
-        productImage: "/couture/bandanas/encanto-fucsia.jpg",
-        wornImage: "/couture/bandanas/encanto-fucsia-perro.jpg",
-      },
-      {
-        id: "algodon",
-        name: "Algodón",
-        swatch: "linear-gradient(135deg,#f2a8d0 0 33%,#c4e5f1 33% 66%,#f0e0a6 66%)",
-        productImage: "/couture/bandanas/encanto-algodon.jpg",
-        wornImage: "/couture/bandanas/encanto-algodon-perro.jpg",
-      },
-    ],
+    colors: confettiColors,
   },
 ];
 
