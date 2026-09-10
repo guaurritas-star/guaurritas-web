@@ -89,6 +89,7 @@ const coeurSacreColors: BandanaColor[] = [
 
 const oracleColors: BandanaColor[] = [
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/oracle-ciel.png", wornImage: "/couture/bandanas/oracle-ciel-perro.png" },
+  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/oracle-foret.png", wornImage: "/couture/bandanas/oracle-foret-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
