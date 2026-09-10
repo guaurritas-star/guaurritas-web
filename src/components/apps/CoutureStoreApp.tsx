@@ -84,6 +84,7 @@ const coeurSacreColors: BandanaColor[] = [
   { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/coeur-sacre-lilas.png", wornImage: "/couture/bandanas/coeur-sacre-lilas-perro.png" },
   { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/coeur-sacre-soleil.png", wornImage: "/couture/bandanas/coeur-sacre-soleil-perro.png" },
   { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/coeur-sacre-tangerine.png", wornImage: "/couture/bandanas/coeur-sacre-tangerine-perro.png" },
+  { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/coeur-sacre-terracotta.png", wornImage: "/couture/bandanas/coeur-sacre-terracotta-perro.png" },
 ];
 
 const collections: BandanaCollection[] = [
