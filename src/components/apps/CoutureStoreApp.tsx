@@ -6,7 +6,7 @@ import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
-type CollectionId = "amulette" | "clasica" | "encanto";
+type CollectionId = "amulette" | "abeille" | "clasica" | "encanto";
 type ViewMode = "product" | "worn";
 type SizeId = "mini" | "chica" | "mediana" | "grande" | "xl";
 
@@ -81,6 +81,18 @@ const collections: BandanaCollection[] = [
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
     nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
     colors: amuletteColors,
+  },
+  {
+    id: "abeille",
+    name: "Bandana Abeille",
+    eyebrow: "Colección Abeille",
+    symbol: "🐝",
+    description: "Tejido, cuentas y textura para un look especial sin perder el encanto artesanal.",
+    detail:
+      "Bandana artesanal tejida a mano, con flecos y cuentas decorativas. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
+    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
+    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
+    colors: abeilleColors,
   },
   {
     id: "clasica",
