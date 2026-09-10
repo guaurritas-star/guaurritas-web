@@ -1,0 +1,91 @@
+name: Restore verified Coeur Sacre Foret
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-coeur-sacre-foret.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact public temp copies
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=1PZ8TsjKNhzyDzJ7cv8gmRin3GMnfcVJn&export=download&confirm=t' -o /tmp/coeur-sacre-foret-product.png
+          curl -L --fail --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=1kE2pCFxta-jpi_blWcyGwqUdoLQ9Sk_r&export=download&confirm=t' -o /tmp/coeur-sacre-foret-worn.png
+
+      - name: Verify exact Coeur Sacre Foret binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/coeur-sacre-foret-product.png)" -eq 2725217
+          test "$(wc -c < /tmp/coeur-sacre-foret-worn.png)" -eq 1925376
+          echo '83f5e3220c5e1ae73bc5fa37743426a7795d398ef0f09e1058590b360cb84f1d  /tmp/coeur-sacre-foret-product.png' | sha256sum -c -
+          echo '58d2ded391848b35354711a078316700aaa8a7b31f1a232bd1bf7ac4ed8b8316  /tmp/coeur-sacre-foret-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/coeur-sacre-foret-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/coeur-sacre-foret-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add only Coeur Sacre Foret assets and selector entry
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/coeur-sacre-foret-product.png public/couture/bandanas/coeur-sacre-foret.png
+          cp /tmp/coeur-sacre-foret-worn.png public/couture/bandanas/coeur-sacre-foret-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if 'productImage: "/couture/bandanas/coeur-sacre-foret.png"' in text:
+              raise SystemExit('Coeur Sacre Foret already exists; refusing duplicate')
+          anchor = '  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/coeur-sacre-ciel.png", wornImage: "/couture/bandanas/coeur-sacre-ciel-perro.png" },\n'
+          addition = '  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/coeur-sacre-foret.png", wornImage: "/couture/bandanas/coeur-sacre-foret-perro.png" },\n'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected Ciel anchor exactly once; refusing broad edit')
+          path.write_text(text.replace(anchor, anchor + addition, 1))
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+          git diff -- src/components/apps/CoutureStoreApp.tsx | grep -q 'coeur-sacre-foret'
+
+      - name: Commit only Coeur Sacre Foret and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/coeur-sacre-foret.png
+          git add public/couture/bandanas/coeur-sacre-foret-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-coeur-sacre-foret.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-coeur-sacre-foret.yml'
+            'public/couture/bandanas/coeur-sacre-foret-perro.png'
+            'public/couture/bandanas/coeur-sacre-foret.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Coeur Sacre Foret color'
+          git push origin HEAD:main
