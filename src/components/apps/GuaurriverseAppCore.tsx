@@ -300,12 +300,12 @@ export default function GuaurriverseApp() {
           </p>
         </header>
 
-        <div className="mx-auto mt-6 flex w-full max-w-3xl flex-col items-center gap-3 rounded-2xl border border-[#d1d8e2] bg-white/90 p-3 shadow-[0_8px_24px_rgba(38,54,80,0.07)] sm:flex-row sm:justify-center sm:gap-4 sm:px-5">
+        <div className="mx-auto mt-5 flex w-full max-w-3xl flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
           <p className="font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#42516a] sm:text-[10px]">
             ¿Dónde estás comprando?
           </p>
           <div
-            className="grid w-full max-w-sm grid-cols-2 rounded-full border border-[#8494ad] bg-white p-1 sm:w-auto sm:min-w-72"
+            className="grid w-[min(100%,23rem)] grid-cols-2 rounded-full border border-[#8494ad] bg-transparent p-1 sm:w-auto sm:min-w-72"
             aria-label="Ubicación de compra"
           >
             {(["leon", "national"] as const).map((mode) => (
@@ -317,19 +317,19 @@ export default function GuaurriverseApp() {
                 className={`min-h-10 rounded-full px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] transition sm:min-h-9 ${
                   fulfillmentMode === mode
                     ? "bg-[#263650] text-white shadow-sm"
-                    : "text-[#42516a] hover:bg-[#eef2f7]"
+                    : "text-[#42516a] hover:bg-white/60"
                 }`}
               >
                 {mode === "leon" ? "📍 León" : "📦 Nacional"}
               </button>
             ))}
           </div>
-          <p className="font-brand text-xs text-[#718093] sm:whitespace-nowrap">
+          <p className="font-brand text-[11px] text-[#718093] sm:whitespace-nowrap">
             Puedes cambiarlo cuando quieras
           </p>
         </div>
 
-        <div className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-12 lg:overflow-visible">
+        <div className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-12 lg:overflow-visible">
           {worlds.map((world) => (
             <button
               key={world.id}
