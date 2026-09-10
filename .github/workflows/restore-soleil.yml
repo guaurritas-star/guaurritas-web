@@ -1,0 +1,93 @@
+name: Restore verified Soleil color
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-soleil.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Soleil originals from Drive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1eNw1Fp8XQ3AIOkeiEDG2CbRmZCgopR9x&export=download&confirm=t' \
+            -o /tmp/soleil-product.png
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=15hH-knhuX-Oo5zYt2IVNTrveXnXsK0Eu&export=download&confirm=t' \
+            -o /tmp/soleil-worn.png
+
+      - name: Verify exact Soleil binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/soleil-product.png)" -eq 2098687
+          test "$(wc -c < /tmp/soleil-worn.png)" -eq 1594687
+          echo '0d0efe2763100c57936c346dd291be8e9b18d6d194b33dcdadf52b08a41d3869  /tmp/soleil-product.png' | sha256sum -c -
+          echo 'e2e3c0f464cf85e572586eab6617ba09de8d79bbd4b010633219d11f2791ccfd  /tmp/soleil-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/soleil-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/soleil-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Replace only Soleil images and enable Soleil
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/soleil-product.png public/couture/bandanas/amulette-soleil.png
+          cp /tmp/soleil-worn.png public/couture/bandanas/amulette-soleil-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if 'id: "soleil"' in text:
+              raise SystemExit('Soleil selector already exists; refusing duplicate')
+          anchor = '  { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/amulette-lilas.png", wornImage: "/couture/bandanas/amulette-lilas-perro.png" },\n'
+          entry = '  { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/amulette-soleil.png", wornImage: "/couture/bandanas/amulette-soleil-perro.png" },\n'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected exact Lilas anchor once; refusing broad edit')
+          path.write_text(text.replace(anchor, anchor + entry, 1))
+          PY
+
+      - name: Verify build and diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+
+      - name: Commit only Soleil changes and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/amulette-soleil.png
+          git add public/couture/bandanas/amulette-soleil-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-soleil.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            'public/couture/bandanas/amulette-soleil-perro.png'
+            'public/couture/bandanas/amulette-soleil.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): restore and enable verified Soleil color'
+          git push origin HEAD:main
