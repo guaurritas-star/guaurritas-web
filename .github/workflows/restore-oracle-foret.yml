@@ -1,0 +1,94 @@
+name: Restore verified Oracle Foret
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-oracle-foret.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Oracle Foret originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1wA4ky4v2F04940QF-QU4UtXRZa3ZcIYR&export=download&confirm=t' \
+            -o /tmp/oracle-foret-product.png
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=110bYjyMPnOtop4V1dMTvAofCTQNBmQZ2&export=download&confirm=t' \
+            -o /tmp/oracle-foret-worn.png
+
+      - name: Verify exact Oracle Foret binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/oracle-foret-product.png)" -eq 2331814
+          test "$(wc -c < /tmp/oracle-foret-worn.png)" -eq 2007466
+          echo '92876908a94ce9ab61922fd31772819be0d1008269344388d18f643b6fef1b75  /tmp/oracle-foret-product.png' | sha256sum -c -
+          echo '9408c2822a73f7cad3541e09a09fd4d3e3637de701db29da44207e684e6357ff  /tmp/oracle-foret-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/oracle-foret-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/oracle-foret-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add only Oracle Foret assets and selector entry
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/oracle-foret-product.png public/couture/bandanas/oracle-foret.png
+          cp /tmp/oracle-foret-worn.png public/couture/bandanas/oracle-foret-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if '/couture/bandanas/oracle-foret.png' in text:
+              raise SystemExit('Oracle Foret already exists; refusing duplicate')
+          anchor = '  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/oracle-ciel.png", wornImage: "/couture/bandanas/oracle-ciel-perro.png" },\n'
+          addition = '  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/oracle-foret.png", wornImage: "/couture/bandanas/oracle-foret-perro.png" },\n'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected Oracle Ciel anchor exactly once; refusing broad edit')
+          path.write_text(text.replace(anchor, anchor + addition, 1))
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+
+      - name: Commit only Oracle Foret and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/oracle-foret.png
+          git add public/couture/bandanas/oracle-foret-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-oracle-foret.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-oracle-foret.yml'
+            'public/couture/bandanas/oracle-foret-perro.png'
+            'public/couture/bandanas/oracle-foret.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Oracle Foret color'
+          git push origin HEAD:main
