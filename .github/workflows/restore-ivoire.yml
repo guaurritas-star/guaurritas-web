@@ -1,0 +1,86 @@
+name: Restore verified Ivoire color
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-ivoire.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Ivoire originals from Drive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ivoire
+          curl --fail --location --silent --show-error --retry 3 \
+            'https://drive.usercontent.google.com/download?id=1b92WrHrXsh07Yai-jKXFUWqqOLvdhJnh&export=download&confirm=t' \
+            --output /tmp/ivoire/product.png
+          curl --fail --location --silent --show-error --retry 3 \
+            'https://drive.usercontent.google.com/download?id=1iuGhJvKhORjN2EXnIUXYCF3YsCkfUdsG&export=download&confirm=t' \
+            --output /tmp/ivoire/worn.png
+
+      - name: Verify exact Ivoire binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/ivoire/product.png)" -eq 2014611
+          test "$(wc -c < /tmp/ivoire/worn.png)" -eq 1842962
+          test "$(sha256sum /tmp/ivoire/product.png | awk '{print $1}')" = '6348fd3b3e53d7b25b61321236fe18f7c148be182159d853e5e8bd42cec8a07f'
+          test "$(sha256sum /tmp/ivoire/worn.png | awk '{print $1}')" = 'b6f255ee37eb9662818aaabe72a7df281c8a4e1db771ea398f7d0ebc462601f3'
+          python - <<'PY'
+          from pathlib import Path
+          for file in ['/tmp/ivoire/product.png','/tmp/ivoire/worn.png']:
+              data = Path(file).read_bytes()
+              assert data[:8] == b'\x89PNG\r\n\x1a\n'
+          PY
+
+      - name: Replace only Ivoire images and enable Ivoire
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/ivoire/product.png public/couture/bandanas/amulette-ivoire.png
+          cp /tmp/ivoire/worn.png public/couture/bandanas/amulette-ivoire-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if 'id: "ivoire"' in text:
+              raise SystemExit('Ivoire already present; refusing duplicate')
+          anchor = '  { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/amulette-framboise.jpg", wornImage: "/couture/bandanas/amulette-framboise-perro.png" },\n];'
+          replacement = '  { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/amulette-framboise.jpg", wornImage: "/couture/bandanas/amulette-framboise-perro.png" },\n  { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/amulette-ivoire.png", wornImage: "/couture/bandanas/amulette-ivoire-perro.png" },\n];'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected selector anchor not found exactly once; refusing broad edit')
+          path.write_text(text.replace(anchor, replacement, 1))
+          PY
+
+      - name: Verify build and diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+
+      - name: Commit only Ivoire changes and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/amulette-ivoire.png public/couture/bandanas/amulette-ivoire-perro.png src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-ivoire.yml
+          git diff --cached --check
+          git commit -m 'feat(couture): restore and enable verified Ivoire color'
+          git push origin HEAD:main
