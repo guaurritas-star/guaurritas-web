@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
-import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
 const NATIONAL_PRODUCT_NAMES = [
   "Guaurricookies",
@@ -37,10 +36,8 @@ function normalizeText(value: string) {
  */
 export default function NationalCuisineStoreApp({
   onBack,
-  onModeChange,
 }: {
   onBack: () => void;
-  onModeChange: (mode: FulfillmentMode) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +81,6 @@ export default function NationalCuisineStoreApp({
       <CuisineStoreApp
         onBack={onBack}
         fulfillmentMode="national"
-        onModeChange={onModeChange}
       />
     </div>
   );
