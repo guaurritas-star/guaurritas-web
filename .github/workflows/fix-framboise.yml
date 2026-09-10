@@ -1,0 +1,66 @@
+name: Restore Framboise originals
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-framboise.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download Framboise source files from Drive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/framboise
+          curl --fail --location --silent --show-error --retry 3 \
+            'https://drive.usercontent.google.com/download?id=1-tZq5E0CRpsgBW6OT-Gckx5oNlyMq0jl&export=download&confirm=t' \
+            --output /tmp/framboise/product.jpg
+          curl --fail --location --silent --show-error --retry 3 \
+            'https://drive.usercontent.google.com/download?id=13Gn0TIws9u_OwJlqnP4m6T_PTQXiA_O9&export=download&confirm=t' \
+            --output /tmp/framboise/worn.png
+
+      - name: Verify exact source bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/framboise/product.jpg)" -eq 415119
+          test "$(wc -c < /tmp/framboise/worn.png)" -eq 1890082
+          test "$(sha256sum /tmp/framboise/product.jpg | awk '{print $1}')" = 'd6cd190d919e120aefee40cc7016b90a3af90f0d25ac88f38ed65c45b4693632'
+          test "$(sha256sum /tmp/framboise/worn.png | awk '{print $1}')" = 'adf8067de704ec64ced2cc7cc695de894a589acbae7d4cd39293a33b055d8604'
+          python - <<'PY'
+          from pathlib import Path
+          jpg = Path('/tmp/framboise/product.jpg').read_bytes()
+          png = Path('/tmp/framboise/worn.png').read_bytes()
+          assert jpg[:2] == b'\xff\xd8' and jpg[-2:] == b'\xff\xd9'
+          assert png[:8] == b'\x89PNG\r\n\x1a\n'
+          PY
+
+      - name: Replace only Framboise images
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/framboise/product.jpg public/couture/bandanas/amulette-framboise.jpg
+          cp /tmp/framboise/worn.png public/couture/bandanas/amulette-framboise-perro.png
+
+      - name: Commit exact images and remove helper workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/amulette-framboise.jpg public/couture/bandanas/amulette-framboise-perro.png
+          git rm .github/workflows/fix-framboise.yml
+          git commit -m 'fix(couture): restore Framboise original images'
+          git push origin HEAD:main
