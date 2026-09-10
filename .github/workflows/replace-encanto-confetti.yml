@@ -1,0 +1,137 @@
+name: Replace Encanto with verified Confetti
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/replace-encanto-confetti.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Confetti originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 'https://drive.usercontent.google.com/download?id=1Cs5rbkBHqIgGc3Z0Wa5_U_8vCifKzCSe&export=download&confirm=t' -o /tmp/confetti-rose.png
+          curl -L --fail --retry 3 'https://drive.usercontent.google.com/download?id=1pfcO_cXqqeHK2xNdS56xD1slNjQLdchK&export=download&confirm=t' -o /tmp/confetti-rose-perro.png
+          curl -L --fail --retry 3 'https://drive.usercontent.google.com/download?id=1afg6DN0GU3eGuMPqnEWJclkIJDWtiuhO&export=download&confirm=t' -o /tmp/confetti-macaron.png
+          curl -L --fail --retry 3 'https://drive.usercontent.google.com/download?id=1TIo9aexl5PCaVlhuvvYguk8EbVzIxlHs&export=download&confirm=t' -o /tmp/confetti-macaron-perro.jpg
+          curl -L --fail --retry 3 'https://drive.usercontent.google.com/download?id=1gqYB2p8hfJzJvBiyx5m_Z82S9sqzQ0Dv&export=download&confirm=t' -o /tmp/confetti-framboise.png
+          curl -L --fail --retry 3 'https://drive.usercontent.google.com/download?id=1Q1TuL_JpNCjQpbEvo8gS88zrU71mg-oY&export=download&confirm=t' -o /tmp/confetti-framboise-perro.png
+
+      - name: Verify exact Confetti binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/confetti-rose.png)" -eq 3124695
+          test "$(wc -c < /tmp/confetti-rose-perro.png)" -eq 1567968
+          test "$(wc -c < /tmp/confetti-macaron.png)" -eq 2977381
+          test "$(wc -c < /tmp/confetti-macaron-perro.jpg)" -eq 231823
+          test "$(wc -c < /tmp/confetti-framboise.png)" -eq 3146497
+          test "$(wc -c < /tmp/confetti-framboise-perro.png)" -eq 2344335
+          echo '2955854508841d9dcddac9252bd8a85748bca031be0db4d21b2bb7b20442f7cb  /tmp/confetti-rose.png' | sha256sum -c -
+          echo 'ea435fbf45a5ac835b87e97b180de9aba115813b252e1d6e86fc447e72cd8c84  /tmp/confetti-rose-perro.png' | sha256sum -c -
+          echo '413eb06e752d5574670bdf48c786e95a6eba42b47f049f3283207112559c3c8e  /tmp/confetti-macaron.png' | sha256sum -c -
+          echo '8d27d778ee9ca2dbb52afba9ae5cfb1d2996ae74f780cfb48b1dfd407fa0e76c  /tmp/confetti-macaron-perro.jpg' | sha256sum -c -
+          echo '2ffb218d82f60462b1111cf1e8bf38fc01c292291e2183d162a52b094b162976  /tmp/confetti-framboise.png' | sha256sum -c -
+          echo 'f91c448d74f8b3533ea41055186d78d8873b05df3b71034ce697e1448e277fc2  /tmp/confetti-framboise-perro.png' | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          for p in [Path('/tmp/confetti-rose.png'),Path('/tmp/confetti-rose-perro.png'),Path('/tmp/confetti-macaron.png'),Path('/tmp/confetti-framboise.png'),Path('/tmp/confetti-framboise-perro.png')]:
+              assert p.read_bytes()[:8] == b'\x89PNG\r\n\x1a\n', p
+          b=Path('/tmp/confetti-macaron-perro.jpg').read_bytes()
+          assert b[:2] == b'\xff\xd8' and b[-2:] == b'\xff\xd9'
+          PY
+
+      - name: Replace only Encanto with Confetti
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/couture/bandanas
+          cp /tmp/confetti-rose.png public/couture/bandanas/confetti-rose.png
+          cp /tmp/confetti-rose-perro.png public/couture/bandanas/confetti-rose-perro.png
+          cp /tmp/confetti-macaron.png public/couture/bandanas/confetti-macaron.png
+          cp /tmp/confetti-macaron-perro.jpg public/couture/bandanas/confetti-macaron-perro.jpg
+          cp /tmp/confetti-framboise.png public/couture/bandanas/confetti-framboise.png
+          cp /tmp/confetti-framboise-perro.png public/couture/bandanas/confetti-framboise-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('src/components/apps/CoutureStoreApp.tsx')
+          s=p.read_text()
+          old='type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "encanto";'
+          new='type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "confetti";'
+          assert s.count(old) == 1
+          s=s.replace(old,new)
+          marker='\nconst collections: BandanaCollection[] = ['
+          assert s.count(marker) == 1
+          confetti='''\nconst confettiColors: BandanaColor[] = [
+  { id: "rose", name: "Rosé", swatch: "linear-gradient(135deg,#ed93d4 0 68%,#ff6f19 68%)", productImage: "/couture/bandanas/confetti-rose.png", wornImage: "/couture/bandanas/confetti-rose-perro.png" },
+  { id: "macaron", name: "Macaron", swatch: "linear-gradient(135deg,#f4accb 0 33%,#cbe6ef 33% 66%,#f4dfa4 66%)", productImage: "/couture/bandanas/confetti-macaron.png", wornImage: "/couture/bandanas/confetti-macaron-perro.jpg" },
+  { id: "framboise", name: "Framboise", swatch: "linear-gradient(135deg,#c91577 0 68%,#baf0dc 68%)", productImage: "/couture/bandanas/confetti-framboise.png", wornImage: "/couture/bandanas/confetti-framboise-perro.png" },
+];
+'''
+          s=s.replace(marker,confetti+marker)
+          pattern=r'\n  \{\n    id: "encanto",.*?\n  \},\n\];\n\nconst sizes:'
+          replacement='''
+  {
+    id: "confetti",
+    name: "Bandana Confetti",
+    eyebrow: "Colección Confetti",
+    symbol: "✺",
+    description: "Pompones, color y detalles joya para celebrar cada paseo como una fiesta.",
+    detail:
+      "Bandana artesanal tejida a mano con flecos, pompones y detalles decorativos. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
+    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
+    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
+    colors: confettiColors,
+  },
+];
+
+const sizes:'''
+          s2,n=re.subn(pattern,replacement,s,flags=re.S)
+          assert n == 1, n
+          assert 'Bandana Encanto' not in s2
+          assert 'id: "encanto"' not in s2
+          assert s2.count('Bandana Confetti') == 1
+          p.write_text(s2)
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+          git diff -- src/components/apps/CoutureStoreApp.tsx
+          git status --short
+
+      - name: Commit Confetti replacement and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/components/apps/CoutureStoreApp.tsx \
+            public/couture/bandanas/confetti-rose.png \
+            public/couture/bandanas/confetti-rose-perro.png \
+            public/couture/bandanas/confetti-macaron.png \
+            public/couture/bandanas/confetti-macaron-perro.jpg \
+            public/couture/bandanas/confetti-framboise.png \
+            public/couture/bandanas/confetti-framboise-perro.png
+          git rm .github/workflows/replace-encanto-confetti.yml
+          git diff --cached --check
+          git commit -m 'feat(couture): replace Encanto with verified Confetti collection'
+          git push origin main
