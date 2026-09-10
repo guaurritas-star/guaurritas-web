@@ -713,11 +713,9 @@ function priceFrom(product: CuisineProduct, fulfillmentMode: FulfillmentMode) {
 export default function CuisineStoreApp({
   onBack,
   fulfillmentMode = "leon",
-  onModeChange,
 }: {
   onBack: () => void;
   fulfillmentMode?: FulfillmentMode;
-  onModeChange?: (mode: FulfillmentMode) => void;
 }) {
   const [category, setCategory] = useState<CategoryId>("all");
   const [query, setQuery] = useState("");
@@ -2998,34 +2996,11 @@ export default function CuisineStoreApp({
             onClick={onBack}
             className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#425b8c] hover:text-[#263650] sm:text-xs"
           >
-            ← Elegir entrega
+            ← Volver a los mundos
           </button>
-          {onModeChange ? (
-            <div
-              className="flex rounded-full border border-[#b9c8d8] bg-white p-1 shadow-sm"
-              aria-label="Modalidad de entrega"
-            >
-              {(["national", "leon"] as const).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => onModeChange(mode)}
-                  aria-pressed={fulfillmentMode === mode}
-                  className={`rounded-full px-2.5 py-1.5 font-interface text-[8px] font-bold uppercase tracking-[0.08em] transition sm:px-3 sm:text-[9px] ${
-                    fulfillmentMode === mode
-                      ? "bg-[#263650] text-white"
-                      : "text-[#657287] hover:bg-[#eef5f7]"
-                  }`}
-                >
-                  {mode === "national" ? "📦 Nacional" : "📍 León"}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="hidden font-interface text-[10px] font-bold uppercase tracking-[0.18em] text-[#5e7685] sm:block">
-              GuaurritasCuisine.exe
-            </p>
-          )}
+          <p className="hidden font-interface text-[10px] font-bold uppercase tracking-[0.18em] text-[#5e7685] sm:block">
+            GuaurritasCuisine.exe
+          </p>
           {cuisineCartTrigger}
         </div>
       </div>
