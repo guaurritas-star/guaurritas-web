@@ -6,7 +6,7 @@ import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
-type CollectionId = "amuleto" | "clasica" | "encanto";
+type CollectionId = "amulette" | "clasica" | "encanto";
 type ViewMode = "product" | "worn";
 type SizeId = "mini" | "chica" | "mediana" | "grande" | "xl";
 
@@ -45,7 +45,7 @@ const commonColors = [
   { id: "marfil", name: "Marfil Perla", swatch: "#e9dfcc" },
 ] as const;
 
-function collectionColors(prefix: "amuleto" | "clasica") {
+function collectionColors(prefix: "clasica") {
   return commonColors.map((color) => ({
     ...color,
     productImage: `/couture/bandanas/${prefix}-${color.id}.jpg`,
@@ -53,18 +53,30 @@ function collectionColors(prefix: "amuleto" | "clasica") {
   }));
 }
 
+const amuletteColors: BandanaColor[] = [
+  { id: "crepuscule", name: "Crépuscule", swatch: "#3b3455", productImage: "/couture/bandanas/amulette-crepuscule.png", wornImage: "/couture/bandanas/amulette-crepuscule-perro.png" },
+  { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/amulette-terracotta.png", wornImage: "/couture/bandanas/amulette-terracotta-perro.png" },
+  { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/amulette-tangerine.png", wornImage: "/couture/bandanas/amulette-tangerine-perro.png" },
+  { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/amulette-soleil.png", wornImage: "/couture/bandanas/amulette-soleil-perro.png" },
+  { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/amulette-lilas.png", wornImage: "/couture/bandanas/amulette-lilas-perro.png" },
+  { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/amulette-ivoire.png", wornImage: "/couture/bandanas/amulette-ivoire-perro.png" },
+  { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/amulette-framboise.jpg", wornImage: "/couture/bandanas/amulette-framboise-perro.png" },
+  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/amulette-foret.png", wornImage: "/couture/bandanas/amulette-foret-perro.png" },
+  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/amulette-ciel.png", wornImage: "/couture/bandanas/amulette-ciel-perro.png" },
+];
+
 const collections: BandanaCollection[] = [
   {
-    id: "amuleto",
-    name: "Bandana Ojo",
-    eyebrow: "Colección Amuleto",
+    id: "amulette",
+    name: "Bandana Amulette",
+    eyebrow: "Colección Amulette",
     symbol: "✦",
     description: "Un amuleto tejido para cuidar sus aventuras con mucho estilo.",
     detail:
       "Bandana artesanal tejida a mano, con flecos y herraje decorativo de ojo. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
     nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
-    colors: collectionColors("amuleto"),
+    colors: amuletteColors,
   },
   {
     id: "clasica",
@@ -143,8 +155,8 @@ export default function CoutureStoreApp({
   onBack: () => void;
   fulfillmentMode: FulfillmentMode;
 }) {
-  const [collectionId, setCollectionId] = useState<CollectionId>("amuleto");
-  const [colorId, setColorId] = useState("terracota");
+  const [collectionId, setCollectionId] = useState<CollectionId>("amulette");
+  const [colorId, setColorId] = useState("ciel");
   const [sizeId, setSizeId] = useState<SizeId>("mediana");
   const [viewMode, setViewMode] = useState<ViewMode>("product");
   const [fitHelperOpen, setFitHelperOpen] = useState(false);
@@ -227,7 +239,7 @@ export default function CoutureStoreApp({
           <p className="font-interface text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a6577]">
             1. Elige su estilo
           </p>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {collections.map((item) => {
               const active = item.id === collection.id;
               return (
