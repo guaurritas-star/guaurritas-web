@@ -54,6 +54,12 @@ jobs:
           if 'const coeurSacreColors' in text or 'id: "coeur-sacre"' in text:
               raise SystemExit('Coeur Sacre already exists; refusing duplicate')
 
+          type_old = 'type CollectionId = "amulette" | "abeille" | "clasica" | "encanto";'
+          type_new = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "clasica" | "encanto";'
+          if text.count(type_old) != 1:
+              raise SystemExit('Expected CollectionId definition exactly once')
+          text = text.replace(type_old, type_new, 1)
+
           array_anchor = '];\n\nconst collections: BandanaCollection[] = ['
           array_block = '''\n\nconst coeurSacreColors: BandanaColor[] = [\n  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/coeur-sacre-ciel.png", wornImage: "/couture/bandanas/coeur-sacre-ciel-perro.png" },\n];'''
           if text.count(array_anchor) != 1:
@@ -77,6 +83,7 @@ jobs:
           git diff --check
           grep -F 'Bandana Cœur Sacré' src/components/apps/CoutureStoreApp.tsx >/dev/null
           grep -F 'coeurSacreColors' src/components/apps/CoutureStoreApp.tsx >/dev/null
+          grep -F '"coeur-sacre"' src/components/apps/CoutureStoreApp.tsx >/dev/null
 
       - name: Commit only Coeur Sacre Ciel changes and remove helper
         shell: bash
