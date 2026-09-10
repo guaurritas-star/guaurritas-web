@@ -65,6 +65,10 @@ const amuletteColors: BandanaColor[] = [
   { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/amulette-terracotta.png", wornImage: "/couture/bandanas/amulette-terracotta-perro.png" },
 ];
 
+const abeilleColors: BandanaColor[] = [
+  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/abeille-ciel.png", wornImage: "/couture/bandanas/abeille-ciel-perro.png" },
+];
+
 const collections: BandanaCollection[] = [
   {
     id: "amulette",
