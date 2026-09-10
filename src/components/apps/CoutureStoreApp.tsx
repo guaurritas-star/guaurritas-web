@@ -6,7 +6,7 @@ import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
-type CollectionId = "amulette" | "abeille" | "clasica" | "encanto";
+type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "clasica" | "encanto";
 type ViewMode = "product" | "worn";
 type SizeId = "mini" | "chica" | "mediana" | "grande" | "xl";
 
@@ -76,6 +76,10 @@ const abeilleColors: BandanaColor[] = [
   { id: "terracotta", name: "Terracotta", swatch: "#b86549", productImage: "/couture/bandanas/abeille-terracotta.png", wornImage: "/couture/bandanas/abeille-terracotta-perro.png" },
 ];
 
+const coeurSacreColors: BandanaColor[] = [
+  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/coeur-sacre-ciel.png", wornImage: "/couture/bandanas/coeur-sacre-ciel-perro.png" },
+];
+
 const collections: BandanaCollection[] = [
   {
     id: "amulette",
@@ -100,6 +104,18 @@ const collections: BandanaCollection[] = [
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
     nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
     colors: abeilleColors,
+  },
+  {
+    id: "coeur-sacre",
+    name: "Bandana Cœur Sacré",
+    eyebrow: "Colección Cœur Sacré",
+    symbol: "♥",
+    description: "Tejido artesanal y un corazón protagonista para un look especial.",
+    detail:
+      "Bandana artesanal tejida a mano, con flecos y herraje decorativo de corazón. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
+    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
+    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
+    colors: coeurSacreColors,
   },
   {
     id: "clasica",
