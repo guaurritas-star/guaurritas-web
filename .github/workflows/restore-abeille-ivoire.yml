@@ -1,4 +1,4 @@
-name: Restore verified Abeille Ivoire assets
+name: Finalize verified Abeille Ivoire color
 on:
   push:
     branches: [main]
@@ -6,26 +6,53 @@ on:
 permissions:
   contents: write
 jobs:
-  restore:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Download and verify Ivoire originals
+          fetch-depth: 0
+      - name: Add only Abeille Ivoire selector entry
         run: |
           set -euo pipefail
-          curl -L --fail 'https://drive.usercontent.google.com/download?id=1DWmOnx-HgTxunNZjJ6RteU2YDPYXHdKr&export=download&confirm=t' -o public/couture/bandanas/abeille-ivoire.png
-          curl -L --fail 'https://drive.usercontent.google.com/download?id=1fzMAlwmmHn6wr4T5y7Y3jTJ_wc1QSgZE&export=download&confirm=t' -o public/couture/bandanas/abeille-ivoire-perro.png
-          test "$(wc -c < public/couture/bandanas/abeille-ivoire.png)" -eq 1889705
-          test "$(wc -c < public/couture/bandanas/abeille-ivoire-perro.png)" -eq 1833659
-          echo '9a381e822bfcad5b893c22c3696693685c1e636af1afea3a5378eca3eb71f1c6  public/couture/bandanas/abeille-ivoire.png' | sha256sum -c -
-          echo '61713e288d37592bfaeba3deefd2b5dc9e7eb86d7062208de68eb63af2b44e41  public/couture/bandanas/abeille-ivoire-perro.png' | sha256sum -c -
-      - name: Commit only Ivoire images
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          start = text.index('const abeilleColors: BandanaColor[] = [')
+          end = text.index('];', start)
+          segment = text[start:end]
+          if 'id: "ivoire"' in segment:
+              raise SystemExit('Abeille Ivoire already exists; refusing duplicate')
+          anchor = '  { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/abeille-lilas.png", wornImage: "/couture/bandanas/abeille-lilas-perro.png" },\n'
+          addition = '  { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/abeille-ivoire.png", wornImage: "/couture/bandanas/abeille-ivoire-perro.png" },\n'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected Abeille Lilas anchor once; refusing broad edit')
+          path.write_text(text.replace(anchor, anchor + addition, 1))
+          PY
+      - name: Verify build and scope
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+      - name: Commit selector and remove helper
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/couture/bandanas/abeille-ivoire.png public/couture/bandanas/abeille-ivoire-perro.png
-          git commit -m 'chore(couture): add verified Abeille Ivoire assets'
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-abeille-ivoire.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-abeille-ivoire.yml'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Abeille Ivoire color'
           git push origin HEAD:main
