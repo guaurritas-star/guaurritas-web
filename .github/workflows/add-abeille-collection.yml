@@ -27,7 +27,6 @@ jobs:
           from pathlib import Path
           path = Path('src/components/apps/CoutureStoreApp.tsx')
           text = path.read_text()
-
           old_type = 'type CollectionId = "amulette" | "clasica" | "encanto";'
           new_type = 'type CollectionId = "amulette" | "abeille" | "clasica" | "encanto";'
           if text.count(old_type) != 1:
@@ -35,44 +34,35 @@ jobs:
           if 'id: "abeille"' in text:
               raise SystemExit('Abeille collection already exists; refusing duplicate')
           if 'const abeilleColors: BandanaColor[]' not in text:
-              raise SystemExit('Abeille Ciel color data missing; refusing incomplete collection')
-
-          amulette_block = '''  {
-    id: "amulette",
-    name: "Bandana Amulette",
-    eyebrow: "Colección Amulette",
-    symbol: "✦",
-    description: "Un amuleto tejido para cuidar sus aventuras con mucho estilo.",
-    detail:
-      "Bandana artesanal tejida a mano, con flecos y herraje decorativo de ojo. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
-    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
-    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
-    colors: amuletteColors,
-  },
-'''
-          if text.count(amulette_block) != 1:
-              raise SystemExit('Exact Amulette block not found once; refusing broad edit')
-
-          abeille_block = '''  {
-    id: "abeille",
-    name: "Bandana Abeille",
-    eyebrow: "Colección Abeille",
-    symbol: "🐝",
-    description: "Tejido, cuentas y textura para un look especial sin perder el encanto artesanal.",
-    detail:
-      "Bandana artesanal tejida a mano, con flecos y cuentas decorativas. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
-    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
-    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
-    colors: abeilleColors,
-  },
-'''
-
+              raise SystemExit('Abeille Ciel color data missing')
+          marker = '    colors: amuletteColors,\n  },\n  {\n    id: "clasica",'
+          if text.count(marker) != 1:
+              raise SystemExit('Amulette-to-Clasica anchor changed; refusing broad edit')
+          abeille_lines = [
+              '    colors: amuletteColors,',
+              '  },',
+              '  {',
+              '    id: "abeille",',
+              '    name: "Bandana Abeille",',
+              '    eyebrow: "Colección Abeille",',
+              '    symbol: "🐝",',
+              '    description: "Tejido, cuentas y textura para un look especial sin perder el encanto artesanal.",',
+              '    detail:',
+              '      "Bandana artesanal tejida a mano, con flecos y cuentas decorativas. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",',
+              '    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },',
+              '    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },',
+              '    colors: abeilleColors,',
+              '  },',
+              '  {',
+              '    id: "clasica",',
+          ]
+          replacement = '\n'.join(abeille_lines)
           text = text.replace(old_type, new_type, 1)
-          text = text.replace(amulette_block, amulette_block + abeille_block, 1)
+          text = text.replace(marker, replacement, 1)
           path.write_text(text)
           PY
 
-      - name: Verify exact Abeille placement and preserve existing collections
+      - name: Verify placement, prices, build and diff
         shell: bash
         run: |
           set -euo pipefail
@@ -85,16 +75,13 @@ jobs:
                   raise SystemExit(f'Expected exactly one {item}')
           positions = [text.index(item) for item in ids]
           if positions != sorted(positions):
-              raise SystemExit('Collection order is not Amulette > Abeille > Clasica > Encanto')
-          required = [
+              raise SystemExit('Wrong collection order')
+          abeille = text[text.index('id: "abeille"'):text.index('id: "clasica"')]
+          for token in [
               'prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 }',
               'nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 }',
               'colors: abeilleColors',
-          ]
-          abeille_start = text.index('id: "abeille"')
-          clasica_start = text.index('id: "clasica"')
-          abeille = text[abeille_start:clasica_start]
-          for token in required:
+          ]:
               if token not in abeille:
                   raise SystemExit(f'Missing Abeille token: {token}')
           PY
@@ -112,10 +99,7 @@ jobs:
           git rm .github/workflows/add-abeille-collection.yml
           git diff --cached --check
           mapfile -t changed < <(git diff --cached --name-only | sort)
-          expected=(
-            '.github/workflows/add-abeille-collection.yml'
-            'src/components/apps/CoutureStoreApp.tsx'
-          )
+          expected=( '.github/workflows/add-abeille-collection.yml' 'src/components/apps/CoutureStoreApp.tsx' )
           mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
           printf '%s\n' "${changed[@]}" > /tmp/changed.txt
           printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
