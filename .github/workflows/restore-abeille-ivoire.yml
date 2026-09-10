@@ -1,0 +1,31 @@
+name: Restore verified Abeille Ivoire assets
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/restore-abeille-ivoire.yml']
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download and verify Ivoire originals
+        run: |
+          set -euo pipefail
+          curl -L --fail 'https://drive.usercontent.google.com/download?id=1DWmOnx-HgTxunNZjJ6RteU2YDPYXHdKr&export=download&confirm=t' -o public/couture/bandanas/abeille-ivoire.png
+          curl -L --fail 'https://drive.usercontent.google.com/download?id=1fzMAlwmmHn6wr4T5y7Y3jTJ_wc1QSgZE&export=download&confirm=t' -o public/couture/bandanas/abeille-ivoire-perro.png
+          test "$(wc -c < public/couture/bandanas/abeille-ivoire.png)" -eq 1889705
+          test "$(wc -c < public/couture/bandanas/abeille-ivoire-perro.png)" -eq 1833659
+          echo '9a381e822bfcad5b893c22c3696693685c1e636af1afea3a5378eca3eb71f1c6  public/couture/bandanas/abeille-ivoire.png' | sha256sum -c -
+          echo '61713e288d37592bfaeba3deefd2b5dc9e7eb86d7062208de68eb63af2b44e41  public/couture/bandanas/abeille-ivoire-perro.png' | sha256sum -c -
+      - name: Commit only Ivoire images
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/abeille-ivoire.png public/couture/bandanas/abeille-ivoire-perro.png
+          git commit -m 'chore(couture): add verified Abeille Ivoire assets'
+          git push origin HEAD:main
