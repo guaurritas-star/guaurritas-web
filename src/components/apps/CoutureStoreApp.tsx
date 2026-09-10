@@ -4,10 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
-import {
-  setFulfillmentMode,
-  type FulfillmentMode,
-} from "@/lib/fulfillment-store";
+import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
 type CollectionId = "amuleto" | "clasica" | "encanto";
 type ViewMode = "product" | "worn";
@@ -29,6 +26,7 @@ type BandanaCollection = {
   description: string;
   detail: string;
   prices: Record<SizeId, number>;
+  nationalPrices: Record<SizeId, number>;
   colors: BandanaColor[];
 };
 
@@ -65,6 +63,7 @@ const collections: BandanaCollection[] = [
     detail:
       "Bandana artesanal tejida a mano, con flecos y herraje decorativo de ojo. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
+    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
     colors: collectionColors("amuleto"),
   },
   {
@@ -76,6 +75,7 @@ const collections: BandanaCollection[] = [
     detail:
       "Bandana tejida a mano con acabado de flecos y ajuste mediante tiras. Su diseño limpio deja que el color sea protagonista en paseos, fotos y días especiales.",
     prices: { mini: 199, chica: 249, mediana: 299, grande: 349, xl: 399 },
+    nationalPrices: { mini: 229, chica: 279, mediana: 329, grande: 379, xl: 439 },
     colors: collectionColors("clasica"),
   },
   {
@@ -87,6 +87,7 @@ const collections: BandanaCollection[] = [
     detail:
       "Bandana artesanal tejida a mano con flecos, pompones y ajuste mediante tiras. Una pieza alegre para celebrar el estilo único de cada lomito.",
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
+    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
     colors: [
       {
         id: "fucsia",
@@ -131,7 +132,17 @@ function recommendedSize(neck: number): SizeId | null {
   return "xl";
 }
 
-export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
+function pricesFor(collection: BandanaCollection, mode: FulfillmentMode) {
+  return mode === "national" ? collection.nationalPrices : collection.prices;
+}
+
+export default function CoutureStoreApp({
+  onBack,
+  fulfillmentMode,
+}: {
+  onBack: () => void;
+  fulfillmentMode: FulfillmentMode;
+}) {
   const [collectionId, setCollectionId] = useState<CollectionId>("amuleto");
   const [colorId, setColorId] = useState("terracota");
   const [sizeId, setSizeId] = useState<SizeId>("mediana");
@@ -139,7 +150,6 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
   const [fitHelperOpen, setFitHelperOpen] = useState(false);
   const [neckInput, setNeckInput] = useState("");
   const [notice, setNotice] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState<FulfillmentMode | null>(null);
   const { count: cartCount } = useCart();
 
   const collection = collections.find((item) => item.id === collectionId)!;
@@ -148,7 +158,8 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
   const neckValue = Number(neckInput);
   const suggestedSizeId = recommendedSize(neckValue);
   const suggestedSize = sizes.find((item) => item.id === suggestedSizeId);
-  const price = collection.prices[sizeId];
+  const activePrices = pricesFor(collection, fulfillmentMode);
+  const price = activePrices[sizeId];
 
   const galleryImage = viewMode === "product" ? color.productImage : color.wornImage;
   const galleryAlt =
@@ -156,7 +167,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
       ? `${collection.name} color ${color.name}`
       : `Perrito usando ${collection.name} color ${color.name}`;
 
-  const minimumPrice = Math.min(...Object.values(collection.prices));
+  const minimumPrice = Math.min(...Object.values(activePrices));
 
   const selectCollection = (next: BandanaCollection) => {
     setCollectionId(next.id);
@@ -165,22 +176,14 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
     setNotice("");
   };
 
-  const selectDeliveryMode = (mode: FulfillmentMode) => {
-    setDeliveryMode(mode);
-    setFulfillmentMode(mode);
-    setNotice("");
-  };
-
   const addToCart = () => {
-    if (!deliveryMode) return;
-
     addCartItem({
       id: `couture:${collection.id}:${color.id}:${size.id}`,
       name: collection.name,
       detail: `${color.name} · talla ${size.name}`,
       unitPrice: price,
       image: color.productImage,
-      fulfillment: deliveryMode,
+      fulfillment: fulfillmentMode,
     });
     setNotice(
       `${collection.name} · ${color.name} · talla ${size.name} se agregó al carrito.`,
@@ -212,47 +215,11 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
         <p className="mx-auto mt-3 max-w-2xl font-brand text-lg leading-7 text-[#644e5b] sm:text-xl">
           Elige su colección, descubre cada color puesto y encuentra la talla correcta sin adivinar.
         </p>
-
-        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-[#d8c8d0] bg-white/85 p-3 text-left shadow-sm backdrop-blur sm:p-4">
-          <div className="flex flex-wrap items-center justify-between gap-1.5 px-1">
-            <p className="font-interface text-[9px] font-bold uppercase tracking-[0.15em] text-[#614456] sm:text-[10px]">
-              ¿Dónde recibirás tu pedido?
-            </p>
-            <span className="font-brand text-xs text-[#806c77]">Mismo precio de producto</span>
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-2" aria-label="Destino del pedido">
-            {(["leon", "national"] as const).map((mode) => {
-              const active = deliveryMode === mode;
-              return (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => selectDeliveryMode(mode)}
-                  aria-pressed={active}
-                  className={`min-h-12 rounded-xl border px-3 py-2.5 text-left transition sm:px-4 ${
-                    active
-                      ? "border-[#70425a] bg-[#f5eaf0] shadow-[2px_2px_0_#70425a]"
-                      : "border-[#ddcfd6] bg-white hover:border-[#a77d91]"
-                  }`}
-                >
-                  <span className="block font-interface text-[10px] font-bold uppercase tracking-[0.08em] text-[#3a2030]">
-                    {mode === "leon" ? "📍 León" : "📦 Otra ciudad"}
-                  </span>
-                  <span className="mt-1 hidden font-brand text-xs leading-4 text-[#786771] sm:block">
-                    {mode === "leon"
-                      ? "Entrega local o recolección"
-                      : "Envío nacional se suma al pedido"}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {!deliveryMode && (
-            <p className="mt-2 px-1 font-brand text-xs text-[#806c77]">
-              Elígelo una vez antes de agregar tu bandana.
-            </p>
-          )}
-        </div>
+        <span className="mt-5 inline-flex rounded-full border border-[#ceb9c4] bg-white/80 px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#614456]">
+          {fulfillmentMode === "national"
+            ? "📦 Precios nacionales · envío aparte"
+            : "📍 Precios para León"}
+        </span>
       </header>
 
       <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-7 lg:px-9">
@@ -289,7 +256,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                       {item.name}
                     </span>
                     <span className="mt-1 block font-interface text-[9px] font-bold uppercase tracking-[0.14em] text-[#97667e]">
-                      {item.eyebrow} · Desde {money(Math.min(...Object.values(item.prices)))}
+                      {item.eyebrow} · Desde {money(Math.min(...Object.values(pricesFor(item, fulfillmentMode))))}
                     </span>
                   </span>
                   {active && (
@@ -560,7 +527,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                       <span className="flex items-center justify-between gap-3">
                         <span className="font-interface text-xs font-bold text-[#3a2030]">{item.name}</span>
                         <span className="font-title text-sm font-semibold text-[#70425a]">
-                          {money(collection.prices[item.id])}
+                          {money(activePrices[item.id])}
                         </span>
                       </span>
                       <span className="mt-1 block font-interface text-[9px] font-bold text-[#8b6477]">
@@ -589,9 +556,7 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
                 <div>
                   <p className="font-interface text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a7380]">
                     {color.name} · Talla {size.name}
-                    {deliveryMode
-                      ? ` · ${deliveryMode === "leon" ? "León" : "Envío nacional"}`
-                      : ""}
+                    {` · ${fulfillmentMode === "leon" ? "León" : "Envío nacional"}`}
                   </p>
                   <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]">{money(price)}</p>
                 </div>
@@ -602,12 +567,9 @@ export default function CoutureStoreApp({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={addToCart}
-                disabled={!deliveryMode}
-                className="mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[#b8adb3] disabled:bg-[#b8adb3] disabled:shadow-none disabled:hover:translate-y-0"
+                className="mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0"
               >
-                {deliveryMode
-                  ? `Agregar al carrito · ${money(price)}`
-                  : "Elige dónde recibirlo"}
+                Agregar al carrito · {money(price)}
               </button>
               {notice && (
                 <p className="mt-3 rounded-xl border border-[#b8ccb9] bg-[#eef7ee] px-4 py-3 font-brand text-sm text-[#3d6544]" role="status">
