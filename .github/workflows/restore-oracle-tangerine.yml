@@ -1,0 +1,94 @@
+name: Restore verified Oracle Tangerine
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-oracle-tangerine.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Oracle Tangerine originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1yUVfM7e3JLchtvQpNLskClArdnV555hw&export=download&confirm=t' \
+            -o /tmp/oracle-tangerine-product.png
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1pcXGjCy0jNvKtDlw5H0oAigOa-tcJrNJ&export=download&confirm=t' \
+            -o /tmp/oracle-tangerine-worn.png
+
+      - name: Verify exact Oracle Tangerine binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/oracle-tangerine-product.png)" -eq 2323315
+          test "$(wc -c < /tmp/oracle-tangerine-worn.png)" -eq 2046056
+          echo 'd7a3212acf669e5a04ce09f9179094ba117978414d8c4f684d333d55985276c8  /tmp/oracle-tangerine-product.png' | sha256sum -c -
+          echo '80437425a84c734d331b17297059a059d9457cd539108bcd67c7ce4f60a8fb26  /tmp/oracle-tangerine-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/oracle-tangerine-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/oracle-tangerine-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add only Oracle Tangerine assets and selector entry
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/oracle-tangerine-product.png public/couture/bandanas/oracle-tangerine.png
+          cp /tmp/oracle-tangerine-worn.png public/couture/bandanas/oracle-tangerine-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if '/couture/bandanas/oracle-tangerine.png' in text:
+              raise SystemExit('Oracle Tangerine already exists; refusing duplicate')
+          anchor = '  { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/oracle-soleil.png", wornImage: "/couture/bandanas/oracle-soleil-perro.png" },\n'
+          addition = '  { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/oracle-tangerine.png", wornImage: "/couture/bandanas/oracle-tangerine-perro.png" },\n'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected Oracle Soleil anchor exactly once; refusing broad edit')
+          path.write_text(text.replace(anchor, anchor + addition, 1))
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+
+      - name: Commit only Oracle Tangerine and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/oracle-tangerine.png
+          git add public/couture/bandanas/oracle-tangerine-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-oracle-tangerine.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-oracle-tangerine.yml'
+            'public/couture/bandanas/oracle-tangerine-perro.png'
+            'public/couture/bandanas/oracle-tangerine.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Oracle Tangerine color'
+          git push origin HEAD:main
