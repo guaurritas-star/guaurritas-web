@@ -6,6 +6,7 @@ import NationalCuisineStoreApp from "@/components/apps/NationalCuisineStoreApp";
 import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
 import { withBasePath } from "@/lib/base-path";
 import {
+  getFulfillmentMode,
   setFulfillmentMode,
   type FulfillmentMode,
 } from "@/lib/fulfillment-store";
@@ -186,103 +187,18 @@ function WorldMediaPreview({ world }: { world: World }) {
   );
 }
 
-function CuisineDeliveryChooser({
-  onChoose,
-  onBack,
-}: {
-  onChoose: (mode: FulfillmentMode) => void;
-  onBack: () => void;
-}) {
-  return (
-    <section className="-m-4 min-h-full bg-[#f7fafb] p-5 sm:-m-6 sm:p-8">
-      <div className="mx-auto flex min-h-[30rem] w-full max-w-5xl flex-col justify-center">
-        <button
-          type="button"
-          onClick={onBack}
-          className="self-start font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#425b8c]"
-        >
-          ← Volver al Guaurriverse
-        </button>
-
-        <header className="mt-7 text-center">
-          <p className="font-interface text-[10px] font-bold uppercase tracking-[0.22em] text-[#5e96a5]">
-            Guaurritas Cuisine
-          </p>
-          <h2 className="mt-2 font-serif text-3xl font-semibold text-[#263650] sm:text-4xl">
-            ¿Cómo quieres recibir tu pedido?
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#657287]">
-            Elige tu ubicación y te mostraremos únicamente los productos que
-            pueden llegar bien hasta ti.
-          </p>
-        </header>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => onChoose("national")}
-            className="group rounded-[1.6rem] border-2 border-[#7fa5b3] bg-white p-6 text-left shadow-[5px_5px_0_#b9d7df] transition hover:-translate-y-1"
-          >
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e8f2f4] text-3xl transition group-hover:scale-105" aria-hidden="true">📦</span>
-            <span className="mt-5 block font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#5e96a5]">
-              Envío nacional
-            </span>
-            <strong className="mt-1 block font-serif text-2xl text-[#263650]">
-              Productos que sí pueden viajar
-            </strong>
-            <span className="mt-4 grid gap-2 text-sm leading-5 text-[#657287]">
-              <span>✓ Disponible en todo México</span>
-              <span>✓ Snacks, accesorios y kits</span>
-              <span>✓ Envío nacional dentro de tu pedido</span>
-            </span>
-            <span className="mt-6 inline-flex rounded-full bg-[#e8f2f4] px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c] transition group-hover:bg-[#d6e9ed]">
-              Comprar con envío nacional →
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onChoose("leon")}
-            className="group rounded-[1.6rem] border-2 border-[#d2a5ad] bg-white p-6 text-left shadow-[5px_5px_0_#edd0d6] transition hover:-translate-y-1"
-          >
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fcf2f4] text-3xl transition group-hover:scale-105" aria-hidden="true">📍</span>
-            <span className="mt-5 block font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#a66271]">
-              Entrega en León
-            </span>
-            <strong className="mt-1 block font-serif text-2xl text-[#263650]">
-              Todo Cuisine en León
-            </strong>
-            <span className="mt-4 grid gap-2 text-sm leading-5 text-[#657287]">
-              <span>✓ Petcakes y productos frescos</span>
-              <span>✓ Repostería, antojitos y accesorios</span>
-              <span>✓ Recolección o entrega local</span>
-            </span>
-            <span className="mt-6 inline-flex rounded-full bg-[#fcf2f4] px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#8f5663] transition group-hover:bg-[#f7e2e7]">
-              Ver catálogo León →
-            </span>
-          </button>
-        </div>
-
-        <p className="mt-5 text-center font-interface text-[10px] leading-5 text-[#718093]">
-          Puedes cambiar de modalidad en cualquier momento. El carrito mantiene
-          separados los artículos nacionales y los de entrega local.
-        </p>
-      </div>
-    </section>
-  );
-}
-
 export default function GuaurriverseApp() {
   const [selectedWorldId, setSelectedWorldId] = useState<WorldId | null>(null);
-  const [cuisineMode, setCuisineMode] = useState<FulfillmentMode | null>(null);
+  const [fulfillmentMode, setActiveFulfillmentMode] =
+    useState<FulfillmentMode>("leon");
 
   useEffect(() => {
     const syncWorld = () => {
       const nextWorld = readWorldFromUrl();
       setSelectedWorldId(nextWorld);
-      if (nextWorld !== "cuisine") setCuisineMode(null);
     };
 
+    setActiveFulfillmentMode(getFulfillmentMode());
     syncWorld();
     window.addEventListener("popstate", syncWorld);
 
@@ -293,51 +209,43 @@ export default function GuaurriverseApp() {
 
   const openWorld = (worldId: WorldId) => {
     setSelectedWorldId(worldId);
-    if (worldId === "cuisine") setCuisineMode(null);
     updateWorldInUrl(worldId);
   };
 
   const showAllWorlds = () => {
     setSelectedWorldId(null);
-    setCuisineMode(null);
     updateWorldInUrl(null);
   };
 
-  const chooseCuisineMode = (mode: FulfillmentMode) => {
+  const chooseFulfillmentMode = (mode: FulfillmentMode) => {
     setFulfillmentMode(mode);
-    setCuisineMode(mode);
+    setActiveFulfillmentMode(mode);
   };
 
   if (selectedWorld?.id === "cuisine") {
-    if (cuisineMode === "national") {
+    if (fulfillmentMode === "national") {
       return (
         <NationalCuisineStoreApp
-          onBack={() => setCuisineMode(null)}
-          onModeChange={chooseCuisineMode}
-        />
-      );
-    }
-
-    if (cuisineMode === "leon") {
-      return (
-        <CuisineStoreApp
-          onBack={() => setCuisineMode(null)}
-          fulfillmentMode="leon"
-          onModeChange={chooseCuisineMode}
+          onBack={showAllWorlds}
         />
       );
     }
 
     return (
-      <CuisineDeliveryChooser
-        onChoose={chooseCuisineMode}
+      <CuisineStoreApp
         onBack={showAllWorlds}
+        fulfillmentMode="leon"
       />
     );
   }
 
   if (selectedWorld?.id === "couture") {
-    return <CoutureStoreApp onBack={showAllWorlds} />;
+    return (
+      <CoutureStoreApp
+        onBack={showAllWorlds}
+        fulfillmentMode={fulfillmentMode}
+      />
+    );
   }
 
   if (selectedWorld) {
@@ -392,7 +300,36 @@ export default function GuaurriverseApp() {
           </p>
         </header>
 
-        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-12 lg:overflow-visible">
+        <div className="mx-auto mt-6 flex w-full max-w-3xl flex-col items-center gap-3 rounded-2xl border border-[#d1d8e2] bg-white/90 p-3 shadow-[0_8px_24px_rgba(38,54,80,0.07)] sm:flex-row sm:justify-center sm:gap-4 sm:px-5">
+          <p className="font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#42516a] sm:text-[10px]">
+            ¿Dónde estás comprando?
+          </p>
+          <div
+            className="grid w-full max-w-sm grid-cols-2 rounded-full border border-[#8494ad] bg-white p-1 sm:w-auto sm:min-w-72"
+            aria-label="Ubicación de compra"
+          >
+            {(["leon", "national"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => chooseFulfillmentMode(mode)}
+                aria-pressed={fulfillmentMode === mode}
+                className={`min-h-10 rounded-full px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] transition sm:min-h-9 ${
+                  fulfillmentMode === mode
+                    ? "bg-[#263650] text-white shadow-sm"
+                    : "text-[#42516a] hover:bg-[#eef2f7]"
+                }`}
+              >
+                {mode === "leon" ? "📍 León" : "📦 Nacional"}
+              </button>
+            ))}
+          </div>
+          <p className="font-brand text-xs text-[#718093] sm:whitespace-nowrap">
+            Puedes cambiarlo cuando quieras
+          </p>
+        </div>
+
+        <div className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-12 lg:overflow-visible">
           {worlds.map((world) => (
             <button
               key={world.id}
