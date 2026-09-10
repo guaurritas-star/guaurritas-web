@@ -1,0 +1,81 @@
+name: Restore verified Abeille Soleil color
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-abeille-soleil.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact Abeille Soleil originals from Drive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=1m_N9Ds1AoOBULc0nGUnKiNXTJiCODeab&export=download&confirm=t' -o /tmp/abeille-soleil-product.png
+          curl -L --fail --retry 3 --retry-delay 2 'https://drive.usercontent.google.com/download?id=1Y3M8MboTK1zzz3thgeZxZwwIhE6aE8g_&export=download&confirm=t' -o /tmp/abeille-soleil-worn.png
+
+      - name: Verify exact Abeille Soleil binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/abeille-soleil-product.png)" -eq 2377659
+          test "$(wc -c < /tmp/abeille-soleil-worn.png)" -eq 1610092
+          echo 'bb4145ae6c559888a655486d1dfac9585080dea58de4f857be7eb697e7808aa3  /tmp/abeille-soleil-product.png' | sha256sum -c -
+          echo 'd03b2b22578d04e665e2de26da3fb96a2cb37c1b07c368ccefd43b4ff458dc99  /tmp/abeille-soleil-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/abeille-soleil-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/abeille-soleil-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add only Abeille Soleil assets and selector entry
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/abeille-soleil-product.png public/couture/bandanas/abeille-soleil.png
+          cp /tmp/abeille-soleil-worn.png public/couture/bandanas/abeille-soleil-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = p.read_text()
+          if 'id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/abeille-soleil.png"' in text:
+              raise SystemExit('Abeille Soleil already exists')
+          anchor = '  { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/abeille-framboise.png", wornImage: "/couture/bandanas/abeille-framboise-perro.png" },\n];'
+          repl = '  { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/abeille-framboise.png", wornImage: "/couture/bandanas/abeille-framboise-perro.png" },\n  { id: "soleil", name: "Soleil", swatch: "#d7a936", productImage: "/couture/bandanas/abeille-soleil.png", wornImage: "/couture/bandanas/abeille-soleil-perro.png" },\n];'
+          if text.count(anchor) != 1:
+              raise SystemExit('Expected Abeille Framboise anchor once')
+          p.write_text(text.replace(anchor, repl, 1))
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+
+      - name: Commit only Abeille Soleil changes and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/abeille-soleil.png public/couture/bandanas/abeille-soleil-perro.png src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-abeille-soleil.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          printf '%s\n' '.github/workflows/restore-abeille-soleil.yml' 'public/couture/bandanas/abeille-soleil-perro.png' 'public/couture/bandanas/abeille-soleil.png' 'src/components/apps/CoutureStoreApp.tsx' | sort > /tmp/expected.txt
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add verified Abeille Soleil color'
+          git push origin HEAD:main
