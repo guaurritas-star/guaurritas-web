@@ -1,0 +1,126 @@
+name: Restore verified Oracle Ciel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-oracle-ciel.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact public temp copies
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=12JFBrO8uCw4fl-4gEzRSfNz-XY5sLlX1&export=download&confirm=t' \
+            -o /tmp/oracle-ciel-product.png
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://drive.usercontent.google.com/download?id=1Sp6CVgx1Ghq4N8WwwwNwGtUsDOWksIil&export=download&confirm=t' \
+            -o /tmp/oracle-ciel-worn.png
+
+      - name: Verify exact Oracle Ciel binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/oracle-ciel-product.png)" -eq 2495698
+          test "$(wc -c < /tmp/oracle-ciel-worn.png)" -eq 2736417
+          echo '42dd9ce4142f07236ae911bdfb2e2adb7e6b21b6575d069f472bb29c8ca45d65  /tmp/oracle-ciel-product.png' | sha256sum -c -
+          echo '461b2a1ca7904d0f59654d5cc532e336b58546787ef441d7e56b4c0a2a31afa4  /tmp/oracle-ciel-worn.png' | sha256sum -c -
+          test "$(head -c 8 /tmp/oracle-ciel-product.png | xxd -p)" = '89504e470d0a1a0a'
+          test "$(head -c 8 /tmp/oracle-ciel-worn.png | xxd -p)" = '89504e470d0a1a0a'
+
+      - name: Add Oracle collection with Ciel only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/oracle-ciel-product.png public/couture/bandanas/oracle-ciel.png
+          cp /tmp/oracle-ciel-worn.png public/couture/bandanas/oracle-ciel-perro.png
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/apps/CoutureStoreApp.tsx')
+          text = path.read_text()
+          if '/couture/bandanas/oracle-ciel.png' in text or 'id: "oracle"' in text:
+              raise SystemExit('Oracle already exists; refusing duplicate')
+
+          old_type = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "clasica" | "encanto";'
+          new_type = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "encanto";'
+          if text.count(old_type) != 1:
+              raise SystemExit('CollectionId anchor mismatch; refusing broad edit')
+          text = text.replace(old_type, new_type, 1)
+
+          collections_anchor = 'const collections: BandanaCollection[] = ['
+          oracle_colors = '''const oracleColors: BandanaColor[] = [
+  { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/oracle-ciel.png", wornImage: "/couture/bandanas/oracle-ciel-perro.png" },
+];
+
+'''
+          if text.count(collections_anchor) != 1:
+              raise SystemExit('Collections anchor mismatch; refusing broad edit')
+          text = text.replace(collections_anchor, oracle_colors + collections_anchor, 1)
+
+          clasica_anchor = '''  {
+    id: "clasica",
+    name: "Bandana Clásica",'''
+          oracle_collection = '''  {
+    id: "oracle",
+    name: "Bandana Oracle",
+    eyebrow: "Colección Oracle",
+    symbol: "◉",
+    description: "Una mirada protagonista tejida a mano para un look místico y especial.",
+    detail:
+      "Bandana artesanal tejida a mano, con flecos y aplique decorativo de ojo con cuentas. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
+    prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
+    nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
+    colors: oracleColors,
+  },
+'''
+          if text.count(clasica_anchor) != 1:
+              raise SystemExit('Clasica insertion anchor mismatch; refusing broad edit')
+          text = text.replace(clasica_anchor, oracle_collection + clasica_anchor, 1)
+          path.write_text(text)
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+
+      - name: Commit only Oracle Ciel and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/couture/bandanas/oracle-ciel.png
+          git add public/couture/bandanas/oracle-ciel-perro.png
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/restore-oracle-ciel.yml
+          git diff --cached --check
+          mapfile -t changed < <(git diff --cached --name-only | sort)
+          expected=(
+            '.github/workflows/restore-oracle-ciel.yml'
+            'public/couture/bandanas/oracle-ciel-perro.png'
+            'public/couture/bandanas/oracle-ciel.png'
+            'src/components/apps/CoutureStoreApp.tsx'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          printf '%s\n' "${changed[@]}" > /tmp/changed.txt
+          printf '%s\n' "${expected_sorted[@]}" > /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+          git commit -m 'feat(couture): add Bandana Oracle with verified Ciel color'
+          git push origin HEAD:main
