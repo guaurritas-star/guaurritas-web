@@ -46,6 +46,7 @@ function BandanaImage({
 }: {
   src: string;
   alt: string;
+  fill?: boolean;
   sizes: string;
   className: string;
   priority?: boolean;
