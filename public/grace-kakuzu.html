@@ -7,16 +7,294 @@
 <meta name="theme-color" content="#f6eee8">
 <meta name="robots" content="noindex,nofollow">
 <style>
-:root{--bg:#f6eee8;--paper:#fffaf6;--ink:#2f2a2b;--rose:#d98f9d;--rose-dark:#b86677;--sage:#768e78;--sage-dark:#526a56}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 20% 0%,rgba(255,255,255,.75),transparent 30%),linear-gradient(180deg,#f8f1ec 0%,#f3e9e2 100%)}.wrap{max-width:720px;margin:auto;min-height:100vh;padding-bottom:48px}.hero{position:relative;overflow:hidden}.hero img{width:100%;height:58vh;min-height:420px;max-height:650px;object-fit:cover;display:block;filter:saturate(.95) contrast(1.02)}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.03) 25%,rgba(0,0,0,.22) 72%,rgba(246,238,232,.98) 100%)}.hero-copy{position:absolute;left:24px;right:24px;bottom:30px;z-index:2;color:white;text-shadow:0 2px 20px rgba(0,0,0,.30)}.eyebrow{font-size:.82rem;letter-spacing:.20em;text-transform:uppercase;font-weight:800}h1{margin:.38rem 0 .55rem;font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.7rem,11vw,5rem);line-height:.9}.hero-copy p{font-size:1.08rem;margin:0;font-weight:700}.card{background:rgba(255,250,246,.94);backdrop-filter:blur(12px);margin:18px 16px 0;border:1px solid rgba(255,255,255,.8);border-radius:26px;padding:24px;box-shadow:0 14px 45px rgba(94,67,56,.10)}.intro{text-align:center}.kicker{font-family:Georgia,"Times New Roman",serif;font-size:1.55rem;margin:0 0 8px}.intro p{margin:.35rem 0;color:#5f5553;line-height:1.55}.details{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}.detail{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:18px;padding:14px 16px;border:1px solid #f0e5df;text-align:left}.icon{font-size:1.35rem;line-height:1}.detail b{display:block;font-size:.95rem;margin-bottom:2px}.detail span{font-size:.95rem;color:#655b58;line-height:1.35}.btns{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}button,a.btn{appearance:none;border:0;border-radius:18px;padding:16px 18px;font-size:1rem;font-weight:850;text-decoration:none;text-align:center;cursor:pointer;display:block;transition:.2s transform,.2s opacity}button:active,a.btn:active{transform:scale(.985)}.yes{background:var(--sage);color:white}.no{background:var(--rose);color:white}.map{background:#fff;color:#463e3d;border:1px solid #e7d9d0;margin-top:12px}.small{font-size:.83rem;color:#756b68;text-align:center;margin-top:12px;line-height:1.4}.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}.countdown div{background:#fff;border-radius:16px;padding:12px 6px;text-align:center;border:1px solid #f0e5df}.countdown strong{font-family:Georgia,serif;font-size:1.55rem;display:block}.countdown span{font-size:.72rem;color:#7b6f6c;text-transform:uppercase;letter-spacing:.08em}.gift-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.gift{background:#fff;border:1px solid #f0e5df;border-radius:18px;padding:16px;text-align:center}.gift .emoji{font-size:2rem;margin-bottom:6px}.gift b{display:block;margin-bottom:2px}.gift span{font-size:.8rem;color:#786e6b}footer{text-align:center;color:#7c706d;padding:28px 24px 0;font-family:Georgia,serif;font-style:italic}.modal{position:fixed;inset:0;background:rgba(30,25,25,.48);display:none;align-items:flex-end;justify-content:center;padding:18px;z-index:20}.modal.open{display:flex}.sheet{width:min(100%,680px);background:#fffaf6;border-radius:26px 26px 20px 20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.24)}.sheet h2{font-family:Georgia,serif;margin:0 0 8px}.sheet p{margin:0 0 14px;color:#655b58;line-height:1.45}.sheet input{width:100%;border:1px solid #dfd2ca;border-radius:14px;padding:14px;font-size:1rem;margin-bottom:10px;background:white}.sheet .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:4px}.ghost{background:#eee3dc;color:#4d4442}@media(min-width:560px){.details{grid-template-columns:1fr 1fr}.btns{grid-template-columns:1fr 1fr}.gift-grid{grid-template-columns:repeat(3,1fr)}}.start-screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.92),transparent 35%),linear-gradient(180deg,#f8f1ec 0%,#efe1d8 100%)}.start-card{width:min(100%,560px);text-align:center;background:rgba(255,250,246,.96);border:1px solid rgba(255,255,255,.9);border-radius:32px;padding:34px 24px;box-shadow:0 24px 70px rgba(94,67,56,.16)}.start-paws{font-size:2rem;margin-bottom:10px}.start-card .pretitle{text-transform:uppercase;letter-spacing:.14em;font-size:.76rem;font-weight:800;color:#7a6e6b}.start-card h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.2rem,10vw,4.2rem);line-height:.95;margin:14px 0 10px;color:#3a3231}.start-card p{color:#746966;margin:0 0 20px}.start-card button{width:100%}.invite-hidden{display:none}.status-box{display:none;margin-top:14px;padding:14px;border-radius:16px;background:#fff;border:1px solid #f0e5df;color:#5e5552;text-align:center}.status-box.show{display:block}.no-cats{display:none;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}.no-cats.show{display:grid}.no-cats img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:20px;background:white;border:1px solid #f0e5df}
+:root{
+  --bg:#f6eee8; --paper:#fffaf6; --ink:#2f2a2b;
+  --rose:#d98f9d; --rose-dark:#b86677; --sage:#768e78; --sage-dark:#526a56;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink);
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.75),transparent 30%),
+    linear-gradient(180deg,#f8f1ec 0%,#f3e9e2 100%);
+}
+.wrap{max-width:720px;margin:auto;min-height:100vh;padding-bottom:48px}
+.hero{position:relative;overflow:hidden}
+.hero img{
+  width:100%;height:58vh;min-height:420px;max-height:650px;
+  object-fit:cover;display:block;filter:saturate(.95) contrast(1.02)
+}
+.hero:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.03) 25%,rgba(0,0,0,.22) 72%,rgba(246,238,232,.98) 100%)
+}
+.hero-copy{
+  position:absolute;left:24px;right:24px;bottom:30px;z-index:2;color:white;
+  text-shadow:0 2px 20px rgba(0,0,0,.30)
+}
+.eyebrow{font-size:.82rem;letter-spacing:.20em;text-transform:uppercase;font-weight:800}
+h1{
+  margin:.38rem 0 .55rem;font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(2.7rem,11vw,5rem);line-height:.9
+}
+.hero-copy p{font-size:1.08rem;margin:0;font-weight:700}
+.card{
+  background:rgba(255,250,246,.94);backdrop-filter:blur(12px);
+  margin:18px 16px 0;border:1px solid rgba(255,255,255,.8);
+  border-radius:26px;padding:24px;box-shadow:0 14px 45px rgba(94,67,56,.10)
+}
+.intro{text-align:center}
+.kicker{font-family:Georgia,"Times New Roman",serif;font-size:1.55rem;margin:0 0 8px}
+.intro p{margin:.35rem 0;color:#5f5553;line-height:1.55}
+.details{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
+.detail{
+  display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:18px;
+  padding:14px 16px;border:1px solid #f0e5df;text-align:left
+}
+.icon{font-size:1.35rem;line-height:1}
+.detail b{display:block;font-size:.95rem;margin-bottom:2px}
+.detail span{font-size:.95rem;color:#655b58;line-height:1.35}
+.btns{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
+button,a.btn{
+  appearance:none;border:0;border-radius:18px;padding:16px 18px;font-size:1rem;font-weight:850;
+  text-decoration:none;text-align:center;cursor:pointer;display:block;transition:.2s transform,.2s opacity
+}
+button:active,a.btn:active{transform:scale(.985)}
+.yes{background:var(--sage);color:white}
+.no{background:var(--rose);color:white}
+.map{background:#fff;color:#463e3d;border:1px solid #e7d9d0;margin-top:12px}
+.small{font-size:.83rem;color:#756b68;text-align:center;margin-top:12px;line-height:1.4}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.countdown div{
+  background:#fff;border-radius:16px;padding:12px 6px;text-align:center;border:1px solid #f0e5df
+}
+.countdown strong{font-family:Georgia,serif;font-size:1.55rem;display:block}
+.countdown span{font-size:.72rem;color:#7b6f6c;text-transform:uppercase;letter-spacing:.08em}
+.gift-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.gift{background:#fff;border:1px solid #f0e5df;border-radius:18px;padding:16px;text-align:center}
+.gift .emoji{font-size:2rem;margin-bottom:6px}
+.gift b{display:block;margin-bottom:2px}
+.gift span{font-size:.8rem;color:#786e6b}
+footer{text-align:center;color:#7c706d;padding:28px 24px 0;font-family:Georgia,serif;font-style:italic}
+.modal{
+  position:fixed;inset:0;background:rgba(30,25,25,.48);display:none;
+  align-items:flex-end;justify-content:center;padding:18px;z-index:20
+}
+.modal.open{display:flex}
+.sheet{
+  width:min(100%,680px);background:#fffaf6;border-radius:26px 26px 20px 20px;
+  padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.24)
+}
+.sheet h2{font-family:Georgia,serif;margin:0 0 8px}
+.sheet p{margin:0 0 14px;color:#655b58;line-height:1.45}
+.sheet input{
+  width:100%;border:1px solid #dfd2ca;border-radius:14px;padding:14px;
+  font-size:1rem;margin-bottom:10px;background:white
+}
+.sheet .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:4px}
+.ghost{background:#eee3dc;color:#4d4442}
+@media(min-width:560px){
+  .details{grid-template-columns:1fr 1fr}
+  .btns{grid-template-columns:1fr 1fr}
+  .gift-grid{grid-template-columns:repeat(3,1fr)}
+}
+.start-screen{
+  position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.92),transparent 35%),
+    linear-gradient(180deg,#f8f1ec 0%,#efe1d8 100%);
+}
+.start-card{
+  width:min(100%,560px); text-align:center; background:rgba(255,250,246,.96);
+  border:1px solid rgba(255,255,255,.9); border-radius:32px; padding:34px 24px;
+  box-shadow:0 24px 70px rgba(94,67,56,.16);
+}
+.start-paws{font-size:2rem;margin-bottom:10px}
+.start-card .pretitle{
+  text-transform:uppercase;letter-spacing:.14em;font-size:.76rem;font-weight:800;color:#7a6e6b
+}
+.start-card h2{
+  font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.2rem,10vw,4.2rem);
+  line-height:.95;margin:14px 0 10px;color:#3a3231
+}
+.start-card p{color:#746966;margin:0 0 20px}
+.start-card button{width:100%}
+.invite-hidden{display:none}
+.status-box{
+  display:none;margin-top:14px;padding:14px;border-radius:16px;background:#fff;
+  border:1px solid #f0e5df;color:#5e5552;text-align:center
+}
+.status-box.show{display:block}
+.no-cats{
+  display:none;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:0 0 16px;
+}
+.no-cats.show{display:grid}
+.no-cats img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:20px;
+  background:white;
+  border:1px solid #f0e5df;
+}
 </style>
 </head>
 <body>
-<div class="start-screen" id="startScreen"><div class="start-card"><div class="start-paws">🐾</div><div class="pretitle">Grace & Kakuzu</div><h2>tienen una invitación especial</h2><p>Quieren celebrar contigo 🩷</p><button class="yes" onclick="openInvitation()">Abrir invitación ♡</button></div></div>
+<div class="start-screen" id="startScreen">
+  <div class="start-card">
+    <div class="start-paws">🐾</div>
+    <div class="pretitle">Grace & Kakuzu</div>
+    <h2>tienen una invitación especial</h2>
+    <p>Quieren celebrar contigo 🩷</p>
+    <button class="yes" onclick="openInvitation()">Abrir invitación ♡</button>
+  </div>
+</div>
 <div class="wrap invite-hidden" id="inviteWrap">
-<section class="hero"><img alt="Grace y Kakuzu" src="data:image/jpeg;base64,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[... ELLIPSIZATION ...]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"><div class="hero-copy"><div class="eyebrow">Cumpleaños gatuno</div><h1>Grace &<br>Kakuzu</h1><p>están de fiesta 🐾</p></div></section>
-<section class="card intro"><p class="kicker">Queremos celebrarlo contigo.</p><p>Ven a festejar a Grace y Kakuzu en una tarde para consentirlos, convivir y celebrar otro año de aventuras juntos.</p><div class="details"><div class="detail"><div class="icon">📅</div><div><b>Sábado</b><span>26 de septiembre de 2026</span></div></div><div class="detail"><div class="icon">🕠</div><div><b>Hora</b><span>5:30 p. m.</span></div></div><div class="detail" style="grid-column:1/-1"><div class="icon">📍</div><div><b>Lugar</b><span>Blvd. Adolfo López Mateos #3243, Marfil, Torre 4B-406, CP 37125, León, Gto.</span></div></div></div><div class="countdown"><div><strong id="d">0</strong><span>días</span></div><div><strong id="h">0</strong><span>horas</span></div><div><strong id="m">0</strong><span>min</span></div><div><strong id="s">0</strong><span>seg</span></div></div><div class="btns"><button class="yes" onclick="openRSVP('yes')">✓ Sí, ahí estaré</button><button class="no" onclick="openRSVP('no')">× No podré ir</button></div><a class="btn map" href="https://www.google.com/maps/search/?api=1&query=Blvd.+Adolfo+L%C3%B3pez+Mateos+3243,+Marfil,+Le%C3%B3n,+Guanajuato,+37125" target="_blank" rel="noopener">📍 Cómo llegar</a><div class="small">Tu respuesta quedará registrada automáticamente.</div><div class="status-box" id="statusBox"></div></section>
-<section class="card"><div class="intro"><p class="kicker">🎁 Lista de regalos</p><p>Tu presencia es el mejor regalo, pero si quieres consentirlos, aquí van algunas ideas.</p></div><div class="gift-grid"><div class="gift"><div class="emoji">🧶</div><b>Juguetes</b><span>Varitas, pelotas, ratoncitos</span></div><div class="gift"><div class="emoji">🍗</div><b>Premios</b><span>Snacks y sobres favoritos</span></div><div class="gift"><div class="emoji">🪵</div><b>Rascador</b><span>Para sus ataques de energía</span></div><div class="gift"><div class="emoji">🛏️</div><b>Camita</b><span>Para dormir como reyes</span></div><div class="gift"><div class="emoji">📦</div><b>Arenero / arena</b><span>Siempre hace falta</span></div><div class="gift"><div class="emoji">🐈</div><b>Sorpresa</b><span>Algo elegido especialmente</span></div></div></section><footer>Con amor, Grace & Kakuzu ♡</footer></div>
-<div class="modal" id="modal" onclick="if(event.target===this)closeRSVP()"><div class="sheet"><h2>Confirma tu asistencia 🐾</h2><div class="no-cats" id="noCats"><img src="./grace-emoji.jpg" alt="Grace"><img src="./kakuzu-emoji.jpg" alt="Kakuzu"></div><p id="replyText"></p><input id="guestName" type="text" placeholder="Tu nombre"><input id="guestCount" type="number" min="1" max="12" inputmode="numeric" placeholder="¿Cuántas personas?"><div class="actions"><button class="yes" id="sendBtn" onclick="sendRSVP()">Confirmar respuesta</button><button class="ghost" onclick="closeRSVP()">Cancelar</button></div><div class="small">La respuesta se guardará en la lista privada de invitados.</div></div></div>
+  <section class="hero">
+    <img alt="Grace y Kakuzu" src="./grace-kakuzu-hero.svg?v=1">
+    <div class="hero-copy">
+      <div class="eyebrow">Cumpleaños gatuno</div>
+      <h1>Grace &<br>Kakuzu</h1>
+      <p>están de fiesta 🐾</p>
+    </div>
+  </section>
+  <section class="card intro">
+    <p class="kicker">Queremos celebrarlo contigo.</p>
+    <p>Ven a festejar a Grace y Kakuzu en una tarde para consentirlos, convivir y celebrar otro año de aventuras juntos.</p>
+    <div class="details">
+      <div class="detail"><div class="icon">📅</div><div><b>Sábado</b><span>26 de septiembre de 2026</span></div></div>
+      <div class="detail"><div class="icon">🕠</div><div><b>Hora</b><span>5:30 p. m.</span></div></div>
+      <div class="detail" style="grid-column:1/-1"><div class="icon">📍</div><div><b>Lugar</b><span>Blvd. Adolfo López Mateos #3243, Marfil, Torre 4B-406, CP 37125, León, Gto.</span></div></div>
+    </div>
+    <div class="countdown">
+      <div><strong id="d">0</strong><span>días</span></div>
+      <div><strong id="h">0</strong><span>horas</span></div>
+      <div><strong id="m">0</strong><span>min</span></div>
+      <div><strong id="s">0</strong><span>seg</span></div>
+    </div>
+    <div class="btns">
+      <button class="yes" onclick="openRSVP('yes')">✓ Sí, ahí estaré</button>
+      <button class="no" onclick="openRSVP('no')">× No podré ir</button>
+    </div>
+    <a class="btn map" href="https://www.google.com/maps/search/?api=1&query=Blvd.+Adolfo+L%C3%B3pez+Mateos+3243,+Marfil,+Le%C3%B3n,+Guanajuato,+37125" target="_blank" rel="noopener">📍 Cómo llegar</a>
+    <div class="small">Tu respuesta quedará registrada automáticamente.</div><div class="status-box" id="statusBox"></div>
+  </section>
+  <section class="card">
+    <div class="intro">
+      <p class="kicker">🎁 Lista de regalos</p>
+      <p>Tu presencia es el mejor regalo, pero si quieres consentirlos, aquí van algunas ideas.</p>
+    </div>
+    <div class="gift-grid">
+      <div class="gift"><div class="emoji">🧶</div><b>Juguetes</b><span>Varitas, pelotas, ratoncitos</span></div>
+      <div class="gift"><div class="emoji">🍗</div><b>Premios</b><span>Snacks y sobres favoritos</span></div>
+      <div class="gift"><div class="emoji">🪵</div><b>Rascador</b><span>Para sus ataques de energía</span></div>
+      <div class="gift"><div class="emoji">🛏️</div><b>Camita</b><span>Para dormir como reyes</span></div>
+      <div class="gift"><div class="emoji">📦</div><b>Arenero / arena</b><span>Siempre hace falta</span></div>
+      <div class="gift"><div class="emoji">🐈</div><b>Sorpresa</b><span>Algo elegido especialmente</span></div>
+    </div>
+  </section>
+  <footer>Con amor, Grace & Kakuzu ♡</footer>
+</div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeRSVP()">
+  <div class="sheet">
+    <h2>Confirma tu asistencia 🐾</h2>
+    <div class="no-cats" id="noCats">
+      <img src="./grace-emoji.jpg" alt="Grace">
+      <img src="./kakuzu-emoji.jpg" alt="Kakuzu">
+    </div>
+    <p id="replyText"></p>
+    <input id="guestName" type="text" placeholder="Tu nombre">
+    <input id="guestCount" type="number" min="1" max="12" inputmode="numeric" placeholder="¿Cuántas personas?">
+    <div class="actions">
+      <button class="yes" id="sendBtn" onclick="sendRSVP()">Confirmar respuesta</button>
+      <button class="ghost" onclick="closeRSVP()">Cancelar</button>
+    </div>
+    <div class="small">La respuesta se guardará en la lista privada de invitados.</div>
+  </div>
+</div>
 <script>
-const RSVP_ENDPOINT='https://script.google.com/macros/s/AKfycbzyzQM-fST-4Gs5ctYPJPmW0n8Z18aZJjcs85n2zXPOin5Fys9ckDZ4raqRB68SkJNKdA/exec';function openInvitation(){document.getElementById('startScreen').style.display='none';document.getElementById('inviteWrap').classList.remove('invite-hidden');window.scrollTo({top:0,behavior:'instant'})}const target=new Date('2026-09-26T17:30:00-06:00').getTime();function tick(){let x=Math.max(0,target-Date.now());const d=Math.floor(x/86400000);x%=86400000;const h=Math.floor(x/3600000);x%=3600000;const m=Math.floor(x/60000);const s=Math.floor((x%60000)/1000);document.getElementById('d').textContent=d;document.getElementById('h').textContent=h;document.getElementById('m').textContent=m;document.getElementById('s').textContent=s}tick();setInterval(tick,1000);let rsvpChoice='yes';function openRSVP(choice){rsvpChoice=choice;const noCats=document.getElementById('noCats');noCats.classList.toggle('show',choice==='no');document.getElementById('replyText').textContent=choice==='yes'?'¡Qué emoción! Escribe tu nombre y cuántas personas asistirán.':'Ayyy, los vamos a extrañar 🥺 Escribe tu nombre para registrar tu respuesta.';document.getElementById('guestCount').style.display=choice==='yes'?'block':'none';document.getElementById('modal').classList.add('open')}function closeRSVP(){document.getElementById('modal').classList.remove('open')}async function sendRSVP(){const name=document.getElementById('guestName').value.trim();if(!name){alert('Escribe tu nombre para registrar tu respuesta.');return}const count=rsvpChoice==='yes'?(document.getElementById('guestCount').value.trim()||'1'):'0';const payload={invitado:name,respuesta:rsvpChoice==='yes'?'Sí':'No',personas:count,fechaHora:new Date().toISOString(),mensaje:rsvpChoice==='yes'?`Confirmó asistencia para ${count} persona(s).`:'Confirmó que no podrá asistir.'};const btn=document.getElementById('sendBtn');btn.disabled=true;btn.textContent='Guardando…';try{await fetch(RSVP_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});closeRSVP();const box=document.getElementById('statusBox');box.textContent=rsvpChoice==='yes'?`✓ ¡Listo, ${name}! Quedó registrada tu asistencia.`:`✓ Gracias por avisarnos, ${name}. Grace y Kakuzu los van a extrañar 🥺`;box.classList.add('show');box.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){alert('No pudimos guardar la respuesta. Intenta de nuevo.')}finally{btn.disabled=false;btn.textContent='Confirmar respuesta'}}
-</script></body></html>
+const RSVP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzyzQM-fST-4Gs5ctYPJPmW0n8Z18aZJjcs85n2zXPOin5Fys9ckDZ4raqRB68SkJNKdA/exec';
+function openInvitation(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('inviteWrap').classList.remove('invite-hidden');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+const target = new Date('2026-09-26T17:30:00-06:00').getTime();
+function tick(){
+  let x=Math.max(0,target-Date.now());
+  const d=Math.floor(x/86400000); x%=86400000;
+  const h=Math.floor(x/3600000); x%=3600000;
+  const m=Math.floor(x/60000); const s=Math.floor((x%60000)/1000);
+  document.getElementById('d').textContent=d;
+  document.getElementById('h').textContent=h;
+  document.getElementById('m').textContent=m;
+  document.getElementById('s').textContent=s;
+}
+tick(); setInterval(tick,1000);
+let rsvpChoice='yes';
+function openRSVP(choice){
+  rsvpChoice=choice;
+  const noCats=document.getElementById('noCats');
+  noCats.classList.toggle('show', choice==='no');
+  document.getElementById('replyText').textContent =
+    choice==='yes'
+      ? '¡Qué emoción! Escribe tu nombre y cuántas personas asistirán.'
+      : 'Ayyy, los vamos a extrañar 🥺 Escribe tu nombre para registrar tu respuesta.';
+  document.getElementById('guestCount').style.display =
+    choice==='yes' ? 'block' : 'none';
+  document.getElementById('modal').classList.add('open');
+}
+function closeRSVP(){
+  document.getElementById('modal').classList.remove('open');
+}
+async function sendRSVP(){
+  const name=document.getElementById('guestName').value.trim();
+  if(!name){
+    alert('Escribe tu nombre para registrar tu respuesta.');
+    return;
+  }
+  const count=rsvpChoice==='yes'
+    ? (document.getElementById('guestCount').value.trim() || '1')
+    : '0';
+  const payload={
+    invitado:name,
+    respuesta:rsvpChoice==='yes' ? 'Sí' : 'No',
+    personas:count,
+    fechaHora:new Date().toISOString(),
+    mensaje:rsvpChoice==='yes'
+      ? `Confirmó asistencia para ${count} persona(s).`
+      : 'Confirmó que no podrá asistir.'
+  };
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true;
+  btn.textContent='Guardando…';
+  try{
+    await fetch(RSVP_ENDPOINT,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    });
+    closeRSVP();
+    const box=document.getElementById('statusBox');
+    box.textContent=rsvpChoice==='yes'
+      ? `✓ ¡Listo, ${name}! Quedó registrada tu asistencia.`
+      : `✓ Gracias por avisarnos, ${name}. Grace y Kakuzu los van a extrañar 🥺`;
+    box.classList.add('show');
+    box.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(e){
+    alert('No pudimos guardar la respuesta. Intenta de nuevo.');
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Confirmar respuesta';
+  }
+}
+</script>
+</body>
+</html>
