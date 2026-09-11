@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
+import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
@@ -36,6 +37,51 @@ type BandanaSize = {
   neck: string;
   example: string;
 };
+
+const WEB_SOURCE = "guaurritas-web";
+
+function BandanaImage({
+  src,
+  alt,
+  sizes,
+  className,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  fill?: boolean;
+  sizes: string;
+  className: string;
+  priority?: boolean;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  return (
+    <>
+      {!loaded && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 font-interface text-xl font-bold tracking-[0.28em] text-[#8d7a84]"
+        >
+          <span className="animate-pulse">...</span>
+        </span>
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        priority={priority}
+        sizes={sizes}
+        onLoad={() => setLoaded(true)}
+        className={`${className} transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </>
+  );
+}
 
 const amuletteColors: BandanaColor[] = [
   { id: "crepuscule", name: "Crépuscule", swatch: "#3b3455", productImage: "/couture/bandanas/amulette-crepuscule.png", wornImage: "/couture/bandanas/amulette-crepuscule-perro.png" },
@@ -194,7 +240,49 @@ export default function CoutureStoreApp({
   const [fitHelperOpen, setFitHelperOpen] = useState(false);
   const [neckInput, setNeckInput] = useState("");
   const [notice, setNotice] = useState("");
+  const [cartOpening, setCartOpening] = useState(false);
+  const cartOpeningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cartOpeningResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cartOpeningRef = useRef(false);
   const { count: cartCount } = useCart();
+
+  const openCoutureCart = () => {
+    if (typeof window === "undefined") return;
+
+    if (window.self !== window.top && window.matchMedia("(max-width: 639px)").matches) {
+      window.parent.postMessage(
+        { source: WEB_SOURCE, type: "guaurritas:cuisine-cart-request" },
+        "*",
+      );
+      return;
+    }
+
+    if (cartOpeningRef.current) return;
+
+    cartOpeningRef.current = true;
+    setCartOpening(true);
+
+    if (cartOpeningTimerRef.current) clearTimeout(cartOpeningTimerRef.current);
+    if (cartOpeningResetTimerRef.current) clearTimeout(cartOpeningResetTimerRef.current);
+
+    cartOpeningTimerRef.current = setTimeout(() => {
+      requestSystemCartOpen();
+      cartOpeningResetTimerRef.current = setTimeout(() => {
+        cartOpeningRef.current = false;
+        setCartOpening(false);
+        cartOpeningResetTimerRef.current = null;
+      }, 360);
+      cartOpeningTimerRef.current = null;
+    }, 90);
+  };
+
+  useEffect(
+    () => () => {
+      if (cartOpeningTimerRef.current) clearTimeout(cartOpeningTimerRef.current);
+      if (cartOpeningResetTimerRef.current) clearTimeout(cartOpeningResetTimerRef.current);
+    },
+    [],
+  );
 
   const collection = collections.find((item) => item.id === collectionId)!;
   const color = collection.colors.find((item) => item.id === colorId) ?? collection.colors[0];
@@ -244,9 +332,25 @@ export default function CoutureStoreApp({
         >
           ← Volver a los mundos
         </button>
-        <span className="rounded-full border border-[#bfa9b4] bg-[#f5edf1] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#432536] sm:text-[10px]">
-          Carrito · {cartCount}
-        </span>
+        <button
+          type="button"
+          onClick={openCoutureCart}
+          aria-busy={cartOpening}
+          aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
+          className="group flex shrink-0 items-center gap-2 rounded-full border border-[#bfa9b4] bg-[#f5edf1] px-2.5 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#432536] shadow-[1px_1px_0_rgba(112,66,90,0.12)] transition hover:border-[#8f6178] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#70425a] sm:text-[10px]"
+        >
+          <span className="relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
+            <Image
+              src={withBasePath("/icons/desktop/taskbar-cart.webp")}
+              alt=""
+              fill
+              unoptimized
+              sizes="28px"
+              className="object-contain"
+            />
+          </span>
+          <span>{cartOpening ? "Abriendo…" : `Carrito · ${cartCount}`}</span>
+        </button>
       </div>
 
       <header className="border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-8 text-center sm:px-8 sm:py-10">
@@ -287,7 +391,7 @@ export default function CoutureStoreApp({
                   }`}
                 >
                   <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" || item.id === "coeur-sacre" ? "bg-transparent" : "bg-white"}` }>
-                    <Image
+                    <BandanaImage
                       src={withBasePath(item.colors[0].productImage)}
                       alt=""
                       fill
@@ -317,7 +421,7 @@ export default function CoutureStoreApp({
         <div className="mt-8 grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-12">
           <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
             <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white">
-              <Image
+              <BandanaImage
                 key={galleryImage}
                 src={withBasePath(galleryImage)}
                 alt={galleryAlt}
@@ -350,7 +454,7 @@ export default function CoutureStoreApp({
                     }`}
                   >
                     <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white">
-                      <Image
+                      <BandanaImage
                         src={withBasePath(mode === "product" ? color.productImage : color.wornImage)}
                         alt=""
                         fill
@@ -440,7 +544,7 @@ export default function CoutureStoreApp({
                       }`}
                     >
                       <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
-                        <Image
+                        <BandanaImage
                           src={withBasePath(mode === "product" ? color.productImage : color.wornImage)}
                           alt=""
                           fill
