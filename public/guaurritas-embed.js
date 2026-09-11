@@ -652,8 +652,6 @@
       const forwardCheckout = (message) => {
         if (!Array.isArray(message.items) || message.items.length === 0) return;
 
-        console.log("[GUAU CHECKOUT C]");
-
         this.dispatchEvent(
           new CustomEvent("guaurritas-checkout", {
             detail: {
@@ -957,12 +955,6 @@
           message.source === BRIDGE_SOURCE &&
           message.type === CHECKOUT_MESSAGE
         ) {
-          console.log("[GUAU CHECKOUT B]", {
-            origin: event.origin,
-            source: message.source,
-            type: message.type,
-            itemsLength: Array.isArray(message.items) ? message.items.length : 0,
-          });
           forwardCheckout(message);
           return;
         }

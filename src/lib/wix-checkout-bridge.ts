@@ -99,15 +99,6 @@ export function requestWixCheckout(
     items: checkoutItems,
   };
 
-  console.log("[GUAU CHECKOUT A]", {
-    itemsLength: checkoutItems.length,
-    items: checkoutItems.map((item) => ({
-      productId: item.catalogReference.catalogItemId,
-      variantId: item.catalogReference.options?.variantId ?? null,
-      fulfillment: item.fulfillment,
-    })),
-  });
-
   window.parent.postMessage(payload, "*");
   return { ok: true };
 }
