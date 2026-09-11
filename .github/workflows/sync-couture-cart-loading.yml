@@ -44,3 +44,5 @@ jobs:
           git diff --cached --check
           git commit -m 'feat(couture): sync cart and show image loading state'
           git push origin main
+
+# rerun after type correction
