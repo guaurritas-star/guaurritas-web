@@ -1,35 +1,277 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grace & Kakuzu están de fiesta</title>
 <meta name="theme-color" content="#f6eee8">
-<title>Grace & Kakuzu · Invitación</title>
 <style>
-:root{--paper:#fffaf6;--ink:#342e2e;--rose:#d98f9d;--sage:#788e78;--line:#eadbd2;--bg:#f6eee8}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#f8f1ec,#efe2da)}button,a{font:inherit}.wrap{display:none;max-width:760px;margin:auto;padding-bottom:48px}
-.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 20% 8%,rgba(255,255,255,.95),transparent 34%),linear-gradient(180deg,#f8f1ec,#efdfd7)}.splash-card{width:min(100%,540px);padding:36px 24px;border-radius:32px;text-align:center;background:rgba(255,250,246,.96);box-shadow:0 24px 70px rgba(94,67,56,.16)}.splash .paws{font-size:2rem}.splash small{display:block;margin-top:8px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:#7a6d69}.splash h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.3rem,10vw,4.2rem);line-height:.95;margin:14px 0 10px}.splash p{color:#756966;margin:0 0 20px}.btn{border:0;border-radius:18px;padding:16px 18px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center;display:block}.yes{background:var(--sage);color:#fff}.no{background:var(--rose);color:#fff}.ghost{background:#eee3dc;color:#4d4442}
-.hero-photo{position:relative;width:100%;height:72svh;min-height:560px;max-height:760px;overflow:hidden;background:#171717}.hero-photo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%;display:block}.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.03) 0%,rgba(0,0,0,.06) 46%,rgba(0,0,0,.18) 70%,rgba(246,238,232,.96) 100%)}.hero-copy{position:absolute;z-index:2;left:24px;right:24px;bottom:48px;color:#fff;text-shadow:0 3px 20px rgba(0,0,0,.32)}.hero-eyebrow{margin:0 0 12px;font-size:.82rem;letter-spacing:.2em;font-weight:800}.hero-copy h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(3.2rem,14vw,5.6rem);line-height:.88;color:#fff}.hero-sub{margin:14px 0 0;font-size:1.08rem;font-weight:800;color:#fff}
-.card{margin:18px 16px 0;padding:24px;border:1px solid rgba(255,255,255,.85);border-radius:28px;background:rgba(255,250,246,.96);box-shadow:0 14px 45px rgba(94,67,56,.10)}.center{text-align:center}.kicker{font-family:Georgia,"Times New Roman",serif;font-size:1.55rem;margin:0 0 10px}.muted{color:#665b58;line-height:1.55;margin:.3rem 0}.details{display:grid;gap:12px;margin:18px 0}.detail{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px}.detail .ico{font-size:1.3rem}.detail b{display:block;margin-bottom:2px}.detail span{font-size:.95rem;color:#665b58;line-height:1.35}.count{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.count div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 5px;text-align:center}.count strong{font:1.55rem Georgia,serif;display:block}.count small{font-size:.68rem;color:#7b6f6c;text-transform:uppercase;letter-spacing:.06em}.actions{display:grid;gap:10px;margin-top:18px}.map{margin-top:10px;background:#fff;color:#423b39;border:1px solid var(--line)}.status{display:none;margin-top:13px;padding:14px;border-radius:16px;background:#fff;border:1px solid var(--line);text-align:center}.gifts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.gift{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;text-align:center}.gift i{display:block;font-style:normal;font-size:1.8rem;margin-bottom:4px}.gift b{display:block;margin-bottom:3px}.gift small{color:#786c68}.modal{display:none;position:fixed;inset:0;z-index:120;background:rgba(30,25,25,.52);align-items:flex-end;padding:16px}.modal.open{display:flex}.sheet{width:min(100%,720px);margin:auto;background:var(--paper);border-radius:28px 28px 20px 20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.24)}.sheet h3{font:1.55rem Georgia,serif;margin:0 0 8px}.sheet p{color:#675d5a;line-height:1.45}.sheet input{width:100%;padding:14px;border:1px solid #dfd1c9;border-radius:14px;font-size:1rem;margin:5px 0;background:#fff}.sheet .btn{width:100%;margin-top:9px}.decline-faces{display:none;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 14px}.decline-faces.show{display:grid}.decline-face{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px}.decline-face img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px}footer{text-align:center;color:#7b6f6b;font:italic 1rem Georgia,serif;padding:28px 22px 0}
-@media(min-width:560px){.details{grid-template-columns:1fr 1fr}.detail:last-child{grid-column:1/-1}.actions{grid-template-columns:1fr 1fr}.gifts{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:420px){.hero-photo{height:68svh;min-height:535px}.hero-copy{left:22px;bottom:42px}.hero-copy h1{font-size:clamp(3.25rem,16vw,4.3rem)}.card{margin-left:14px;margin-right:14px;padding:22px}}
+:root{
+  --bg:#f6eee8; --paper:#fffaf6; --ink:#2f2a2b;
+  --rose:#d98f9d; --rose-dark:#b86677; --sage:#768e78; --sage-dark:#526a56;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink);
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.75),transparent 30%),
+    linear-gradient(180deg,#f8f1ec 0%,#f3e9e2 100%);
+}
+.wrap{max-width:720px;margin:auto;min-height:100vh;padding-bottom:48px}
+.hero{position:relative;overflow:hidden}
+.hero img{
+  width:100%;height:58vh;min-height:420px;max-height:650px;
+  object-fit:cover;display:block;filter:saturate(.95) contrast(1.02)
+}
+.hero:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.03) 25%,rgba(0,0,0,.22) 72%,rgba(246,238,232,.98) 100%)
+}
+.hero-copy{
+  position:absolute;left:24px;right:24px;bottom:30px;z-index:2;color:white;
+  text-shadow:0 2px 20px rgba(0,0,0,.30)
+}
+.eyebrow{font-size:.82rem;letter-spacing:.20em;text-transform:uppercase;font-weight:800}
+h1{
+  margin:.38rem 0 .55rem;font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(2.7rem,11vw,5rem);line-height:.9
+}
+.hero-copy p{font-size:1.08rem;margin:0;font-weight:700}
+.card{
+  background:rgba(255,250,246,.94);backdrop-filter:blur(12px);
+  margin:18px 16px 0;border:1px solid rgba(255,255,255,.8);
+  border-radius:26px;padding:24px;box-shadow:0 14px 45px rgba(94,67,56,.10)
+}
+.intro{text-align:center}
+.kicker{font-family:Georgia,"Times New Roman",serif;font-size:1.55rem;margin:0 0 8px}
+.intro p{margin:.35rem 0;color:#5f5553;line-height:1.55}
+.details{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
+.detail{
+  display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:18px;
+  padding:14px 16px;border:1px solid #f0e5df;text-align:left
+}
+.icon{font-size:1.35rem;line-height:1}
+.detail b{display:block;font-size:.95rem;margin-bottom:2px}
+.detail span{font-size:.95rem;color:#655b58;line-height:1.35}
+.btns{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
+button,a.btn{
+  appearance:none;border:0;border-radius:18px;padding:16px 18px;font-size:1rem;font-weight:850;
+  text-decoration:none;text-align:center;cursor:pointer;display:block;transition:.2s transform,.2s opacity
+}
+button:active,a.btn:active{transform:scale(.985)}
+.yes{background:var(--sage);color:white}
+.no{background:var(--rose);color:white}
+.map{background:#fff;color:#463e3d;border:1px solid #e7d9d0;margin-top:12px}
+.small{font-size:.83rem;color:#756b68;text-align:center;margin-top:12px;line-height:1.4}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.countdown div{
+  background:#fff;border-radius:16px;padding:12px 6px;text-align:center;border:1px solid #f0e5df
+}
+.countdown strong{font-family:Georgia,serif;font-size:1.55rem;display:block}
+.countdown span{font-size:.72rem;color:#7b6f6c;text-transform:uppercase;letter-spacing:.08em}
+.gift-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.gift{background:#fff;border:1px solid #f0e5df;border-radius:18px;padding:16px;text-align:center}
+.gift .emoji{font-size:2rem;margin-bottom:6px}
+.gift b{display:block;margin-bottom:2px}
+.gift span{font-size:.8rem;color:#786e6b}
+footer{text-align:center;color:#7c706d;padding:28px 24px 0;font-family:Georgia,serif;font-style:italic}
+.modal{
+  position:fixed;inset:0;background:rgba(30,25,25,.48);display:none;
+  align-items:flex-end;justify-content:center;padding:18px;z-index:20
+}
+.modal.open{display:flex}
+.sheet{
+  width:min(100%,680px);background:#fffaf6;border-radius:26px 26px 20px 20px;
+  padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.24)
+}
+.sheet h2{font-family:Georgia,serif;margin:0 0 8px}
+.sheet p{margin:0 0 14px;color:#655b58;line-height:1.45}
+.sheet input{
+  width:100%;border:1px solid #dfd2ca;border-radius:14px;padding:14px;
+  font-size:1rem;margin-bottom:10px;background:white
+}
+.sheet .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:4px}
+.ghost{background:#eee3dc;color:#4d4442}
+@media(min-width:560px){
+  .details{grid-template-columns:1fr 1fr}
+  .btns{grid-template-columns:1fr 1fr}
+  .gift-grid{grid-template-columns:repeat(3,1fr)}
+}
+.start-screen{
+  position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.92),transparent 35%),
+    linear-gradient(180deg,#f8f1ec 0%,#efe1d8 100%);
+}
+.start-card{
+  width:min(100%,560px); text-align:center; background:rgba(255,250,246,.96);
+  border:1px solid rgba(255,255,255,.9); border-radius:32px; padding:34px 24px;
+  box-shadow:0 24px 70px rgba(94,67,56,.16);
+}
+.start-paws{font-size:2rem;margin-bottom:10px}
+.start-card .pretitle{
+  text-transform:uppercase;letter-spacing:.14em;font-size:.76rem;font-weight:800;color:#7a6e6b
+}
+.start-card h2{
+  font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.2rem,10vw,4.2rem);
+  line-height:.95;margin:14px 0 10px;color:#3a3231
+}
+.start-card p{color:#746966;margin:0 0 20px}
+.start-card button{width:100%}
+.invite-hidden{display:none}
+.status-box{
+  display:none;margin-top:14px;padding:14px;border-radius:16px;background:#fff;
+  border:1px solid #f0e5df;color:#5e5552;text-align:center
+}
+.status-box.show{display:block}
+.no-cats{
+  display:none;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:0 0 16px;
+}
+.no-cats.show{display:grid}
+.no-cats img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:20px;
+  background:white;
+  border:1px solid #f0e5df;
+}
 </style>
 </head>
 <body>
-<section class="splash" id="splash"><div class="splash-card"><div class="paws">🐾</div><small>Grace & Kakuzu</small><h1>tienen una invitación especial</h1><p>Quieren celebrar contigo 🩷</p><button class="btn yes" style="width:100%" onclick="openInvite()">Abrir invitación ♡</button></div></section>
-<main class="wrap" id="wrap">
-<section class="hero-photo"><img src="./grace-kakuzu-cover.jpg" alt="Grace y Kakuzu" class="hero-photo-img"><div class="hero-overlay"></div><div class="hero-copy"><p class="hero-eyebrow">CUMPLEAÑOS GATUNO</p><h1>Grace &<br>Kakuzu</h1><p class="hero-sub">están de fiesta 🐾</p></div></section>
-<section class="card center"><p class="kicker">Queremos celebrarlo contigo.</p><p class="muted">Ven a festejar a Grace y Kakuzu en una tarde para consentirlos, convivir y celebrar otro año de aventuras juntos.</p><div class="details"><div class="detail"><div class="ico">📅</div><div><b>Sábado</b><span>26 de septiembre de 2026</span></div></div><div class="detail"><div class="ico">🕠</div><div><b>Hora</b><span>5:30 p. m.</span></div></div><div class="detail"><div class="ico">📍</div><div><b>Lugar</b><span>Blvd. Adolfo López Mateos #3243, Marfil, Torre 4B-406, CP 37125, León, Gto.</span></div></div></div><div class="count"><div><strong id="d">0</strong><small>días</small></div><div><strong id="h">0</strong><small>horas</small></div><div><strong id="m">0</strong><small>min</small></div><div><strong id="s">0</strong><small>seg</small></div></div><div class="actions"><button class="btn yes" onclick="openRSVP('yes')">✓ Sí, ahí estaré</button><button class="btn no" onclick="openRSVP('no')">× No podré ir</button></div><a class="btn map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Blvd.+Adolfo+L%C3%B3pez+Mateos+3243,+Marfil,+Le%C3%B3n,+Guanajuato,+37125">📍 Cómo llegar</a><div class="status" id="status"></div></section>
-<section class="card"><div class="center"><p class="kicker">🎁 Lista de regalos</p><p class="muted">Tu presencia es el mejor regalo, pero si quieres consentirlos, aquí van algunas ideas.</p></div><div class="gifts"><div class="gift"><i>🧶</i><b>Juguetes</b><small>Varitas, pelotas, ratoncitos</small></div><div class="gift"><i>🍗</i><b>Premios</b><small>Snacks y sobres favoritos</small></div><div class="gift"><i>🪵</i><b>Rascador</b><small>Para sus ataques de energía</small></div><div class="gift"><i>🛏️</i><b>Camita</b><small>Para dormir como reyes</small></div><div class="gift"><i>📦</i><b>Arenero / arena</b><small>Siempre hace falta</small></div><div class="gift"><i>🐈</i><b>Sorpresa</b><small>Algo elegido especialmente</small></div></div></section>
-<footer>Con amor, Grace & Kakuzu ♡</footer>
-</main>
-<div class="modal" id="modal" onclick="if(event.target===this)closeRSVP()"><div class="sheet"><div class="decline-faces" id="declineFaces"><div class="decline-face"><img src="./grace-emoji.jpg" alt="Grace"></div><div class="decline-face"><img src="./kakuzu-emoji.jpg" alt="Kakuzu"></div></div><h3 id="modalTitle">Confirma tu asistencia</h3><p id="reply"></p><input id="guest" placeholder="Tu nombre"><input id="people" type="number" min="1" max="12" inputmode="numeric" placeholder="¿Cuántas personas asistirán?"><button class="btn yes" id="send" onclick="sendRSVP()">Confirmar respuesta</button><button class="btn ghost" onclick="closeRSVP()">Cancelar</button><p style="font-size:.82rem;text-align:center">La respuesta se guardará en la lista privada de invitados.</p></div></div>
+<div class="start-screen" id="startScreen">
+  <div class="start-card">
+    <div class="start-paws">🐾</div>
+    <div class="pretitle">Grace & Kakuzu</div>
+    <h2>tienen una invitación especial</h2>
+    <p>Quieren celebrar contigo 🩷</p>
+    <button class="yes" onclick="openInvitation()">Abrir invitación ♡</button>
+  </div>
+</div>
+<div class="wrap invite-hidden" id="inviteWrap">
+  <section class="hero">
+    <img alt="Grace y Kakuzu" src="./grace-kakuzu-cover.jpg">
+    <div class="hero-copy">
+      <div class="eyebrow">Cumpleaños gatuno</div>
+      <h1>Grace &<br>Kakuzu</h1>
+      <p>están de fiesta 🐾</p>
+    </div>
+  </section>
+  <section class="card intro">
+    <p class="kicker">Queremos celebrarlo contigo.</p>
+    <p>Ven a festejar a Grace y Kakuzu en una tarde para consentirlos, convivir y celebrar otro año de aventuras juntos.</p>
+    <div class="details">
+      <div class="detail"><div class="icon">📅</div><div><b>Sábado</b><span>26 de septiembre de 2026</span></div></div>
+      <div class="detail"><div class="icon">🕠</div><div><b>Hora</b><span>5:30 p. m.</span></div></div>
+      <div class="detail" style="grid-column:1/-1"><div class="icon">📍</div><div><b>Lugar</b><span>Blvd. Adolfo López Mateos #3243, Marfil, Torre 4B-406, CP 37125, León, Gto.</span></div></div>
+    </div>
+    <div class="countdown">
+      <div><strong id="d">0</strong><span>días</span></div>
+      <div><strong id="h">0</strong><span>horas</span></div>
+      <div><strong id="m">0</strong><span>min</span></div>
+      <div><strong id="s">0</strong><span>seg</span></div>
+    </div>
+    <div class="btns">
+      <button class="yes" onclick="openRSVP('yes')">✓ Sí, ahí estaré</button>
+      <button class="no" onclick="openRSVP('no')">× No podré ir</button>
+    </div>
+    <a class="btn map" href="https://www.google.com/maps/search/?api=1&query=Blvd.+Adolfo+L%C3%B3pez+Mateos+3243,+Marfil,+Le%C3%B3n,+Guanajuato,+37125" target="_blank" rel="noopener">📍 Cómo llegar</a>
+    <div class="small">Tu respuesta quedará registrada automáticamente.</div><div class="status-box" id="statusBox"></div>
+  </section>
+  <section class="card">
+    <div class="intro">
+      <p class="kicker">🎁 Lista de regalos</p>
+      <p>Tu presencia es el mejor regalo, pero si quieres consentirlos, aquí van algunas ideas.</p>
+    </div>
+    <div class="gift-grid">
+      <div class="gift"><div class="emoji">🧶</div><b>Juguetes</b><span>Varitas, pelotas, ratoncitos</span></div>
+      <div class="gift"><div class="emoji">🍗</div><b>Premios</b><span>Snacks y sobres favoritos</span></div>
+      <div class="gift"><div class="emoji">🪵</div><b>Rascador</b><span>Para sus ataques de energía</span></div>
+      <div class="gift"><div class="emoji">🛏️</div><b>Camita</b><span>Para dormir como reyes</span></div>
+      <div class="gift"><div class="emoji">📦</div><b>Arenero / arena</b><span>Siempre hace falta</span></div>
+      <div class="gift"><div class="emoji">🐈</div><b>Sorpresa</b><span>Algo elegido especialmente</span></div>
+    </div>
+  </section>
+  <footer>Con amor, Grace & Kakuzu ♡</footer>
+</div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeRSVP()">
+  <div class="sheet">
+    <h2>Confirma tu asistencia 🐾</h2>
+    <div class="no-cats" id="noCats">
+      <img src="./grace-emoji.jpg" alt="Grace">
+      <img src="./kakuzu-emoji.jpg" alt="Kakuzu">
+    </div>
+    <p id="replyText"></p>
+    <input id="guestName" type="text" placeholder="Tu nombre">
+    <input id="guestCount" type="number" min="1" max="12" inputmode="numeric" placeholder="¿Cuántas personas?">
+    <div class="actions">
+      <button class="yes" id="sendBtn" onclick="sendRSVP()">Confirmar respuesta</button>
+      <button class="ghost" onclick="closeRSVP()">Cancelar</button>
+    </div>
+    <div class="small">La respuesta se guardará en la lista privada de invitados.</div>
+  </div>
+</div>
 <script>
-const ENDPOINT='https://script.google.com/macros/s/AKfycbzyzQM-fST-4Gs5ctYPJPmW0n8Z18aZJjcs85n2zXPOin5Fys9ckDZ4raqRB68SkJNKdA/exec';
-function openInvite(){document.getElementById('splash').style.display='none';document.getElementById('wrap').style.display='block';window.scrollTo(0,0)}
-const target=new Date('2026-09-26T17:30:00-06:00').getTime();function tick(){let x=Math.max(0,target-Date.now()),dd=Math.floor(x/86400000);x%=86400000;let hh=Math.floor(x/3600000);x%=3600000;let mm=Math.floor(x/60000),ss=Math.floor((x%60000)/1000);document.getElementById('d').textContent=dd;document.getElementById('h').textContent=hh;document.getElementById('m').textContent=mm;document.getElementById('s').textContent=ss}tick();setInterval(tick,1000);
-let choice='yes';function openRSVP(c){choice=c;const isNo=c==='no';document.getElementById('declineFaces').classList.toggle('show',isNo);document.getElementById('modalTitle').textContent=isNo?'Aww, los vas a poner tristes 🥺':'Confirma tu asistencia';document.getElementById('reply').textContent=isNo?'Escribe tu nombre para registrar que no podrás acompañarnos.':'¡Qué emoción! Escribe tu nombre y cuántas personas asistirán.';document.getElementById('people').style.display=isNo?'none':'block';document.getElementById('modal').classList.add('open')}
-function closeRSVP(){document.getElementById('modal').classList.remove('open')}
-async function sendRSVP(){const name=document.getElementById('guest').value.trim();if(!name){alert('Escribe tu nombre para registrar tu respuesta.');return}const count=choice==='yes'?(document.getElementById('people').value.trim()||'1'):'0';const payload={invitado:name,respuesta:choice==='yes'?'Sí':'No',personas:count,fechaHora:new Date().toISOString(),mensaje:choice==='yes'?`Confirmó asistencia para ${count} persona(s).`:'Confirmó que no podrá asistir.'};const btn=document.getElementById('send');btn.disabled=true;btn.textContent='Guardando…';try{await fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});closeRSVP();const box=document.getElementById('status');box.textContent=choice==='yes'?`✓ ¡Listo, ${name}! Quedó registrada tu asistencia.`:`✓ Gracias por avisarnos, ${name}. Grace y Kakuzu te van a extrañar 🥺`;box.style.display='block';box.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){alert('No pudimos guardar la respuesta. Intenta de nuevo.')}finally{btn.disabled=false;btn.textContent='Confirmar respuesta'}}
+const RSVP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzyzQM-fST-4Gs5ctYPJPmW0n8Z18aZJjcs85n2zXPOin5Fys9ckDZ4raqRB68SkJNKdA/exec';
+function openInvitation(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('inviteWrap').classList.remove('invite-hidden');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+const target = new Date('2026-09-26T17:30:00-06:00').getTime();
+function tick(){
+  let x=Math.max(0,target-Date.now());
+  const d=Math.floor(x/86400000); x%=86400000;
+  const h=Math.floor(x/3600000); x%=3600000;
+  const m=Math.floor(x/60000); const s=Math.floor((x%60000)/1000);
+  document.getElementById('d').textContent=d;
+  document.getElementById('h').textContent=h;
+  document.getElementById('m').textContent=m;
+  document.getElementById('s').textContent=s;
+}
+tick(); setInterval(tick,1000);
+let rsvpChoice='yes';
+function openRSVP(choice){
+  rsvpChoice=choice;
+  const noCats=document.getElementById('noCats');
+  noCats.classList.toggle('show', choice==='no');
+  document.getElementById('replyText').textContent =
+    choice==='yes'
+      ? '¡Qué emoción! Escribe tu nombre y cuántas personas asistirán.'
+      : 'Ayyy, los vamos a extrañar 🥺 Escribe tu nombre para registrar tu respuesta.';
+  document.getElementById('guestCount').style.display = choice==='yes' ? 'block' : 'none';
+  document.getElementById('modal').classList.add('open');
+}
+function closeRSVP(){document.getElementById('modal').classList.remove('open');}
+async function sendRSVP(){
+  const name=document.getElementById('guestName').value.trim();
+  if(!name){alert('Escribe tu nombre para registrar tu respuesta.');return;}
+  const count=rsvpChoice==='yes' ? (document.getElementById('guestCount').value.trim() || '1') : '0';
+  const payload={
+    invitado:name,
+    respuesta:rsvpChoice==='yes' ? 'Sí' : 'No',
+    personas:count,
+    fechaHora:new Date().toISOString(),
+    mensaje:rsvpChoice==='yes' ? `Confirmó asistencia para ${count} persona(s).` : 'Confirmó que no podrá asistir.'
+  };
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true; btn.textContent='Guardando…';
+  try{
+    await fetch(RSVP_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    closeRSVP();
+    const box=document.getElementById('statusBox');
+    box.textContent=rsvpChoice==='yes' ? `✓ ¡Listo, ${name}! Quedó registrada tu asistencia.` : `✓ Gracias por avisarnos, ${name}. Grace y Kakuzu los van a extrañar 🥺`;
+    box.classList.add('show');
+    box.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(e){alert('No pudimos guardar la respuesta. Intenta de nuevo.');}
+  finally{btn.disabled=false;btn.textContent='Confirmar respuesta';}
+}
 </script>
-</body></html>
+</body>
+</html>
