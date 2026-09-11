@@ -353,29 +353,29 @@ export default function CoutureStoreApp({
         </button>
       </div>
 
-      <header className="border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-8 text-center sm:px-8 sm:py-10">
-        <p className="font-interface text-[10px] font-bold uppercase tracking-[0.28em] text-[#a66f89]">
+      <header className="border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-5 text-center sm:px-8 sm:py-8">
+        <p className="font-interface text-[11px] font-bold uppercase tracking-[0.24em] text-[#a66f89] sm:text-xs">
           ✦ El armario del Guaurriverse ✦
         </p>
-        <h2 className="mt-3 font-title text-3xl font-semibold text-[#3a2030] sm:text-4xl">
+        <h2 className="mt-2 font-title text-3xl font-semibold text-[#3a2030] sm:text-4xl">
           Guaurritas Couture
         </h2>
-        <p className="mx-auto mt-3 max-w-2xl font-brand text-lg leading-7 text-[#644e5b] sm:text-xl">
+        <p className="mx-auto mt-2 max-w-2xl font-brand text-base leading-6 text-[#644e5b] sm:text-xl sm:leading-7">
           Elige su colección, descubre cada color puesto y encuentra la talla correcta sin adivinar.
         </p>
-        <span className="mt-5 inline-flex rounded-full border border-[#ceb9c4] bg-white/80 px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#614456]">
+        <span className="mt-3 inline-flex rounded-full border border-[#ceb9c4] bg-white/80 px-3 py-1.5 font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#614456] sm:mt-4">
           {fulfillmentMode === "national"
             ? "📦 Precios nacionales · envío aparte"
             : "📍 Precios para León"}
         </span>
       </header>
 
-      <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-7 lg:px-9">
+      <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-7 sm:py-7 lg:px-9">
         <div>
-          <p className="font-interface text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a6577]">
+          <p className="font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]">
             1. Elige su estilo
           </p>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
             {collections.map((item) => {
               const active = item.id === collection.id;
               return (
@@ -384,13 +384,13 @@ export default function CoutureStoreApp({
                   type="button"
                   onClick={() => selectCollection(item)}
                   aria-pressed={active}
-                  className={`group flex items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:p-4 ${
+                  className={`group flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
                     active
                       ? "border-[#70425a] bg-[#f6eaf0] shadow-[3px_3px_0_#70425a]"
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
                   }`}
                 >
-                  <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" || item.id === "coeur-sacre" ? "bg-transparent" : "bg-white"}` }>
+                  <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-full lg:h-28 ${item.id === "oracle" || item.id === "coeur-sacre" ? "bg-transparent" : "bg-white"}` }>
                     <BandanaImage
                       src={withBasePath(item.colors[0].productImage)}
                       alt=""
@@ -400,15 +400,15 @@ export default function CoutureStoreApp({
                     />
                   </span>
                   <span className="min-w-0 sm:mt-3 sm:block">
-                    <span className="block font-title text-sm font-semibold text-[#3a2030] sm:text-base">
+                    <span className="block font-title text-base font-semibold leading-tight text-[#3a2030]">
                       {item.name}
                     </span>
-                    <span className="mt-1 block font-interface text-[9px] font-bold uppercase tracking-[0.14em] text-[#97667e]">
-                      {item.eyebrow} · Desde {money(Math.min(...Object.values(pricesFor(item, fulfillmentMode))))}
+                    <span className="mt-1 block font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#97667e]">
+                      Desde {money(Math.min(...Object.values(pricesFor(item, fulfillmentMode))))}
                     </span>
                   </span>
                   {active && (
-                    <span className="ml-auto font-interface text-[9px] font-bold uppercase text-[#70425a] sm:mt-2 sm:block">
+                    <span className="ml-auto font-interface text-[11px] font-bold uppercase text-[#70425a] sm:mt-2 sm:block">
                       Seleccionada ✓
                     </span>
                   )}
@@ -418,9 +418,9 @@ export default function CoutureStoreApp({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-12">
+        <div className="mt-6 grid gap-5 sm:mt-8 sm:gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
           <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
-            <div className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#d3c3cb] bg-white">
+            <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border border-[#d3c3cb] bg-white shadow-[0_12px_35px_rgba(79,45,64,0.08)] sm:rounded-[1.75rem]">
               <BandanaImage
                 key={galleryImage}
                 src={withBasePath(galleryImage)}
@@ -428,9 +428,9 @@ export default function CoutureStoreApp({
                 fill
                 priority
                 sizes="(max-width: 1024px) 92vw, 28rem"
-                className="object-contain p-4 sm:p-7 lg:p-12"
+                className="object-contain p-3 sm:p-7 lg:p-9"
               />
-              <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-[#42243a]/90 px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-white">
+              <span className="absolute left-3 top-3 rounded-full border border-white/80 bg-[#42243a]/90 px-3 py-1.5 font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-white sm:left-4 sm:top-4">
                 {viewMode === "product" ? "Vista del producto" : "Así se ve puesto"}
               </span>
             </div>
@@ -462,7 +462,7 @@ export default function CoutureStoreApp({
                         className="object-contain"
                       />
                     </span>
-                    <span className="font-interface text-[10px] font-bold uppercase tracking-[0.08em]">
+                    <span className="font-interface text-xs font-bold uppercase tracking-[0.06em]">
                       {mode === "product" ? "Producto" : "Puesta en lomito"}
                     </span>
                   </button>
@@ -471,7 +471,7 @@ export default function CoutureStoreApp({
             </div>
 
             <fieldset className="mt-4 lg:hidden">
-              <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
+              <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
                 2. Color: <span className="text-[#a05d7d]">{color.name}</span>
               </legend>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -487,7 +487,7 @@ export default function CoutureStoreApp({
                         setNotice("");
                       }}
                       aria-pressed={active}
-                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-[10px] font-bold transition ${
+                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-xs font-bold transition ${
                         active
                           ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
                           : "border-[#d8c9d0] bg-white text-[#71606a] hover:border-[#a77d91]"
@@ -505,27 +505,33 @@ export default function CoutureStoreApp({
               </div>
             </fieldset>
 
-            <p className="mt-3 text-center font-interface text-[9px] uppercase tracking-[0.15em] text-[#8d7a84]">
+            <p className="mt-3 text-center font-interface text-[11px] uppercase tracking-[0.1em] text-[#8d7a84]">
               Fotografías de la colección Guaurritas Couture
             </p>
           </div>
 
-          <div>
-            <p className="font-interface text-[10px] font-bold uppercase tracking-[0.2em] text-[#a66f89]">
+          <div className="min-w-0">
+            <p className="font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#a66f89]">
               {collection.symbol} {collection.eyebrow}
             </p>
-            <h3 className="mt-2 font-title text-3xl font-semibold text-[#3a2030] sm:text-4xl">
+            <h3 className="mt-1 font-title text-2xl font-semibold text-[#3a2030] sm:mt-2 sm:text-4xl">
               {collection.name}
             </h3>
-            <p className="mt-3 font-brand text-xl leading-7 text-[#604a57]">
+            <p className="mt-2 font-brand text-base leading-6 text-[#604a57] sm:mt-3 sm:text-xl sm:leading-7">
               {collection.description}
             </p>
-            <p className="mt-4 font-brand text-base leading-7 text-[#76636e]">
+            <p className="mt-4 hidden font-brand text-base leading-7 text-[#76636e] sm:block">
               {collection.detail}
             </p>
+            <details className="mt-3 rounded-xl border border-[#e1d4da] bg-[#fffafa] px-3 py-2 sm:hidden">
+              <summary className="cursor-pointer font-interface text-xs font-bold text-[#70425a]">
+                Detalles de la pieza
+              </summary>
+              <p className="mt-2 font-brand text-sm leading-6 text-[#76636e]">{collection.detail}</p>
+            </details>
 
             <div className="mt-7 hidden lg:block">
-              <p className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
+              <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
                 Vista del producto
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2" aria-label="Vistas del producto">
@@ -552,7 +558,7 @@ export default function CoutureStoreApp({
                           className="object-contain"
                         />
                       </span>
-                      <span className="font-interface text-[10px] font-bold uppercase tracking-[0.08em]">
+                      <span className="font-interface text-xs font-bold uppercase tracking-[0.06em]">
                         {mode === "product" ? "Producto" : "Puesta en lomito"}
                       </span>
                     </button>
@@ -562,7 +568,7 @@ export default function CoutureStoreApp({
             </div>
 
             <fieldset className="mt-7 hidden lg:block">
-              <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
+              <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
                 2. Color: <span className="text-[#a05d7d]">{color.name}</span>
               </legend>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -578,7 +584,7 @@ export default function CoutureStoreApp({
                         setNotice("");
                       }}
                       aria-pressed={active}
-                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-[10px] font-bold transition ${
+                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-xs font-bold transition ${
                         active
                           ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
                           : "border-[#d8c9d0] bg-white text-[#71606a] hover:border-[#a77d91]"
@@ -596,15 +602,15 @@ export default function CoutureStoreApp({
               </div>
             </fieldset>
 
-            <fieldset className="mt-8">
+            <fieldset className="mt-5 sm:mt-8">
               <div className="flex flex-wrap items-end justify-between gap-2">
-                <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.16em] text-[#614456]">
+                <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
                   3. Talla
                 </legend>
                 <button
                   type="button"
                   onClick={() => setFitHelperOpen((open) => !open)}
-                  className="font-interface text-[10px] font-bold text-[#8c5470] underline decoration-dotted underline-offset-4"
+                  className="min-h-11 px-1 font-interface text-xs font-bold text-[#8c5470] underline decoration-dotted underline-offset-4"
                   aria-expanded={fitHelperOpen}
                 >
                   📏 No sé su talla
@@ -654,7 +660,7 @@ export default function CoutureStoreApp({
                 </div>
               )}
 
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="mt-3 grid grid-cols-2 gap-2">
                 {sizes.map((item) => {
                   const active = item.id === sizeId;
                   return (
@@ -666,19 +672,19 @@ export default function CoutureStoreApp({
                         setNotice("");
                       }}
                       aria-pressed={active}
-                      className={`rounded-2xl border px-4 py-3 text-left transition ${
+                      className={`min-h-[5.5rem] rounded-2xl border px-3 py-3 text-left transition sm:px-4 ${
                         active
                           ? "border-[#70425a] bg-[#f5eaf0] shadow-[2px_2px_0_#70425a]"
                           : "border-[#d9ccd2] bg-white hover:border-[#a77d91]"
                       }`}
                     >
                       <span className="flex items-center justify-between gap-3">
-                        <span className="font-interface text-xs font-bold text-[#3a2030]">{item.name}</span>
+                        <span className="font-interface text-sm font-bold text-[#3a2030]">{item.name}</span>
                         <span className="font-title text-sm font-semibold text-[#70425a]">
                           {money(activePrices[item.id])}
                         </span>
                       </span>
-                      <span className="mt-1 block font-interface text-[9px] font-bold text-[#8b6477]">
+                      <span className="mt-1 block font-interface text-[11px] font-bold text-[#8b6477]">
                         Cuello {item.neck}
                       </span>
                       <span className="mt-0.5 block font-brand text-sm text-[#786771]">{item.example}</span>
@@ -688,8 +694,8 @@ export default function CoutureStoreApp({
               </div>
             </fieldset>
 
-            <details className="mt-7 rounded-2xl border border-[#ded1d7] bg-white p-4">
-              <summary className="cursor-pointer font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#573b4b]">
+            <details className="mt-5 rounded-2xl border border-[#ded1d7] bg-white p-4 sm:mt-7">
+              <summary className="cursor-pointer font-interface text-xs font-bold uppercase tracking-[0.08em] text-[#573b4b]">
                 Ajuste, cuidado y uso seguro
               </summary>
               <div className="mt-3 space-y-2 font-brand text-sm leading-6 text-[#71606a]">
@@ -699,16 +705,16 @@ export default function CoutureStoreApp({
               </div>
             </details>
 
-            <div className="mt-7 border-t border-[#e0d3d9] pt-5">
+            <div className="sticky bottom-0 z-30 -mx-4 mt-5 border-t border-[#e0d3d9] bg-white/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-12px_30px_rgba(64,35,52,0.08)] backdrop-blur sm:static sm:mx-0 sm:mt-7 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-5 sm:shadow-none">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="font-interface text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a7380]">
+                  <p className="font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#8a7380]">
                     {color.name} · Talla {size.name}
                     {` · ${fulfillmentMode === "leon" ? "León" : "Envío nacional"}`}
                   </p>
                   <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]">{money(price)}</p>
                 </div>
-                <p className="font-interface text-[9px] uppercase tracking-[0.1em] text-[#907d87]">
+                <p className="font-interface text-[11px] uppercase tracking-[0.08em] text-[#907d87]">
                   {minimumPrice === price ? "Precio inicial" : `Desde ${money(minimumPrice)}`}
                 </p>
               </div>
