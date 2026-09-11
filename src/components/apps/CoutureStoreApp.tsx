@@ -286,13 +286,13 @@ export default function CoutureStoreApp({
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
                   }`}
                 >
-                  <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" ? "bg-transparent" : "bg-white"}` }>
+                  <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" || item.id === "coeur-sacre" ? "bg-transparent" : "bg-white"}` }>
                     <Image
                       src={withBasePath(item.colors[0].productImage)}
                       alt=""
                       fill
                       sizes="(max-width: 640px) 80px, 28vw"
-                      className={`object-contain transition duration-300 ${item.id === "oracle" ? "scale-[1.08] p-0 mix-blend-multiply group-hover:scale-[1.12]" : "p-1 group-hover:scale-105"}`}
+                      className={`object-contain transition duration-300 ${item.id === "oracle" || item.id === "coeur-sacre" ? "scale-[1.08] p-0 mix-blend-multiply group-hover:scale-[1.12]" : "p-1 group-hover:scale-105"}`}
                     />
                   </span>
                   <span className="min-w-0 sm:mt-3 sm:block">
