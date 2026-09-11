@@ -384,7 +384,7 @@ export default function CoutureStoreApp({
                   type="button"
                   onClick={() => selectCollection(item)}
                   aria-pressed={active}
-                  className={`group flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
+                  className={`group relative flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
                     active
                       ? "border-[#70425a] bg-[#f6eaf0] shadow-[3px_3px_0_#70425a]"
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
@@ -408,8 +408,12 @@ export default function CoutureStoreApp({
                     </span>
                   </span>
                   {active && (
-                    <span className="ml-auto font-interface text-[11px] font-bold uppercase text-[#70425a] sm:mt-2 sm:block">
-                      Seleccionada ✓
+                    <span
+                      className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#70425a] font-interface text-xs font-bold text-white sm:static sm:mt-2 sm:h-auto sm:w-auto sm:justify-start sm:bg-transparent sm:text-[11px] sm:uppercase sm:text-[#70425a]"
+                      aria-label="Colección seleccionada"
+                    >
+                      <span className="sm:hidden">✓</span>
+                      <span className="hidden sm:inline">Seleccionada ✓</span>
                     </span>
                   )}
                 </button>
