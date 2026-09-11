@@ -6,7 +6,7 @@ import { addCartItem, useCart } from "@/lib/cart-store";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
-type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "confetti";
+type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "confetti";
 type ViewMode = "product" | "worn";
 type SizeId = "mini" | "chica" | "mediana" | "grande" | "xl";
 
@@ -36,22 +36,6 @@ type BandanaSize = {
   neck: string;
   example: string;
 };
-
-const commonColors = [
-  { id: "terracota", name: "Terracota Solar", swatch: "#bd5c34" },
-  { id: "verde", name: "Verde Bosque", swatch: "#365a43" },
-  { id: "mostaza", name: "Mostaza Dorada", swatch: "#d09a2d" },
-  { id: "camel", name: "Camel Arena", swatch: "#bd966b" },
-  { id: "marfil", name: "Marfil Perla", swatch: "#e9dfcc" },
-] as const;
-
-function collectionColors(prefix: "clasica") {
-  return commonColors.map((color) => ({
-    ...color,
-    productImage: `/couture/bandanas/${prefix}-${color.id}.jpg`,
-    wornImage: `/couture/bandanas/${prefix}-${color.id}-perro.jpg`,
-  }));
-}
 
 const amuletteColors: BandanaColor[] = [
   { id: "crepuscule", name: "Crépuscule", swatch: "#3b3455", productImage: "/couture/bandanas/amulette-crepuscule.png", wornImage: "/couture/bandanas/amulette-crepuscule-perro.png" },
@@ -152,18 +136,6 @@ const collections: BandanaCollection[] = [
     prices: { mini: 219, chica: 279, mediana: 329, grande: 379, xl: 439 },
     nationalPrices: { mini: 249, chica: 309, mediana: 359, grande: 409, xl: 479 },
     colors: oracleColors,
-  },
-  {
-    id: "clasica",
-    name: "Bandana Clásica",
-    eyebrow: "Colección Clásica",
-    symbol: "❧",
-    description: "La consentida de diario: artesanal, cómoda y fácil de combinar.",
-    detail:
-      "Bandana tejida a mano con acabado de flecos y ajuste mediante tiras. Su diseño limpio deja que el color sea protagonista en paseos, fotos y días especiales.",
-    prices: { mini: 199, chica: 249, mediana: 299, grande: 349, xl: 399 },
-    nationalPrices: { mini: 229, chica: 279, mediana: 329, grande: 379, xl: 439 },
-    colors: collectionColors("clasica"),
   },
   {
     id: "confetti",
@@ -314,13 +286,13 @@ export default function CoutureStoreApp({
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
                   }`}
                 >
-                  <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white sm:h-28 sm:w-full">
+                  <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" ? "bg-transparent" : "bg-white"}` }>
                     <Image
                       src={withBasePath(item.colors[0].productImage)}
                       alt=""
                       fill
                       sizes="(max-width: 640px) 80px, 28vw"
-                      className="object-contain p-1 transition duration-300 group-hover:scale-105"
+                      className={`object-contain transition duration-300 ${item.id === "oracle" ? "scale-[1.08] p-0 mix-blend-multiply group-hover:scale-[1.12]" : "p-1 group-hover:scale-105"}`}
                     />
                   </span>
                   <span className="min-w-0 sm:mt-3 sm:block">
