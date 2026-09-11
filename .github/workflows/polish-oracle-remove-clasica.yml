@@ -1,0 +1,96 @@
+name: Polish Oracle card and remove Clasica
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/polish-oracle-remove-clasica.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Update Couture only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('src/components/apps/CoutureStoreApp.tsx')
+          s = p.read_text()
+
+          old_type = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "clasica" | "confetti";'
+          new_type = 'type CollectionId = "amulette" | "abeille" | "coeur-sacre" | "oracle" | "confetti";'
+          assert s.count(old_type) == 1
+          s = s.replace(old_type, new_type)
+
+          s, n = re.subn(
+              r'\nconst commonColors = \[.*?\nconst amuletteColors:',
+              '\nconst amuletteColors:',
+              s,
+              flags=re.S,
+          )
+          assert n == 1, n
+
+          s, n = re.subn(
+              r'\n  \{\n    id: "clasica",.*?\n  \},\n  \{\n    id: "confetti",',
+              '\n  {\n    id: "confetti",',
+              s,
+              flags=re.S,
+          )
+          assert n == 1, n
+
+          old_span = '<span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white sm:h-28 sm:w-full">'
+          new_span = '<span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" ? "bg-transparent" : "bg-white"}`}> '
+          assert s.count(old_span) == 1
+          s = s.replace(old_span, new_span)
+
+          old_img = 'className="object-contain p-1 transition duration-300 group-hover:scale-105"'
+          new_img = 'className={`object-contain transition duration-300 ${item.id === "oracle" ? "scale-[1.08] p-0 mix-blend-multiply group-hover:scale-[1.12]" : "p-1 group-hover:scale-105"}`}'
+          assert s.count(old_img) == 1
+          s = s.replace(old_img, new_img)
+
+          assert 'id: "clasica"' not in s
+          assert 'Bandana Clásica' not in s
+          assert 'collectionColors("clasica")' not in s
+          assert 'const commonColors' not in s
+          assert 'id: "oracle"' in s
+          assert 'mix-blend-multiply' in s
+          assert 'id: "confetti"' in s
+
+          p.write_text(s)
+          PY
+
+      - name: Verify build and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          git diff --check
+          test "$(git diff --name-only | grep -v '^\.github/workflows/polish-oracle-remove-clasica.yml$' | wc -l)" -eq 1
+          git diff --name-only | grep -q '^src/components/apps/CoutureStoreApp.tsx$'
+          git diff -- src/components/apps/CoutureStoreApp.tsx
+
+      - name: Commit Couture update and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/components/apps/CoutureStoreApp.tsx
+          git rm .github/workflows/polish-oracle-remove-clasica.yml
+          git diff --cached --check
+          git commit -m 'fix(couture): integrate Oracle card and remove Clasica'
+          git push origin main
