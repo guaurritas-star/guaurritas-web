@@ -1,0 +1,47 @@
+name: Fix Couture checkout managed variants
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-couture-checkout-variants.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply managed variant mapping
+        run: python scripts/fix-couture-managed-variants.py
+
+      - name: Verify mapping and build
+        run: |
+          set -euo pipefail
+          grep -q 'variantIds' src/lib/wix-commerce-map.ts
+          grep -q 'return supported(collection.productId, item.unitPrice, { variantId });' src/lib/wix-commerce-map.ts
+          grep -q '62d8aee8-8085-4024-ae21-9629bd21f2ef' src/lib/wix-commerce-map.ts
+          npm ci
+          npm run build
+          git diff --check
+          test "$(git diff --name-only | grep -v '^.github/workflows/fix-couture-checkout-variants.yml$' | grep -v '^scripts/fix-couture-managed-variants.py$' | wc -l)" -eq 1
+          git diff --name-only | grep -q '^src/lib/wix-commerce-map.ts$'
+
+      - name: Commit checkout fix and cleanup
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/lib/wix-commerce-map.ts
+          git rm .github/workflows/fix-couture-checkout-variants.yml
+          git rm scripts/fix-couture-managed-variants.py
+          git diff --cached --check
+          git commit -m 'fix(couture): use Wix managed variant IDs at checkout'
+          git push origin main
