@@ -157,7 +157,7 @@ footer{text-align:center;color:#7c706d;padding:28px 24px 0;font-family:Georgia,s
 </div>
 <div class="wrap invite-hidden" id="inviteWrap">
   <section class="hero">
-    <img alt="Grace y Kakuzu" src="./grace-kakuzu-hero.svg?v=1">
+    <img alt="Grace y Kakuzu" src="./grace-kakuzu-exact.webp?v=33">
     <div class="hero-copy">
       <div class="eyebrow">Cumpleaños gatuno</div>
       <h1>Grace &<br>Kakuzu</h1>
@@ -246,54 +246,32 @@ function openRSVP(choice){
     choice==='yes'
       ? '¡Qué emoción! Escribe tu nombre y cuántas personas asistirán.'
       : 'Ayyy, los vamos a extrañar 🥺 Escribe tu nombre para registrar tu respuesta.';
-  document.getElementById('guestCount').style.display =
-    choice==='yes' ? 'block' : 'none';
+  document.getElementById('guestCount').style.display = choice==='yes' ? 'block' : 'none';
   document.getElementById('modal').classList.add('open');
 }
-function closeRSVP(){
-  document.getElementById('modal').classList.remove('open');
-}
+function closeRSVP(){ document.getElementById('modal').classList.remove('open'); }
 async function sendRSVP(){
   const name=document.getElementById('guestName').value.trim();
-  if(!name){
-    alert('Escribe tu nombre para registrar tu respuesta.');
-    return;
-  }
-  const count=rsvpChoice==='yes'
-    ? (document.getElementById('guestCount').value.trim() || '1')
-    : '0';
+  if(!name){ alert('Escribe tu nombre para registrar tu respuesta.'); return; }
+  const count=rsvpChoice==='yes' ? (document.getElementById('guestCount').value.trim() || '1') : '0';
   const payload={
     invitado:name,
     respuesta:rsvpChoice==='yes' ? 'Sí' : 'No',
     personas:count,
     fechaHora:new Date().toISOString(),
-    mensaje:rsvpChoice==='yes'
-      ? `Confirmó asistencia para ${count} persona(s).`
-      : 'Confirmó que no podrá asistir.'
+    mensaje:rsvpChoice==='yes' ? `Confirmó asistencia para ${count} persona(s).` : 'Confirmó que no podrá asistir.'
   };
   const btn=document.getElementById('sendBtn');
-  btn.disabled=true;
-  btn.textContent='Guardando…';
+  btn.disabled=true; btn.textContent='Guardando…';
   try{
-    await fetch(RSVP_ENDPOINT,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload)
-    });
+    await fetch(RSVP_ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     closeRSVP();
     const box=document.getElementById('statusBox');
-    box.textContent=rsvpChoice==='yes'
-      ? `✓ ¡Listo, ${name}! Quedó registrada tu asistencia.`
-      : `✓ Gracias por avisarnos, ${name}. Grace y Kakuzu los van a extrañar 🥺`;
+    box.textContent=rsvpChoice==='yes' ? `✓ ¡Listo, ${name}! Quedó registrada tu asistencia.` : `✓ Gracias por avisarnos, ${name}. Grace y Kakuzu los van a extrañar 🥺`;
     box.classList.add('show');
     box.scrollIntoView({behavior:'smooth',block:'center'});
-  }catch(e){
-    alert('No pudimos guardar la respuesta. Intenta de nuevo.');
-  }finally{
-    btn.disabled=false;
-    btn.textContent='Confirmar respuesta';
-  }
+  }catch(e){ alert('No pudimos guardar la respuesta. Intenta de nuevo.'); }
+  finally{ btn.disabled=false; btn.textContent='Confirmar respuesta'; }
 }
 </script>
 </body>
