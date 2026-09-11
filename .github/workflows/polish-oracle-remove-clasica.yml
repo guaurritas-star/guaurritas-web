@@ -52,7 +52,7 @@ jobs:
           assert n == 1, n
 
           old_span = '<span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white sm:h-28 sm:w-full">'
-          new_span = '<span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" ? "bg-transparent" : "bg-white"}`}> '
+          new_span = '<span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-full ${item.id === "oracle" ? "bg-transparent" : "bg-white"}` }>'
           assert s.count(old_span) == 1
           s = s.replace(old_span, new_span)
 
