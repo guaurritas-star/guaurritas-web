@@ -30,58 +30,54 @@ const money = (amount: number) => `$${amount.toFixed(2)} MXN`;
 export default function DistribuidoresInfoApp() {
   return (
     <article className="mx-auto w-full max-w-6xl text-[#20283b]">
-      <section className="relative overflow-hidden border-2 border-[#425b8c] bg-[#eee7d7] shadow-[6px_6px_0_#c9d6ec] sm:shadow-[9px_9px_0_#c9d6ec]">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#425b8c] bg-[#dce4f2] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] sm:px-6 sm:text-xs">
-          <span>Archivo comercial B2B</span>
-          <span className="border border-[#a65f67] bg-[#fff7f2] px-2 py-1 text-[#9b4955]">Convocatoria abierta</span>
+      <section className="relative overflow-hidden border-2 border-[#425b8c] bg-[#edf3ff] shadow-[6px_6px_0_#d9a6b9] sm:shadow-[9px_9px_0_#d9a6b9]">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white sm:px-6 sm:text-xs">
+          <span>Guaurritas Partner Portal</span>
+          <span className="rounded-full border border-white/70 bg-[#d9a6b9] px-3 py-1 text-[#3a2030]">● Nuevos aliados</span>
         </div>
-        <div className="pointer-events-none absolute inset-0 opacity-[0.18]" aria-hidden="true" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent 0, transparent 27px, #8292aa 28px)" }} />
+        <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full border-[42px] border-white/30" aria-hidden="true" />
 
-        <div className="relative grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,.75fr)] lg:gap-8">
+        <div className="relative grid gap-5 p-4 sm:p-7 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)] lg:gap-7">
           <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#9b4955] sm:text-xs">Programa de aliados Guaurritas</p>
-            <h1 className="mt-2 max-w-3xl font-display text-3xl leading-[1.05] text-[#425b8c] sm:text-5xl lg:text-6xl">Lleva una experiencia pet diferente a tu negocio</h1>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#425b8c] bg-white px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[.15em] text-[#425b8c]"><span className="h-2 w-2 rounded-full bg-[#e4c56d]" />Programa de distribución</div>
+            <h1 className="mt-4 max-w-3xl font-display text-3xl leading-[1.05] text-[#425b8c] sm:text-5xl lg:text-[3.5rem]">Lleva una experiencia pet diferente a tu negocio</h1>
             <p className="mt-4 max-w-2xl font-interface text-sm leading-7 text-[#47556d] sm:text-base">Más que sumar otro producto al anaquel, distribuyes una marca que entra en la vida pet diaria: lo que comen, lo que usan, lo que viven y lo que aprenden.</p>
 
-            <div className="mt-6 grid grid-cols-2 gap-px border-2 border-[#425b8c] bg-[#425b8c] font-mono text-[10px] sm:grid-cols-4 sm:text-xs">
+            <div className="mt-6 grid grid-cols-2 gap-2 font-mono text-[10px] sm:grid-cols-4 sm:text-xs">
               {[["Ideal para", "Tiendas pet"], ["También para", "Veterinarias"], ["Oportunidad", "Recompra"], ["Diferenciador", "Personalización"]].map(([label, value]) => (
-                <div key={label} className="min-h-20 bg-[#fffdf8] p-3"><p className="uppercase tracking-[.12em] text-[#7a8391]">{label}</p><p className="mt-2 font-bold leading-4 text-[#263650]">{value}</p></div>
+                <div key={label} className="min-h-20 rounded-xl border border-[#9aabd0] bg-white/85 p-3 shadow-[2px_2px_0_#c9d6ec]"><p className="uppercase tracking-[.12em] text-[#7a8391]">{label}</p><p className="mt-2 font-bold leading-4 text-[#263650]">{value}</p></div>
               ))}
             </div>
 
-            <div className="mt-6 border-l-4 border-[#a65f67] bg-white/80 p-4 sm:p-5">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-[#a65f67]">La oportunidad</p>
-              <p className="mt-2 font-interface text-sm leading-7 sm:text-base">Una selección visual, fácil de exhibir y con distintos niveles de entrada: desde un snack de impulso hasta una caja de regalo. Puedes comenzar con una prueba piloto y construir tu surtido según la respuesta de tus clientes.</p>
-            </div>
             <div className="mt-5 flex flex-wrap gap-2">
-              <a href="#beneficios-distribucion" className="border-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[.1em] text-white shadow-[3px_3px_0_#aab8d2] sm:text-xs">Por qué vender Guaurritas</a>
-              <a href="#catalogo-distribucion" className="border-2 border-[#425b8c] bg-[#fffdf8] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#425b8c] shadow-[3px_3px_0_#aab8d2] sm:text-xs">Consultar precios</a>
+              <a href="#beneficios-distribucion" className="rounded-full border-2 border-[#425b8c] bg-[#425b8c] px-5 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[.1em] text-white shadow-[3px_3px_0_#d9a6b9] sm:text-xs">Descubrir beneficios</a>
+              <a href="#catalogo-distribucion" className="rounded-full border-2 border-[#425b8c] bg-white px-5 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#425b8c] sm:text-xs">Ver catálogo</a>
             </div>
           </div>
 
-          <aside className="relative min-h-[330px] border-2 border-[#425b8c] bg-[#d8d0bd] p-4 shadow-[inset_0_0_0_6px_#f8f3e8] sm:p-6">
-            <div className="absolute -right-6 top-16 rotate-90 border border-[#8d7d63] bg-[#efe4c8] px-4 py-1 font-mono text-[9px] uppercase tracking-[.18em] text-[#685d4c]">Aliados B2B</div>
-            <div className="mx-auto flex h-full min-h-[290px] max-w-[300px] flex-col justify-between border border-[#867b69] bg-[#fffdf8] p-5 shadow-[5px_6px_0_rgba(66,91,140,.2)]">
-              <div>
-                <div className="flex justify-between border-b border-[#b7ad9b] pb-2 font-mono text-[9px] uppercase tracking-[.14em]"><span>Ficha comercial</span><span>B2B-01</span></div>
-                <div className="mt-6 grid place-items-center"><div className="grid h-32 w-32 place-items-center rounded-full border-2 border-dashed border-[#425b8c] bg-[#e7edf7] text-6xl shadow-[4px_4px_0_#d4cbb9]" aria-hidden="true">🐾</div></div>
-                <div className="mt-6 space-y-2 font-mono text-[10px] sm:text-xs"><p><strong>Marca:</strong> Guaurritas</p><p><strong>Modelo:</strong> Precio aliado</p><p><strong>Inicio:</strong> Selección piloto</p><p><strong>Contacto:</strong> Directo con nosotros</p></div>
-              </div>
-              <div className="rotate-[-3deg] self-end border-4 border-double border-[#a65f67] px-3 py-2 text-center font-mono text-[10px] font-bold uppercase tracking-[.16em] text-[#a65f67]">Buscamos<br />aliados</div>
+          <aside className="rounded-[24px] border-2 border-[#425b8c] bg-[#263650] p-3 shadow-[6px_6px_0_#e4c56d]">
+            <div className="flex items-center justify-between border-b border-white/30 px-2 pb-3 font-mono text-[9px] uppercase tracking-[.14em] text-white"><span>Tu ruta de entrada</span><span>01 / 03</span></div>
+            <div className="mt-3 space-y-3">
+              {[["01","Empieza ligero","Prueba una selección de fácil exhibición."],["02","Mide la respuesta","Descubre qué conecta con tus clientes."],["03","Hazla crecer","Suma recompra, regalos y personalización."]].map(([step,title,text]) => (
+                <div key={step} className="grid grid-cols-[42px_1fr] gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 text-white">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#d9a6b9] font-display text-lg text-[#3a2030]">{step}</span>
+                  <div><h2 className="font-interface text-sm font-bold">{title}</h2><p className="mt-1 font-interface text-[11px] leading-5 text-[#dce4f2]">{text}</p></div>
+                </div>
+              ))}
             </div>
+            <div className="mt-3 rounded-2xl bg-[#e4c56d] p-4 text-[#263650]"><p className="font-mono text-[9px] font-bold uppercase tracking-[.15em]">Modelo flexible</p><p className="mt-1 font-display text-xl">Crece según tu punto de venta</p></div>
           </aside>
         </div>
       </section>
 
       <section id="beneficios-distribucion" className="mt-8 scroll-mt-4">
-        <div className="mb-4 border-b-2 border-[#425b8c] pb-2"><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#7b8493]">Razones para integrarnos</p><h2 className="font-display text-2xl text-[#425b8c] sm:text-3xl">Lo que Guaurritas aporta a tu punto de venta</h2></div>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#7b8493]">Razones para integrarnos</p><h2 className="font-display text-2xl text-[#425b8c] sm:text-3xl">Lo que Guaurritas aporta a tu punto de venta</h2></div><span className="rounded-full bg-[#d9a6b9] px-3 py-1 font-mono text-[9px] font-bold uppercase text-[#3a2030]">Valor para tu negocio</span></div>
         <div className="grid gap-3 lg:grid-cols-3">
           {benefits.map((item) => (
-            <div key={item.number} className="relative overflow-hidden border-2 border-[#425b8c] bg-[#fffdf8] p-5 shadow-[4px_4px_0_#dce4f2]">
-              <span className="absolute right-3 top-2 font-display text-5xl text-[#e4e8f0]" aria-hidden="true">{item.number}</span>
-              <p className="relative font-mono text-[10px] font-bold uppercase tracking-[.2em] text-[#a65f67]">Beneficio {item.number}</p>
-              <h3 className="relative mt-3 font-display text-xl text-[#263650]">{item.title}</h3>
-              <p className="relative mt-3 font-interface text-sm leading-6 text-[#53627a]">{item.text}</p>
+            <div key={item.number} className="rounded-[20px] border-2 border-[#425b8c] bg-white p-5 shadow-[4px_4px_0_#c9d6ec]">
+              <div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-[#425b8c] font-mono text-[10px] font-bold text-white">{item.number}</span><span className="h-px flex-1 bg-[#d9a6b9]" /></div>
+              <h3 className="mt-4 font-display text-xl text-[#263650]">{item.title}</h3>
+              <p className="mt-3 font-interface text-sm leading-6 text-[#53627a]">{item.text}</p>
             </div>
           ))}
         </div>
@@ -98,7 +94,7 @@ export default function DistribuidoresInfoApp() {
       </section>
 
       <section id="catalogo-distribucion" className="mt-8 scroll-mt-4">
-        <div className="border-2 border-[#425b8c] bg-[#dce4f2] px-4 py-3 sm:px-6"><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#6e7890]">Anexo comercial 01</p><h2 className="mt-1 font-display text-2xl text-[#425b8c] sm:text-3xl">Catálogo y precio aliado</h2><p className="mt-1 font-interface text-xs text-[#53627a]">Precio aliado con 15% de descuento sobre el precio público.</p></div>
+        <div className="rounded-t-[20px] border-2 border-[#425b8c] bg-[#dce4f2] px-4 py-3 sm:px-6"><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#6e7890]">Explorador de productos</p><h2 className="mt-1 font-display text-2xl text-[#425b8c] sm:text-3xl">Catálogo y precio aliado</h2><p className="mt-1 font-interface text-xs text-[#53627a]">Precio aliado con 15% de descuento sobre el precio público.</p></div>
         <div className="overflow-x-auto border-x-2 border-b-2 border-[#425b8c] bg-white">
           <table className="w-full min-w-[620px] border-collapse text-left font-interface text-[11px]">
             <thead className="bg-[#d9a6b9] text-[#3a2030]"><tr><th className="p-3">Producto</th><th className="p-3">Presentación</th><th className="p-3">Público</th><th className="p-3">Aliado -15%</th></tr></thead>
@@ -108,7 +104,7 @@ export default function DistribuidoresInfoApp() {
       </section>
 
       <section className="mt-8">
-        <div className="border-2 border-[#425b8c] bg-[#dce4f2] px-4 py-3 sm:px-6"><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#6e7890]">Anexo comercial 02</p><h2 className="mt-1 font-display text-2xl text-[#425b8c] sm:text-3xl">Bandanas Couture</h2></div>
+        <div className="rounded-t-[20px] border-2 border-[#425b8c] bg-[#dce4f2] px-4 py-3 sm:px-6"><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#6e7890]">Categoría de exhibición</p><h2 className="mt-1 font-display text-2xl text-[#425b8c] sm:text-3xl">Bandanas Couture</h2></div>
         <div className="grid gap-5 border-x-2 border-b-2 border-[#425b8c] bg-[#fffdf8] p-4 sm:p-6 lg:grid-cols-[.8fr_1.2fr]">
           <div><h3 className="font-display text-xl text-[#263650]">Una pieza visual para tu exhibición</h3><p className="mt-2 font-interface text-sm leading-6 text-[#53627a]">Bandanas artesanales tejidas a mano, disponibles en las colecciones Amulette, Abeille, Cœur Sacré, Oracle y Confetti. Su variedad de tallas y colores ayuda a construir una exhibición atractiva y una compra más personal.</p><p className="mt-3 font-mono text-[9px] uppercase tracking-[.12em] text-[#8a5c65]">Colores sujetos a disponibilidad.</p></div>
           <div className="overflow-x-auto border border-[#8995aa] bg-white"><table className="w-full min-w-[430px] text-left font-interface text-[11px]"><thead className="bg-[#d9a6b9]"><tr><th className="p-3">Talla</th><th className="p-3">Público León</th><th className="p-3">Aliado</th></tr></thead><tbody>{bandanas.map(([size, price]) => <tr key={size} className="odd:bg-[#faf7ef]"><td className="border-t border-[#ddd] p-3 font-bold">{size}</td><td className="border-t border-[#ddd] p-3">{money(price)}</td><td className="border-t border-[#ddd] p-3 font-bold text-[#425b8c]">{money(price * .85)}</td></tr>)}</tbody></table></div>
