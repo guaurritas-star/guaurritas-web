@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import ChatGuaurritasApp from "@/components/apps/ChatGuaurritasApp";
+import DistribuidoresInfoApp from "@/components/apps/DistribuidoresInfoApp";
 import ExpedienteRobbieApp from "@/components/apps/ExpedienteRobbieApp";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
@@ -18,6 +19,7 @@ const apps = [
   { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
   { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const },
   { id: "chat", name: "Chat Guaurritas", icon: "pet" as const },
+  { id: "distribuidores", name: "Info para distribuidores", icon: "pet" as const },
 ];
 
 type AppIconKind = (typeof apps)[number]["icon"] | "cart";
@@ -612,6 +614,8 @@ export default function Desktop() {
             <ExpedienteRobbieApp />
           ) : selectedApp.id === "chat" ? (
             <ChatGuaurritasApp />
+          ) : selectedApp.id === "distribuidores" ? (
+            <DistribuidoresInfoApp />
           ) : (
             <div className="text-center">
               <p className="font-mono text-sm uppercase tracking-wider">
