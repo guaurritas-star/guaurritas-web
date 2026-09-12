@@ -39,6 +39,9 @@ type BandanaSize = {
 };
 
 const WEB_SOURCE = "guaurritas-web";
+const CUISINE_UI_MESSAGE = "guaurritas:cuisine-ui";
+const CUISINE_COMMAND_MESSAGE = "guaurritas:cuisine-command";
+const EMBED_SOURCE = "guaurritas-embed";
 
 function BandanaImage({
   src,
@@ -280,6 +283,73 @@ export default function CoutureStoreApp({
     () => () => {
       if (cartOpeningTimerRef.current) clearTimeout(cartOpeningTimerRef.current);
       if (cartOpeningResetTimerRef.current) clearTimeout(cartOpeningResetTimerRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (window.self === window.top) return;
+
+    window.parent.postMessage(
+      {
+        source: WEB_SOURCE,
+        type: CUISINE_UI_MESSAGE,
+        active: true,
+        count: cartCount,
+        backTarget: "guaurriverse",
+        backLabel: "← Volver a los mundos",
+      },
+      "*",
+    );
+  }, [cartCount]);
+
+  useEffect(() => {
+    if (window.self === window.top) return;
+
+    const handleCoutureCommand = (event: MessageEvent) => {
+      if (event.source !== window.parent) return;
+
+      const message = event.data;
+      if (
+        !message ||
+        typeof message !== "object" ||
+        message.source !== EMBED_SOURCE ||
+        message.type !== CUISINE_COMMAND_MESSAGE
+      ) {
+        return;
+      }
+
+      if (message.action === "open-cart") {
+        requestSystemCartOpen(message.viewport);
+        return;
+      }
+
+      if (message.action === "back") {
+        onBack();
+      }
+    };
+
+    window.addEventListener("message", handleCoutureCommand);
+
+    return () => {
+      window.removeEventListener("message", handleCoutureCommand);
+    };
+  });
+
+  useEffect(
+    () => () => {
+      if (window.self !== window.top) {
+        window.parent.postMessage(
+          {
+            source: WEB_SOURCE,
+            type: CUISINE_UI_MESSAGE,
+            active: false,
+            count: 0,
+            backTarget: "guaurriverse",
+          },
+          "*",
+        );
+      }
     },
     [],
   );
