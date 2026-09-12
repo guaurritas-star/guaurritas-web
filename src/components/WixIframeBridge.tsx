@@ -53,7 +53,10 @@ export default function WixIframeBridge() {
     // pantalla completa. La pantalla principal del launcher se deja crecer de
     // forma natural para que no reserve espacio vacío antes de Gallery.
     const baseViewportHeight = Math.max(1, Math.round(window.innerHeight));
-    const mobileLauncherHeight = Math.max(1, baseViewportHeight - 98);
+    // Reservamos el espacio real del header (46), ticker (30) y taskbar (52).
+    // Así el launcher completo y las dos barras inferiores caben en el primer
+    // viewport móvil incluso después de que Wix termina de medir el iframe.
+    const mobileLauncherHeight = Math.max(1, baseViewportHeight - 128);
 
     const style = document.createElement("style");
     style.id = "guaurritas-wix-iframe-layout";
@@ -90,16 +93,33 @@ export default function WixIframeBridge() {
         /*
          * La pantalla principal conserva el alto disponible original de Wix,
          * pero lo usa como wallpaper en vez de dejarlo como un bloque blanco.
-         * Las tres filas se reparten sobre ese espacio para respirar mejor.
+         * Las cuatro filas se reparten dentro del espacio restante, incluyendo
+         * la nueva aplicación de distribuidores.
          */
         main:not(.mobile-app-open) > .desktop-launcher {
           min-height: ${mobileLauncherHeight}px !important;
-          align-content: space-evenly !important;
+          grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
+          align-content: stretch !important;
+          gap: 4px 16px !important;
+          padding: 8px 18px !important;
         }
 
         main:not(.mobile-app-open) .desktop-shortcut-icon {
-          width: 6rem !important;
-          height: 6rem !important;
+          width: clamp(3.75rem, 17vw, 4.5rem) !important;
+          height: clamp(3.75rem, 17vw, 4.5rem) !important;
+        }
+
+        main:not(.mobile-app-open) .desktop-shortcut {
+          width: 100% !important;
+          min-height: 0 !important;
+          gap: 2px !important;
+          padding: 2px !important;
+        }
+
+        main:not(.mobile-app-open) .desktop-shortcut-label {
+          padding: 1px 4px !important;
+          font-size: 10px !important;
+          line-height: 1.25 !important;
         }
 
         /*
