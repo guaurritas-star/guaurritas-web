@@ -1,7 +1,7 @@
 "use client";
 
 const whatsapp = "https://wa.me/524775505243?text=Hola%20Guaurritas%2C%20me%20interesa%20conocer%20la%20propuesta%20para%20distribuidores.%20Mi%20negocio%20es%3A%20";
-const email = "mailto:guaurritas@gmail.com?subject=Quiero%20distribuir%20Guaurritas&body=Hola%20Guaurritas%2C%0A%0AMe%20interesa%20conocer%20su%20propuesta%20para%20distribuidores.%0A%0ANombre%20del%20negocio%3A%0ACiudad%3A%0ATipo%20de%20negocio%3A%0AProductos%20de%20interes%3A%0AVolumen%20aproximado%3A%0A";
+const email = "https://mail.google.com/mail/?view=cm&fs=1&to=guaurritas@gmail.com&su=Quiero%20distribuir%20Guaurritas&body=Hola%20Guaurritas%2C%0A%0AMe%20interesa%20conocer%20su%20propuesta%20para%20distribuidores.%0A%0ANombre%20del%20negocio%3A%0ACiudad%3A%0ATipo%20de%20negocio%3A%0AProductos%20de%20interes%3A%0AVolumen%20aproximado%3A%0A";
 
 const benefits = [
   { number: "01", title: "Una marca que amplía tu oferta", text: "Guaurritas suma una propuesta pet con identidad propia: productos para la vida diaria, premios, regalos y celebraciones que complementan lo que tu negocio ya vende." },
@@ -115,7 +115,7 @@ export default function DistribuidoresInfoApp() {
         <p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#dce4f2]">Siguiente paso</p>
         <h2 className="mt-2 font-display text-3xl sm:text-4xl">Cuéntanos sobre tu negocio</h2>
         <p className="mt-3 max-w-3xl font-interface text-sm leading-7 text-[#eef2f8]">Compártenos tu ciudad, tipo de negocio, productos de interés y volumen aproximado. Revisaremos contigo disponibilidad, selección inicial y opciones personalizadas.</p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row"><a href={whatsapp} target="_blank" rel="noreferrer" className="border-2 border-white bg-[#d9a6b9] px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#3a2030] shadow-[3px_3px_0_#fff] sm:text-xs">Escribir por WhatsApp</a><a href={email} className="border-2 border-white bg-[#fffdf8] px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#425b8c] shadow-[3px_3px_0_#dce4f2] sm:text-xs">Enviar correo</a></div>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row"><a href={whatsapp} target="_blank" rel="noreferrer" className="border-2 border-white bg-[#d9a6b9] px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#3a2030] shadow-[3px_3px_0_#fff] sm:text-xs">Escribir por WhatsApp</a><a href={email} target="_blank" rel="noreferrer" className="border-2 border-white bg-[#fffdf8] px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#425b8c] shadow-[3px_3px_0_#dce4f2] sm:text-xs">Enviar correo</a></div>
         <p className="mt-4 font-mono text-[9px] text-[#dce4f2]">guaurritas@gmail.com · WhatsApp +52 477 550 5243 · León, Guanajuato</p>
       </section>
     </article>
