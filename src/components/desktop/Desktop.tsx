@@ -599,7 +599,8 @@ export default function Desktop() {
           variant={
             selectedApp.id === "mundos" ||
             selectedApp.id === "paint" ||
-            selectedApp.id === "robbie"
+            selectedApp.id === "robbie" ||
+            selectedApp.id === "distribuidores"
               ? "wide"
               : "default"
           }
