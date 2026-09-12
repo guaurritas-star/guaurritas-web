@@ -591,7 +591,6 @@ export default function Desktop() {
         onOpenShop={openGuaurriverseFromHeader}
         onOpenRobbie={() => openApp("robbie")}
       />
-      <PromotionTicker />
 
       <section className="desktop-launcher grid h-[calc(100dvh-136px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
         {apps.map((app) => {
@@ -659,6 +658,8 @@ export default function Desktop() {
           )}
         </RetroWindow>
       )}
+
+      <PromotionTicker />
 
       <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 px-2 font-title text-white">
         <button
