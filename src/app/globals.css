@@ -818,7 +818,35 @@ textarea {
   }
 
   .desktop-launcher {
-    height: calc(100dvh - 98px);
+    height: calc(100dvh - 128px);
+  }
+}
+
+@media (max-width: 639px) {
+  .desktop-launcher {
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    align-content: stretch;
+    gap: 4px 16px;
+    padding: 8px 18px;
+    overflow: hidden;
+  }
+
+  .desktop-shortcut {
+    width: 100%;
+    min-height: 0;
+    gap: 2px;
+    padding: 2px;
+  }
+
+  .desktop-shortcut-icon {
+    width: clamp(3.75rem, 17vw, 4.5rem);
+    height: clamp(3.75rem, 17vw, 4.5rem);
+  }
+
+  .desktop-shortcut-label {
+    padding: 1px 4px;
+    font-size: 10px;
+    line-height: 1.25;
   }
 }
 
