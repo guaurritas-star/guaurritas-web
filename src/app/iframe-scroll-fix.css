@@ -13,7 +13,7 @@ body {
 }
 
 /*
- * Desktop: el OS se reparte en tres filas reales (header, escritorio y
+ * Desktop: el OS se reparte en cuatro filas reales (header, promociones, escritorio y
  * taskbar) dentro del alto exacto del iframe. Así evitamos depender de
  * restas fijas y de una taskbar absoluta, que eran la causa de pequeñas
  * franjas visibles en algunas laptops/zooms.
@@ -28,11 +28,13 @@ body {
 
   body > main.desktop-wallpaper {
     --guaurritas-header-height: 50px;
+    --guaurritas-ticker-height: 34px;
     --guaurritas-taskbar-height: 52px;
 
     display: grid !important;
     grid-template-rows:
       var(--guaurritas-header-height)
+      var(--guaurritas-ticker-height)
       minmax(0, 1fr)
       var(--guaurritas-taskbar-height);
     width: 100vw !important;
@@ -45,6 +47,12 @@ body {
   }
 
   body > main.desktop-wallpaper > .desktop-os-header {
+    height: 100% !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body > main.desktop-wallpaper > .promotion-ticker {
     height: 100% !important;
     min-height: 0 !important;
     box-sizing: border-box !important;
