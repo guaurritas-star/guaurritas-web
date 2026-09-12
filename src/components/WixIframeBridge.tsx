@@ -100,25 +100,26 @@ export default function WixIframeBridge() {
           min-height: ${mobileLauncherHeight}px !important;
           grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
           align-content: stretch !important;
-          gap: 4px 16px !important;
-          padding: 8px 18px !important;
+          gap: 0 14px !important;
+          padding: 4px 14px !important;
         }
 
         main:not(.mobile-app-open) .desktop-shortcut-icon {
-          width: clamp(3.75rem, 17vw, 4.5rem) !important;
-          height: clamp(3.75rem, 17vw, 4.5rem) !important;
+          width: clamp(4.5rem, 22vw, 5.25rem) !important;
+          height: clamp(4.5rem, 22vw, 5.25rem) !important;
         }
 
         main:not(.mobile-app-open) .desktop-shortcut {
           width: 100% !important;
           min-height: 0 !important;
+          justify-content: center !important;
           gap: 2px !important;
           padding: 2px !important;
         }
 
         main:not(.mobile-app-open) .desktop-shortcut-label {
           padding: 1px 4px !important;
-          font-size: 10px !important;
+          font-size: 10.5px !important;
           line-height: 1.25 !important;
         }
 
