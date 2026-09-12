@@ -826,26 +826,27 @@ textarea {
   .desktop-launcher {
     grid-template-rows: repeat(4, minmax(0, 1fr));
     align-content: stretch;
-    gap: 4px 16px;
-    padding: 8px 18px;
+    gap: 0 14px;
+    padding: 4px 14px;
     overflow: hidden;
   }
 
   .desktop-shortcut {
     width: 100%;
     min-height: 0;
+    justify-content: center;
     gap: 2px;
     padding: 2px;
   }
 
   .desktop-shortcut-icon {
-    width: clamp(3.75rem, 17vw, 4.5rem);
-    height: clamp(3.75rem, 17vw, 4.5rem);
+    width: clamp(4.5rem, 22vw, 5.25rem);
+    height: clamp(4.5rem, 22vw, 5.25rem);
   }
 
   .desktop-shortcut-label {
     padding: 1px 4px;
-    font-size: 10px;
+    font-size: 10.5px;
     line-height: 1.25;
   }
 }
