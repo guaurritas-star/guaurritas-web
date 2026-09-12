@@ -930,9 +930,11 @@
           mobileCuisineCart.dataset.count = String(count);
           mobileCuisineCartText.textContent = `Carrito · ${count}`;
           mobileCuisineBack.textContent =
-            this._mobileCuisineBackTarget === "catalog"
-              ? "← Volver al catálogo"
-              : "← Guaurriverse";
+            typeof message.backLabel === "string" && message.backLabel
+              ? message.backLabel
+              : this._mobileCuisineBackTarget === "catalog"
+                ? "← Volver al catálogo"
+                : "← Guaurriverse";
 
           this._mobileCuisineStickyHandler?.();
           return;
