@@ -63,9 +63,9 @@ textarea {
   align-items: center;
   overflow: hidden;
   border: 2px solid;
-  border-color: #91a7f1 #1d347f #1d347f #91a7f1;
-  background: linear-gradient(180deg, #eef5ff 0%, #d7e5ff 48%, #bfd2fa 100%);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.92), inset 0 -1px rgba(38, 63, 154, 0.25);
+  border-color: #f1c7ae #9d6f55 #9d6f55 #f1c7ae;
+  background: #d9a689;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.48), inset 0 -1px rgba(66, 91, 140, 0.2);
   color: #172d78;
   font-family: var(--font-open-sans), sans-serif;
   font-size: 11px;
@@ -90,11 +90,11 @@ textarea {
 }
 
 .promotion-ticker-tag {
-  border: 1px solid #1d347f;
-  border-top-color: #91a7f1;
-  border-left-color: #91a7f1;
-  background: linear-gradient(180deg, #5874d5 0%, #425bbc 52%, #263f9a 100%);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.35), 1px 1px 0 rgba(17, 39, 111, 0.28);
+  border: 1px solid #75465f;
+  border-top-color: #d7a6be;
+  border-left-color: #d7a6be;
+  background: #a66d88;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.3), 1px 1px 0 rgba(85, 48, 67, 0.3);
   padding: 4px 7px 3px;
   color: #fff;
   font-family: var(--font-cinzel), serif;
@@ -104,10 +104,10 @@ textarea {
 }
 
 .promotion-ticker-tag--patrio {
-  border-color: #7d161c;
-  border-top-color: #e07a7f;
-  border-left-color: #e07a7f;
-  background: linear-gradient(180deg, #c63a42 0%, #a91e25 55%, #781117 100%);
+  border-color: #75465f;
+  border-top-color: #d7a6be;
+  border-left-color: #d7a6be;
+  background: #a66d88;
 }
 
 .promotion-ticker-copy strong {
