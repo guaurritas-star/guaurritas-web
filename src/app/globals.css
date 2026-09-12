@@ -63,10 +63,14 @@ textarea {
   align-items: center;
   overflow: hidden;
   border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  background: #e7e4d2;
-  color: #111;
-  font: 700 11px/1 Tahoma, Arial, sans-serif;
+  border-color: #91a7f1 #1d347f #1d347f #91a7f1;
+  background: linear-gradient(180deg, #eef5ff 0%, #d7e5ff 48%, #bfd2fa 100%);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.92), inset 0 -1px rgba(38, 63, 154, 0.25);
+  color: #172d78;
+  font-family: var(--font-open-sans), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .promotion-ticker-track {
@@ -86,14 +90,37 @@ textarea {
 }
 
 .promotion-ticker-tag {
-  border: 1px solid #000;
-  background: #425bbc;
-  padding: 3px 6px;
+  border: 1px solid #1d347f;
+  border-top-color: #91a7f1;
+  border-left-color: #91a7f1;
+  background: linear-gradient(180deg, #5874d5 0%, #425bbc 52%, #263f9a 100%);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.35), 1px 1px 0 rgba(17, 39, 111, 0.28);
+  padding: 4px 7px 3px;
   color: #fff;
+  font-family: var(--font-cinzel), serif;
+  font-size: 10px;
+  letter-spacing: 0.045em;
+  text-shadow: 1px 1px 0 #172d78;
 }
 
-.promotion-ticker-tag--red { background: #a91e25; }
-.promotion-ticker-dot { color: #425bbc; }
+.promotion-ticker-tag--patrio {
+  border-color: #7d161c;
+  border-top-color: #e07a7f;
+  border-left-color: #e07a7f;
+  background: linear-gradient(180deg, #c63a42 0%, #a91e25 55%, #781117 100%);
+}
+
+.promotion-ticker-copy strong {
+  color: #263f9a;
+  font-family: var(--font-cinzel), serif;
+  letter-spacing: 0.02em;
+}
+
+.promotion-ticker-dot {
+  color: #cc9f35;
+  font-size: 13px;
+  text-shadow: 1px 1px 0 #fff;
+}
 
 @keyframes promotion-ticker-scroll {
   from { transform: translateX(0); }
@@ -104,11 +131,12 @@ textarea {
   .promotion-ticker {
     height: 30px;
     min-height: 30px;
-    font-size: 10px;
+    font-size: 9.5px;
   }
 
   .promotion-ticker-track { animation-duration: 27s; }
   .promotion-ticker-group { gap: 8px; padding-right: 8px; }
+  .promotion-ticker-tag { padding: 3px 5px 2px; font-size: 9px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
