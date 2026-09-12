@@ -446,14 +446,19 @@ function GuaurritasHeader({
 }
 
 function PromotionTicker() {
+  const freeShippingThreshold = NATIONAL_SHIPPING_PROMO.freeShippingThreshold.toLocaleString("es-MX", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   const message = (
     <>
       <span className="promotion-ticker-tag">ENVÍO GRATIS</span>
-      <span>Pedidos nacionales desde <strong>{NATIONAL_SHIPPING_PROMO.freeShippingThreshold} MXN</strong></span>
-      <span className="promotion-ticker-dot">◆</span>
-      <span className="promotion-ticker-tag promotion-ticker-tag--red">MES PATRIO</span>
-      <span><strong>15% de descuento</strong> en ChilaquiDogs</span>
-      <span className="promotion-ticker-dot">◆</span>
+      <span className="promotion-ticker-copy">Pedidos nacionales desde <strong>${freeShippingThreshold} MXN</strong></span>
+      <span className="promotion-ticker-dot" aria-hidden="true">✦</span>
+      <span className="promotion-ticker-tag promotion-ticker-tag--patrio">MES PATRIO</span>
+      <span className="promotion-ticker-copy"><strong>15% de descuento</strong> en ChilaquiDogs</span>
+      <span className="promotion-ticker-dot" aria-hidden="true">✦</span>
     </>
   );
 
