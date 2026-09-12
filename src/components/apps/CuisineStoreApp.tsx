@@ -47,6 +47,7 @@ type GuaranteedAnalysisItem = {
 type ProductOption = {
   label: string;
   price: number;
+  originalPrice?: number;
   grams?: number;
   image?: string;
   imageAlt?: string;
@@ -601,11 +602,12 @@ const products: CuisineProduct[] = [
     image: "/cuisine/products/chilaquidogs-card-v4.webp",
     imageAlt: "ChilaquiDogs servido en una cajita",
     options: [
-      { label: "Petit", price: 65 },
-      { label: "Grande", price: 85 },
+      { label: "Petit", price: 55.25, originalPrice: 65 },
+      { label: "Grande", price: 72.25, originalPrice: 85 },
     ],
     detail:
       "Los totopos se preparan con harina de avena. Elige proteína de res o pollo y salsa roja de zanahoria con manzana, o verde de calabaza con manzana. La receta incorpora probióticos y está disponible en tamaño Petit o Grande.",
+    badge: "Mes patrio · -15%",
     imageTone: "#edf1f5",
     imageScale: 1.18,
   },
@@ -2899,6 +2901,11 @@ export default function CuisineStoreApp({
                       ? `${currentOption.label} · Número: ${birthdayCandleNumber || "pendiente"}`
                     : currentOption.label}
                 </p>
+                {isChilaquidogs && currentOption.originalPrice && (
+                  <p className="mt-1 font-interface text-xs text-[#8993a1] line-through">
+                    Antes {money(currentOption.originalPrice)}
+                  </p>
+                )}
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
                   {isBulkCookies
                     ? !bulkQuantityIsValid
