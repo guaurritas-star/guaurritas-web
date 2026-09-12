@@ -11,6 +11,7 @@ import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
+import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 
 const apps = [
   { id: "mundos", name: "Explora mundo", icon: "world" as const },
@@ -444,6 +445,28 @@ function GuaurritasHeader({
   );
 }
 
+function PromotionTicker() {
+  const message = (
+    <>
+      <span className="promotion-ticker-tag">ENVÍO GRATIS</span>
+      <span>Pedidos nacionales desde <strong>{NATIONAL_SHIPPING_PROMO.freeShippingThreshold} MXN</strong></span>
+      <span className="promotion-ticker-dot">◆</span>
+      <span className="promotion-ticker-tag promotion-ticker-tag--red">MES PATRIO</span>
+      <span><strong>15% de descuento</strong> en ChilaquiDogs</span>
+      <span className="promotion-ticker-dot">◆</span>
+    </>
+  );
+
+  return (
+    <div className="promotion-ticker" role="region" aria-label="Promociones de Guaurritas">
+      <div className="promotion-ticker-track">
+        <span className="promotion-ticker-group">{message}</span>
+        <span className="promotion-ticker-group" aria-hidden="true">{message}</span>
+      </div>
+    </div>
+  );
+}
+
 function DesktopClock() {
   const [time, setTime] = useState("--:--");
 
@@ -563,8 +586,9 @@ export default function Desktop() {
         onOpenShop={openGuaurriverseFromHeader}
         onOpenRobbie={() => openApp("robbie")}
       />
+      <PromotionTicker />
 
-      <section className="desktop-launcher grid h-[calc(100dvh-102px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
+      <section className="desktop-launcher grid h-[calc(100dvh-136px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
         {apps.map((app) => {
           const isLaunching = launchingApp === app.id;
 
