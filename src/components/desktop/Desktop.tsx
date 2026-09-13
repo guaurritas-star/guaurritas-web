@@ -33,7 +33,7 @@ const desktopIconImages: Record<AppIconKind, string> = {
   cart: withBasePath("/icons/desktop/cart-empty.webp"),
   robbie: withBasePath("/icons/desktop/robbie-folder-closed.webp"),
   chat: withBasePath("/icons/desktop/chat-paw.webp"),
-  distributors: withBasePath("/icons/desktop/distributors-open.jpeg"),
+  distributors: withBasePath("/icons/desktop/distributors-closed-clear.webp"),
 };
 
 function DesktopAppIcon({
@@ -190,15 +190,15 @@ function DesktopAppIcon({
           width={96}
           height={96}
           unoptimized
-          className="desktop-distributors-state desktop-distributors-open absolute inset-0 h-full w-full object-contain"
+          className="desktop-distributors-state desktop-distributors-closed absolute inset-0 h-full w-full object-contain"
         />
         <Image
-          src={withBasePath("/icons/desktop/distributors-closed.jpeg")}
+          src={withBasePath("/icons/desktop/distributors-open-clear.webp")}
           alt=""
           width={96}
           height={96}
           unoptimized
-          className="desktop-distributors-state desktop-distributors-closed absolute inset-0 h-full w-full object-contain"
+          className="desktop-distributors-state desktop-distributors-open absolute inset-0 h-full w-full object-contain"
         />
       </span>
     );
@@ -657,7 +657,7 @@ export default function Desktop() {
               type="button"
               onClick={() => launchApp(app.id)}
               aria-busy={isLaunching || undefined}
-              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${
+              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
                 isLaunching ? "is-launching" : ""
               }`}
             >
