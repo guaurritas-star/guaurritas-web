@@ -20,7 +20,7 @@ const apps = [
   { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
   { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const },
   { id: "chat", name: "Chat Guaurritas", icon: "chat" as const },
-  { id: "distribuidores", name: "Info para distribuidores", icon: "pet" as const },
+  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const },
 ];
 
 type AppIconKind = (typeof apps)[number]["icon"] | "cart";
@@ -33,6 +33,7 @@ const desktopIconImages: Record<AppIconKind, string> = {
   cart: withBasePath("/icons/desktop/cart-empty.webp"),
   robbie: withBasePath("/icons/desktop/robbie-folder-closed.webp"),
   chat: withBasePath("/icons/desktop/chat-paw.webp"),
+  distributors: withBasePath("/icons/desktop/distributors-open.jpeg"),
 };
 
 function DesktopAppIcon({
@@ -172,6 +173,32 @@ function DesktopAppIcon({
           height={96}
           unoptimized
           className="desktop-chat-state desktop-chat-active absolute inset-0 h-full w-full object-contain"
+        />
+      </span>
+    );
+  }
+
+  if (kind === "distributors") {
+    return (
+      <span
+        aria-hidden="true"
+        className={`desktop-icon-y2k desktop-icon-y2k-distributors relative block ${className}`}
+      >
+        <Image
+          src={desktopIconImages.distributors}
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className="desktop-distributors-state desktop-distributors-open absolute inset-0 h-full w-full object-contain"
+        />
+        <Image
+          src={withBasePath("/icons/desktop/distributors-closed.jpeg")}
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className="desktop-distributors-state desktop-distributors-closed absolute inset-0 h-full w-full object-contain"
         />
       </span>
     );
@@ -550,7 +577,7 @@ export default function Desktop() {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const animateOnThisDevice = isMobile || appId === "robbie" || appId === "chat";
+    const animateOnThisDevice = isMobile || appId === "robbie" || appId === "chat" || appId === "distribuidores";
 
     if (!animateOnThisDevice || reduceMotion) {
       openApp(appId);
