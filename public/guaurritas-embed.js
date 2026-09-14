@@ -17,6 +17,11 @@
   const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
   const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
   const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
+  const PURCHASE_HISTORY_RESPONSE_ATTRIBUTE =
+    "data-purchase-history-response";
+  const PURCHASE_HISTORY_REQUEST_MESSAGE =
+    "guaurritas:purchase-history-request";
+  const PURCHASE_HISTORY_MESSAGE = "guaurritas:purchase-history";
   const GUAURRINOTAS_SESSION_RESPONSE_ATTRIBUTE =
     "data-guaurrinotas-session-response";
   const GUAURRINOTAS_SESSION_REQUEST_MESSAGE =
@@ -30,6 +35,7 @@
       return [
         SPEI_RESPONSE_ATTRIBUTE,
         MEMBER_STATE_ATTRIBUTE,
+        PURCHASE_HISTORY_RESPONSE_ATTRIBUTE,
         GUAURRINOTAS_SESSION_RESPONSE_ATTRIBUTE,
       ];
     }
@@ -54,6 +60,29 @@
 
       if (name === MEMBER_STATE_ATTRIBUTE) {
         this._forwardMemberState(newValue);
+        return;
+      }
+
+      if (name === PURCHASE_HISTORY_RESPONSE_ATTRIBUTE) {
+        if (!this._iframe?.contentWindow) return;
+
+        try {
+          const payload = JSON.parse(newValue);
+          this._iframe.contentWindow.postMessage(
+            {
+              source: EMBED_SOURCE,
+              type: PURCHASE_HISTORY_MESSAGE,
+              ...payload,
+            },
+            ALLOWED_ORIGIN,
+          );
+          this.removeAttribute(PURCHASE_HISTORY_RESPONSE_ATTRIBUTE);
+        } catch (error) {
+          console.warn(
+            "[GUAURRITAS EMBED] Respuesta de historial inválida.",
+            error,
+          );
+        }
         return;
       }
 
@@ -714,6 +743,24 @@
           this.dispatchEvent(
             new CustomEvent("guaurritas-member-state-request", {
               detail: {},
+              bubbles: true,
+              composed: true,
+            }),
+          );
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === PURCHASE_HISTORY_REQUEST_MESSAGE
+        ) {
+          this.dispatchEvent(
+            new CustomEvent("guaurritas-purchase-history-request", {
+              detail: {
+                requestId: Number.isFinite(message.requestId)
+                  ? message.requestId
+                  : null,
+              },
               bubbles: true,
               composed: true,
             }),

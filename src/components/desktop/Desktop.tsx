@@ -619,13 +619,15 @@ export default function Desktop() {
     setMinimizedApp(null);
   };
 
-  const openCuisineFromPaint = () => {
+  const openShopWorld = (world: "cuisine" | "couture") => {
     const url = new URL(window.location.href);
-    url.searchParams.set("world", "cuisine");
-    window.history.pushState({ world: "cuisine" }, "", url);
+    url.searchParams.set("world", world);
+    window.history.pushState({ world }, "", url);
     setActiveApp("mundos");
     setMinimizedApp(null);
   };
+
+  const openCuisineFromPaint = () => openShopWorld("cuisine");
 
   const openGuaurriverseFromHeader = () => {
     const url = new URL(window.location.href);
@@ -693,7 +695,7 @@ export default function Desktop() {
           {selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
           ) : selectedApp.id === "mascota" ? (
-            <MiMascotaApp />
+            <MiMascotaApp onOpenWorld={openShopWorld} />
           ) : selectedApp.id === "paint" ? (
             <PaintStudioApp onOpenCuisine={openCuisineFromPaint} />
           ) : selectedApp.id === "notas" ? (

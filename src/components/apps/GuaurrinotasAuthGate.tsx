@@ -21,10 +21,6 @@ const GUAURRINOTAS_SESSION_REQUEST_MESSAGE =
   "guaurritas:guaurrinotas-session-request";
 const GUAURRINOTAS_SESSION_MESSAGE = "guaurritas:guaurrinotas-session";
 
-type GuaurrinotasAuthGateProps = {
-  experience?: "community" | "pet-hub";
-};
-
 type WixMemberState = {
   loggedIn: boolean;
   name: string;
@@ -105,10 +101,7 @@ const translateAuthError = (error: AuthError) => {
   return `Supabase respondió: ${error.message}${error.code ? ` (código: ${error.code})` : ""}`;
 };
 
-export default function GuaurrinotasAuthGate({
-  experience = "community",
-}: GuaurrinotasAuthGateProps) {
-  const isPetHub = experience === "pet-hub";
+export default function GuaurrinotasAuthGate() {
   const [supabase] = useState(() => createClient());
   const [mode, setMode] = useState<AuthMode>("signup");
   const [user, setUser] = useState<User | null>(null);
@@ -416,11 +409,7 @@ export default function GuaurrinotasAuthGate({
   };
 
   if (isCheckingSession) {
-    return (
-      <GuaurrinotasLoading
-        label={isPetHub ? "Preparando Mi Mascota…" : "Conectando con tu comunidad…"}
-      />
-    );
+    return <GuaurrinotasLoading label="Conectando con tu comunidad…" />;
   }
 
   if (user) {
@@ -429,7 +418,6 @@ export default function GuaurrinotasAuthGate({
         user={user}
         isSigningOut={isSubmitting}
         onSignOut={signOut}
-        experience={experience}
       />
     );
   }
@@ -462,15 +450,14 @@ export default function GuaurrinotasAuthGate({
       <section className={`${styles.workspace} ${styles.authPanel}`}>
         <header className="border-b-2 border-[#425b8c] bg-[#dce4f2] p-5">
           <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-            {isPetHub ? "Mi Mascota.exe" : "Guaurrinotas.exe"}
+            Guaurrinotas.exe
           </p>
           <h2 className="mt-2 text-2xl font-bold text-[#263650]">
-            {isPetHub ? "Su perfil vive aquí" : "Su mundo empieza contigo"}
+            Su mundo empieza contigo
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#53627a]">
-            {isPetHub
-              ? "Administra el perfil de tu mascota, sus favoritos y sus beneficios desde tu misma cuenta Guaurritas."
-              : "Comparte sus momentos y descubre a otras mascotas. Entra con tu cuenta Guaurritas; si ya tienes una, usa la misma."}
+            Comparte sus momentos y descubre a otras mascotas. Entra con tu cuenta
+            Guaurritas; si ya tienes una, usa la misma.
           </p>
         </header>
 
@@ -488,30 +475,23 @@ export default function GuaurrinotasAuthGate({
   }
 
   if (isWixConnecting && !wixBridgeError) {
-    return (
-      <GuaurrinotasLoading
-        label={isPetHub ? "Abriendo Mi Mascota…" : "Abriendo tu Guarriverse…"}
-      />
-    );
+    return <GuaurrinotasLoading label="Abriendo tu Guarriverse…" />;
   }
 
   return (
     <section className={`${styles.workspace} ${styles.authPanel}`}>
       <header className="border-b-2 border-[#425b8c] bg-[#dce4f2] p-5">
         <p className="font-mono text-xs font-bold uppercase tracking-wider text-[#425b8c]">
-          {isPetHub ? "Mi Mascota.exe" : "Guaurrinotas.exe"}
+          Guaurrinotas.exe
         </p>
 
         <h2 className="mt-2 text-2xl font-bold text-[#263650]">
-          {isPetHub
-            ? "Todo sobre tu mascota, en un solo lugar"
-            : "Tu mascota también tiene algo que decir"}
+          Tu mascota también tiene algo que decir
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-[#53627a]">
-          {isPetHub
-            ? "Crea o administra su perfil con la misma cuenta que utilizas en Guaurrinotas."
-            : "Crea su perfil, comparte sus momentos y descubre las historias de la comunidad Guaurritas."}
+          Crea su perfil, comparte sus momentos y descubre las historias de
+          la comunidad Guaurritas.
         </p>
       </header>
 
