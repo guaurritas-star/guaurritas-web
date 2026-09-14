@@ -32,6 +32,7 @@ type PetProfilesGateProps = {
   user: User;
   isSigningOut: boolean;
   onSignOut: () => Promise<void>;
+  experience?: "community" | "pet-hub";
 };
 
 const EMPTY_DRAFT: ProfileDraft = {
@@ -118,14 +119,18 @@ export default function PetProfilesGate({
   user,
   isSigningOut,
   onSignOut,
+  experience = "community",
 }: PetProfilesGateProps) {
+  const isPetHub = experience === "pet-hub";
   const [supabase] = useState(() => createClient());
   const [profiles, setProfiles] = useState<PetProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [activeView, setActiveView] = useState<WorkspaceView>("feed");
+  const [activeView, setActiveView] = useState<WorkspaceView>(
+    isPetHub ? "pets" : "feed",
+  );
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     null,
   );
@@ -615,7 +620,9 @@ export default function PetProfilesGate({
   return (
     <div className={styles.workspace}>
       <div className={styles.accountBar}>
-        <span className={styles.connection}><span aria-hidden="true" /> Dentro del Guarriverse</span>
+        <span className={styles.connection}>
+          <span aria-hidden="true" /> {isPetHub ? "Mi Mascota activa" : "Dentro del Guarriverse"}
+        </span>
         <details className={styles.accountMenu}>
           <summary>Mi cuenta</summary>
           <div>
@@ -628,7 +635,22 @@ export default function PetProfilesGate({
         </details>
       </div>
 
-      {profiles.length > 0 && !showForm && (
+      {isPetHub && !showForm && !selectedProfile && (
+        <section className="border-b-2 border-[#425b8c] bg-[linear-gradient(135deg,#f7edf2,#dce4f2)] px-5 py-6">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#A66D88]">
+            Mi Mascota.exe
+          </p>
+          <h2 className="mt-2 font-title text-2xl text-[#263650]">
+            Su espacio dentro de Guaurritas
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#53627a]">
+            Administra sus perfiles desde aquí. La misma información se usa en
+            Guaurrinotas, así no tienes que registrarla dos veces.
+          </p>
+        </section>
+      )}
+
+      {profiles.length > 0 && !showForm && !isPetHub && (
         <nav
           className={styles.navigation}
           aria-label="Secciones de Guaurrinotas"
@@ -674,8 +696,10 @@ export default function PetProfilesGate({
                 : "Agrega otra mascota"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#53627a]">
-              Este será su nombre, foto y usuario dentro de Guaurrinotas.
-              Después podrás editar los datos cuando lo necesites.
+              {isPetHub
+                ? "Este será su perfil dentro de Guaurritas y también podrás usarlo en Guaurrinotas."
+                : "Este será su nombre, foto y usuario dentro de Guaurrinotas."}
+              {" "}Después podrás editar los datos cuando lo necesites.
             </p>
           </header>
 
@@ -901,7 +925,11 @@ export default function PetProfilesGate({
                 disabled={isSavingProfile}
                 className="font-mono text-xs font-bold text-[#425b8c] hover:underline disabled:opacity-50"
               >
-                ← {activeView === "feed" ? "Volver al muro" : "Volver a mis mascotas"}
+                ← {isPetHub
+                  ? "Volver a Mi Mascota"
+                  : activeView === "feed"
+                    ? "Volver al muro"
+                    : "Volver a mis mascotas"}
               </button>
             </header>
 
@@ -1164,13 +1192,41 @@ export default function PetProfilesGate({
             </div>
           </section>
 
-          <PetProfileNotes
-            key={`${selectedProfile.id}-${composerRequest}`}
-            ownerId={user.id}
-            profile={selectedProfile}
-            canManage={Boolean(selectedProfileIsOwned)}
-            initialComposerOpen={composerProfileId === selectedProfile.id}
-          />
+          {isPetHub ? (
+            <section className="grid gap-4 sm:grid-cols-2">
+              <article className="border-2 border-[#A66D88] bg-[#fff8fb] p-5 shadow-[4px_4px_0_#d9a6b9]">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#A66D88]">
+                  ♡ Sus favoritos
+                </p>
+                <h3 className="mt-2 font-title text-xl text-[#263650]">
+                  Aún no hay productos guardados
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[#53627a]">
+                  Aquí reuniremos lo que más le gusta de Cuisine y Couture.
+                </p>
+              </article>
+
+              <article className="border-2 border-[#425b8c] bg-[#f3f6ff] p-5 shadow-[4px_4px_0_#9eadd7]">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#425b8c]">
+                  ✦ Beneficios GuaurriClub
+                </p>
+                <h3 className="mt-2 font-title text-xl text-[#263650]">
+                  Próximamente
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[#53627a]">
+                  Cuando GuaurriClub abra, sus beneficios aparecerán en este perfil.
+                </p>
+              </article>
+            </section>
+          ) : (
+            <PetProfileNotes
+              key={`${selectedProfile.id}-${composerRequest}`}
+              ownerId={user.id}
+              profile={selectedProfile}
+              canManage={Boolean(selectedProfileIsOwned)}
+              initialComposerOpen={composerProfileId === selectedProfile.id}
+            />
+          )}
         </div>
       ) : activeView === "feed" ? (
         <PetNotesFeed
@@ -1235,7 +1291,11 @@ export default function PetProfilesGate({
                     {getLocationLabel(profile)}
                   </p>}
                   <p className="mt-3 font-mono text-[10px] font-bold uppercase tracking-wider text-[#425b8c]">
-                    {isChoosingNoteAuthor ? "Publicar como " + profile.name : "Ver su mundo"} →
+                    {isPetHub
+                      ? "Abrir perfil"
+                      : isChoosingNoteAuthor
+                        ? "Publicar como " + profile.name
+                        : "Ver su mundo"} →
                   </p>
                 </div>
               </button>

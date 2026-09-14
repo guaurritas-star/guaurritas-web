@@ -7,6 +7,7 @@ import DistribuidoresInfoApp from "@/components/apps/DistribuidoresInfoApp";
 import ExpedienteRobbieApp from "@/components/apps/ExpedienteRobbieApp";
 import GuaurriverseApp from "@/components/apps/GuaurriverseApp";
 import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
+import MiMascotaApp from "@/components/apps/MiMascotaApp";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
@@ -681,6 +682,7 @@ export default function Desktop() {
           onMinimize={minimizeActiveApp}
           variant={
             selectedApp.id === "mundos" ||
+            selectedApp.id === "mascota" ||
             selectedApp.id === "paint" ||
             selectedApp.id === "robbie" ||
             selectedApp.id === "distribuidores"
@@ -690,6 +692,8 @@ export default function Desktop() {
         >
           {selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
+          ) : selectedApp.id === "mascota" ? (
+            <MiMascotaApp />
           ) : selectedApp.id === "paint" ? (
             <PaintStudioApp onOpenCuisine={openCuisineFromPaint} />
           ) : selectedApp.id === "notas" ? (

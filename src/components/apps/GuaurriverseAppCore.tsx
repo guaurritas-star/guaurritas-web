@@ -125,7 +125,8 @@ function readWorldFromUrl(): WorldId | null {
   if (typeof window === "undefined") return null;
 
   const value = new URL(window.location.href).searchParams.get("world");
-  return isWorldId(value) ? value : null;
+  if (!isWorldId(value)) return null;
+  return worlds.find((world) => world.id === value)?.available ? value : null;
 }
 
 function updateWorldInUrl(worldId: WorldId | null) {
@@ -159,7 +160,9 @@ function WorldMediaPreview({ world }: { world: World }) {
   if (world.media?.type === "image") {
     return (
       <div
-        className="absolute inset-0 bg-cover bg-top transition-transform duration-500 group-hover:scale-105"
+        className={`absolute inset-0 bg-cover bg-top transition-transform duration-500 ${
+          world.available ? "group-hover:scale-105" : ""
+        }`}
         style={{ backgroundImage: `url(${withBasePath(world.media.src)})` }}
         role="img"
         aria-label={world.media.alt}
@@ -207,9 +210,10 @@ export default function GuaurriverseApp() {
 
   const selectedWorld = worlds.find((world) => world.id === selectedWorldId);
 
-  const openWorld = (worldId: WorldId) => {
-    setSelectedWorldId(worldId);
-    updateWorldInUrl(worldId);
+  const openWorld = (world: World) => {
+    if (!world.available) return;
+    setSelectedWorldId(world.id);
+    updateWorldInUrl(world.id);
   };
 
   const showAllWorlds = () => {
@@ -334,15 +338,22 @@ export default function GuaurriverseApp() {
             <button
               key={world.id}
               type="button"
-              onClick={() => openWorld(world.id)}
-              aria-label={`Explorar ${world.name}`}
+              onClick={() => openWorld(world)}
+              disabled={!world.available}
+              aria-label={
+                world.available
+                  ? `Explorar ${world.name}`
+                  : `${world.name}, próximamente`
+              }
               style={
                 {
                   "--world-accent": world.accent,
                   "--world-accent-soft": world.accentSoft,
                 } as WorldCardStyle
               }
-              className={`world-card group relative aspect-[2/3] w-[70vw] max-w-[15rem] shrink-0 snap-center overflow-hidden rounded-[1.35rem] border bg-[#263650] text-left shadow-[0_12px_24px_rgba(64,43,28,0.13)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#ad9279] sm:w-[15rem] lg:h-[22rem] lg:w-full lg:max-w-none ${
+              className={`world-card group relative aspect-[2/3] w-[70vw] max-w-[15rem] shrink-0 snap-center overflow-hidden rounded-[1.35rem] border bg-[#263650] text-left shadow-[0_12px_24px_rgba(64,43,28,0.13)] transition-[transform,box-shadow,border-color] duration-300 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#ad9279] sm:w-[15rem] lg:h-[22rem] lg:w-full lg:max-w-none ${
+                world.available ? "world-card--available hover:-translate-y-2" : "world-card--locked cursor-not-allowed"
+              } ${
                 world.available ? "lg:col-span-3" : "lg:col-span-2"
               }`}
             >
@@ -354,7 +365,7 @@ export default function GuaurriverseApp() {
                   ? "bg-white/90 text-[#263650]"
                   : "bg-[#263650]/75 text-white"
               }`}>
-                {world.available ? "Explorar" : "Próximamente"}
+                {world.available ? "Explorar" : "🔒 Próximamente"}
               </span>
               <span className="world-card-content absolute inset-x-0 bottom-0 z-10 block p-5">
                 <span className="world-card-tag inline-flex items-center rounded-full border px-2.5 py-1 font-sans text-[8px] font-bold uppercase tracking-[0.18em]">
@@ -378,7 +389,7 @@ export default function GuaurriverseApp() {
                 className="world-card-cta absolute bottom-5 right-5 z-20 flex h-9 w-9 items-center justify-center rounded-full border text-xl"
                 aria-hidden="true"
               >
-                →
+                {world.available ? "→" : "🔒"}
               </span>
             </button>
           ))}

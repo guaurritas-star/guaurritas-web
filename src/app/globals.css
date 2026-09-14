@@ -1485,8 +1485,18 @@ textarea {
   border-color: color-mix(in srgb, var(--world-accent) 42%, #806f61 18%);
 }
 
-.world-card:hover,
-.world-card:focus-visible {
+.world-card--locked {
+  filter: saturate(0.62);
+}
+
+.world-card--locked:hover {
+  transform: none;
+  border-color: color-mix(in srgb, var(--world-accent) 42%, #806f61 18%);
+  box-shadow: 0 12px 24px rgba(64, 43, 28, 0.13);
+}
+
+.world-card--available:hover,
+.world-card--available:focus-visible {
   border-color: color-mix(in srgb, var(--world-accent-soft) 70%, white 12%);
   box-shadow:
     0 18px 34px rgba(64, 43, 28, 0.16),
@@ -1505,8 +1515,8 @@ textarea {
   transition: background 400ms ease;
 }
 
-.world-card:hover .world-card-overlay,
-.world-card:focus-visible .world-card-overlay {
+.world-card--available:hover .world-card-overlay,
+.world-card--available:focus-visible .world-card-overlay {
   background: linear-gradient(
     to bottom,
     transparent 18%,
@@ -1572,41 +1582,41 @@ textarea {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .world-card-tag,
-  .world-card-subtitle {
+  .world-card--available .world-card-tag,
+  .world-card--available .world-card-subtitle {
     opacity: 0;
     transform: translateY(8px);
   }
 
-  .world-card-line {
+  .world-card--available .world-card-line {
     width: 0;
   }
 
-  .world-card-cta {
+  .world-card--available .world-card-cta {
     opacity: 0;
     transform: scale(0.68);
   }
 
-  .world-card:hover .world-card-content,
-  .world-card:focus-visible .world-card-content {
+  .world-card--available:hover .world-card-content,
+  .world-card--available:focus-visible .world-card-content {
     transform: translateY(-5px);
   }
 
-  .world-card:hover .world-card-tag,
-  .world-card:focus-visible .world-card-tag,
-  .world-card:hover .world-card-subtitle,
-  .world-card:focus-visible .world-card-subtitle {
+  .world-card--available:hover .world-card-tag,
+  .world-card--available:focus-visible .world-card-tag,
+  .world-card--available:hover .world-card-subtitle,
+  .world-card--available:focus-visible .world-card-subtitle {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .world-card:hover .world-card-line,
-  .world-card:focus-visible .world-card-line {
+  .world-card--available:hover .world-card-line,
+  .world-card--available:focus-visible .world-card-line {
     width: 6rem;
   }
 
-  .world-card:hover .world-card-cta,
-  .world-card:focus-visible .world-card-cta {
+  .world-card--available:hover .world-card-cta,
+  .world-card--available:focus-visible .world-card-cta {
     opacity: 1;
     transform: scale(1);
   }
