@@ -755,8 +755,9 @@
           message.type === PURCHASE_HISTORY_REQUEST_MESSAGE
         ) {
           this.dispatchEvent(
-            new CustomEvent("guaurritas-purchase-history-request", {
+            new CustomEvent("guaurritas-member-state-request", {
               detail: {
+                includePurchaseHistory: true,
                 requestId: Number.isFinite(message.requestId)
                   ? message.requestId
                   : null,
