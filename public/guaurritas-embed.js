@@ -72,9 +72,9 @@
           this._purchaseHistoryPayload = payload;
           this._iframe.contentWindow.postMessage(
             {
+              ...payload,
               source: EMBED_SOURCE,
               type: PURCHASE_HISTORY_MESSAGE,
-              ...payload,
             },
             ALLOWED_ORIGIN,
           );
@@ -764,9 +764,9 @@
           if (this._purchaseHistoryPayload) {
             iframe.contentWindow.postMessage(
               {
+                ...this._purchaseHistoryPayload,
                 source: EMBED_SOURCE,
                 type: PURCHASE_HISTORY_MESSAGE,
-                ...this._purchaseHistoryPayload,
               },
               ALLOWED_ORIGIN,
             );
