@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const WEB_SOURCE = "guaurritas-web";
 const EMBED_SOURCE = "guaurritas-embed";
+const WIX_SOURCE = "guaurritas-wix";
 const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
 const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
 const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
@@ -159,13 +160,14 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
       if (event.source !== window.parent) return;
       const message = event.data;
 
-      if (
-        !message ||
-        typeof message !== "object" ||
-        message.source !== EMBED_SOURCE
-      ) {
-        return;
-      }
+      if (!message || typeof message !== "object") return;
+
+      const hasTrustedSource =
+        message.source === EMBED_SOURCE ||
+        (message.type === PURCHASE_HISTORY_MESSAGE &&
+          message.source === WIX_SOURCE);
+
+      if (!hasTrustedSource) return;
 
       if (message.type === MEMBER_STATE_MESSAGE) {
         const loggedIn = Boolean(message.loggedIn);
