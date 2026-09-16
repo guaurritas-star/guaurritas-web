@@ -52,6 +52,7 @@
       this._mobileCuisineBackTarget = "guaurriverse";
       this._desktopOverflowStyle = null;
       this._pageScrollState = null;
+      this._purchaseHistoryPayload = null;
       this._shadow = this.attachShadow({ mode: "open" });
     }
 
@@ -68,6 +69,7 @@
 
         try {
           const payload = JSON.parse(newValue);
+          this._purchaseHistoryPayload = payload;
           this._iframe.contentWindow.postMessage(
             {
               source: EMBED_SOURCE,
@@ -125,6 +127,11 @@
 
       try {
         const state = JSON.parse(serialized);
+
+        if (!state?.loggedIn) {
+          this._purchaseHistoryPayload = null;
+        }
+
         this._iframe.contentWindow.postMessage(
           {
             source: EMBED_SOURCE,
@@ -754,6 +761,18 @@
           message.source === BRIDGE_SOURCE &&
           message.type === PURCHASE_HISTORY_REQUEST_MESSAGE
         ) {
+          if (this._purchaseHistoryPayload) {
+            iframe.contentWindow.postMessage(
+              {
+                source: EMBED_SOURCE,
+                type: PURCHASE_HISTORY_MESSAGE,
+                ...this._purchaseHistoryPayload,
+              },
+              ALLOWED_ORIGIN,
+            );
+            return;
+          }
+
           this.dispatchEvent(
             new CustomEvent("guaurritas-member-state-request", {
               detail: {
