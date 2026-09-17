@@ -16,6 +16,7 @@
   const MEMBER_STATE_ATTRIBUTE = "data-member-state";
   const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
   const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
+  const MEMBER_LOGOUT_REQUEST_MESSAGE = "guaurritas:member-logout-request";
   const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
   const PURCHASE_HISTORY_RESPONSE_ATTRIBUTE =
     "data-purchase-history-response";
@@ -733,6 +734,20 @@
         ) {
           this.dispatchEvent(
             new CustomEvent("guaurritas-member-login", {
+              detail: {},
+              bubbles: true,
+              composed: true,
+            }),
+          );
+          return;
+        }
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === MEMBER_LOGOUT_REQUEST_MESSAGE
+        ) {
+          this.dispatchEvent(
+            new CustomEvent("guaurritas-member-logout", {
               detail: {},
               bubbles: true,
               composed: true,
