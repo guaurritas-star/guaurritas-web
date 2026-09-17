@@ -306,56 +306,100 @@ textarea {
   box-shadow: 0 0 5px #84ff9d;
 }
 
+.desktop-os-account {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
 .desktop-os-member {
   display: inline-flex;
   height: 34px;
   flex: 0 0 auto;
   align-items: center;
-  gap: 7px;
   color: #fff;
   font-family: var(--font-open-sans), sans-serif;
   white-space: nowrap;
 }
 
 .desktop-os-member--login {
-  height: auto;
-  padding: 2px 3px;
-  border: 0;
-  background: transparent;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-shadow: 1px 1px 0 #172d78;
-  box-shadow: none;
+  gap: 7px;
+  padding: 3px 8px 3px 4px;
+  border: 1px solid rgba(151, 174, 244, 0.58);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(83, 112, 206, 0.42), rgba(22, 51, 137, 0.34));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.13);
+  color: #fff;
   cursor: pointer;
-  opacity: 0.94;
+  text-align: left;
 }
 
 .desktop-os-member--login:hover,
-.desktop-os-member--login:focus-visible {
-  background: transparent;
-  box-shadow: none;
+.desktop-os-member--login:focus-visible,
+.desktop-os-member--profile:hover,
+.desktop-os-member--profile:focus-visible {
+  border-color: rgba(210, 223, 255, 0.9);
+  background: linear-gradient(180deg, rgba(105, 135, 226, 0.6), rgba(25, 55, 148, 0.48));
+  box-shadow: inset 0 0 8px rgba(213, 226, 255, 0.24);
   outline: none;
-  opacity: 1;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
-.desktop-os-member--login:active {
+.desktop-os-member--login:active,
+.desktop-os-member--profile:active {
   transform: translateY(1px);
 }
 
+.desktop-os-member-login-icon {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  place-items: center;
+  border: 1px solid rgba(210, 222, 255, 0.66);
+  border-radius: 50%;
+  background: rgba(20, 48, 133, 0.42);
+  color: #fff;
+}
+
 .desktop-os-member-user-icon {
-  font-size: 15px;
+  width: 16px;
+  height: 16px;
+}
+
+.desktop-os-member-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.desktop-os-member-eyebrow {
+  color: #dbe5ff;
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
   line-height: 1;
+  text-transform: uppercase;
+}
+
+.desktop-os-member-login-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 #172d78;
 }
 
 .desktop-os-member--profile {
-  max-width: 138px;
-  padding: 0 8px 0 4px;
+  max-width: 166px;
+  gap: 7px;
+  padding: 2px 7px 2px 3px;
   border: 1px solid rgba(145, 167, 241, 0.72);
-  background: rgba(19, 49, 137, 0.35);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(83, 112, 206, 0.45), rgba(19, 49, 137, 0.38));
+  color: #fff;
+  cursor: pointer;
 }
 
 .desktop-os-member-avatar {
@@ -373,7 +417,11 @@ textarea {
   display: grid;
   place-items: center;
   color: #425bbc;
-  font-size: 15px;
+}
+
+.desktop-os-member-avatar--fallback .desktop-os-member-user-icon {
+  width: 15px;
+  height: 15px;
 }
 
 .desktop-os-member-name {
@@ -382,6 +430,120 @@ textarea {
   font-size: 10px;
   font-weight: 700;
   text-overflow: ellipsis;
+}
+
+.desktop-os-member-caret {
+  color: #dbe5ff;
+  font-size: 9px;
+}
+
+.desktop-os-member-menu {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 7px);
+  right: 0;
+  width: 250px;
+  overflow: hidden;
+  border: 2px solid #183477;
+  border-top-color: #91a7ee;
+  border-left-color: #91a7ee;
+  background: #edf4ff;
+  color: #1b2e62;
+  box-shadow: 4px 5px 0 rgba(18, 33, 84, 0.42), 0 12px 30px rgba(14, 30, 82, 0.24);
+}
+
+.desktop-os-member-menu-header {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #a8b8d7;
+  background: linear-gradient(135deg, #e8efff 0%, #f8edf2 100%);
+}
+
+.desktop-os-member-menu-kicker {
+  color: #6b78a2;
+  font-family: var(--font-open-sans), sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.desktop-os-member-menu-header strong {
+  overflow: hidden;
+  font-family: var(--font-cinzel), serif;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desktop-os-member-menu-actions {
+  display: grid;
+  gap: 2px;
+  padding: 5px;
+}
+
+.desktop-os-member-menu-item {
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  color: #1b2e62;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desktop-os-member-menu-item:hover,
+.desktop-os-member-menu-item:focus-visible {
+  border-color: #9aacda;
+  background: #dce8ff;
+  outline: none;
+}
+
+.desktop-os-member-menu-item:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.desktop-os-member-menu-icon {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border: 1px solid #9aacda;
+  border-radius: 50%;
+  background: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  box-shadow: 1px 1px 0 #bdc9e2;
+}
+
+.desktop-os-member-menu-item > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.desktop-os-member-menu-item strong {
+  font-family: var(--font-cinzel), serif;
+  font-size: 11px;
+}
+
+.desktop-os-member-menu-item small {
+  color: #667492;
+  font-family: var(--font-open-sans), sans-serif;
+  font-size: 9px;
+}
+
+.desktop-os-member-menu-item--logout {
+  border-top-color: #c8d3e9;
+}
+
+.desktop-os-member-menu-item--logout .desktop-os-member-menu-icon {
+  color: #8b4868;
 }
 
 .desktop-os-menu-toggle,
@@ -668,14 +830,27 @@ textarea {
     box-shadow: none;
   }
 
+  .desktop-os-account {
+    position: static;
+  }
+
   .desktop-os-member {
     height: 30px;
   }
 
   .desktop-os-member--login {
     gap: 4px;
-    padding: 1px 2px;
-    font-size: 8px;
+    padding: 2px 5px 2px 2px;
+  }
+
+  .desktop-os-member-login-icon {
+    width: 25px;
+    height: 25px;
+    flex-basis: 25px;
+  }
+
+  .desktop-os-member-eyebrow {
+    display: none;
   }
 
   .desktop-os-member-login-label {
@@ -683,15 +858,16 @@ textarea {
   }
 
   .desktop-os-member-login-label::after {
-    content: "Entrar";
+    content: attr(data-mobile-label);
     font-size: 8px;
   }
 
   .desktop-os-member--profile {
     max-width: none;
-    padding: 0;
-    border: 0;
-    background: transparent;
+    gap: 3px;
+    padding: 1px 4px 1px 1px;
+    border-color: rgba(145, 167, 241, 0.5);
+    background: rgba(19, 49, 137, 0.25);
   }
 
   .desktop-os-member-avatar {
@@ -702,6 +878,12 @@ textarea {
 
   .desktop-os-member-name {
     display: none;
+  }
+
+  .desktop-os-member-menu {
+    top: calc(100% + 5px);
+    right: 7px;
+    width: min(300px, calc(100vw - 14px));
   }
 
   .desktop-os-menu-toggle {
