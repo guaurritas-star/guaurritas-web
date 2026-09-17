@@ -8,6 +8,7 @@ const WIX_SOURCE = "guaurritas-wix";
 const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
 const MEMBER_STATE_REQUEST_MESSAGE = "guaurritas:member-state-request";
 const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
+const MEMBER_LOGOUT_REQUEST_MESSAGE = "guaurritas:member-logout-request";
 const PURCHASE_HISTORY_REQUEST_MESSAGE = "guaurritas:purchase-history-request";
 const PURCHASE_HISTORY_MESSAGE = "guaurritas:purchase-history";
 
@@ -132,6 +133,7 @@ const formatMoney = (amount: number | null, currency: string) => {
 export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
   const [member, setMember] = useState<WixMemberState | null>(null);
   const [history, setHistory] = useState<HistoryState>({ kind: "idle" });
+  const [authBusy, setAuthBusy] = useState(false);
   const requestIdRef = useRef(0);
 
   const requestHistory = useCallback(() => {
@@ -175,6 +177,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
           loggedIn,
           name: getText(message.name),
         });
+        setAuthBusy(false);
         if (loggedIn) {
           requestHistory();
         } else {
@@ -269,9 +272,19 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
   }, [history]);
 
   const requestLogin = () => {
-    if (window.self === window.top) return;
+    if (window.self === window.top || authBusy) return;
+    setAuthBusy(true);
     window.parent.postMessage(
       { source: WEB_SOURCE, type: MEMBER_LOGIN_REQUEST_MESSAGE },
+      "*",
+    );
+  };
+
+  const requestLogout = () => {
+    if (window.self === window.top || authBusy) return;
+    setAuthBusy(true);
+    window.parent.postMessage(
+      { source: WEB_SOURCE, type: MEMBER_LOGOUT_REQUEST_MESSAGE },
       "*",
     );
   };
@@ -289,32 +302,95 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
 
   if (!member.loggedIn) {
     return (
-      <section className="-m-4 min-h-[30rem] bg-[linear-gradient(145deg,#edf3fb_0%,#f9edf3_55%,#f7e3d5_100%)] p-5 sm:-m-6 sm:p-8">
-        <div className="mx-auto max-w-3xl border-2 border-[#425b8c] bg-[#fffaf7] shadow-[8px_8px_0_#a9b8d9]">
-          <div className="flex items-center justify-between border-b-2 border-[#425b8c] bg-[#dce4f2] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#425b8c]">
-            <span>Mi Mascota.exe</span>
-            <span>Privado</span>
+      <section className="-m-4 min-h-[34rem] overflow-hidden bg-[linear-gradient(145deg,#e8effb_0%,#f8edf3_52%,#f7e3d5_100%)] p-4 text-[#263650] sm:-m-6 sm:p-7">
+        <div className="mx-auto max-w-5xl overflow-hidden border-2 border-[#425b8c] bg-[#fffaf7] shadow-[8px_8px_0_#a9b8d9]">
+          <div className="flex items-center justify-between border-b-2 border-[#425b8c] bg-[linear-gradient(180deg,#5872c9,#425b8c)] px-4 py-2 text-white">
+            <div className="flex items-center gap-2">
+              <span className="text-base" aria-hidden="true">🐾</span>
+              <span className="font-title text-sm font-bold">Mi Mascota.exe</span>
+            </div>
+            <span className="border border-white/40 bg-white/10 px-2.5 py-1 font-mono text-[8px] font-bold uppercase tracking-[0.18em]">
+              Acceso privado
+            </span>
           </div>
-          <div className="p-6 sm:p-10">
-            <span className="text-5xl" aria-hidden="true">♡</span>
-            <h2 className="mt-4 font-title text-3xl text-[#263650] sm:text-4xl">
-              Tus compras también cuentan su historia
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#53627a] sm:text-base">
-              Inicia sesión con tu cuenta Guaurritas para ver tus pedidos reales,
-              encontrar lo que más le ha gustado a tu mascota y recibir sugerencias
-              basadas únicamente en tus compras.
-            </p>
-            <button
-              type="button"
-              onClick={requestLogin}
-              className="mt-7 border-2 border-[#263650] bg-[#425b8c] px-6 py-3 font-title text-sm font-bold uppercase tracking-[0.08em] text-white shadow-[4px_4px_0_#D9A689] transition active:translate-x-1 active:translate-y-1 active:shadow-none"
-            >
-              Iniciar sesión
-            </button>
-            <p className="mt-4 font-mono text-[10px] leading-5 text-[#71809a]">
-              No usamos el carrito ni productos vistos como si fueran compras.
-            </p>
+
+          <div className="grid lg:grid-cols-[0.82fr_1.18fr]">
+            <aside className="relative overflow-hidden border-b-2 border-[#425b8c] bg-[linear-gradient(145deg,#425b8c_0%,#6d7fb0_58%,#A66D88_100%)] p-6 text-white lg:border-b-0 lg:border-r-2 sm:p-8">
+              <span className="absolute -right-12 -top-12 h-40 w-40 rounded-full border border-white/20 bg-white/10" />
+              <span className="absolute -bottom-10 -left-8 h-32 w-32 rounded-full border border-[#f2cfbc]/30 bg-[#D9A689]/20" />
+
+              <div className="relative">
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.24em] text-[#fff2e9]">
+                  Archivo de bienestar
+                </p>
+                <div className="mt-6 border border-white/45 bg-white/10 p-5 shadow-[5px_5px_0_rgba(38,54,80,0.28)] backdrop-blur-sm">
+                  <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-white/70 bg-[#fff8f4] text-4xl shadow-[3px_3px_0_#263650]" aria-hidden="true">
+                    🐾
+                  </div>
+                  <p className="mt-5 font-title text-2xl">Su historia Guaurritas</p>
+                  <p className="mt-2 text-sm leading-6 text-[#eef3ff]">
+                    Un espacio que aprende de sus compras reales para ayudarte a consentir mejor.
+                  </p>
+                </div>
+
+                <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+                  {[
+                    ["✦", "Compras"],
+                    ["♡", "Favoritos"],
+                    ["⌁", "Ideas"],
+                  ].map(([icon, label]) => (
+                    <div key={label} className="border border-white/35 bg-[#263650]/20 px-2 py-3">
+                      <span className="block text-lg" aria-hidden="true">{icon}</span>
+                      <span className="mt-1 block font-mono text-[8px] font-bold uppercase tracking-wider">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            <div className="p-6 sm:p-9 lg:p-11">
+              <p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#A66D88]">
+                Tu cuenta · Su experiencia
+              </p>
+              <h2 className="mt-3 max-w-xl font-title text-3xl leading-tight sm:text-4xl">
+                Todo lo que tu mascota ama, en un solo lugar
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-[#53627a] sm:text-base">
+                Inicia sesión para convertir tus pedidos confirmados en un perfil útil:
+                qué han disfrutado más, qué podrían repetir y qué producto puede complementar su experiencia.
+              </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {[
+                  ["01", "Pedidos reales", "Solo compras confirmadas."],
+                  ["02", "Sus favoritos", "Lo que más han pedido."],
+                  ["03", "Recomendaciones", "Ideas basadas en su historial."],
+                ].map(([number, title, copy]) => (
+                  <article key={number} className="border border-[#b8c5df] bg-white p-3 shadow-[3px_3px_0_#dce4f2]">
+                    <span className="font-mono text-[9px] font-bold text-[#A66D88]">{number}</span>
+                    <h3 className="mt-1 font-title text-sm">{title}</h3>
+                    <p className="mt-1 text-[11px] leading-5 text-[#71809a]">{copy}</p>
+                  </article>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={requestLogin}
+                disabled={authBusy}
+                className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-3 border-2 border-[#263650] bg-[#425b8c] px-6 py-3 font-title text-sm font-bold uppercase tracking-[0.08em] text-white shadow-[4px_4px_0_#D9A689] transition hover:bg-[#354da9] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:cursor-wait disabled:opacity-70 sm:w-auto"
+              >
+                <span aria-hidden="true">{authBusy ? "◌" : "♙"}</span>
+                {authBusy ? "Abriendo acceso…" : "Iniciar sesión"}
+              </button>
+
+              <div className="mt-5 flex items-start gap-3 border-t border-[#d6ddeb] pt-4 text-[#71809a]">
+                <span className="font-mono text-[10px] font-bold text-[#588060]" aria-hidden="true">●</span>
+                <p className="font-mono text-[9px] leading-5">
+                  Acceso protegido por Wix. No usamos el carrito ni productos vistos como si fueran compras.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -329,9 +405,19 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#fff2e9]">
               Mi Mascota.exe · Centro privado
             </p>
-            <span className="border border-white/50 bg-white/10 px-3 py-1 font-mono text-[9px] uppercase tracking-wider">
-              Sesión protegida
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="hidden border border-white/50 bg-white/10 px-3 py-1 font-mono text-[9px] uppercase tracking-wider sm:inline-block">
+                Sesión protegida
+              </span>
+              <button
+                type="button"
+                onClick={requestLogout}
+                disabled={authBusy}
+                className="border border-white/60 bg-[#263650]/25 px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white transition hover:bg-[#263650]/45 disabled:cursor-wait disabled:opacity-60"
+              >
+                {authBusy ? "Cerrando…" : "Cerrar sesión"}
+              </button>
+            </div>
           </div>
           <h2 className="mt-3 font-title text-3xl sm:text-4xl">
             Hola{member.name ? `, ${member.name}` : ""}
