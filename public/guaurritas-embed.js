@@ -406,8 +406,11 @@
       const requestedProduct = new URLSearchParams(window.location.search).get(
         "product",
       );
-      if (requestedProduct === "guaurricookies") {
-        iframeSrc.searchParams.set("product", "guaurricookies");
+      if (
+        requestedProduct === "guaurricookies" ||
+        requestedProduct === "happy-bag"
+      ) {
+        iframeSrc.searchParams.set("product", requestedProduct);
       }
 
       iframe.src = iframeSrc.href;
