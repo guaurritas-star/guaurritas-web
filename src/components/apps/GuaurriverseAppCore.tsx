@@ -201,7 +201,14 @@ export default function GuaurriverseApp() {
       setSelectedWorldId(nextWorld);
     };
 
-    setActiveFulfillmentMode(getFulfillmentMode());
+    const requestedFulfillment = new URL(window.location.href).searchParams.get(
+      "fulfillment",
+    );
+    const initialFulfillment =
+      requestedFulfillment === "national" ? "national" : getFulfillmentMode();
+
+    setFulfillmentMode(initialFulfillment);
+    setActiveFulfillmentMode(initialFulfillment);
     syncWorld();
     window.addEventListener("popstate", syncWorld);
 
