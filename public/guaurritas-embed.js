@@ -379,7 +379,17 @@
       );
 
       const iframe = document.createElement("iframe");
-      iframe.src = this.getAttribute("data-src") || DEFAULT_SRC;
+      const iframeSrc = new URL(
+        this.getAttribute("data-src") || DEFAULT_SRC,
+        window.location.href,
+      );
+      const requestedApp = new URLSearchParams(window.location.search).get("app");
+
+      if (requestedApp === "mundos") {
+        iframeSrc.searchParams.set("app", "mundos");
+      }
+
+      iframe.src = iframeSrc.href;
       iframe.title = this.getAttribute("data-title") || "Guaurritas OS";
       iframe.loading = "eager";
       iframe.setAttribute("scrolling", "no");
