@@ -685,6 +685,15 @@ export default function Desktop() {
   );
 
   useEffect(() => {
+    const requestedApp = new URLSearchParams(window.location.search).get("app");
+
+    if (requestedApp === "mundos") {
+      setActiveApp("mundos");
+      setMinimizedApp(null);
+    }
+  }, []);
+
+  useEffect(() => {
     return () => {
       if (launchTimer.current) clearTimeout(launchTimer.current);
     };
