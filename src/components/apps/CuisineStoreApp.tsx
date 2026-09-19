@@ -769,6 +769,17 @@ export default function CuisineStoreApp({
   const cartOpeningRef = useRef(false);
   const { count: cartCount } = useCart();
 
+  useEffect(() => {
+    const requestedProduct = new URL(window.location.href).searchParams.get(
+      "product",
+    );
+
+    if (requestedProduct !== "guaurricookies") return;
+
+    const product = products.find((item) => item.id === requestedProduct);
+    if (product) setSelectedProduct(product);
+  }, []);
+
   const openCuisineCart = () => {
     // Both mobile entrances need the visible Wix viewport, not the tall iframe.
     if (window.self !== window.top && window.matchMedia("(max-width: 639px)").matches) {
