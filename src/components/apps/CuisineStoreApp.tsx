@@ -774,7 +774,11 @@ export default function CuisineStoreApp({
       "product",
     );
 
-    if (requestedProduct !== "guaurricookies") return;
+    if (
+      !["guaurricookies", "happy-bag"].includes(requestedProduct ?? "")
+    ) {
+      return;
+    }
 
     const product = products.find((item) => item.id === requestedProduct);
     if (product) setSelectedProduct(product);
