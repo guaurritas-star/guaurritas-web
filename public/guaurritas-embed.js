@@ -389,6 +389,27 @@
         iframeSrc.searchParams.set("app", "mundos");
       }
 
+      const requestedWorld = new URLSearchParams(window.location.search).get(
+        "world",
+      );
+      if (requestedWorld === "cuisine") {
+        iframeSrc.searchParams.set("world", "cuisine");
+      }
+
+      const requestedFulfillment = new URLSearchParams(
+        window.location.search,
+      ).get("fulfillment");
+      if (requestedFulfillment === "national") {
+        iframeSrc.searchParams.set("fulfillment", "national");
+      }
+
+      const requestedProduct = new URLSearchParams(window.location.search).get(
+        "product",
+      );
+      if (requestedProduct === "guaurricookies") {
+        iframeSrc.searchParams.set("product", "guaurricookies");
+      }
+
       iframe.src = iframeSrc.href;
       iframe.title = this.getAttribute("data-title") || "Guaurritas OS";
       iframe.loading = "eager";
