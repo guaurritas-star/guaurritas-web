@@ -263,8 +263,29 @@ textarea {
 }
 
 .desktop-os-nav-group:hover > .desktop-os-dropdown,
-.desktop-os-nav-group:focus-within > .desktop-os-dropdown {
+.desktop-os-nav-group:focus-within > .desktop-os-dropdown,
+.desktop-os-nav-group.is-open > .desktop-os-dropdown {
   display: grid;
+}
+
+.global-wix-header-shell {
+  min-height: 100dvh;
+  overflow: visible;
+  background: transparent;
+}
+
+.global-wix-header-shell,
+html:has(.global-wix-header-shell),
+body:has(.global-wix-header-shell) {
+  background: transparent !important;
+}
+
+body:has(.global-wix-header-shell) {
+  overflow: hidden;
+}
+
+.global-wix-header {
+  width: 100%;
 }
 
 .desktop-os-dropdown a {
