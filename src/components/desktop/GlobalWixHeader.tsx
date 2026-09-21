@@ -215,13 +215,10 @@ function WixMemberAccess({
 export default function GlobalWixHeader() {
   const [openMenu, setOpenMenu] = useState<HeaderMenu>(null);
   const isExpandedFrame = useRef(false);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   const changeMenu = useCallback((menu: HeaderMenu) => {
     setOpenMenu(menu);
-    window.parent.postMessage(
-      { type: "headerDropdownState", open: menu !== null, menuId: menu },
-      "*",
-    );
   }, []);
 
   const handleAccountMenuChange = useCallback(
@@ -230,6 +227,11 @@ export default function GlobalWixHeader() {
   );
 
   useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    root.classList.add("global-wix-header-document");
+    body.classList.add("global-wix-header-document");
+
     isExpandedFrame.current =
       new URLSearchParams(window.location.search).get("mode") === "expanded";
 
@@ -245,11 +247,69 @@ export default function GlobalWixHeader() {
     };
 
     window.addEventListener("message", handleParentMessage);
-    return () => window.removeEventListener("message", handleParentMessage);
+    return () => {
+      window.removeEventListener("message", handleParentMessage);
+      root.classList.remove("global-wix-header-document");
+      body.classList.remove("global-wix-header-document");
+    };
   }, []);
 
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    let animationFrame = 0;
+    let resizeObserver: ResizeObserver | null = null;
+
+    const getOpenPanel = () => {
+      if (openMenu === "pages") {
+        return header.querySelector<HTMLElement>(".desktop-os-dropdown-pages");
+      }
+      if (openMenu === "mobile") {
+        return header.querySelector<HTMLElement>(".desktop-os-mobile-menu");
+      }
+      if (openMenu === "account") {
+        return header.querySelector<HTMLElement>(".desktop-os-member-menu");
+      }
+      return null;
+    };
+
+    const reportHeight = () => {
+      const baseHeight = window.matchMedia("(max-width: 900px)").matches ? 46 : 50;
+      const panel = getOpenPanel();
+      const panelBottom = panel?.getBoundingClientRect().bottom ?? baseHeight;
+      const height = openMenu ? Math.ceil(Math.max(baseHeight, panelBottom + 7)) : baseHeight;
+
+      window.parent.postMessage(
+        {
+          type: "headerDropdownState",
+          open: openMenu !== null,
+          menuId: openMenu,
+          height,
+        },
+        "*",
+      );
+    };
+
+    animationFrame = window.requestAnimationFrame(() => {
+      reportHeight();
+      const panel = getOpenPanel();
+      if (panel && "ResizeObserver" in window) {
+        resizeObserver = new ResizeObserver(reportHeight);
+        resizeObserver.observe(panel);
+      }
+    });
+
+    window.addEventListener("resize", reportHeight);
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", reportHeight);
+    };
+  }, [openMenu]);
+
   return (
-    <header className="desktop-os-header global-wix-header">
+    <header ref={headerRef} className="desktop-os-header global-wix-header">
       <WixPageLink href={wixPages.home} className="desktop-os-brand">
         <span className="desktop-os-brand-mascot" aria-hidden="true">
           <Image
