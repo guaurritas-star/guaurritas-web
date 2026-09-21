@@ -687,8 +687,8 @@ export default function Desktop() {
   useEffect(() => {
     const requestedApp = new URLSearchParams(window.location.search).get("app");
 
-    if (requestedApp === "mundos") {
-      setActiveApp("mundos");
+    if (requestedApp && apps.some((app) => app.id === requestedApp)) {
+      setActiveApp(requestedApp);
       setMinimizedApp(null);
     }
   }, []);

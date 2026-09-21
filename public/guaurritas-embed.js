@@ -385,8 +385,17 @@
       );
       const requestedApp = new URLSearchParams(window.location.search).get("app");
 
-      if (requestedApp === "mundos") {
-        iframeSrc.searchParams.set("app", "mundos");
+      const supportedApps = new Set([
+        "mundos",
+        "mascota",
+        "paint",
+        "notas",
+        "robbie",
+        "chat",
+        "distribuidores",
+      ]);
+      if (requestedApp && supportedApps.has(requestedApp)) {
+        iframeSrc.searchParams.set("app", requestedApp);
       }
 
       const requestedWorld = new URLSearchParams(window.location.search).get(
