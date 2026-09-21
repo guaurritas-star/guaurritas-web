@@ -280,6 +280,12 @@ body:has(.global-wix-header-shell) {
   background: transparent !important;
 }
 
+html.global-wix-header-document,
+body.global-wix-header-document {
+  background: transparent !important;
+  color-scheme: light;
+}
+
 body:has(.global-wix-header-shell) {
   overflow: hidden;
 }
