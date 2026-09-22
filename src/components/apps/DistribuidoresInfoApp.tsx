@@ -32,10 +32,11 @@ const bandanas = [["Mini", 219], ["Chica", 279], ["Mediana", 329], ["Grande", 37
 const money = (amount: number) => `$${amount.toFixed(2)} MXN`;
 
 const distributorCarouselProducts = [
-  { name: "Happy Bag", image: "/cuisine/products/happy-bag-transparent.png", width: 199, height: 320 },
+  { name: "Happy Bag · Cacahuate con tocino", image: "/cuisine/products/happy-bag-flavors-v4/peanut-bacon.png", width: 1056, height: 2088 },
   { name: "GuaurriCookies en vitrolero", image: "/cuisine/products/guaurricookies-vitrolero.webp", width: 1086, height: 1448 },
   { name: "Sazonadores pet", image: "/cuisine/products/sazonadores-card-v3.webp", width: 900, height: 584 },
   { name: "GuaurriSticks", image: "/cuisine/products/sticks-card-v5.webp", width: 412, height: 1473 },
+  { name: "Bandana Amulette Ciel", image: "/couture/bandanas/amulette-ciel-transparent.png", width: 1391, height: 1131 },
 ] as const;
 
 export default function DistribuidoresInfoApp() {
@@ -117,7 +118,7 @@ export default function DistribuidoresInfoApp() {
         <p className="border-t border-[#9aabd0] bg-[#dce9f7] px-4 py-2 text-center font-mono text-[9px] font-bold uppercase tracking-[.14em] text-[#294779]">Ideal para tiendas pet&nbsp; · &nbsp;veterinarias&nbsp; · &nbsp;concept stores</p>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-12 sm:mt-14">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#7b8493]">Razones para integrarnos</p><h2 className="font-display text-2xl text-[#425b8c] sm:text-3xl">Lo que Guaurritas aporta a tu punto de venta</h2></div><span className="rounded-full bg-[#d9a6b9] px-3 py-1 font-mono text-[9px] font-bold uppercase text-[#3a2030]">Valor para tu negocio</span></div>
         <div className="grid gap-3 lg:grid-cols-3">
           {benefits.map((item) => (
