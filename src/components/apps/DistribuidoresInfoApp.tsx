@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { withBasePath } from "@/lib/base-path";
 
 const whatsapp = "https://wa.me/524775505243?text=Hola%20Guaurritas%2C%20me%20interesa%20conocer%20la%20propuesta%20para%20distribuidores.%20Mi%20negocio%20es%3A%20";
@@ -30,7 +31,19 @@ const products = [
 const bandanas = [["Mini", 219], ["Chica", 279], ["Mediana", 329], ["Grande", 379], ["XL", 439]] as const;
 const money = (amount: number) => `$${amount.toFixed(2)} MXN`;
 
+const distributorCarouselProducts = [
+  { name: "Happy Bag", image: "/cuisine/products/happy-bag-transparent.png", width: 199, height: 320 },
+  { name: "GuaurriCookies en vitrolero", image: "/cuisine/products/guaurricookies-vitrolero.webp", width: 1086, height: 1448 },
+  { name: "Sazonadores pet", image: "/cuisine/products/sazonadores-card-v3.webp", width: 900, height: 584 },
+  { name: "GuaurriSticks", image: "/cuisine/products/sticks-card-v5.webp", width: 412, height: 1473 },
+] as const;
+
 export default function DistribuidoresInfoApp() {
+  const [activeProductIndex, setActiveProductIndex] = useState(0);
+  const activeProduct = distributorCarouselProducts[activeProductIndex];
+  const showPreviousProduct = () => setActiveProductIndex((current) => (current - 1 + distributorCarouselProducts.length) % distributorCarouselProducts.length);
+  const showNextProduct = () => setActiveProductIndex((current) => (current + 1) % distributorCarouselProducts.length);
+
   return (
     <article className="mx-auto w-full max-w-6xl text-[#20283b]">
       <section className="relative overflow-hidden border-2 border-[#425b8c] bg-[#fff9f4] shadow-[6px_6px_0_#d9a6b9] sm:shadow-[9px_9px_0_#d9a6b9]">
@@ -60,13 +73,29 @@ export default function DistribuidoresInfoApp() {
             <div className="absolute inset-x-[7%] bottom-8 top-[22%] rounded-[28px] border-2 border-[#b97b67] bg-[#d99a72] shadow-[10px_12px_0_rgba(66,91,140,.18)]">
               <div className="absolute inset-x-0 top-0 h-[34%] rounded-t-[25px] border-b-2 border-[#b97b67] bg-[#edbb98]" />
               <Image src={withBasePath("/icons/desktop/guaurritas-mascot-hd.webp")} alt="Mascota de Guaurritas" width={150} height={150} className="absolute left-1/2 top-[3%] z-10 w-[88px] -translate-x-1/2 sm:w-[112px]" />
-              <p className="absolute inset-x-3 top-[27%] z-10 text-center font-mono text-[9px] font-bold uppercase tracking-[.12em] text-[#294779]">Buenos snacks · grandes historias</p>
 
-              <Image src={withBasePath("/cuisine/products/happy-bag-transparent.png")} alt="Happy Bag Guaurritas" width={199} height={320} className="absolute bottom-[8%] left-[3%] z-20 h-[48%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.22)] sm:left-[6%] sm:h-[55%]" />
-              <Image src={withBasePath("/cuisine/products/guaurricookies-vitrolero.webp")} alt="Vitrolero de GuaurriCookies" width={1086} height={1448} className="absolute bottom-[7%] left-[29%] z-30 h-[47%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.24)] sm:left-[30%] sm:h-[53%]" />
-              <Image src={withBasePath("/cuisine/products/sazonadores.webp")} alt="Sazonador Guaurritas" width={675} height={900} className="absolute bottom-[8%] right-[20%] z-20 h-[44%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.22)] sm:h-[50%]" />
-              <Image src={withBasePath("/cuisine/products/sticks.webp")} alt="GuaurriSticks" width={506} height={900} className="absolute bottom-[8%] right-[3%] z-10 h-[43%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.22)] sm:right-[5%] sm:h-[49%]" />
-              <span className="absolute bottom-2 left-1/2 z-40 -translate-x-1/2 whitespace-nowrap font-mono text-[8px] font-bold uppercase tracking-[.12em] text-[#263f70] sm:text-[10px]">Selección real Guaurritas</span>
+              <div className="absolute inset-x-2 bottom-[13%] top-[34%] z-20 flex items-center justify-center px-12 sm:inset-x-5 sm:px-16" aria-live="polite">
+                <Image
+                  key={activeProduct.image}
+                  src={withBasePath(activeProduct.image)}
+                  alt={activeProduct.name}
+                  width={activeProduct.width}
+                  height={activeProduct.height}
+                  className="distributor-product-enter max-h-full max-w-full object-contain drop-shadow-[0_10px_6px_rgba(42,48,63,.24)]"
+                />
+              </div>
+
+              <button type="button" onClick={showPreviousProduct} aria-label="Ver producto anterior" className="absolute left-2 top-[62%] z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border-2 border-[#425b8c] bg-[#fffaf3]/95 font-display text-2xl text-[#425b8c] shadow-[3px_3px_0_#d9a6b9] transition-transform hover:-translate-x-0.5 hover:-translate-y-1/2 active:scale-95 sm:left-4 sm:h-12 sm:w-12">‹</button>
+              <button type="button" onClick={showNextProduct} aria-label="Ver siguiente producto" className="absolute right-2 top-[62%] z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border-2 border-[#425b8c] bg-[#fffaf3]/95 font-display text-2xl text-[#425b8c] shadow-[3px_3px_0_#d9a6b9] transition-transform hover:translate-x-0.5 hover:-translate-y-1/2 active:scale-95 sm:right-4 sm:h-12 sm:w-12">›</button>
+
+              <div className="absolute inset-x-3 bottom-3 z-30 text-center sm:bottom-4">
+                <p className="font-display text-base text-[#263f70] sm:text-lg">{activeProduct.name}</p>
+                <div className="mt-1.5 flex justify-center gap-1.5" aria-label={`Producto ${activeProductIndex + 1} de ${distributorCarouselProducts.length}`}>
+                  {distributorCarouselProducts.map((product, index) => (
+                    <button key={product.name} type="button" onClick={() => setActiveProductIndex(index)} aria-label={`Ver ${product.name}`} aria-current={index === activeProductIndex ? "true" : undefined} className={`h-2 rounded-full border border-[#425b8c] transition-all ${index === activeProductIndex ? "w-6 bg-[#425b8c]" : "w-2 bg-[#fffaf3]"}`} />
+                  ))}
+                </div>
+              </div>
             </div>
             <span className="absolute bottom-5 right-4 rotate-6 text-2xl text-[#e592a4]">✦</span>
             <span className="absolute left-4 top-1/2 -rotate-12 text-3xl text-[#e4c56d]">✦</span>
