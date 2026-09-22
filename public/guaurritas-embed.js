@@ -4,6 +4,7 @@
   const ALLOWED_ORIGIN = "https://guaurritas-star.github.io";
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
+  const READY_MESSAGE = "guaurritas:ready";
   const CHECKOUT_MESSAGE = "guaurritas:checkout";
   const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
   const CUISINE_UI_MESSAGE = "guaurritas:cuisine-ui";
@@ -54,6 +55,7 @@
       this._desktopOverflowStyle = null;
       this._pageScrollState = null;
       this._purchaseHistoryPayload = null;
+      this._loadingTimers = [];
       this._shadow = this.attachShadow({ mode: "open" });
     }
 
@@ -246,6 +248,114 @@
           overflow: visible;
         }
 
+        .guaurritas-boot-screen {
+          position: absolute;
+          inset: 0;
+          z-index: 2147483600;
+          display: grid;
+          min-height: 100dvh;
+          place-items: center;
+          box-sizing: border-box;
+          padding: 22px;
+          background:
+            radial-gradient(circle at 18% 16%, rgba(255,255,255,.72), transparent 28%),
+            linear-gradient(145deg, #eef4ff 0%, #fffaf6 48%, #f5dce4 100%);
+          opacity: 1;
+          visibility: visible;
+          transition: opacity 240ms ease, visibility 240ms ease;
+        }
+
+        .guaurritas-boot-screen.is-complete {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+
+        .guaurritas-boot-window {
+          width: min(430px, calc(100vw - 42px));
+          border: 2px solid #213d82;
+          background: #f7f7f5;
+          box-shadow: 7px 8px 0 rgba(54, 72, 122, .22);
+          color: #17264c;
+        }
+
+        .guaurritas-boot-titlebar {
+          padding: 10px 14px;
+          border-bottom: 2px solid #213d82;
+          background: linear-gradient(180deg, #4d69c7 0%, #29459f 100%);
+          color: white;
+          font: 700 15px/1.2 Georgia, "Times New Roman", serif;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+        }
+
+        .guaurritas-boot-body {
+          display: grid;
+          justify-items: center;
+          gap: 16px;
+          padding: 28px 24px 24px;
+          text-align: center;
+        }
+
+        .guaurritas-boot-logo {
+          width: 112px;
+          height: 112px;
+          object-fit: contain;
+        }
+
+        .guaurritas-boot-copy {
+          margin: 0;
+          font: 700 18px/1.35 "Courier New", monospace;
+        }
+
+        .guaurritas-boot-progress-row {
+          display: grid;
+          width: 100%;
+          grid-template-columns: minmax(0, 1fr) 48px;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .guaurritas-boot-track {
+          height: 24px;
+          padding: 3px;
+          border: 2px inset #b9bfd0;
+          background: #e8e8e8;
+          box-sizing: border-box;
+        }
+
+        .guaurritas-boot-progress {
+          display: block;
+          width: 4%;
+          height: 100%;
+          background: linear-gradient(90deg, #174bc5, #2779ee);
+          transition: width 180ms ease-out;
+        }
+
+        .guaurritas-boot-percent {
+          font: 700 16px/1 "Courier New", monospace;
+          text-align: right;
+        }
+
+        @media (max-width: 639px) {
+          .guaurritas-boot-window {
+            width: min(360px, calc(100vw - 32px));
+          }
+
+          .guaurritas-boot-body {
+            padding: 24px 18px 22px;
+          }
+
+          .guaurritas-boot-logo {
+            width: 96px;
+            height: 96px;
+          }
+
+          .guaurritas-boot-copy {
+            font-size: 16px;
+          }
+        }
+
         iframe {
           display: block;
           width: 100%;
@@ -344,6 +454,80 @@
       const wrapper = document.createElement("div");
       wrapper.className = "guaurritas-frame-wrap";
 
+      const bootScreen = document.createElement("div");
+      bootScreen.className = "guaurritas-boot-screen";
+      bootScreen.setAttribute("role", "status");
+      bootScreen.setAttribute("aria-live", "polite");
+      bootScreen.setAttribute("aria-label", "Cargando Guaurritas");
+      bootScreen.innerHTML = `
+        <div class="guaurritas-boot-window">
+          <div class="guaurritas-boot-titlebar">Guaurritas.exe</div>
+          <div class="guaurritas-boot-body">
+            <img class="guaurritas-boot-logo" alt="" aria-hidden="true">
+            <p class="guaurritas-boot-copy">Iniciando Guaurriverse…</p>
+            <div class="guaurritas-boot-progress-row">
+              <div class="guaurritas-boot-track"><span class="guaurritas-boot-progress"></span></div>
+              <span class="guaurritas-boot-percent">4%</span>
+            </div>
+          </div>
+        </div>`;
+
+      const bootLogo = bootScreen.querySelector(".guaurritas-boot-logo");
+      const bootProgress = bootScreen.querySelector(".guaurritas-boot-progress");
+      const bootPercent = bootScreen.querySelector(".guaurritas-boot-percent");
+      bootLogo.src = new URL(
+        "icons/desktop/guaurritas-mascot-hd.webp",
+        this.getAttribute("data-src") || DEFAULT_SRC,
+      ).href;
+
+      const loadingStartedAt = performance.now();
+      let storedEstimate = NaN;
+      try {
+        storedEstimate = Number(
+          window.localStorage.getItem("guaurritas-load-estimate-ms"),
+        );
+      } catch {}
+      const loadingEstimate = Number.isFinite(storedEstimate)
+        ? Math.min(6000, Math.max(900, storedEstimate))
+        : 2200;
+      let loadingComplete = false;
+
+      const setLoadingProgress = (value) => {
+        const safeValue = Math.max(4, Math.min(100, Math.round(value)));
+        bootProgress.style.width = `${safeValue}%`;
+        bootPercent.textContent = `${safeValue}%`;
+      };
+
+      const progressTimer = window.setInterval(() => {
+        const elapsed = performance.now() - loadingStartedAt;
+        const projected = 4 + 88 * (1 - Math.exp(-elapsed / loadingEstimate));
+        setLoadingProgress(Math.min(92, projected));
+      }, 120);
+      this._loadingTimers.push(progressTimer);
+
+      const finishLoading = () => {
+        if (loadingComplete) return;
+        loadingComplete = true;
+        window.clearInterval(progressTimer);
+        const elapsed = performance.now() - loadingStartedAt;
+        const previousEstimate = Number.isFinite(storedEstimate)
+          ? storedEstimate
+          : elapsed;
+        const nextEstimate = Math.round(previousEstimate * 0.65 + elapsed * 0.35);
+        try {
+          window.localStorage.setItem(
+            "guaurritas-load-estimate-ms",
+            String(Math.min(6000, Math.max(900, nextEstimate))),
+          );
+        } catch {}
+        setLoadingProgress(100);
+        const hideTimer = window.setTimeout(() => {
+          bootScreen.classList.add("is-complete");
+          bootScreen.setAttribute("aria-hidden", "true");
+        }, 220);
+        this._loadingTimers.push(hideTimer);
+      };
+
       const mobileCuisineSticky = document.createElement("div");
       mobileCuisineSticky.className = "guaurritas-mobile-cuisine-sticky";
       mobileCuisineSticky.setAttribute("aria-hidden", "true");
@@ -431,6 +615,7 @@
       iframe.style.setProperty("height", "100dvh", "important");
 
       wrapper.appendChild(iframe);
+      wrapper.append(bootScreen);
       this._shadow.append(style, mobileCuisineSticky, wrapper);
       this._iframe = iframe;
       this._wrapper = wrapper;
@@ -438,6 +623,9 @@
       iframe.addEventListener("load", () => {
         this._forwardMemberState();
       });
+
+      const loadingFallback = window.setTimeout(finishLoading, 10000);
+      this._loadingTimers.push(loadingFallback);
 
       let cuisineReturnPosition = null;
 
@@ -770,6 +958,14 @@
         }
 
         if (!message || typeof message !== "object") return;
+
+        if (
+          message.source === BRIDGE_SOURCE &&
+          message.type === READY_MESSAGE
+        ) {
+          finishLoading();
+          return;
+        }
 
         if (
           message.source === BRIDGE_SOURCE &&
@@ -1170,6 +1366,12 @@
       if (this._desktopOverflowStyle) {
         this._desktopOverflowStyle.remove();
       }
+
+      this._loadingTimers.forEach((timer) => {
+        window.clearTimeout(timer);
+        window.clearInterval(timer);
+      });
+      this._loadingTimers = [];
 
       this._messageHandler = null;
       this._viewportResizeHandler = null;

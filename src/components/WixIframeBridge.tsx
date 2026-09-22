@@ -5,6 +5,7 @@ import { useEffect } from "react";
 const BRIDGE_SOURCE = "guaurritas-web";
 const HEIGHT_MESSAGE = "guaurritas:height";
 const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
+const READY_MESSAGE = "guaurritas:ready";
 const MOBILE_BREAKPOINT = 639;
 
 function getDesktopDocumentHeight() {
@@ -271,6 +272,43 @@ export default function WixIframeBridge() {
     enviarAltura();
     syncCheckoutScrollLock();
 
+    let readyCancelled = false;
+    const notifyReady = async () => {
+      try {
+        await new Promise<void>((resolve) => {
+          window.requestAnimationFrame(() =>
+            window.requestAnimationFrame(() => resolve()),
+          );
+        });
+        await document.fonts?.ready;
+        const pendingImages = Array.from(document.images)
+          .filter((image) => !image.complete)
+          .map(
+            (image) =>
+              new Promise<void>((resolve) => {
+                const finish = () => resolve();
+                image.addEventListener("load", finish, { once: true });
+                image.addEventListener("error", finish, { once: true });
+              }),
+          );
+        await Promise.race([
+          Promise.all(pendingImages),
+          new Promise<void>((resolve) => window.setTimeout(resolve, 7000)),
+        ]);
+      } finally {
+        if (readyCancelled) return;
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            window.parent.postMessage(
+              { source: BRIDGE_SOURCE, type: READY_MESSAGE },
+              "*",
+            );
+          });
+        });
+      }
+    };
+    void notifyReady();
+
     const delayedMeasurements = [
       window.setTimeout(handleViewportChange, 100),
       window.setTimeout(handleViewportChange, 400),
@@ -278,6 +316,7 @@ export default function WixIframeBridge() {
     ];
 
     return () => {
+      readyCancelled = true;
       if (pageScrollLocked) {
         window.parent.postMessage(
           {
