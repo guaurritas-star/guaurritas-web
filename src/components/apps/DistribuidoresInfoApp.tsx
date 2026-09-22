@@ -32,11 +32,11 @@ const bandanas = [["Mini", 219], ["Chica", 279], ["Mediana", 329], ["Grande", 37
 const money = (amount: number) => `$${amount.toFixed(2)} MXN`;
 
 const distributorCarouselProducts = [
-  { name: "Happy Bag · Cacahuate con tocino", image: "/cuisine/products/happy-bag-flavors-v4/peanut-bacon.png", width: 1056, height: 2088 },
+  { name: "Happy Bag · Cacahuate con tocino", image: "/cuisine/products/happy-bag-flavors-v6/peanut-bacon.webp", width: 852, height: 1729 },
   { name: "GuaurriCookies en vitrolero", image: "/cuisine/products/guaurricookies-vitrolero.webp", width: 1086, height: 1448 },
   { name: "Sazonadores pet", image: "/cuisine/products/sazonadores-card-v3.webp", width: 900, height: 584 },
   { name: "GuaurriSticks", image: "/cuisine/products/sticks-card-v5.webp", width: 412, height: 1473 },
-  { name: "Bandana Amulette Ciel", image: "/couture/bandanas/amulette-ciel-transparent.png", width: 1391, height: 1131 },
+  { name: "Bandana Amulette Ciel", image: "/couture/bandanas/amulette-ciel-transparent-v3.webp", width: 1100, height: 894 },
 ] as const;
 
 export default function DistribuidoresInfoApp() {
