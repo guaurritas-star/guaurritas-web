@@ -2073,6 +2073,27 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 }
 
+@keyframes distributor-product-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.distributor-product-enter {
+  animation: distributor-product-enter 320ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .distributor-product-enter {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cuisine-cart-trigger:active .cuisine-cart-trigger-icon,
   .cuisine-cart-trigger--opening .cuisine-cart-trigger-icon,
