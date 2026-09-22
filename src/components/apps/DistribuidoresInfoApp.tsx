@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 const whatsapp = "https://wa.me/524775505243?text=Hola%20Guaurritas%2C%20me%20interesa%20conocer%20la%20propuesta%20para%20distribuidores.%20Mi%20negocio%20es%3A%20";
 const email = "https://mail.google.com/mail/?view=cm&fs=1&to=guaurritas@gmail.com&su=Quiero%20distribuir%20Guaurritas&body=Hola%20Guaurritas%2C%0A%0AMe%20interesa%20conocer%20su%20propuesta%20para%20distribuidores.%0A%0ANombre%20del%20negocio%3A%0ACiudad%3A%0ATipo%20de%20negocio%3A%0AProductos%20de%20interes%3A%0AVolumen%20aproximado%3A%0A";
 
@@ -30,47 +32,62 @@ const money = (amount: number) => `$${amount.toFixed(2)} MXN`;
 export default function DistribuidoresInfoApp() {
   return (
     <article className="mx-auto w-full max-w-6xl text-[#20283b]">
-      <section className="relative overflow-hidden border-2 border-[#425b8c] bg-[#edf3ff] shadow-[6px_6px_0_#d9a6b9] sm:shadow-[9px_9px_0_#d9a6b9]">
+      <section className="relative overflow-hidden border-2 border-[#425b8c] bg-[#fff9f4] shadow-[6px_6px_0_#d9a6b9] sm:shadow-[9px_9px_0_#d9a6b9]">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#425b8c] bg-[#425b8c] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white sm:px-6 sm:text-xs">
-          <span>Guaurritas Partner Portal</span>
-          <span className="rounded-full border border-white/70 bg-[#d9a6b9] px-3 py-1 text-[#3a2030]">● Nuevos aliados</span>
+          <span className="flex items-center gap-2"><span className="text-[#eab0bd]">●</span> Guaurritas Partner Portal</span>
+          <span className="hidden font-interface text-[10px] normal-case tracking-wide text-[#fff7ef] sm:inline">Más mascotas felices, más historias juntas ♡</span>
+          <span className="rounded-full border border-white/70 bg-[#d9a6b9] px-3 py-1 text-[#3a2030]">Programa para distribuidores</span>
         </div>
-        <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full border-[42px] border-white/30" aria-hidden="true" />
 
-        <div className="relative grid gap-5 p-4 sm:p-7 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)] lg:gap-7">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#425b8c] bg-white px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[.15em] text-[#425b8c]"><span className="h-2 w-2 rounded-full bg-[#e4c56d]" />Programa de distribución</div>
-            <h1 className="mt-4 max-w-3xl font-display text-3xl leading-[1.05] text-[#425b8c] sm:text-5xl lg:text-[3.5rem]">Lleva una experiencia pet diferente a tu negocio</h1>
-            <p className="mt-4 max-w-2xl font-interface text-sm leading-7 text-[#47556d] sm:text-base">Más que sumar otro producto al anaquel, distribuyes una marca que entra en la vida pet diaria: lo que comen, lo que usan, lo que viven y lo que aprenden.</p>
+        <div className="relative grid lg:grid-cols-[minmax(0,.9fr)_minmax(430px,1.1fr)]">
+          <div className="relative z-10 flex flex-col justify-center px-5 py-7 sm:px-9 sm:py-10 lg:pr-5">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#425b8c] bg-white px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[.15em] text-[#425b8c]"><span className="h-2 w-2 rounded-full bg-[#e4c56d]" />Programa de distribución</div>
+            <h1 className="mt-5 max-w-2xl font-display text-[2.45rem] leading-[1.02] text-[#263f70] sm:text-5xl lg:text-[3.45rem]">Haz crecer tu negocio con una experiencia pet diferente</h1>
+            <span className="mt-2 h-[5px] w-44 -rotate-1 rounded-full bg-[#e9a6b3]" aria-hidden="true" />
+            <p className="mt-5 max-w-xl font-interface text-sm leading-6 text-[#52627d] sm:text-base sm:leading-7">Premios, snacks y complementos que entran en la vida pet diaria y hacen que tus clientes quieran volver.</p>
 
-            <div className="mt-6 grid grid-cols-2 gap-2 font-mono text-[10px] sm:grid-cols-4 sm:text-xs">
-              {[["Ideal para", "Tiendas pet"], ["También para", "Veterinarias"], ["Oportunidad", "Recompra"], ["Diferenciador", "Personalización"]].map(([label, value]) => (
-                <div key={label} className="min-h-20 rounded-xl border border-[#9aabd0] bg-white/85 p-3 shadow-[2px_2px_0_#c9d6ec]"><p className="uppercase tracking-[.12em] text-[#7a8391]">{label}</p><p className="mt-2 font-bold leading-4 text-[#263650]">{value}</p></div>
-              ))}
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              <a href="#beneficios-distribucion" className="rounded-full border-2 border-[#425b8c] bg-[#425b8c] px-5 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[.1em] text-white shadow-[3px_3px_0_#d9a6b9] sm:text-xs">Descubrir beneficios</a>
-              <a href="#catalogo-distribucion" className="rounded-full border-2 border-[#425b8c] bg-white px-5 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[.1em] text-[#425b8c] sm:text-xs">Ver catálogo</a>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <a href={whatsapp} target="_blank" rel="noreferrer" className="rounded-full border-2 border-[#425b8c] bg-[#425b8c] px-6 py-3 text-center font-display text-sm uppercase tracking-[.08em] text-white shadow-[3px_3px_0_#d9a6b9] transition-transform hover:-translate-y-0.5">Quiero distribuir&nbsp; →</a>
+              <a href="#catalogo-distribucion" className="rounded-full border-2 border-[#425b8c] bg-white px-6 py-3 text-center font-display text-sm uppercase tracking-[.08em] text-[#425b8c] transition-colors hover:bg-[#edf3ff]">Ver productos&nbsp; →</a>
             </div>
           </div>
 
-          <aside className="rounded-[24px] border-2 border-[#425b8c] bg-[#263650] p-3 shadow-[6px_6px_0_#e4c56d]">
-            <div className="flex items-center justify-between border-b border-white/30 px-2 pb-3 font-mono text-[9px] uppercase tracking-[.14em] text-white"><span>Tu ruta de entrada</span><span>01 / 03</span></div>
-            <div className="mt-3 space-y-3">
-              {[["01","Empieza ligero","Prueba una selección de fácil exhibición."],["02","Mide la respuesta","Descubre qué conecta con tus clientes."],["03","Hazla crecer","Suma recompra, regalos y personalización."]].map(([step,title,text]) => (
-                <div key={step} className="grid grid-cols-[42px_1fr] gap-3 rounded-2xl border border-white/20 bg-white/10 p-3 text-white">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#d9a6b9] font-display text-lg text-[#3a2030]">{step}</span>
-                  <div><h2 className="font-interface text-sm font-bold">{title}</h2><p className="mt-1 font-interface text-[11px] leading-5 text-[#dce4f2]">{text}</p></div>
-                </div>
-              ))}
+          <div className="relative min-h-[410px] overflow-hidden border-t-2 border-[#e6bec7] bg-[radial-gradient(circle_at_80%_15%,#fff8df_0,transparent_24%),linear-gradient(145deg,#f8d8cf_0%,#f7e8de_52%,#dce9f7_100%)] sm:min-h-[500px] lg:border-l-2 lg:border-t-0">
+            <span className="absolute left-5 top-6 z-20 -rotate-6 font-mono text-[10px] font-bold uppercase leading-5 tracking-[.08em] text-[#294779] sm:left-10 sm:top-10">Pets reales<br />snacks reales<br />historias increíbles</span>
+            <span className="absolute right-5 top-6 z-20 rotate-3 bg-[#f5df85] px-4 py-3 text-center font-mono text-[9px] font-bold uppercase leading-5 tracking-[.08em] text-[#294779] shadow-[3px_3px_0_#d9a6b9] sm:right-8 sm:top-9">Guaurritas<br />en tu tienda también ♡</span>
+
+            <div className="absolute inset-x-[7%] bottom-8 top-[22%] rounded-[28px] border-2 border-[#b97b67] bg-[#d99a72] shadow-[10px_12px_0_rgba(66,91,140,.18)]">
+              <div className="absolute inset-x-0 top-0 h-[34%] rounded-t-[25px] border-b-2 border-[#b97b67] bg-[#edbb98]" />
+              <Image src="/icons/desktop/guaurritas-mascot-hd.webp" alt="Mascota de Guaurritas" width={150} height={150} className="absolute left-1/2 top-[3%] z-10 w-[88px] -translate-x-1/2 sm:w-[112px]" />
+              <p className="absolute inset-x-3 top-[27%] z-10 text-center font-mono text-[9px] font-bold uppercase tracking-[.12em] text-[#294779]">Buenos snacks · grandes historias</p>
+
+              <Image src="/cuisine/products/happy-bag-transparent.png" alt="Happy Bag Guaurritas" width={199} height={320} className="absolute bottom-[8%] left-[3%] z-20 h-[48%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.22)] sm:left-[6%] sm:h-[55%]" />
+              <Image src="/cuisine/products/guaurricookies-vitrolero.webp" alt="Vitrolero de GuaurriCookies" width={1086} height={1448} className="absolute bottom-[7%] left-[29%] z-30 h-[47%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.24)] sm:left-[30%] sm:h-[53%]" />
+              <Image src="/cuisine/products/sazonadores.webp" alt="Sazonador Guaurritas" width={675} height={900} className="absolute bottom-[8%] right-[20%] z-20 h-[44%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.22)] sm:h-[50%]" />
+              <Image src="/cuisine/products/sticks.webp" alt="GuaurriSticks" width={506} height={900} className="absolute bottom-[8%] right-[3%] z-10 h-[43%] w-auto drop-shadow-[0_8px_5px_rgba(42,48,63,.22)] sm:right-[5%] sm:h-[49%]" />
+              <span className="absolute bottom-2 left-1/2 z-40 -translate-x-1/2 whitespace-nowrap font-mono text-[8px] font-bold uppercase tracking-[.12em] text-[#263f70] sm:text-[10px]">Selección real Guaurritas</span>
             </div>
-            <div className="mt-3 rounded-2xl bg-[#e4c56d] p-4 text-[#263650]"><p className="font-mono text-[9px] font-bold uppercase tracking-[.15em]">Modelo flexible</p><p className="mt-1 font-display text-xl">Crece según tu punto de venta</p></div>
-          </aside>
+            <span className="absolute bottom-5 right-4 rotate-6 text-2xl text-[#e592a4]">✦</span>
+            <span className="absolute left-4 top-1/2 -rotate-12 text-3xl text-[#e4c56d]">✦</span>
+          </div>
         </div>
+
+        <div id="beneficios-distribucion" className="relative z-20 grid scroll-mt-4 gap-2 border-t-2 border-[#425b8c] bg-[#f6f8ff] p-3 sm:grid-cols-3 sm:p-4">
+          {[
+            ["▣", "Empieza sin complicarte", "Selección inicial fácil de exhibir."],
+            ["↻", "Productos con recompra", "Cookies, sticks y sazonadores para volver."],
+            ["♡", "Personaliza con tu logo", "Presentaciones únicas para tu negocio."],
+          ].map(([icon, title, text]) => (
+            <div key={title} className="grid grid-cols-[42px_1fr] items-center gap-3 rounded-2xl border border-[#c9d6ec] bg-white px-3 py-3 shadow-[2px_2px_0_#e6bec7]">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f7d5dd] font-display text-xl text-[#425b8c]">{icon}</span>
+              <div><h2 className="font-display text-base leading-5 text-[#263f70]">{title}</h2><p className="mt-1 font-interface text-[11px] leading-4 text-[#647188]">{text}</p></div>
+            </div>
+          ))}
+        </div>
+        <p className="border-t border-[#9aabd0] bg-[#dce9f7] px-4 py-2 text-center font-mono text-[9px] font-bold uppercase tracking-[.14em] text-[#294779]">Ideal para tiendas pet&nbsp; · &nbsp;veterinarias&nbsp; · &nbsp;concept stores</p>
       </section>
 
-      <section id="beneficios-distribucion" className="mt-8 scroll-mt-4">
+      <section className="mt-8">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#7b8493]">Razones para integrarnos</p><h2 className="font-display text-2xl text-[#425b8c] sm:text-3xl">Lo que Guaurritas aporta a tu punto de venta</h2></div><span className="rounded-full bg-[#d9a6b9] px-3 py-1 font-mono text-[9px] font-bold uppercase text-[#3a2030]">Valor para tu negocio</span></div>
         <div className="grid gap-3 lg:grid-cols-3">
           {benefits.map((item) => (
