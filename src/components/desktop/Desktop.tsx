@@ -13,6 +13,12 @@ import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
 import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
+import {
+  cacheWixMemberState,
+  normalizeWixMemberState,
+  readCachedWixMemberState,
+  type WixMemberState,
+} from "@/lib/wix-member-state";
 
 const apps = [
   { id: "mundos", name: "Explora mundo", icon: "world" as const },
@@ -245,12 +251,6 @@ function DesktopAppIcon({
   );
 }
 
-type WixMemberState = {
-  loggedIn: boolean;
-  name: string;
-  photoUrl: string;
-};
-
 const MEMBER_STATE_MESSAGE = "guaurritas:member-state";
 const MEMBER_LOGIN_REQUEST_MESSAGE = "guaurritas:member-login-request";
 const MEMBER_LOGOUT_REQUEST_MESSAGE = "guaurritas:member-logout-request";
@@ -261,7 +261,7 @@ const EMBED_SOURCE = "guaurritas-embed";
 const wixPages = {
   home: "https://www.guaurritas.com/guaurrinicio",
   blog: "https://www.guaurritas.com/blog",
-  contact: "https://www.guaurritas.com/contact",
+  contact: "https://www.guaurritas.com/contacto",
   faq: "https://www.guaurritas.com/faq",
   terms: "https://www.guaurritas.com/terminos-y-condiciones",
   privacy: "https://www.guaurritas.com/aviso-de-privacidad",
@@ -320,6 +320,11 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
   useEffect(() => {
     if (window.self === window.top) return;
 
+    const cachedMember = readCachedWixMemberState();
+    const cachedStateTimer = cachedMember?.loggedIn
+      ? window.setTimeout(() => setMember(cachedMember), 0)
+      : null;
+
     const handleMemberState = (event: MessageEvent) => {
       if (event.source !== window.parent) return;
 
@@ -333,26 +338,30 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
         return;
       }
 
-      const loggedIn = Boolean(message.loggedIn);
-      setMember({
-        loggedIn,
-        name: typeof message.name === "string" ? message.name : "",
-        photoUrl: typeof message.photoUrl === "string" ? message.photoUrl : "",
-      });
+      const nextMember = normalizeWixMemberState(message, readCachedWixMemberState());
+      setMember(nextMember);
+      cacheWixMemberState(nextMember);
       setAuthBusy(false);
-      if (!loggedIn) setMenuOpen(false);
+      if (!nextMember.loggedIn) setMenuOpen(false);
     };
 
     window.addEventListener("message", handleMemberState);
-    window.parent.postMessage(
-      {
-        source: WEB_SOURCE,
-        type: MEMBER_STATE_REQUEST_MESSAGE,
-      },
-      "*",
-    );
+    const requestMemberState = () =>
+      window.parent.postMessage(
+        {
+          source: WEB_SOURCE,
+          type: MEMBER_STATE_REQUEST_MESSAGE,
+        },
+        "*",
+      );
+    requestMemberState();
+    const retryTimers = [250, 900].map((delay) => window.setTimeout(requestMemberState, delay));
 
-    return () => window.removeEventListener("message", handleMemberState);
+    return () => {
+      window.removeEventListener("message", handleMemberState);
+      if (cachedStateTimer !== null) window.clearTimeout(cachedStateTimer);
+      retryTimers.forEach((timer) => window.clearTimeout(timer));
+    };
   }, []);
 
   useEffect(() => {

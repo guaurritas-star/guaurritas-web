@@ -3,12 +3,13 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { withBasePath } from "@/lib/base-path";
-
-type WixMemberState = {
-  loggedIn: boolean;
-  name: string;
-  photoUrl: string;
-};
+import {
+  cacheWixMemberState,
+  normalizeWixMemberState,
+  readCachedWixMemberState,
+  WIX_MEMBER_STATE_CACHE_KEY,
+  type WixMemberState,
+} from "@/lib/wix-member-state";
 
 type HeaderMenu = "pages" | "mobile" | "account" | null;
 
@@ -25,7 +26,7 @@ const wixPages = {
   shop: "https://www.guaurritas.com/?app=mundos",
   mascota: "https://www.guaurritas.com/?app=mascota",
   blog: "https://www.guaurritas.com/blog",
-  contact: "https://www.guaurritas.com/contact",
+  contact: "https://www.guaurritas.com/contacto",
   faq: "https://www.guaurritas.com/faq",
   terms: "https://www.guaurritas.com/terminos-y-condiciones",
   privacy: "https://www.guaurritas.com/aviso-de-privacidad",
@@ -83,6 +84,11 @@ function WixMemberAccess({
   const accountRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const cachedMember = readCachedWixMemberState();
+    const cachedStateTimer = cachedMember?.loggedIn
+      ? window.setTimeout(() => setMember(cachedMember), 0)
+      : null;
+
     const handleMemberState = (event: MessageEvent) => {
       if (event.source !== window.parent) return;
 
@@ -96,19 +102,33 @@ function WixMemberAccess({
         return;
       }
 
-      const loggedIn = Boolean(message.loggedIn);
-      setMember({
-        loggedIn,
-        name: typeof message.name === "string" ? message.name : "",
-        photoUrl: typeof message.photoUrl === "string" ? message.photoUrl : "",
-      });
+      const nextMember = normalizeWixMemberState(message, readCachedWixMemberState());
+      setMember(nextMember);
+      cacheWixMemberState(nextMember);
       setAuthBusy(false);
-      if (!loggedIn) onMenuChange(false);
+      if (!nextMember.loggedIn) onMenuChange(false);
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== WIX_MEMBER_STATE_CACHE_KEY) return;
+      const cached = readCachedWixMemberState();
+      if (cached) setMember(cached);
     };
 
     window.addEventListener("message", handleMemberState);
-    window.parent.postMessage({ source: WEB_SOURCE, type: MEMBER_STATE_REQUEST_MESSAGE }, "*");
-    return () => window.removeEventListener("message", handleMemberState);
+    window.addEventListener("storage", handleStorage);
+
+    const requestMemberState = () =>
+      window.parent.postMessage({ source: WEB_SOURCE, type: MEMBER_STATE_REQUEST_MESSAGE }, "*");
+    requestMemberState();
+    const retryTimers = [250, 900].map((delay) => window.setTimeout(requestMemberState, delay));
+
+    return () => {
+      window.removeEventListener("message", handleMemberState);
+      window.removeEventListener("storage", handleStorage);
+      if (cachedStateTimer !== null) window.clearTimeout(cachedStateTimer);
+      retryTimers.forEach((timer) => window.clearTimeout(timer));
+    };
   }, [onMenuChange]);
 
   useEffect(() => {
