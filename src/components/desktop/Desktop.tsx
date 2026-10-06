@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import ChatGuaurritasApp from "@/components/apps/ChatGuaurritasApp";
 import DistribuidoresInfoApp from "@/components/apps/DistribuidoresInfoApp";
@@ -20,7 +21,13 @@ import {
   type WixMemberState,
 } from "@/lib/wix-member-state";
 
+const StoreApp = dynamic(() => import("@/components/apps/StoreApp"), {
+  ssr: false,
+  loading: () => <p className="p-6 font-interface text-sm text-[#425b8c]">Abriendo tienda…</p>,
+});
+
 const apps = [
+  { id: "tienda", name: "Tienda", icon: "cart" as const },
   { id: "mundos", name: "Explora mundo", icon: "world" as const },
   { id: "mascota", name: "Mi mascota", icon: "pet" as const },
   { id: "paint", name: "Paint", icon: "paint" as const },
@@ -771,11 +778,13 @@ export default function Desktop() {
 
   const openCuisineFromPaint = () => openShopWorld("cuisine");
 
-  const openGuaurriverseFromHeader = () => {
+  const openStore = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete("world");
+    url.searchParams.delete("product");
+    url.searchParams.set("app", "tienda");
     window.history.pushState({ world: null }, "", url);
-    openApp("mundos");
+    openApp("tienda");
   };
 
   return (
@@ -788,7 +797,7 @@ export default function Desktop() {
       }`}
     >
       <GuaurritasHeader
-        onOpenShop={openGuaurriverseFromHeader}
+        onOpenShop={openStore}
         onOpenRobbie={() => openApp("robbie")}
         onOpenMiMascota={() => openApp("mascota")}
       />
@@ -801,7 +810,7 @@ export default function Desktop() {
             <button
               key={app.id}
               type="button"
-              onClick={() => launchApp(app.id)}
+              onClick={() => app.id === "tienda" ? openStore() : launchApp(app.id)}
               aria-busy={isLaunching || undefined}
               className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
                 isLaunching ? "is-launching" : ""
@@ -826,6 +835,7 @@ export default function Desktop() {
           onClose={closeActiveApp}
           onMinimize={minimizeActiveApp}
           variant={
+            selectedApp.id === "tienda" ||
             selectedApp.id === "mundos" ||
             selectedApp.id === "mascota" ||
             selectedApp.id === "paint" ||
@@ -835,7 +845,9 @@ export default function Desktop() {
               : "default"
           }
         >
-          {selectedApp.id === "mundos" ? (
+          {selectedApp.id === "tienda" ? (
+            <StoreApp />
+          ) : selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
           ) : selectedApp.id === "mascota" ? (
             <MiMascotaApp onOpenWorld={openShopWorld} />
@@ -907,7 +919,7 @@ export default function Desktop() {
         </div>
 
         <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
-          <TaskbarCart onShop={openGuaurriverseFromHeader} />
+          <TaskbarCart onShop={openStore} />
           <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
         </div>

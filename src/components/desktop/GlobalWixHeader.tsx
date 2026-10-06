@@ -23,7 +23,7 @@ const EMBED_SOURCE = "guaurritas-embed";
 const wixPages = {
   home: "https://www.guaurritas.com/",
   robbie: "https://www.guaurritas.com/?app=robbie",
-  shop: "https://www.guaurritas.com/?app=mundos",
+  shop: "https://www.guaurritas.com/?app=tienda",
   mascota: "https://www.guaurritas.com/?app=mascota",
   blog: "https://www.guaurritas.com/blog",
   contact: "https://www.guaurritas.com/contacto",

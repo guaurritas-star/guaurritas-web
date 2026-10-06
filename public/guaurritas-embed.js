@@ -570,6 +570,7 @@
       const requestedApp = new URLSearchParams(window.location.search).get("app");
 
       const supportedApps = new Set([
+        "tienda",
         "mundos",
         "mascota",
         "paint",

@@ -2101,3 +2101,15 @@ html.guaurritas-system-cart-open .desktop-taskbar {
     animation: none !important;
   }
 }
+
+/* The store keeps delivery, categories and the shared cart above product content. */
+.store-app .store-catalog .cuisine-mobile-sticky-header,
+.store-app .store-catalog > section > .sticky,
+.store-app .store-catalog > div > section > .sticky {
+  position: static !important;
+}
+
+.store-app .cuisine-mobile-sticky-header > div > button:first-child,
+.store-app .store-catalog > section > .sticky:not(.cuisine-mobile-sticky-header) > button:first-child {
+  display: none;
+}
