@@ -488,7 +488,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
                   <p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[#A66D88]">Lo que más han pedido</p>
                   <h3 className="mt-2 font-title text-2xl">{insights.favorite.name}</h3>
                   <p className="mt-2 text-sm leading-6 text-[#53627a]">
-                    Aparece {insights.favorite.quantity} {insights.favorite.quantity === 1 ? "vez" : "veces"} en tus compras. Si quieren repetir, te llevamos al mundo correcto.
+                    Aparece {insights.favorite.quantity} {insights.favorite.quantity === 1 ? "vez" : "veces"} en tus compras. Puedes encontrarlo de nuevo en la tienda y elegir su configuración.
                   </p>
                   <button type="button" onClick={() => onOpenWorld?.(insights.favorite?.world ?? "cuisine")} className="mt-5 border-2 border-[#263650] bg-[#425b8c] px-4 py-2 font-title text-xs font-bold uppercase tracking-wider text-white shadow-[3px_3px_0_#D9A689] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                     Volver a encontrarlo

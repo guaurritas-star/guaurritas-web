@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
@@ -2996,12 +2997,7 @@ export default function CuisineStoreApp({
             )}
 
             {notice && (
-              <p
-                role="status"
-                className="mt-4 rounded-lg border border-[#89a79a] bg-[#edf6f0] px-4 py-3 font-interface text-xs font-semibold text-[#446454]"
-              >
-                ✓ {notice}
-              </p>
+              <AddToCartFeedback message={notice} onContinue={() => { setNotice(""); setSelectedProduct(null); }} />
             )}
           </div>
         </div>

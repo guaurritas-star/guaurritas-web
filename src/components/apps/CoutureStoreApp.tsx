@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
@@ -236,6 +237,7 @@ export default function CoutureStoreApp({
   onBack: () => void;
   fulfillmentMode: FulfillmentMode;
 }) {
+  const catalogRef = useRef<HTMLElement>(null);
   const [collectionId, setCollectionId] = useState<CollectionId>("amulette");
   const [colorId, setColorId] = useState("ciel");
   const [sizeId, setSizeId] = useState<SizeId>("mediana");
@@ -393,7 +395,7 @@ export default function CoutureStoreApp({
   };
 
   return (
-    <section className="-m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
+    <section ref={catalogRef} className="-m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
       <div className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
         <button
           type="button"
@@ -800,9 +802,7 @@ export default function CoutureStoreApp({
                 Agregar al carrito · {money(price)}
               </button>
               {notice && (
-                <p className="mt-3 rounded-xl border border-[#b8ccb9] bg-[#eef7ee] px-4 py-3 font-brand text-sm text-[#3d6544]" role="status">
-                  ✓ {notice}
-                </p>
+                <AddToCartFeedback message={notice} onContinue={() => { setNotice(""); catalogRef.current?.scrollIntoView({ block: "start" }); }} />
               )}
             </div>
           </div>

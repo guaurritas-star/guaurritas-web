@@ -490,7 +490,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </button>
                     </div>
                     <p className="mt-2 break-words text-[8px] leading-4 text-[#7a7180]">
-                      Después eliges fecha, horario y forma de pago.
+                      SPEI: {money(leonTransferTotal)} · Tarjeta: {money(leonOnlineTotal)}.
+                      <br />
+                      Elige fecha y horario en el siguiente paso. Coordinamos el punto de entrega por WhatsApp; Uber tiene costo adicional.
                     </p>
                   </section>
                 )}

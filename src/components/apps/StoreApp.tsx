@@ -8,6 +8,7 @@ import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
 import { getFulfillmentMode, setFulfillmentMode, type FulfillmentMode } from "@/lib/fulfillment-store";
 import { useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
+import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 import { withBasePath } from "@/lib/base-path";
 
 const stayInStore = () => {};
@@ -64,11 +65,19 @@ export default function StoreApp() {
         <div role="group" aria-label="Catálogo de la tienda" className="mt-3 flex gap-2">
           {([ ["cuisine", "Cuisine"], ["couture", "Couture"] ] as const).map(([id, label]) => (
             <button key={id} type="button" aria-pressed={category === id} onClick={() => setCategory(id)} className={`min-h-11 flex-1 rounded-md border border-[#425b8c] px-4 font-interface text-xs font-bold sm:flex-none ${category === id ? "bg-[#425BBC] text-white" : "bg-white text-[#425b8c] hover:bg-[#dce4f2]"}`}>
-              {label}
+              <span className="block">{label}</span>
+              <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal">{id === "cuisine" ? "Premios y repostería" : "Bandanas y accesorios"}</span>
             </button>
           ))}
         </div>
       </header>
+      <div className="border-b border-[#d4dce7] bg-[#f9fbff] px-4 py-3 font-interface text-xs leading-5 text-[#53627a] sm:px-6">
+        {mode === "national" ? (
+          <p>Envío nacional: pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder}. Envío ${NATIONAL_SHIPPING_PROMO.standardRate}; gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold} para pedidos de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. El plazo y el total se confirman en el checkout.</p>
+        ) : (
+          <p>En León eliges fecha y horario antes de pagar. Confirmamos por WhatsApp el horario y el punto de entrega; Uber tiene costo adicional. El total con SPEI y tarjeta se muestra en el carrito.</p>
+        )}
+      </div>
       <div className="store-catalog p-4 sm:p-6">
         {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
       </div>

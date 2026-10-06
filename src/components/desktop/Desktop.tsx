@@ -778,9 +778,10 @@ export default function Desktop() {
 
   const openCuisineFromPaint = () => openShopWorld("cuisine");
 
-  const openStore = () => {
+  const openStore = (category?: "cuisine" | "couture") => {
     const url = new URL(window.location.href);
-    url.searchParams.delete("world");
+    if (category) url.searchParams.set("world", category);
+    else url.searchParams.delete("world");
     url.searchParams.delete("product");
     url.searchParams.set("app", "tienda");
     window.history.pushState({ world: null }, "", url);
@@ -850,7 +851,7 @@ export default function Desktop() {
           ) : selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
           ) : selectedApp.id === "mascota" ? (
-            <MiMascotaApp onOpenWorld={openShopWorld} />
+            <MiMascotaApp onOpenWorld={openStore} />
           ) : selectedApp.id === "paint" ? (
             <PaintStudioApp onOpenCuisine={openCuisineFromPaint} />
           ) : selectedApp.id === "notas" ? (
