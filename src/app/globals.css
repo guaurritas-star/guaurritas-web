@@ -2102,14 +2102,17 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 }
 
-/* The store keeps delivery, categories and the shared cart above product content. */
-.store-app .store-catalog .cuisine-mobile-sticky-header,
-.store-app .store-catalog > section > .sticky,
-.store-app .store-catalog > div > section > .sticky {
+/* Store navigation owns delivery, categories and the shared cart.
+   Keep the product's back button, without repeating the catalog toolbar. */
+.store-app .store-catalog .cuisine-mobile-sticky-header {
   position: static !important;
 }
 
-.store-app .cuisine-mobile-sticky-header > div > button:first-child,
-.store-app .store-catalog > section > .sticky:not(.cuisine-mobile-sticky-header) > button:first-child {
+.store-app .store-catalog .cuisine-mobile-sticky-header:has(> div),
+.store-app .store-catalog > section > .sticky:not(.cuisine-mobile-sticky-header) {
+  display: none;
+}
+
+.store-app .store-catalog .cuisine-mobile-sticky-header > button:last-child {
   display: none;
 }
