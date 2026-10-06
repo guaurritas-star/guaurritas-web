@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import {
   resolveCuisineWixBinding,
   type WixCartBinding,
+  type WixCatalogReference,
 } from "@/lib/wix-commerce-map";
 import {
   getFulfillmentMode,
@@ -21,6 +22,8 @@ export type CartItem = {
   quantity: number;
   fulfillment: FulfillmentMode;
   wix: WixCartBinding;
+  reorderReference?: WixCatalogReference;
+  shippingWeightKg?: number;
 };
 
 type NewCartItem = Omit<CartItem, "quantity" | "wix" | "fulfillment"> & {
@@ -70,7 +73,9 @@ function normalizeFulfillment(value: unknown): FulfillmentMode {
 }
 
 function enrichCartItem(item: StoredCartItem): CartItem {
-  const wix = resolveCuisineWixBinding(item);
+  const wix: WixCartBinding = item.reorderReference
+    ? { supported: true, catalogReference: item.reorderReference, wixUnitPrice: item.unitPrice }
+    : resolveCuisineWixBinding(item);
 
   return {
     id: item.id,
@@ -87,6 +92,8 @@ function enrichCartItem(item: StoredCartItem): CartItem {
     image: item.image,
     quantity: item.quantity,
     fulfillment: normalizeFulfillment(item.fulfillment),
+    reorderReference: item.reorderReference,
+    shippingWeightKg: item.shippingWeightKg,
     wix,
   };
 }
@@ -119,6 +126,7 @@ export function hydrateCart() {
 }
 
 export function addCartItem(item: NewCartItem) {
+  hydrateCart();
   const fulfillment = item.fulfillment ?? getFulfillmentMode();
   const enriched = enrichCartItem({ ...item, fulfillment, quantity: 1 });
   const existing = items.find(
@@ -140,6 +148,29 @@ export function addCartItem(item: NewCartItem) {
       )
     : [...items, enriched];
 
+  emit();
+}
+
+/** Append the complete prepared order atomically, preserving the current cart. */
+export function addReorderItems(prepared: Omit<CartItem, "wix">[]) {
+  hydrateCart();
+  if (!prepared.length || prepared.some(item =>
+    !item.reorderReference?.catalogItemId ||
+    !Number.isFinite(item.unitPrice) || item.unitPrice <= 0 ||
+    !Number.isInteger(item.quantity) || item.quantity <= 0)) {
+    throw new Error("No pudimos recuperar la configuración completa del pedido.");
+  }
+  let next = [...items];
+  for (const item of prepared) {
+    const enriched = enrichCartItem(item);
+    const existing = next.find(current => current.id === enriched.id && current.fulfillment === enriched.fulfillment);
+    next = existing
+      ? next.map(current => current === existing
+        ? { ...enriched, quantity: current.quantity + enriched.quantity }
+        : current)
+      : [...next, enriched];
+  }
+  items = next;
   emit();
 }
 

@@ -72,7 +72,7 @@
 
         try {
           const payload = JSON.parse(newValue);
-          this._purchaseHistoryPayload = payload;
+          if (payload.action !== "prepare-reorder") this._purchaseHistoryPayload = payload;
           this._iframe.contentWindow.postMessage(
             {
               ...payload,
@@ -1016,6 +1016,12 @@
           message.source === BRIDGE_SOURCE &&
           message.type === PURCHASE_HISTORY_REQUEST_MESSAGE
         ) {
+          if (message.action === "prepare-reorder") {
+            this.dispatchEvent(new CustomEvent("guaurritas-purchase-history-request", {
+              detail: message, bubbles: true, composed: true,
+            }));
+            return;
+          }
           if (this._purchaseHistoryPayload) {
             iframe.contentWindow.postMessage(
               {

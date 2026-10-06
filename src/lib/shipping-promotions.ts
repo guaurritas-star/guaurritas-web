@@ -30,6 +30,7 @@ function positiveNumber(value: string | undefined) {
  * promises a fixed/free rate for an item whose shipping weight is uncertain.
  */
 export function getCartItemShippingWeightKg(item: CartItem) {
+  if (typeof item.shippingWeightKg === "number" && Number.isFinite(item.shippingWeightKg) && item.shippingWeightKg > 0) return item.shippingWeightKg;
   const parts = item.id.split(":");
   if (parts[0] !== "cuisine") return FALLBACK_PRODUCT_WEIGHT_KG;
 

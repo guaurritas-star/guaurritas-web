@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReorderPurchase from "@/components/cart/ReorderPurchase";
 
 const WEB_SOURCE = "guaurritas-web";
 const EMBED_SOURCE = "guaurritas-embed";
@@ -33,6 +34,7 @@ type PurchaseOrder = {
   total: number | null;
   currency: string;
   lineItems: PurchaseLineItem[];
+  paid: boolean;
 };
 
 type HistoryState =
@@ -106,6 +108,7 @@ const normalizeOrders = (value: unknown): PurchaseOrder[] => {
       total: getNumber(order.total),
       currency: getText(order.currency) || "MXN",
       lineItems,
+      paid: order.paid === true,
     }];
   });
 };
@@ -187,6 +190,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
       }
 
       if (message.type !== PURCHASE_HISTORY_MESSAGE) return;
+      if (message.action === "prepare-reorder") return;
 
       if (message.ok === false) {
         setHistory({
@@ -534,8 +538,9 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
                     </p>
                     <div className="sm:text-right">
                       <p className="font-title text-sm">{formatMoney(order.total, order.currency)}</p>
-                      <p className="mt-1 font-mono text-[8px] font-bold uppercase tracking-wider text-[#588060]">Compra confirmada</p>
+                      <p className="mt-1 font-mono text-[8px] font-bold uppercase tracking-wider text-[#588060]">{order.paid ? "Compra confirmada" : "Pedido registrado"}</p>
                     </div>
+                    {order.paid && <ReorderPurchase orderId={order.id} onOpenStore={() => onOpenWorld?.(order.lineItems[0]?.world ?? "cuisine")} />}
                   </article>
                 ))}
               </div>
