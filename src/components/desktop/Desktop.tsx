@@ -266,7 +266,7 @@ const WEB_SOURCE = "guaurritas-web";
 const EMBED_SOURCE = "guaurritas-embed";
 
 const wixPages = {
-  home: "https://www.guaurritas.com/guaurrinicio",
+  home: "https://www.guaurritas.com/#comp-mmjz38v7",
   blog: "https://www.guaurritas.com/blog",
   contact: "https://www.guaurritas.com/contacto",
   faq: "https://www.guaurritas.com/faq",
