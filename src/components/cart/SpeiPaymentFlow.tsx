@@ -1,6 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { paymentSessionKey, type SpeiCustomer } from "@/lib/payment-session";
 import type { CartItem } from "@/lib/cart-store";
 import type { LeonOrderPreferences } from "@/lib/order-preferences";
 
@@ -23,5 +25,12 @@ export default function SpeiPaymentFlow({
   items: CartItem[];
   preferences: LeonOrderPreferences;
 }) {
-  return <SpeiPaymentFlowCore items={items} preferences={preferences} />;
+  const [customer, setCustomer] = useState<SpeiCustomer>({ name: "", phone: "", email: "" });
+  return <SpeiPaymentFlowCore
+    key={paymentSessionKey(items, preferences)}
+    items={items}
+    preferences={preferences}
+    customer={customer}
+    onCustomerChange={(patch) => setCustomer((current) => ({ ...current, ...patch }))}
+  />;
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { SpeiRequestTracker, type SpeiCustomer } from "@/lib/payment-session";
 import type { CartItem } from "@/lib/cart-store";
 import {
   buildOrderBuyerNote,
@@ -94,9 +95,13 @@ function formatExpiry(value: string) {
 export default function SpeiPaymentFlowCore({
   items,
   preferences,
+  customer,
+  onCustomerChange,
 }: {
   items: CartItem[];
   preferences: LeonOrderPreferences;
+  customer: SpeiCustomer;
+  onCustomerChange: (patch: Partial<SpeiCustomer>) => void;
 }) {
   const [details, setDetails] = useState<SpeiDetails | null>(null);
   const [order, setOrder] = useState<SpeiOrder | null>(null);
@@ -105,43 +110,16 @@ export default function SpeiPaymentFlowCore({
   const [showProofForm, setShowProofForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
+  const { name: customerName, phone: customerPhone, email: customerEmail } = customer;
+  const [requests] = useState(() => new SpeiRequestTracker());
+  const mountedRef = useRef(false);
+  const [uploadLifetime] = useState<{ controller: AbortController | null }>(() => ({ controller: null }));
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; uploadLifetime.controller?.abort(); };
+  }, [uploadLifetime]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const pendingFileRef = useRef<File | null>(null);
-
-  const cartSignature = useMemo(
-    () =>
-      items
-        .map((item) => `${item.id}:${item.quantity}:${item.fulfillment}`)
-        .sort()
-        .join("|"),
-    [items],
-  );
-  const preferencesSignature = useMemo(
-    () =>
-      JSON.stringify([
-        preferences.deliveryDate,
-        preferences.preferredTime,
-        preferences.deliveryMethod,
-        preferences.deliveryPoint,
-        preferences.deliveryAddress,
-        preferences.personalizationNote,
-        preferences.whatsappConfirmed,
-      ]),
-    [preferences],
-  );
-
-  useEffect(() => {
-    setDetails(null);
-    setOrder(null);
-    setProofResult(null);
-    setShowProofForm(false);
-    setSelectedFile(null);
-    pendingFileRef.current = null;
-    setStatus("");
-  }, [cartSignature, preferencesSignature]);
 
   useEffect(() => {
     const handleWixMessage = async (event: MessageEvent) => {
@@ -158,6 +136,10 @@ export default function SpeiPaymentFlowCore({
 
       if (!message || typeof message !== "object") return;
       if (message.source !== WIX_BRIDGE_SOURCE) return;
+      if (message.type === ERROR_MESSAGE) {
+        if (!requests.acceptError(message.requestId)) return;
+      } else if (!requests.accept(message.type, message.requestId)) return;
+
 
       if (message.type === DETAILS_MESSAGE) {
         const nextDetails = message.details as SpeiDetails | undefined;
@@ -193,14 +175,20 @@ export default function SpeiPaymentFlowCore({
           return;
         }
 
+        const controller = new AbortController();
+        uploadLifetime.controller?.abort();
+        uploadLifetime.controller = controller;
         try {
           const response = await fetch(appendFilename(uploadUrl, file.name), {
             method: "PUT",
+            signal: controller.signal,
             headers: {
               "Content-Type": file.type || "application/octet-stream",
             },
             body: file,
           });
+
+          if (!mountedRef.current) return;
 
           let responseBody: unknown = null;
           try {
@@ -223,11 +211,12 @@ export default function SpeiPaymentFlowCore({
             throw new Error("Wix no devolvió los datos del archivo cargado.");
           }
 
+          if (!mountedRef.current || controller.signal.aborted) return;
           window.parent.postMessage(
             {
               source: BRIDGE_SOURCE,
               type: PROOF_SUBMIT_MESSAGE,
-              requestId: Date.now(),
+              requestId: requests.issue(PROOF_RECEIVED_MESSAGE),
               orderId: order.orderId,
               clientToken: order.clientToken,
               customer: {
@@ -242,6 +231,7 @@ export default function SpeiPaymentFlowCore({
             "*",
           );
         } catch (error) {
+          if (!mountedRef.current || controller.signal.aborted) return;
           pendingFileRef.current = null;
           setUploading(false);
           setStatus(
@@ -282,7 +272,7 @@ export default function SpeiPaymentFlowCore({
 
     window.addEventListener("message", handleWixMessage);
     return () => window.removeEventListener("message", handleWixMessage);
-  }, [customerEmail, customerName, customerPhone, order]);
+  }, [customerEmail, customerName, customerPhone, order, requests, uploadLifetime]);
 
   const startTransfer = () => {
     if (starting) return;
@@ -306,7 +296,7 @@ export default function SpeiPaymentFlowCore({
         {
           source: BRIDGE_SOURCE,
           type: START_MESSAGE,
-          requestId: Date.now(),
+          requestId: requests.issue(DETAILS_MESSAGE),
           items: payloadItems,
           buyerNote: buildOrderBuyerNote(
             items,
@@ -368,7 +358,7 @@ export default function SpeiPaymentFlowCore({
       {
         source: BRIDGE_SOURCE,
         type: UPLOAD_URL_REQUEST,
-        requestId: Date.now(),
+        requestId: requests.issue(UPLOAD_URL_RESPONSE),
         orderId: order.orderId,
         clientToken: order.clientToken,
         fileName: selectedFile.name,
@@ -532,7 +522,7 @@ export default function SpeiPaymentFlowCore({
               Nombre
               <input
                 value={customerName}
-                onChange={(event) => setCustomerName(event.target.value)}
+                onChange={(event) => onCustomerChange({ name: event.target.value })}
                 autoComplete="name"
                 className="mt-1 block w-full rounded border border-[#c7cedc] bg-white px-2 py-2 text-[10px] font-normal normal-case tracking-normal text-[#263650] outline-none focus:border-[#425b8c]"
                 placeholder="Nombre de quien realizó el pedido"
@@ -543,7 +533,7 @@ export default function SpeiPaymentFlowCore({
               WhatsApp
               <input
                 value={customerPhone}
-                onChange={(event) => setCustomerPhone(event.target.value)}
+                onChange={(event) => onCustomerChange({ phone: event.target.value })}
                 inputMode="tel"
                 autoComplete="tel"
                 className="mt-1 block w-full rounded border border-[#c7cedc] bg-white px-2 py-2 text-[10px] font-normal normal-case tracking-normal text-[#263650] outline-none focus:border-[#425b8c]"
@@ -555,7 +545,7 @@ export default function SpeiPaymentFlowCore({
               Correo <span className="font-normal normal-case">(opcional)</span>
               <input
                 value={customerEmail}
-                onChange={(event) => setCustomerEmail(event.target.value)}
+                onChange={(event) => onCustomerChange({ email: event.target.value })}
                 inputMode="email"
                 autoComplete="email"
                 className="mt-1 block w-full rounded border border-[#c7cedc] bg-white px-2 py-2 text-[10px] font-normal normal-case tracking-normal text-[#263650] outline-none focus:border-[#425b8c]"

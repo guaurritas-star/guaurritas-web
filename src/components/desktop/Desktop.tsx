@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useBrowserSearch } from "@/lib/browser-location";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import ChatGuaurritasApp from "@/components/apps/ChatGuaurritasApp";
@@ -690,7 +691,12 @@ function DesktopClock() {
 }
 
 export default function Desktop() {
-  const [activeApp, setActiveApp] = useState<string | null>(null);
+  const search = useBrowserSearch();
+  const requestedApp = new URLSearchParams(search).get("app");
+  const [activeAppOverride, setActiveApp] = useState<string | null | undefined>(undefined);
+  const activeApp = activeAppOverride === undefined
+    ? (apps.some((app) => app.id === requestedApp) ? requestedApp : null)
+    : activeAppOverride;
   const [minimizedApp, setMinimizedApp] = useState<string | null>(null);
   const [launchingApp, setLaunchingApp] = useState<string | null>(null);
   const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -699,15 +705,6 @@ export default function Desktop() {
   const taskApp = apps.find(
     (app) => app.id === activeApp || app.id === minimizedApp,
   );
-
-  useEffect(() => {
-    const requestedApp = new URLSearchParams(window.location.search).get("app");
-
-    if (requestedApp && apps.some((app) => app.id === requestedApp)) {
-      setActiveApp(requestedApp);
-      setMinimizedApp(null);
-    }
-  }, []);
 
   useEffect(() => {
     return () => {

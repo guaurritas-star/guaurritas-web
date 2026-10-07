@@ -155,7 +155,9 @@ export default function GuaurrinotasAuthGate() {
         data: { user: currentUser },
       } = await supabase.auth.getUser();
 
-      if (!isMounted || sessionEstablished) return;
+      if (!isMounted) return;
+      if (window.self === window.top) setWixMemberState({ loggedIn: false, name: "" });
+      if (sessionEstablished) return;
 
       setUser(currentUser);
       setIsCheckingSession(false);
@@ -165,6 +167,7 @@ export default function GuaurrinotasAuthGate() {
     void loadUser().catch(() => {
       if (!isMounted) return;
       setIsCheckingSession(false);
+      if (window.self === window.top) setWixMemberState({ loggedIn: false, name: "" });
       // The Wix bridge may still restore the session before the deadline.
     });
 
@@ -285,7 +288,6 @@ export default function GuaurrinotasAuthGate() {
       );
     } else {
       window.clearTimeout(connectionTimer);
-      setWixMemberState({ loggedIn: false, name: "" });
     }
 
     const {

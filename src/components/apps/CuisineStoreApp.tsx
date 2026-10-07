@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useBrowserSearch } from "@/lib/browser-location";
+import { useAsyncResource } from "@/lib/use-async-resource";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addCartItem, useCart } from "@/lib/cart-store";
@@ -18,7 +20,6 @@ import {
   encodeKitGuaurriCookiesSlots,
   fetchKitGuaurriCookiesConfig,
   summarizeKitGuaurriCookiesSlots,
-  type KitGuaurriCookiesConfig,
 } from "@/lib/kit-guaurricookies";
 import {
   DESCUBRE_GUAURRITAS_COOKIE_COUNT,
@@ -27,7 +28,6 @@ import {
   DESCUBRE_GUAURRITAS_PRODUCT_KEY,
   encodeDescubreGuaurritasSelection,
   fetchDescubreGuaurritasConfig,
-  type DescubreGuaurritasConfig,
 } from "@/lib/descubre-guaurritas";
 
 type CategoryId =
@@ -722,8 +722,14 @@ export default function CuisineStoreApp({
 }) {
   const [category, setCategory] = useState<CategoryId>("all");
   const [query, setQuery] = useState("");
-  const [selectedProduct, setSelectedProduct] =
-    useState<CuisineProduct | null>(null);
+  const search = useBrowserSearch();
+  const requestedProduct = new URLSearchParams(search).get("product");
+  const [selectedProductOverride, setSelectedProduct] =
+    useState<CuisineProduct | null | undefined>(undefined);
+  const selectedProduct = selectedProductOverride === undefined
+    ? (["guaurricookies", "happy-bag"].includes(requestedProduct ?? "")
+      ? products.find((item) => item.id === requestedProduct) ?? null : null)
+    : selectedProductOverride;
   const [selectedOption, setSelectedOption] = useState(0);
   const [customize, setCustomize] = useState<"yes" | "no" | null>(null);
   const [petcakeSize, setPetcakeSize] = useState(0);
@@ -742,18 +748,21 @@ export default function CuisineStoreApp({
   >(createEmptyBulkDistribution);
   const [bulkUnit, setBulkUnit] = useState<BulkUnit>("g");
   const [bulkQuantityInput, setBulkQuantityInput] = useState("300");
-  const [kitConfig, setKitConfig] = useState<KitGuaurriCookiesConfig | null>(null);
-  const [kitConfigLoading, setKitConfigLoading] = useState(false);
-  const [kitConfigError, setKitConfigError] = useState("");
   const [kitConfigRetry, setKitConfigRetry] = useState(0);
-  const [kitFlavorCounts, setKitFlavorCounts] = useState<Record<string, number>>({});
-  const [descubreConfig, setDescubreConfig] =
-    useState<DescubreGuaurritasConfig | null>(null);
-  const [descubreConfigLoading, setDescubreConfigLoading] = useState(false);
-  const [descubreConfigError, setDescubreConfigError] = useState("");
+  const [kitFlavorCountsDraft, setKitFlavorCounts] = useState<Record<string, number>>({});
   const [descubreConfigRetry, setDescubreConfigRetry] = useState(0);
-  const [descubreFlavorCounts, setDescubreFlavorCounts] =
+  const { data: kitConfig, loading: kitConfigLoading, error: kitConfigError } =
+    useAsyncResource(fetchKitGuaurriCookiesConfig, fulfillmentMode === "national" ? String(kitConfigRetry) : null);
+  const { data: descubreConfig, loading: descubreConfigLoading, error: descubreConfigError } =
+    useAsyncResource(fetchDescubreGuaurritasConfig, fulfillmentMode === "national" ? String(descubreConfigRetry) : null);
+  const kitFlavorCounts = Object.fromEntries(
+    (kitConfig?.flavors ?? []).map((flavor) => [flavor.label, kitFlavorCountsDraft[flavor.label] ?? 0]),
+  );
+  const [descubreFlavorCountsDraft, setDescubreFlavorCounts] =
     useState<Record<string, number>>({});
+  const descubreFlavorCounts = Object.fromEntries(
+    (kitConfig?.flavors ?? []).map((flavor) => [flavor.label, descubreFlavorCountsDraft[flavor.label] ?? 0]),
+  );
   const [descubreSazonador, setDescubreSazonador] = useState<string | null>(null);
   const [inspirationPhotos, setInspirationPhotos] = useState<File[]>([]);
   const [inspirationFeedback, setInspirationFeedback] = useState("");
@@ -769,21 +778,6 @@ export default function CuisineStoreApp({
     useRef<ReturnType<typeof setTimeout> | null>(null);
   const cartOpeningRef = useRef(false);
   const { count: cartCount } = useCart();
-
-  useEffect(() => {
-    const requestedProduct = new URL(window.location.href).searchParams.get(
-      "product",
-    );
-
-    if (
-      !["guaurricookies", "happy-bag"].includes(requestedProduct ?? "")
-    ) {
-      return;
-    }
-
-    const product = products.find((item) => item.id === requestedProduct);
-    if (product) setSelectedProduct(product);
-  }, []);
 
   const openCuisineCart = () => {
     // Both mobile entrances need the visible Wix viewport, not the tall iframe.
@@ -836,73 +830,6 @@ export default function CuisineStoreApp({
     },
     [inspirationPreviews],
   );
-
-  useEffect(() => {
-    if (fulfillmentMode !== "national") {
-      setKitConfig(null);
-      setKitConfigError("");
-      setKitConfigLoading(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    setKitConfigLoading(true);
-    setKitConfigError("");
-
-    fetchKitGuaurriCookiesConfig(controller.signal)
-      .then((config) => {
-        setKitConfig(config);
-        setKitFlavorCounts((current) =>
-          Object.fromEntries(
-            config.flavors.map((flavor) => [flavor.label, current[flavor.label] ?? 0]),
-          ),
-        );
-      })
-      .catch((error) => {
-        if (controller.signal.aborted) return;
-        setKitConfig(null);
-        setKitConfigError(
-          error instanceof Error
-            ? error.message
-            : "No pudimos sincronizar los sabores del kit con Wix.",
-        );
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setKitConfigLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [fulfillmentMode, kitConfigRetry]);
-
-  useEffect(() => {
-    if (fulfillmentMode !== "national") {
-      setDescubreConfig(null);
-      setDescubreConfigError("");
-      setDescubreConfigLoading(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    setDescubreConfigLoading(true);
-    setDescubreConfigError("");
-
-    fetchDescubreGuaurritasConfig(controller.signal)
-      .then((config) => setDescubreConfig(config))
-      .catch((error) => {
-        if (controller.signal.aborted) return;
-        setDescubreConfig(null);
-        setDescubreConfigError(
-          error instanceof Error
-            ? error.message
-            : "No pudimos sincronizar Descubre Guaurritas con Wix.",
-        );
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setDescubreConfigLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [fulfillmentMode, descubreConfigRetry]);
 
   useEffect(() => {
     if (window.self === window.top) return;
@@ -1186,7 +1113,8 @@ export default function CuisineStoreApp({
   };
 
   const adjustKitFlavor = (label: string, delta: -1 | 1) => {
-    setKitFlavorCounts((current) => {
+    setKitFlavorCounts((draft) => {
+      const current = Object.fromEntries((kitConfig?.flavors ?? []).map((flavor) => [flavor.label, draft[flavor.label] ?? 0]));
       const flavor = kitConfig?.flavors.find((item) => item.label === label);
       if (!flavor || !flavor.available) return current;
 
@@ -1213,7 +1141,8 @@ export default function CuisineStoreApp({
   };
 
   const adjustDescubreFlavor = (label: string, delta: -1 | 1) => {
-    setDescubreFlavorCounts((current) => {
+    setDescubreFlavorCounts((draft) => {
+      const current = Object.fromEntries((kitConfig?.flavors ?? []).map((flavor) => [flavor.label, draft[flavor.label] ?? 0]));
       const flavor = kitConfig?.flavors.find((item) => item.label === label);
       if (!flavor || !flavor.available) return current;
 

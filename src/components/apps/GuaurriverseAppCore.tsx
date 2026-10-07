@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
+import { useBrowserSearch, useBrowserReady, notifyLocationChange } from "@/lib/browser-location";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
 import NationalCuisineStoreApp from "@/components/apps/NationalCuisineStoreApp";
 import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
@@ -121,14 +122,6 @@ function isWorldId(value: string | null): value is WorldId {
   return worlds.some((world) => world.id === value);
 }
 
-function readWorldFromUrl(): WorldId | null {
-  if (typeof window === "undefined") return null;
-
-  const value = new URL(window.location.href).searchParams.get("world");
-  if (!isWorldId(value)) return null;
-  return worlds.find((world) => world.id === value)?.available ? value : null;
-}
-
 function updateWorldInUrl(worldId: WorldId | null) {
   const url = new URL(window.location.href);
 
@@ -139,6 +132,7 @@ function updateWorldInUrl(worldId: WorldId | null) {
   }
 
   window.history.pushState({ world: worldId }, "", url);
+  notifyLocationChange();
 }
 
 function WorldMediaPreview({ world }: { world: World }) {
@@ -191,40 +185,27 @@ function WorldMediaPreview({ world }: { world: World }) {
 }
 
 export default function GuaurriverseApp() {
-  const [selectedWorldId, setSelectedWorldId] = useState<WorldId | null>(null);
-  const [fulfillmentMode, setActiveFulfillmentMode] =
-    useState<FulfillmentMode>("leon");
-
+  const search = useBrowserSearch();
+  const browserReady = useBrowserReady();
+  const requestedWorld = new URLSearchParams(search).get("world");
+  const selectedWorldId = isWorldId(requestedWorld) && worlds.find((world) => world.id === requestedWorld)?.available
+    ? requestedWorld : null;
+  const [modeOverride, setActiveFulfillmentMode] = useState<FulfillmentMode | null>(null);
+  const requestedFulfillment = new URLSearchParams(search).get("fulfillment");
+  const fulfillmentMode = modeOverride ?? (requestedFulfillment === "national"
+    ? "national" : browserReady ? getFulfillmentMode() : "leon");
   useEffect(() => {
-    const syncWorld = () => {
-      const nextWorld = readWorldFromUrl();
-      setSelectedWorldId(nextWorld);
-    };
-
-    const requestedFulfillment = new URL(window.location.href).searchParams.get(
-      "fulfillment",
-    );
-    const initialFulfillment =
-      requestedFulfillment === "national" ? "national" : getFulfillmentMode();
-
-    setFulfillmentMode(initialFulfillment);
-    setActiveFulfillmentMode(initialFulfillment);
-    syncWorld();
-    window.addEventListener("popstate", syncWorld);
-
-    return () => window.removeEventListener("popstate", syncWorld);
-  }, []);
+    if (browserReady) setFulfillmentMode(fulfillmentMode);
+  }, [browserReady, fulfillmentMode]);
 
   const selectedWorld = worlds.find((world) => world.id === selectedWorldId);
 
   const openWorld = (world: World) => {
     if (!world.available) return;
-    setSelectedWorldId(world.id);
     updateWorldInUrl(world.id);
   };
 
   const showAllWorlds = () => {
-    setSelectedWorldId(null);
     updateWorldInUrl(null);
   };
 

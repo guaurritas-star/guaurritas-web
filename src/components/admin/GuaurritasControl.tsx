@@ -1,10 +1,11 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { openOrderReceipt } from './orderReceipt';
+import { useBrowserReady } from '@/lib/browser-location';
+import { readAdminSession, writeAdminSession, scheduleDraftKey } from '@/lib/admin-state';
 
 const API_URL = 'https://www.guaurritas.com/_functions/speiAdmin';
-const SESSION_KEY = 'guaurritas-spei-admin-session';
 const TZ = 'America/Mexico_City';
 
 const MONTHS = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -218,7 +219,6 @@ function DetailPanel({ order, proofReady, busy, todayKey, onClose, onProof, onVa
   onSchedule: (o: ControlOrder, draft: ScheduleDraft) => Promise<void>; onDelete: (o: ControlOrder) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<ScheduleDraft>({ date: dateInput(order.scheduledAt || order.deliveryDate), time: order.deliveryTime || '', deliveryType: order.deliveryType || '', deliveryPoint: order.deliveryPoint || '', operationalNote: order.operationalNote || '' });
-  useEffect(() => { setDraft({ date: dateInput(order.scheduledAt || order.deliveryDate), time: order.deliveryTime || '', deliveryType: order.deliveryType || '', deliveryPoint: order.deliveryPoint || '', operationalNote: order.operationalNote || '' }); }, [order]);
   return <div className="fixed inset-0 z-50 bg-[#10162a]/35 backdrop-blur-[2px]" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}><aside className="absolute inset-y-0 right-0 w-full overflow-y-auto bg-[#f5f6fa] shadow-[-24px_0_70px_rgba(20,30,70,.22)] sm:max-w-xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#dfe4ef] bg-white/95 px-4 py-4 backdrop-blur"><div><div className="font-title text-lg text-[#203676]">{order.customerName || order.reference}</div><div className="font-interface text-[10px] text-slate-400">{order.wixOrderNumber ? `Wix #${order.wixOrderNumber} · ` : ''}{order.reference}</div></div><button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl bg-[#f1f3f9] font-interface text-lg text-slate-500">×</button></div><div className="space-y-4 p-4 sm:p-5"><div className="flex items-center justify-between gap-3"><StatusPill order={order} /><div className="font-title text-2xl text-[#203676]">{money(order.total, order.currency)}</div></div>
 
   <section className="rounded-2xl border border-[#e0e4f0] bg-white p-4"><h3 className="font-title text-base text-[#2a4189]">Pedido</h3><div className="mt-3 space-y-3">{order.lines.map((line, index) => <div key={`${line.name}-${index}`} className="rounded-xl bg-[#f8f9fc] p-3"><div className="flex justify-between gap-3 font-interface text-sm font-semibold text-slate-700"><span>{line.name}</span><span>{line.quantity}×</span></div>{line.detail || line.personalization ? <div className="mt-1 font-interface text-xs text-slate-400">{line.detail || line.personalization}</div> : null}<div className="mt-1 font-interface text-xs text-[#425BBC]">{money(line.lineTotal || line.unitPrice * line.quantity)}</div></div>)}</div></section>
@@ -243,7 +243,9 @@ function DetailPanel({ order, proofReady, busy, todayKey, onClose, onProof, onVa
 export default function GuaurritasControl() {
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true);
+  const browserReady = useBrowserReady();
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const checkingSession = !browserReady || (!authenticated && Boolean(readAdminSession()) && !sessionChecked);
   const [bootstrap, setBootstrap] = useState<Bootstrap | null>(null);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [list, setList] = useState<OrderList>({ orders: [], page: 0, pageSize: 50, hasNext: false, totalCount: 0 });
@@ -257,33 +259,101 @@ export default function GuaurritasControl() {
   const [page, setPage] = useState(0);
   const [detail, setDetail] = useState<ControlOrder | null>(null);
   const [proofReady, setProofReady] = useState<ProofReady>(null);
-  const [loading, setLoading] = useState(false);
+  const [manualLoading, setLoading] = useState(false);
+  const [completedOrdersQuery, setCompletedOrdersQuery] = useState('');
+  const currentOrdersQuery = useRef('');
   const [detailBusy, setDetailBusy] = useState('');
   const [error, setError] = useState('');
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>({});
   const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
 
-  const logout = useCallback(() => { sessionStorage.removeItem(SESSION_KEY); setPassword(''); setAuthenticated(false); setBootstrap(null); setDashboard(null); setDetail(null); setProofReady(null); }, []);
+  const logout = useCallback(() => { writeAdminSession(''); setPassword(''); setAuthenticated(false); setBootstrap(null); setDashboard(null); setDetail(null); setProofReady(null); }, []);
   const handleApiError = useCallback((apiError: unknown) => { const typed = apiError as Error & { status?: number }; if (typed?.status === 403) { logout(); return 'La sesión dejó de ser válida. Vuelve a ingresar la clave.'; } return typed?.message || 'Ocurrió un error en Guaurritas Control.'; }, [logout]);
 
-  const loadBootstrap = useCallback(async (secret: string) => {
-    const data = await panelApi<Bootstrap>(secret, 'bootstrap'); setBootstrap(data);
+  const applyBootstrap = useCallback((data: Bootstrap) => {
+    setBootstrap(data);
     const [year, month] = data.today.split('-').map(Number);
-    setExpandedYears((c) => ({ ...c, [String(year)]: true })); setExpandedMonths((c) => ({ ...c, [`${year}-${String(month).padStart(2, '0')}`]: true }));
+    setExpandedYears((c) => ({ ...c, [String(year)]: true }));
+    setExpandedMonths((c) => ({ ...c, [`${year}-${String(month).padStart(2, '0')}`]: true }));
     if (!periodInitialized) { setPeriod({ year, month, day: 0 }); setPeriodInitialized(true); }
   }, [periodInitialized]);
+  const loadBootstrap = useCallback(async (secret: string) => {
+    applyBootstrap(await panelApi<Bootstrap>(secret, 'bootstrap'));
+  }, [applyBootstrap]);
   const loadDashboard = useCallback(async (secret: string, p: Period) => setDashboard(await panelApi<DashboardData>(secret, 'dashboard', p)), []);
-  const loadOrders = useCallback(async (secret: string, nextMode: Mode, p: Period, nextSearch: string, nextPage: number) => { setLoading(true); setError(''); try { setList(await panelApi<OrderList>(secret, 'list', { mode: nextMode, ...p, search: nextSearch, page: nextPage })); } catch (err) { setError(handleApiError(err)); } finally { setLoading(false); } }, [handleApiError]);
+  const loadOrders = useCallback(async (secret: string, nextMode: Mode, p: Period, nextSearch: string, nextPage: number) => {
+    const query = JSON.stringify([secret, nextMode, p, nextSearch, nextPage]);
+    setLoading(true); setError('');
+    try {
+      const data = await panelApi<OrderList>(secret, 'list', { mode: nextMode, ...p, search: nextSearch, page: nextPage });
+      if (currentOrdersQuery.current === query) { setList(data); setCompletedOrdersQuery(query); }
+    } catch (err) { if (currentOrdersQuery.current === query) setError(handleApiError(err)); }
+    finally { setLoading(false); }
+  }, [handleApiError]);
   const loadUpcoming = useCallback(async (secret: string) => { try { setUpcoming(await panelApi<ControlOrder[]>(secret, 'upcoming', { limit: 150 })); } catch (err) { setError(handleApiError(err)); } }, [handleApiError]);
 
-  async function login(secret: string) { await panelApi<{ authenticated: boolean }>(secret, 'verify'); sessionStorage.setItem(SESSION_KEY, secret); setPassword(secret); setAuthenticated(true); }
+  async function login(secret: string) { await panelApi<{ authenticated: boolean }>(secret, 'verify'); writeAdminSession(secret); setPassword(secret); setAuthenticated(true); }
 
-  useEffect(() => { const saved = sessionStorage.getItem(SESSION_KEY) || ''; if (!saved) { setCheckingSession(false); return; } panelApi<{ authenticated: boolean }>(saved, 'verify').then(() => { setPassword(saved); setAuthenticated(true); }).catch(() => sessionStorage.removeItem(SESSION_KEY)).finally(() => setCheckingSession(false)); }, []);
-  useEffect(() => { if (!authenticated || !password) return; setCheckingSession(false); loadBootstrap(password).catch((err) => setError(handleApiError(err))); loadUpcoming(password); }, [authenticated, password, loadBootstrap, loadUpcoming, handleApiError]);
-  useEffect(() => { const timer = window.setTimeout(() => { setSearch(searchInput.trim()); setPage(0); }, 260); return () => window.clearTimeout(timer); }, [searchInput]);
-  useEffect(() => { if (!authenticated || !password || !periodInitialized) return; loadDashboard(password, period).catch((err) => setError(handleApiError(err))); }, [authenticated, password, period, periodInitialized, loadDashboard, handleApiError]);
-  useEffect(() => { if (!authenticated || !password || !periodInitialized) return; const effectiveMode: Mode = nav === 'spei' ? 'spei' : mode; loadOrders(password, effectiveMode, period, search, page); }, [authenticated, password, nav, mode, period, search, page, periodInitialized, loadOrders]);
-  useEffect(() => { if (nav === 'agenda' && password) loadUpcoming(password); }, [nav, password, loadUpcoming]);
+  const effectiveMode: Mode = nav === 'spei' ? 'spei' : mode;
+  const ordersQuery = JSON.stringify([password, effectiveMode, period, search, page]);
+  const loading = manualLoading || (authenticated && periodInitialized && completedOrdersQuery !== ordersQuery);
+
+  useEffect(() => {
+    if (!browserReady) return;
+    const saved = readAdminSession();
+    if (!saved) return;
+    let active = true;
+    panelApi<{ authenticated: boolean }>(saved, 'verify').then(() => {
+      if (active) { setPassword(saved); setAuthenticated(true); }
+    }).catch(() => { if (active) writeAdminSession(''); })
+      .finally(() => { if (active) setSessionChecked(true); });
+    return () => { active = false; };
+  }, [browserReady]);
+
+  useEffect(() => {
+    if (!authenticated || !password) return;
+    let active = true;
+    panelApi<Bootstrap>(password, 'bootstrap').then((data) => { if (active) applyBootstrap(data); })
+      .catch((err) => { if (active) setError(handleApiError(err)); });
+    panelApi<ControlOrder[]>(password, 'upcoming', { limit: 150 }).then((data) => { if (active) setUpcoming(data); })
+      .catch((err) => { if (active) setError(handleApiError(err)); });
+    return () => { active = false; };
+  }, [authenticated, password, applyBootstrap, handleApiError]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => { setSearch(searchInput.trim()); setPage(0); }, 260);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (!authenticated || !password || !periodInitialized) return;
+    let active = true;
+    panelApi<DashboardData>(password, 'dashboard', period).then((data) => { if (active) setDashboard(data); })
+      .catch((err) => { if (active) setError(handleApiError(err)); });
+    return () => { active = false; };
+  }, [authenticated, password, period, periodInitialized, handleApiError]);
+
+  useEffect(() => {
+    currentOrdersQuery.current = ordersQuery;
+    if (!authenticated || !password || !periodInitialized) return;
+    let active = true;
+    panelApi<OrderList>(password, 'list', { mode: effectiveMode, ...period, search, page }).then((data) => {
+      if (!active) return;
+      setList(data); setError(''); setCompletedOrdersQuery(ordersQuery);
+    }).catch((err) => {
+      if (!active) return;
+      setError(handleApiError(err)); setCompletedOrdersQuery(ordersQuery);
+    });
+    return () => { active = false; };
+  }, [authenticated, password, effectiveMode, period, search, page, periodInitialized, ordersQuery, handleApiError]);
+
+  useEffect(() => {
+    if (nav !== 'agenda' || !authenticated || !password) return;
+    let active = true;
+    panelApi<ControlOrder[]>(password, 'upcoming', { limit: 150 }).then((data) => { if (active) setUpcoming(data); })
+      .catch((err) => { if (active) setError(handleApiError(err)); });
+    return () => { active = false; };
+  }, [nav, authenticated, password, handleApiError]);
 
   // Keep Guaurritas Control in sync with Wix eCommerce while the admin panel is open.
   // The backend bootstrap already imports both LOCAL_SPEI and WIX_ECOM orders into
@@ -293,22 +363,26 @@ export default function GuaurritasControl() {
     if (!authenticated || !password || !periodInitialized) return;
 
     let refreshing = false;
+    let active = true;
     const refreshCommerce = async () => {
       if (refreshing || document.visibilityState !== 'visible') return;
       refreshing = true;
       try {
-        await loadBootstrap(password);
+        const freshBootstrap = await panelApi<Bootstrap>(password, 'bootstrap');
+        if (!active) return;
+        applyBootstrap(freshBootstrap);
         const effectiveMode: Mode = nav === 'spei' ? 'spei' : mode;
         const [freshDashboard, freshList, freshUpcoming] = await Promise.all([
           panelApi<DashboardData>(password, 'dashboard', period),
           panelApi<OrderList>(password, 'list', { mode: effectiveMode, ...period, search, page }),
           panelApi<ControlOrder[]>(password, 'upcoming', { limit: 150 }),
         ]);
+        if (!active) return;
         setDashboard(freshDashboard);
         setList(freshList);
         setUpcoming(freshUpcoming);
       } catch (err) {
-        setError(handleApiError(err));
+        if (active) setError(handleApiError(err));
       } finally {
         refreshing = false;
       }
@@ -321,6 +395,7 @@ export default function GuaurritasControl() {
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
+      active = false;
       window.clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
@@ -333,7 +408,7 @@ export default function GuaurritasControl() {
     mode,
     search,
     page,
-    loadBootstrap,
+    applyBootstrap,
     handleApiError,
   ]);
 
@@ -399,6 +474,6 @@ export default function GuaurritasControl() {
 
   <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-[22px] border border-[#dbe1ef] bg-white/95 p-1.5 shadow-[0_16px_50px_rgba(23,35,75,.2)] backdrop-blur lg:hidden">{navItems.map(([key, icon, label]) => <button key={key} onClick={() => { setNav(key); setPage(0); }} className={`relative flex min-w-0 flex-col items-center gap-1 rounded-[16px] px-1 py-2.5 font-interface text-[9px] font-bold ${nav === key ? 'bg-[#eef1ff] text-[#425BBC]' : 'text-slate-400'}`}><span className="text-sm">{icon}</span><span className="truncate">{label}</span>{key === 'spei' && bootstrap?.counts.speiOpen ? <span className="absolute right-2 top-1 h-2 w-2 rounded-full bg-amber-400" /> : null}</button>)}</nav>
   </div></div>
-  {detail ? <DetailPanel order={detail} proofReady={proofReady} busy={detailBusy} todayKey={bootstrap?.today || ''} onClose={() => { setDetail(null); setProofReady(null); }} onProof={prepareProof} onValidate={validateOrder} onReject={rejectOrder} onSchedule={saveSchedule} onDelete={deletePending} /> : null}
+  {detail ? <DetailPanel key={scheduleDraftKey(detail)} order={detail} proofReady={proofReady} busy={detailBusy} todayKey={bootstrap?.today || ''} onClose={() => { setDetail(null); setProofReady(null); }} onProof={prepareProof} onValidate={validateOrder} onReject={rejectOrder} onSchedule={saveSchedule} onDelete={deletePending} /> : null}
   </main>;
 }

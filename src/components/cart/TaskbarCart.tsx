@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   changeCartQuantity,
   hydrateCart,
@@ -67,6 +67,18 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const checkoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cart = useCart();
 
+  const closeCart = useCallback(() => {
+    setOpen(false);
+    setView("cart");
+    setCheckoutStatus("");
+    setLeonFulfillmentConfirmed(false);
+  }, []);
+
+  if (view === "leon-checkout" && !cart.items.some((item) => item.fulfillment === "leon")) {
+    // The checkout has no order left to configure. Reset before rendering it.
+    setView("cart");
+  }
+
   useEffect(() => hydrateCart(), []);
 
   useEffect(() => {
@@ -123,10 +135,10 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     if (!open) return;
 
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closeCart();
     };
     const closeOutside = (event: PointerEvent) => {
-      if (!shellRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!shellRef.current?.contains(event.target as Node)) closeCart();
     };
 
     window.addEventListener("keydown", closeOnEscape);
@@ -135,21 +147,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
       window.removeEventListener("keydown", closeOnEscape);
       window.removeEventListener("pointerdown", closeOutside);
     };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) {
-      setCheckoutStatus("");
-      setView("cart");
-      setLeonFulfillmentConfirmed(false);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (view === "leon-checkout" && !cart.items.some((item) => item.fulfillment === "leon")) {
-      setView("cart");
-    }
-  }, [cart.items, view]);
+  }, [open, closeCart]);
 
   useEffect(() => {
     const clearCheckoutLock = () => {
@@ -212,12 +210,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     requestAnimationFrame(() => {
       panelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     });
-  };
-
-  const closeCart = () => {
-    setOpen(false);
-    setView("cart");
-    setCheckoutStatus("");
   };
 
   const goToLeonCheckout = () => {
@@ -315,6 +307,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   };
 
   const updateLeonPreferences = (patch: Partial<LeonOrderPreferences>) => {
+    setLeonPaymentMethod(null);
     setLeonOrderPreferences((current) => ({
       ...current,
       deliveryMethod: "pending_whatsapp",
@@ -327,12 +320,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     setResolvedPaymentPreferences(null);
     setCheckoutStatus("");
   };
-
-  useEffect(() => {
-    if (!isLeonOrderPreferencesComplete(leonOrderPreferences) && !resolvedPaymentPreferences) {
-      setLeonPaymentMethod(null);
-    }
-  }, [leonOrderPreferences, resolvedPaymentPreferences]);
 
   const renderCartItems = () => (
     <div className="taskbar-cart-items">
@@ -871,7 +858,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
         aria-label={`Carrito con ${cart.count} ${cart.count === 1 ? "artículo" : "artículos"}`}
         aria-expanded={open}
         aria-controls="taskbar-cart-panel"
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => { if (open) closeCart(); else setOpen(true); }}
       >
         <span className="taskbar-cart-tray-image">
           <Image

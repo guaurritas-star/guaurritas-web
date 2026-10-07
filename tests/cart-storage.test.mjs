@@ -1,19 +1,19 @@
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-const ts = require('typescript');
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import ts from 'typescript';
 
 function load(file, window, imports) {
-  const module = { exports: {} };
-  const context = { module, exports: module.exports, window, require: (name) => {
+  const cjsModule = { exports: {} };
+  const context = { module: cjsModule, exports: cjsModule.exports, window, require: (name) => {
     if (!(name in imports)) throw new Error(`Unexpected import: ${name}`);
     return imports[name];
   } };
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
   }).outputText, context);
-  return module.exports;
+  return cjsModule.exports;
 }
 
 const product = { id: 'fixture', name: 'Premio', detail: '100 g', unitPrice: 50, image: '/fixture.png' };
