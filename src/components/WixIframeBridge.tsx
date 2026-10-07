@@ -169,12 +169,12 @@ export default function WixIframeBridge() {
           overscroll-behavior: auto !important;
         }
         .retro-window-dialog.store-window-dialog {
-          height: ${baseViewportHeight}px !important;
-          min-height: 0 !important;
-          max-height: ${baseViewportHeight}px !important;
+          height: auto !important;
+          min-height: ${baseViewportHeight}px !important;
+          max-height: none !important;
         }
         .retro-window-content.store-window-client {
-          overflow-y: hidden !important;
+          overflow-y: visible !important;
         }
       }
     `;

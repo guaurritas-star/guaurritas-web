@@ -175,7 +175,7 @@ export default function RetroWindow({
 
         <div
           className={`retro-window-content retro-window-client min-h-0 flex-1 overscroll-contain overflow-y-auto ${
-            fixedContent ? "store-window-client !overflow-hidden !p-0" : variant === "wide" ? "p-4 sm:p-6" : "p-6 sm:p-8"
+            fixedContent ? "store-window-client sm:!overflow-hidden !p-0" : variant === "wide" ? "p-4 sm:p-6" : "p-6 sm:p-8"
           }`}
         >
           {children}

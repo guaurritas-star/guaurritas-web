@@ -36,7 +36,7 @@ export default function StoreApp() {
   };
 
   return (
-    <section className="store-app flex h-full min-h-0 flex-col bg-white">
+    <section className="store-app flex h-auto min-h-0 flex-col bg-white sm:h-full">
       <header className="store-navigation shrink-0 border-b-2 border-[#425b8c] bg-[#eef5f7] px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1 sm:flex-none">
@@ -78,7 +78,7 @@ export default function StoreApp() {
         )}
       </div>
       </header>
-      <div className="store-catalog min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
+      <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
         {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
       </div>
     </section>
