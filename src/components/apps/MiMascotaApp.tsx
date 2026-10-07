@@ -540,7 +540,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
                       <p className="font-title text-sm">{formatMoney(order.total, order.currency)}</p>
                       <p className="mt-1 font-mono text-[8px] font-bold uppercase tracking-wider text-[#588060]">{order.paid ? "Compra confirmada" : "Pedido registrado"}</p>
                     </div>
-                    {order.paid && <ReorderPurchase orderId={order.id} onOpenStore={() => onOpenWorld?.(order.lineItems[0]?.world ?? "cuisine")} />}
+                    {order.paid && <ReorderPurchase orderId={order.id} orderItems={order.lineItems} onOpenStore={() => onOpenWorld?.(order.lineItems[0]?.world ?? "cuisine")} />}
                   </article>
                 ))}
               </div>

@@ -130,9 +130,23 @@ export function hydrateCart() {
   emit();
 }
 
+export function cartFulfillmentConflict(fulfillment: FulfillmentMode) {
+  hydrateCart();
+  const existing = items.find(item => item.fulfillment !== fulfillment);
+  if (!existing) return "";
+  const label = existing.fulfillment === "leon" ? "entrega en León" : "envío nacional";
+  return `Tu carrito ya contiene productos para ${label}. Completa ese pedido o retira sus productos antes de cambiar el tipo de entrega. Conservamos lo que ya agregaste.`;
+}
+
+function assertCartFulfillment(fulfillment: FulfillmentMode) {
+  const conflict = cartFulfillmentConflict(fulfillment);
+  if (conflict) throw new Error(conflict);
+}
+
 export function addCartItem(item: NewCartItem) {
   hydrateCart();
   const fulfillment = item.fulfillment ?? getFulfillmentMode();
+  assertCartFulfillment(fulfillment);
   const enriched = enrichCartItem({ ...item, fulfillment, quantity: 1 });
   const existing = items.find(
     (current) =>
@@ -165,6 +179,11 @@ export function addReorderItems(prepared: Omit<CartItem, "wix">[]) {
     !Number.isInteger(item.quantity) || item.quantity <= 0)) {
     throw new Error("No pudimos recuperar la configuración completa del pedido.");
   }
+  const fulfillment = prepared[0].fulfillment;
+  if (prepared.some(item => item.fulfillment !== fulfillment)) {
+    throw new Error("Un pedido no puede combinar entrega en León y envío nacional.");
+  }
+  assertCartFulfillment(fulfillment);
   let next = [...items];
   for (const item of prepared) {
     const enriched = enrichCartItem(item);

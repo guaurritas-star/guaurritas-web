@@ -5,7 +5,7 @@ import { useBrowserSearch } from "@/lib/browser-location";
 import { useAsyncResource } from "@/lib/use-async-resource";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { addCartItem, useCart } from "@/lib/cart-store";
+import { addCartItem, cartFulfillmentConflict, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
@@ -1171,6 +1171,8 @@ export default function CuisineStoreApp({
   };
 
   const addToCart = () => {
+    const conflict = cartFulfillmentConflict(fulfillmentMode);
+    if (conflict) { setNotice(conflict); return; }
     if (!selectedProduct) return;
 
     const isPetcake = selectedProduct.id === "petcakes";
@@ -2926,7 +2928,7 @@ export default function CuisineStoreApp({
             )}
 
             {notice && (
-              <AddToCartFeedback message={notice} onContinue={() => { setNotice(""); setSelectedProduct(null); }} />
+              <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} onContinue={() => { setNotice(""); setSelectedProduct(null); }} />
             )}
           </div>
         </div>

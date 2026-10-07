@@ -3,7 +3,7 @@
 import Image from "next/image";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useRef, useState } from "react";
-import { addCartItem, useCart } from "@/lib/cart-store";
+import { addCartItem, cartFulfillmentConflict, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
@@ -378,6 +378,8 @@ export default function CoutureStoreApp({
   };
 
   const addToCart = () => {
+    const conflict = cartFulfillmentConflict(fulfillmentMode);
+    if (conflict) { setNotice(conflict); return; }
     addCartItem({
       id: `couture:${collection.id}:${color.id}:${size.id}`,
       name: collection.name,
@@ -799,7 +801,7 @@ export default function CoutureStoreApp({
                 Agregar al carrito · {money(price)}
               </button>
               {notice && (
-                <AddToCartFeedback message={notice} onContinue={() => { setNotice(""); catalogRef.current?.scrollIntoView({ block: "start" }); }} />
+                <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} onContinue={() => { setNotice(""); catalogRef.current?.scrollIntoView({ block: "start" }); }} />
               )}
             </div>
           </div>

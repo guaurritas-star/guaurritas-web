@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { addReorderItems, type CartItem } from "@/lib/cart-store";
+import { addReorderItems, cartFulfillmentConflict, type CartItem } from "@/lib/cart-store";
 import { getFulfillmentMode, fulfillmentLabel, type FulfillmentMode } from "@/lib/fulfillment-store";
+import { canRepeatNational } from "@/lib/national-catalog";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 
 type PreparedItem = Omit<CartItem, "wix">;
@@ -14,8 +15,9 @@ type State =
 
 const money = (amount: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(amount);
 
-export default function ReorderPurchase({ orderId, onOpenStore }: {
+export default function ReorderPurchase({ orderId, orderItems, onOpenStore }: {
   orderId: string;
+  orderItems: { name: string; world: "cuisine" | "couture" }[];
   onOpenStore?: () => void;
 }) {
   const [state, setState] = useState<State>({ kind: "idle" });
@@ -33,7 +35,7 @@ export default function ReorderPurchase({ orderId, onOpenStore }: {
       if (timeout.current) clearTimeout(timeout.current);
       request.current = null;
       if (!data.ok || !Array.isArray(data.items) || !data.items.length) {
-        setState({ kind: "error", message: data.message || "No pudimos preparar este pedido. Inténtalo nuevamente." });
+        setState({ kind: "error", message: (data.message?.includes("precio online autorizado") ? "No podemos repetir este pedido con la entrega seleccionada. Prueba entrega en León; si sigue sin estar disponible, elige los productos en Tienda." : data.message) || "No pudimos preparar este pedido. Inténtalo nuevamente." });
         return;
       }
       setState({ kind: "ready", items: data.items });
@@ -47,6 +49,14 @@ export default function ReorderPurchase({ orderId, onOpenStore }: {
 
   const prepare = (fulfillment: FulfillmentMode) => {
     setMode(fulfillment);
+    if (timeout.current) clearTimeout(timeout.current);
+    request.current = null;
+    if (fulfillment === "national" && !canRepeatNational(orderItems)) {
+      setState({ kind: "error", message: "Este pedido incluye productos que no están disponibles para envío nacional. Puedes repetirlo con entrega en León o elegir otros productos en Tienda." });
+      return;
+    }
+    const conflict = cartFulfillmentConflict(fulfillment);
+    if (conflict) { setState({ kind: "error", message: conflict }); return; }
     setState({ kind: "loading" });
     if (timeout.current) clearTimeout(timeout.current);
     request.current = crypto.randomUUID();
@@ -74,7 +84,7 @@ export default function ReorderPurchase({ orderId, onOpenStore }: {
   return (
     <div className="sm:col-span-3 font-interface text-sm">
       {state.kind === "idle" ? (
-        <button type="button" onClick={() => prepare(getFulfillmentMode())} className="min-h-11 border border-[#425b8c] bg-white px-4 font-bold text-[#425b8c] hover:bg-[#edf2fa]">Volver a pedir</button>
+        <button type="button" onClick={() => prepare(canRepeatNational(orderItems) ? getFulfillmentMode() : "leon")} className="min-h-11 border border-[#425b8c] bg-white px-4 font-bold text-[#425b8c] hover:bg-[#edf2fa]">Volver a pedir</button>
       ) : state.kind === "added" ? (
         <div role="status" className="border border-[#89a79a] bg-[#edf6f0] p-3 text-[#446454]">
           Pedido agregado. Conservamos los artículos que ya tenías.

@@ -183,6 +183,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     [cart.items],
   );
 
+  const mixedCart = nationalItems.length > 0 && leonItems.length > 0;
+  const mixedCartMessage = "Tu carrito anterior contiene dos tipos de entrega. Retira los productos de León o los de envío nacional para continuar con un solo pedido.";
+
   const nationalBaseTotal = itemTotal(nationalItems);
   const leonTransferTotal = itemTotal(leonItems);
   // Los precios nacionales ya incluyen procesamiento + reserva logística.
@@ -213,6 +216,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   };
 
   const goToLeonCheckout = () => {
+    if (mixedCart) { setCheckoutStatus(mixedCartMessage); return; }
     setView("leon-checkout");
     setCheckoutStatus("");
     setLeonPaymentMethod(null);
@@ -230,6 +234,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     label: string,
     preferences?: LeonOrderPreferences | null,
   ) => {
+    if (mixedCart) { setCheckoutStatus(mixedCartMessage); return; }
     if (checkoutBusy) return;
 
     setCheckoutStatus("");
@@ -454,6 +459,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             </div>
           ) : view === "cart" ? (
             <>
+              {mixedCart && <p role="alert" className="m-3 rounded-lg border border-[#d8c0c8] bg-[#fff4f4] p-3 font-interface text-xs text-[#8a4545]">{mixedCartMessage}</p>}
               {renderCartItems()}
 
               <footer className="taskbar-cart-footer !block space-y-3">
@@ -471,6 +477,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <button
                         type="button"
                         onClick={goToLeonCheckout}
+                        disabled={mixedCart}
                         className="shrink-0"
                       >
                         Continuar pedido
@@ -498,7 +505,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                       <button
                         type="button"
-                        disabled={checkoutBusy || !nationalCanCheckout}
+                        disabled={mixedCart || checkoutBusy || !nationalCanCheckout}
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }
@@ -574,7 +581,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </div>
                       <button
                         type="button"
-                        disabled={checkoutBusy || !nationalCanCheckout}
+                        disabled={mixedCart || checkoutBusy || !nationalCanCheckout}
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }

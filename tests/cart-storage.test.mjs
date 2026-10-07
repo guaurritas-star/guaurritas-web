@@ -97,3 +97,33 @@ test('checkout locks only mobile Wix scrolling and releases on desktop resize', 
   cleanup();
   assert.equal(listeners.size, 0);
 });
+
+test('cart blocks opposite delivery without losing items, and unlocks when emptied', () => {
+  const { api } = cart({ getItem: () => null, setItem() {} });
+  api.addCartItem({ ...product, fulfillment: 'leon' });
+  assert.throws(() => api.addCartItem({ ...product, id: 'national', fulfillment: 'national' }), /Tu carrito ya contiene/);
+  assert.equal(api.useCart().count, 1);
+  assert.equal(api.useCart().items[0].id, 'fixture');
+  api.removeCartItem('fixture', 'leon');
+  api.addCartItem({ ...product, fulfillment: 'national' });
+  assert.equal(api.useCart().items[0].fulfillment, 'national');
+  assert.throws(() => api.addCartItem({ ...product, fulfillment: 'leon' }), /Tu carrito ya contiene/);
+});
+
+test('reorder rejects mixed and conflicting batches atomically', () => {
+  const { api } = cart({ getItem: () => null, setItem() {} });
+  const item = { ...product, quantity: 2, fulfillment: 'national', reorderReference: { catalogItemId: 'fixture' } };
+  assert.throws(() => api.addReorderItems([item, { ...item, id: 'leon', fulfillment: 'leon' }]), /no puede combinar/);
+  assert.equal(api.useCart().count, 0);
+  api.addCartItem({ ...product, fulfillment: 'leon' });
+  assert.throws(() => api.addReorderItems([item]), /Tu carrito ya contiene/);
+  assert.equal(api.useCart().count, 1);
+  api.addReorderItems([{ ...item, fulfillment: 'leon' }]);
+  assert.equal(api.useCart().count, 3);
+});
+
+test('national recompra follows the existing national catalog; Petcakes remain local', () => {
+  const { canRepeatNational } = load('src/lib/national-catalog.ts', {}, {});
+  assert.equal(canRepeatNational([{ name: 'Petcakes', world: 'cuisine' }, { name: 'Velitas', world: 'cuisine' }]), false);
+  assert.equal(canRepeatNational([{ name: 'Happy Bag', world: 'cuisine' }, { name: 'Amulette', world: 'couture' }]), true);
+});

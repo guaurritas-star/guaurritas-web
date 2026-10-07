@@ -3,18 +3,7 @@
 import { useEffect, useRef } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
 
-const NATIONAL_PRODUCT_NAMES = [
-  "Guaurricookies",
-  "Kit GuaurriCookies",
-  "Descubre Guaurritas",
-  "Happy Bag",
-  "Sazonadores",
-  "GuaurriSticks",
-  "Happy Box",
-  "B’day gorrito",
-  "Velitas",
-  "Pancarta",
-] as const;
+import { NATIONAL_PRODUCT_NAMES } from "@/lib/national-catalog";
 
 const HIDDEN_CATEGORY_LABELS = new Set([
   "Petcakes",
