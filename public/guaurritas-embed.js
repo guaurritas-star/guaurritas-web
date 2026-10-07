@@ -1272,6 +1272,28 @@
           return;
         }
 
+        if (message.source === BRIDGE_SOURCE &&
+            message.type === "guaurritas:page-scroll") {
+          if (!window.matchMedia("(min-width: 640px)").matches ||
+              this._pageScrollState) return;
+          const delta = Number(message.deltaY);
+          if (!Number.isFinite(delta) || !delta) return;
+          let scroller = this.parentElement;
+          while (scroller && scroller !== document.body) {
+            const css = window.getComputedStyle(scroller);
+            if (/(auto|scroll)/.test(css.overflowY) &&
+                scroller.scrollHeight > scroller.clientHeight + 1 &&
+                (delta < 0 ? scroller.scrollTop > 0 :
+                  scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1)) {
+              scroller.scrollBy({ top: delta, behavior: "instant" });
+              return;
+            }
+            scroller = scroller.parentElement;
+          }
+          window.scrollBy({ top: delta, behavior: "instant" });
+          return;
+        }
+
         if (message.type === "resize") {
           applyHeight(message.height);
           return;

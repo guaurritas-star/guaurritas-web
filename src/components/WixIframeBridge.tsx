@@ -275,6 +275,30 @@ export default function WixIframeBridge() {
       syncCheckoutScrollLock();
     };
 
+    // Wheel events cannot cross an iframe boundary. Let the launcher scroll
+    // first, then pass the gesture to Wix so the rest of the page is reachable.
+    const handleDesktopWheel = (event: WheelEvent) => {
+      if (window.innerWidth <= MOBILE_BREAKPOINT || event.ctrlKey ||
+          event.defaultPrevented || !event.deltaY ||
+          document.querySelector('.retro-window-dialog, #taskbar-cart-panel')) return;
+
+      let element = event.target instanceof Element ? event.target : null;
+      while (element && element !== document.body) {
+        const style = window.getComputedStyle(element);
+        if (/(auto|scroll)/.test(style.overflowY) &&
+            element.scrollHeight > element.clientHeight + 1 &&
+            (event.deltaY < 0 ? element.scrollTop > 0 :
+              element.scrollTop + element.clientHeight < element.scrollHeight - 1)) return;
+        element = element.parentElement;
+      }
+      const delta = event.deltaY * (event.deltaMode === 1 ? 16 :
+        event.deltaMode === 2 ? window.innerHeight : 1);
+      event.preventDefault();
+      window.parent.postMessage({ source: BRIDGE_SOURCE,
+        type: 'guaurritas:page-scroll', deltaY: delta }, '*');
+    };
+    window.addEventListener('wheel', handleDesktopWheel, { passive: false });
+
     window.addEventListener("load", handleViewportChange);
     window.addEventListener("resize", handleViewportChange);
     window.addEventListener("orientationchange", handleViewportChange);
@@ -345,6 +369,7 @@ export default function WixIframeBridge() {
       window.removeEventListener("load", handleViewportChange);
       window.removeEventListener("resize", handleViewportChange);
       window.removeEventListener("orientationchange", handleViewportChange);
+      window.removeEventListener('wheel', handleDesktopWheel);
       style.remove();
     };
   }, []);
