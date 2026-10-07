@@ -49,6 +49,8 @@ function getMobileContentHeight() {
 export default function WixIframeBridge() {
   useEffect(() => {
     if (window.self === window.top) return;
+    const externalHeader = new URLSearchParams(window.location.search).get("externalHeader") === "1";
+    document.documentElement.classList.toggle("guaurritas-external-header", externalHeader);
 
     // Guardamos el viewport inicial únicamente para las apps que se abren a
     // pantalla completa. La pantalla principal del launcher se deja crecer de
@@ -57,7 +59,7 @@ export default function WixIframeBridge() {
     // Reservamos el espacio real del header (46), ticker (30) y taskbar (52).
     // Así el launcher completo y las dos barras inferiores caben en el primer
     // viewport móvil incluso después de que Wix termina de medir el iframe.
-    const mobileLauncherHeight = Math.max(1, baseViewportHeight - 128);
+    const mobileLauncherHeight = Math.max(1, baseViewportHeight - (externalHeader ? 82 : 128));
 
     const style = document.createElement("style");
     style.id = "guaurritas-wix-iframe-layout";
@@ -165,6 +167,14 @@ export default function WixIframeBridge() {
           min-height: 0 !important;
           overflow-y: visible !important;
           overscroll-behavior: auto !important;
+        }
+        .retro-window-dialog.store-window-dialog {
+          height: ${baseViewportHeight}px !important;
+          min-height: 0 !important;
+          max-height: ${baseViewportHeight}px !important;
+        }
+        .retro-window-content.store-window-client {
+          overflow-y: hidden !important;
         }
       }
     `;

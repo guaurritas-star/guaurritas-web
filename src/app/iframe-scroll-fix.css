@@ -12,6 +12,16 @@ body {
   position: relative;
 }
 
+html.guaurritas-external-header .desktop-os-header {
+  display: none !important;
+}
+
+@media (min-width: 640px) {
+  html.guaurritas-external-header body > main.desktop-wallpaper {
+    grid-template-rows: minmax(0, 1fr) var(--guaurritas-ticker-height) var(--guaurritas-taskbar-height);
+  }
+}
+
 /*
  * Desktop: el OS se reparte en cuatro filas reales (header, escritorio, promociones y
  * taskbar) dentro del alto exacto del iframe. Así evitamos depender de

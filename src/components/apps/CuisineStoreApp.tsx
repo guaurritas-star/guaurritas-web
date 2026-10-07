@@ -986,7 +986,7 @@ export default function CuisineStoreApp({
 
     const frame = window.requestAnimationFrame(() => {
       const productView = productViewRef.current;
-      const scrollContainer = productView?.closest(".retro-window-content");
+      const scrollContainer = productView?.closest(".store-catalog, .retro-window-content");
 
       if (scrollContainer instanceof HTMLElement) {
         scrollContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });

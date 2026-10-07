@@ -835,6 +835,7 @@ export default function Desktop() {
           icon={<DesktopAppIcon kind={selectedApp.icon} className="h-full w-full" />}
           onClose={closeActiveApp}
           onMinimize={minimizeActiveApp}
+          fixedContent={selectedApp.id === "tienda"}
           variant={
             selectedApp.id === "tienda" ||
             selectedApp.id === "mundos" ||

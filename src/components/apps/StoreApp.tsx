@@ -36,8 +36,8 @@ export default function StoreApp() {
   };
 
   return (
-    <section className="store-app -m-4 bg-white sm:-m-6">
-      <header className="store-navigation sticky top-0 z-50 border-b-2 border-[#425b8c] bg-[#eef5f7] px-4 py-3 sm:px-6">
+    <section className="store-app flex h-full min-h-0 flex-col bg-white">
+      <header className="store-navigation shrink-0 border-b-2 border-[#425b8c] bg-[#eef5f7] px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1 sm:flex-none">
             <p className="mb-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#42516a] sm:text-[10px]">
@@ -70,15 +70,15 @@ export default function StoreApp() {
             </button>
           ))}
         </div>
-      </header>
-      <div className="border-b border-[#d4dce7] bg-[#f9fbff] px-4 py-3 font-interface text-xs leading-5 text-[#53627a] sm:px-6">
+      <div className="mt-3 border-t border-[#d4dce7] pt-2 font-interface text-xs leading-5 text-[#53627a]">
         {mode === "national" ? (
           <p>Envío nacional: pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder}. Envío ${NATIONAL_SHIPPING_PROMO.standardRate}; gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold} para pedidos de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. El plazo y el total se confirman en el checkout.</p>
         ) : (
           <p>En León eliges fecha y horario antes de pagar. Confirmamos por WhatsApp el horario y el punto de entrega; Uber tiene costo adicional. El total con SPEI y tarjeta se muestra en el carrito.</p>
         )}
       </div>
-      <div className="store-catalog p-4 sm:p-6">
+      </header>
+      <div className="store-catalog min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
         {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
       </div>
     </section>

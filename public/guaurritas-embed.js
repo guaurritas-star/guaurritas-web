@@ -568,6 +568,10 @@
         window.location.href,
       );
       const requestedApp = new URLSearchParams(window.location.search).get("app");
+      // Guaurrinicio already has the global Wix navigation above the OS.
+      if (window.location.pathname.replace(/\/$/, "") === "/guaurrinicio") {
+        iframeSrc.searchParams.set("externalHeader", "1");
+      }
 
       const supportedApps = new Set([
         "tienda",
