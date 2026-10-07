@@ -37,6 +37,9 @@ jobs:
       - name: Preparar conexión pública de Guaurrinotas
         run: cp .env.development .env.production
 
+      - name: Verificar regresiones de carrito y sesión
+        run: npm test
+
       - name: Generar HTML estático
         run: npm run build
 

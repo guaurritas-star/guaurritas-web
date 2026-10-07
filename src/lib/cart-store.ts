@@ -59,7 +59,11 @@ function rebuildSnapshot() {
 
 function persist() {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // Keep the in-memory cart usable when browser storage is unavailable.
+  }
 }
 
 function emit() {
@@ -112,6 +116,7 @@ export function hydrateCart() {
             typeof item?.name === "string" &&
             typeof item?.detail === "string" &&
             typeof item?.unitPrice === "number" &&
+            Number.isFinite(item.unitPrice) && item.unitPrice >= 0 &&
             typeof item?.image === "string" &&
             Number.isInteger(item?.quantity) &&
             item.quantity > 0,

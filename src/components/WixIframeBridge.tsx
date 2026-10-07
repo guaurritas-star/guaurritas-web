@@ -4,7 +4,6 @@ import { useEffect } from "react";
 
 const BRIDGE_SOURCE = "guaurritas-web";
 const HEIGHT_MESSAGE = "guaurritas:height";
-const SCROLL_LOCK_MESSAGE = "guaurritas:scroll-lock";
 const READY_MESSAGE = "guaurritas:ready";
 const MOBILE_BREAKPOINT = 639;
 
@@ -181,7 +180,6 @@ export default function WixIframeBridge() {
     document.head.appendChild(style);
 
     let animationFrame = 0;
-    let pageScrollLocked = false;
 
     function getCurrentHeight() {
       if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -212,44 +210,8 @@ export default function WixIframeBridge() {
       });
     }
 
-    function syncCheckoutScrollLock() {
-      if (window.innerWidth > MOBILE_BREAKPOINT) {
-        if (pageScrollLocked) {
-          pageScrollLocked = false;
-          window.parent.postMessage(
-            {
-              source: BRIDGE_SOURCE,
-              type: SCROLL_LOCK_MESSAGE,
-              locked: false,
-            },
-            "*",
-          );
-        }
-        return;
-      }
-
-      const shouldLock = Boolean(
-        document.querySelector(
-          "#taskbar-cart-panel.taskbar-cart-panel--checkout",
-        ),
-      );
-
-      if (shouldLock === pageScrollLocked) return;
-      pageScrollLocked = shouldLock;
-
-      window.parent.postMessage(
-        {
-          source: BRIDGE_SOURCE,
-          type: SCROLL_LOCK_MESSAGE,
-          locked: shouldLock,
-        },
-        "*",
-      );
-    }
-
     const resizeObserver = new ResizeObserver(() => {
       enviarAltura();
-      syncCheckoutScrollLock();
     });
     const main = document.querySelector("main");
 
@@ -261,7 +223,6 @@ export default function WixIframeBridge() {
 
     const mutationObserver = new MutationObserver(() => {
       enviarAltura();
-      syncCheckoutScrollLock();
     });
     mutationObserver.observe(document.body, {
       attributes: true,
@@ -272,7 +233,6 @@ export default function WixIframeBridge() {
 
     const handleViewportChange = () => {
       enviarAltura();
-      syncCheckoutScrollLock();
     };
 
     // Wheel events cannot cross an iframe boundary. Let the launcher scroll
@@ -304,7 +264,6 @@ export default function WixIframeBridge() {
     window.addEventListener("orientationchange", handleViewportChange);
 
     enviarAltura();
-    syncCheckoutScrollLock();
 
     let readyCancelled = false;
     const notifyReady = async () => {
@@ -351,17 +310,6 @@ export default function WixIframeBridge() {
 
     return () => {
       readyCancelled = true;
-      if (pageScrollLocked) {
-        window.parent.postMessage(
-          {
-            source: BRIDGE_SOURCE,
-            type: SCROLL_LOCK_MESSAGE,
-            locked: false,
-          },
-          "*",
-        );
-      }
-
       window.cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
       mutationObserver.disconnect();

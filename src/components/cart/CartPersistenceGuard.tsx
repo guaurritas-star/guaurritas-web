@@ -25,7 +25,7 @@ export default function CartPersistenceGuard() {
     let lastLocked: boolean | null = null;
 
     const syncCheckoutScrollLock = () => {
-      const locked = Boolean(
+      const locked = window.matchMedia("(max-width: 639px)").matches && Boolean(
         document.querySelector("#taskbar-cart-panel.taskbar-cart-panel--checkout"),
       );
 
@@ -53,10 +53,12 @@ export default function CartPersistenceGuard() {
     });
 
     syncCheckoutScrollLock();
+    window.addEventListener("resize", syncCheckoutScrollLock);
 
     return () => {
       document.removeEventListener("pointerdown", keepOpenWhileBrowsing);
       observer.disconnect();
+      window.removeEventListener("resize", syncCheckoutScrollLock);
       window.parent.postMessage(
         {
           source: BRIDGE_SOURCE,

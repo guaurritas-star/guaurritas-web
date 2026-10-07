@@ -58,11 +58,8 @@ function BandanaImage({
   className: string;
   priority?: boolean;
 }) {
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    setLoaded(false);
-  }, [src]);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const loaded = loadedSrc === src;
 
   return (
     <>
@@ -80,7 +77,7 @@ function BandanaImage({
         fill
         priority={priority}
         sizes={sizes}
-        onLoad={() => setLoaded(true)}
+        onLoad={() => setLoadedSrc(src)}
         className={`${className} transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"}`}
       />
     </>

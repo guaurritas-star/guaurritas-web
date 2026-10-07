@@ -14,8 +14,12 @@ function hydrateMode() {
   if (hydrated || typeof window === "undefined") return;
   hydrated = true;
 
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (isFulfillmentMode(stored)) currentMode = stored;
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (isFulfillmentMode(stored)) currentMode = stored;
+  } catch {
+    // The delivery selector still works for this session without storage.
+  }
 }
 
 export function getFulfillmentMode(): FulfillmentMode {
@@ -28,7 +32,11 @@ export function setFulfillmentMode(mode: FulfillmentMode) {
   hydrated = true;
 
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(STORAGE_KEY, mode);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, mode);
+    } catch {
+      // Preserve the selected mode in memory if persistence is blocked.
+    }
   }
 }
 
