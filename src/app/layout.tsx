@@ -7,6 +7,7 @@ import "./mobile-launch-animations.css";
 import "./paint-icon-animation.css";
 import "./cart-payment-overrides.css";
 import "./cart-final-polish.css";
+import "./welcome.css";
 
 const mansalva = Mansalva({
   weight: "400",

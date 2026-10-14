@@ -17,9 +17,10 @@ export default function StoreApp() {
   const [category, setCategory] = useState<"cuisine" | "couture">(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("world") === "couture" ? "couture" : "cuisine",
   );
-  const [mode, setMode] = useState<FulfillmentMode>(() =>
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("fulfillment") === "national" ? "national" : getFulfillmentMode(),
-  );
+  const [mode, setMode] = useState<FulfillmentMode>(() => {
+    const requested = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("fulfillment") : null;
+    return requested === "national" || requested === "leon" ? requested : getFulfillmentMode();
+  });
   const { count } = useCart();
 
   useEffect(() => {
