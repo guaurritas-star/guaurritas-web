@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReorderPurchase from "@/components/cart/ReorderPurchase";
 
@@ -310,7 +311,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
         <div className="mx-auto max-w-5xl overflow-hidden border-2 border-[#425b8c] bg-[#fffaf7] shadow-[8px_8px_0_#a9b8d9]">
           <div className="flex items-center justify-between border-b-2 border-[#425b8c] bg-[linear-gradient(180deg,#5872c9,#425b8c)] px-4 py-2 text-white">
             <div className="flex items-center gap-2">
-              <span className="text-base" aria-hidden="true">🐾</span>
+              <span className="text-base" aria-hidden="true"><SystemIcon name="paw" /></span>
               <span className="font-title text-sm font-bold">Mi Mascota.exe</span>
             </div>
             <span className="border border-white/40 bg-white/10 px-2.5 py-1 font-mono text-[8px] font-bold uppercase tracking-[0.18em]">
@@ -329,7 +330,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
                 </p>
                 <div className="mt-6 border border-white/45 bg-white/10 p-5 shadow-[5px_5px_0_rgba(38,54,80,0.28)] backdrop-blur-sm">
                   <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-white/70 bg-[#fff8f4] text-4xl shadow-[3px_3px_0_#263650]" aria-hidden="true">
-                    🐾
+                    <SystemIcon name="paw" />
                   </div>
                   <p className="mt-5 font-title text-2xl">Su historia Guaurritas</p>
                   <p className="mt-2 text-sm leading-6 text-[#eef3ff]">

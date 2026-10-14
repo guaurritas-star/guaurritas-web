@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import GuaurrinotasLoading from "./GuaurrinotasLoading";
@@ -154,7 +155,7 @@ export default function PetNotesFeed({
               {profile.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={profile.avatar_url} alt="" />
-              ) : <span aria-hidden="true">🐾</span>}
+              ) : <span aria-hidden="true"><SystemIcon name="paw" /></span>}
             </span>
             <span>{profile.name}</span>
           </button>
@@ -191,7 +192,7 @@ export default function PetNotesFeed({
         ) : feedback ? null : notes.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyArtwork} aria-hidden="true">
-              <span>MI PRIMERA<br />GUAURRINOTA <b>✦</b></span><span>🐾</span>
+              <span>MI PRIMERA<br />GUAURRINOTA <b>✦</b></span><span><SystemIcon name="paw" /></span>
             </div>
             <p className={styles.eyebrow}>AQUÍ CABE TODA SU PERSONALIDAD</p>
             <h3>El primer momento puede ser suyo.</h3>
@@ -227,7 +228,7 @@ export default function PetNotesFeed({
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span aria-hidden="true">🐾</span>
+                          <span aria-hidden="true"><SystemIcon name="paw" /></span>
                         )}
                       </span>
 
@@ -247,7 +248,7 @@ export default function PetNotesFeed({
                         </span>
                         {location && (
                           <span className="mt-1 block truncate text-[10px] text-[#637497]">
-                            📍 {location}
+                            <SystemIcon name="pin" /> {location}
                           </span>
                         )}
                       </span>

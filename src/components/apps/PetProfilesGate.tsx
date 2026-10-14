@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import PetNotesFeed, {
@@ -691,7 +692,7 @@ export default function PetProfilesGate({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span aria-hidden="true">🐾</span>
+                    <span aria-hidden="true"><SystemIcon name="paw" /></span>
                   )}
                 </div>
 
@@ -916,7 +917,7 @@ export default function PetProfilesGate({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span aria-hidden="true">🐾</span>
+                    <span aria-hidden="true"><SystemIcon name="paw" /></span>
                   )}
                 </div>
 
@@ -983,7 +984,7 @@ export default function PetProfilesGate({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span aria-hidden="true">🐾</span>
+                        <span aria-hidden="true"><SystemIcon name="paw" /></span>
                       )}
                     </div>
 
@@ -1142,8 +1143,8 @@ export default function PetProfilesGate({
                     {selectedProfile.bio || (selectedProfileIsOwned ? "Cuenta algo de su personalidad desde Editar perfil." : "Conoce sus momentos en las publicaciones de abajo.")}
                   </p>
                   <div className="space-y-1 border-t-2 border-dashed border-[#cbd4e4] pt-4 font-mono text-xs text-[#637497]">
-                    {(selectedProfile.city || selectedProfile.region) && <p>📍 {getLocationLabel(selectedProfile)}</p>}
-                    <p>🗓 {getJoinedLabel(selectedProfile.created_at)}</p>
+                    {(selectedProfile.city || selectedProfile.region) && <p><SystemIcon name="pin" /> {getLocationLabel(selectedProfile)}</p>}
+                    <p><SystemIcon name="calendar" /> {getJoinedLabel(selectedProfile.created_at)}</p>
                   </div>
                 </div>
               )}
@@ -1220,7 +1221,7 @@ export default function PetProfilesGate({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span aria-hidden="true">🐾</span>
+                    <span aria-hidden="true"><SystemIcon name="paw" /></span>
                   )}
                 </div>
 

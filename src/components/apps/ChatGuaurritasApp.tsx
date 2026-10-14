@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 type ChatMessage = {
@@ -159,7 +160,7 @@ export default function ChatGuaurritasApp() {
       style={{ fontFamily: "Tahoma, Arial, sans-serif" }}
     >
       <div className="flex min-h-8 items-center gap-2 bg-gradient-to-r from-[#003087] to-[#1569c7] px-2 text-white">
-        <span aria-hidden="true" className="text-sm">💬</span>
+        <span aria-hidden="true" className="text-sm"><SystemIcon name="chat" /></span>
         <strong className="min-w-0 flex-1 truncate text-[11px] sm:text-xs">
           Guarricliente — Conversation
         </strong>
@@ -175,12 +176,12 @@ export default function ChatGuaurritasApp() {
       </div>
 
       <div className="flex items-stretch gap-1 border-b border-[#888] bg-[#d4d0c8] p-1.5">
-        <MessengerButton ariaLabel="Invitar">👤<span className="hidden sm:inline"> Invite</span></MessengerButton>
-        <MessengerButton ariaLabel="Archivos">📋<span className="hidden sm:inline"> Files</span></MessengerButton>
-        <MessengerButton ariaLabel="Webcam">📷<span className="hidden sm:inline"> Webcam</span></MessengerButton>
+        <MessengerButton ariaLabel="Invitar"><SystemIcon name="user" /><span className="hidden sm:inline"> Invite</span></MessengerButton>
+        <MessengerButton ariaLabel="Archivos"><SystemIcon name="notes" /><span className="hidden sm:inline"> Files</span></MessengerButton>
+        <MessengerButton ariaLabel="Webcam"><SystemIcon name="camera" /><span className="hidden sm:inline"> Webcam</span></MessengerButton>
         <span className="mx-0.5 w-px bg-[#888]" aria-hidden="true" />
-        <MessengerButton onClick={() => sendText("Ver menú")}>🌐 <span className="hidden sm:inline">Tienda</span></MessengerButton>
-        <MessengerButton onClick={() => sendText("WhatsApp")}>💬 <span className="hidden sm:inline">WhatsApp</span></MessengerButton>
+        <MessengerButton onClick={() => sendText("Ver menú")}><SystemIcon name="globe" /> <span className="hidden sm:inline">Tienda</span></MessengerButton>
+        <MessengerButton onClick={() => sendText("WhatsApp")}><SystemIcon name="chat" /> <span className="hidden sm:inline">WhatsApp</span></MessengerButton>
       </div>
 
       <div className="flex items-center gap-2 border-b border-[#888] bg-[#ece9d8] px-2 py-1.5 text-[10px] sm:text-[11px]">
@@ -234,7 +235,7 @@ export default function ChatGuaurritasApp() {
         <aside className="hidden border-l border-[#888] bg-[#e8e8e8] p-2 sm:flex sm:flex-col sm:items-center">
           <div className="w-full border border-[#808080] bg-white p-2 text-center shadow-[inset_1px_1px_#fff,inset_-1px_-1px_#aaa]">
             <div className="mx-auto grid h-20 w-20 place-items-center border-2 border-[#425b8c] bg-[#f4eee3] text-4xl shadow-[3px_3px_0_#c9d6ec]">
-              🐾
+              <SystemIcon name="paw" />
             </div>
             <p className="mt-2 text-[11px] font-bold text-[#003087]">Guaurritas</p>
             <p className="mt-1 text-[9px] text-[#555]">● En línea</p>

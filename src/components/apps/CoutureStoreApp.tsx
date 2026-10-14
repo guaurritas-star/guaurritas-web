@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useRef, useState } from "react";
@@ -152,7 +153,7 @@ const collections: BandanaCollection[] = [
     id: "abeille",
     name: "Bandana Abeille",
     eyebrow: "Colección Abeille",
-    symbol: "🐝",
+    symbol: "abeille",
     description: "Tejido, cuentas y textura para un look especial sin perder el encanto artesanal.",
     detail:
       "Bandana artesanal tejida a mano, con flecos y cuentas decorativas. Se ajusta con sus propias tiras y está pensada como accesorio de uso supervisado.",
@@ -436,8 +437,8 @@ export default function CoutureStoreApp({
         </p>
         <span className="mt-3 inline-flex rounded-full border border-[#ceb9c4] bg-white/80 px-3 py-1.5 font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#614456] sm:mt-4">
           {fulfillmentMode === "national"
-            ? "📦 Precios nacionales · envío aparte"
-            : "📍 Precios para León"}
+            ? <><SystemIcon name="box" /> Precios nacionales · envío aparte</>
+            : <><SystemIcon name="pin" /> Precios para León</>}
         </span>
       </header>
 
@@ -587,7 +588,7 @@ export default function CoutureStoreApp({
 
           <div className="min-w-0">
             <p className="font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#a66f89]">
-              {collection.symbol} {collection.eyebrow}
+              {collection.id === "abeille" ? <SystemIcon name="bee" /> : collection.symbol} {collection.eyebrow}
             </p>
             <h3 className="mt-1 font-title text-2xl font-semibold text-[#3a2030] sm:mt-2 sm:text-4xl">
               {collection.name}
@@ -688,7 +689,7 @@ export default function CoutureStoreApp({
                   className="min-h-11 px-1 font-interface text-xs font-bold text-[#8c5470] underline decoration-dotted underline-offset-4"
                   aria-expanded={fitHelperOpen}
                 >
-                  📏 No sé su talla
+                  <SystemIcon name="ruler" /> No sé su talla
                 </button>
               </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { notifyLocationChange, useBrowserSearch } from "@/lib/browser-location";
 import { dismissWelcome, isGeneralEntry, markWelcomeReady, useWelcomeAvailable } from "@/lib/welcome-session";
@@ -496,7 +497,7 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
                 onOpenMiMascota();
               }}
             >
-              <span className="desktop-os-member-menu-icon" aria-hidden="true">🐾</span>
+              <span className="desktop-os-member-menu-icon" aria-hidden="true"><SystemIcon name="paw" /></span>
               <span>
                 <strong>Mi mascota</strong>
                 <small>Compras y recomendaciones</small>
