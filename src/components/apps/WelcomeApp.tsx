@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
+import CommunityCarousel from "./CommunityCarousel";
 
 export const COMMUNITY_URL = "https://www.guaurritas.com/#comp-m4qz2a3f_r_comp-mnnkixwd";
-const customerPhoto = "https://static.wixstatic.com/media/be52e3_89f8ca3283034eada7c7b865c07d965b~mv2.jpg";
 
 export default function WelcomeApp({ onShop, onCommunity }: {
   onShop: (mode: FulfillmentMode) => void;
@@ -35,8 +35,7 @@ export default function WelcomeApp({ onShop, onCommunity }: {
     <section className="welcome-community" aria-labelledby="welcome-community-title">
       <span aria-hidden="true" className="welcome-paw">🐾</span>
       <h2 id="welcome-community-title">Nuestra comunidad</h2>
-      <Image src={customerPhoto} alt="Mascota con su Petcake en una foto compartida en los comentarios de Guaurritas"
-        width={72} height={72} sizes="72px" className="welcome-community-photo" />
+      <CommunityCarousel />
       <a href={COMMUNITY_URL} target="_top" onClick={event => { event.preventDefault(); onCommunity(); }}>
         Ver opiniones y fotos <span aria-hidden="true">→</span>
       </a>

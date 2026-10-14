@@ -568,7 +568,7 @@
         window.location.href,
       );
       // A release-specific URL avoids a stale Pages HTML shell inside Wix.
-      iframeSrc.searchParams.set("release", "welcome-20261014");
+      iframeSrc.searchParams.set("release", "community-20261014");
       const requestedApp = new URLSearchParams(window.location.search).get("app");
       const entryParams = new URLSearchParams(window.location.search);
       if (window.location.hash ||
@@ -972,6 +972,44 @@
         }
 
         if (!message || typeof message !== "object") return;
+
+        if (message.source === BRIDGE_SOURCE && message.type === "guaurritas:community-request") {
+          this._communityCleanup?.();
+          const readReviews = () => {
+            const root = document.getElementById("comp-m4qz2a3f_r_comp-mnnkixwd");
+            return Array.from(root?.querySelectorAll('[id^="C-"]') || []).slice(0, 50).flatMap(comment => {
+              const name = comment.querySelector('[data-hook="comments-author"]')?.textContent?.trim();
+              const content = comment.querySelector('[data-hook="comment-content"]');
+              const text = Array.from(content?.querySelectorAll('[dir="auto"]') || [])
+                .filter(node => !node.closest("figure"))
+                .map(node => node.textContent.trim()).filter(Boolean).join("\n");
+              const image = content?.querySelector('[data-hook="figure-IMAGE"] wow-image');
+              let photo;
+              try {
+                const uri = JSON.parse(image?.getAttribute("data-image-info") || "null")?.imageData?.uri;
+                if (typeof uri === "string" && /^[a-zA-Z0-9_.~-]+$/.test(uri)) {
+                  photo = `https://static.wixstatic.com/media/${uri}/v1/fit/w_480,h_320,q_80,enc_auto/${uri}`;
+                }
+              } catch { /* Keep the comment when its media cannot be read. */ }
+              return name && text ? [{ id: comment.id, name, text, photo }] : [];
+            });
+          };
+          const send = () => {
+            const reviews = readReviews();
+            if (!reviews.length) return false;
+            iframe.contentWindow?.postMessage({ source: EMBED_SOURCE, type: "guaurritas:community-data", reviews }, ALLOWED_ORIGIN);
+            return true;
+          };
+          if (!send()) {
+            // Wix may mount comments after the iframe. Observe only until data arrives.
+            const observer = new MutationObserver(() => { if (send()) this._communityCleanup?.(); });
+            const timeout = window.setTimeout(() => this._communityCleanup?.(), 12000);
+            this._communityCleanup = () => { observer.disconnect(); window.clearTimeout(timeout); };
+            observer.observe(document.getElementById("comp-m4qz2a3f_r_comp-m4qz17tb") || document.body,
+              { childList: true, subtree: true });
+          }
+          return;
+        }
 
         if (message.source === BRIDGE_SOURCE && message.type === "guaurritas:community-open") {
           const comments = document.getElementById("comp-m4qz2a3f_r_comp-mnnkixwd");
@@ -1384,6 +1422,7 @@
     }
 
     disconnectedCallback() {
+      this._communityCleanup?.();
       this._setPageScrollLocked(false);
 
       if (typeof this._restoreDesktopAncestorStyles === "function") {
