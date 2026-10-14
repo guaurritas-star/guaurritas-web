@@ -273,21 +273,7 @@ export default function WixIframeBridge() {
             window.requestAnimationFrame(() => resolve()),
           );
         });
-        await document.fonts?.ready;
-        const pendingImages = Array.from(document.images)
-          .filter((image) => !image.complete)
-          .map(
-            (image) =>
-              new Promise<void>((resolve) => {
-                const finish = () => resolve();
-                image.addEventListener("load", finish, { once: true });
-                image.addEventListener("error", finish, { once: true });
-              }),
-          );
-        await Promise.race([
-          Promise.all(pendingImages),
-          new Promise<void>((resolve) => window.setTimeout(resolve, 7000)),
-        ]);
+        // The interactive layout is ready after paint. Images/fonts load independently.
       } finally {
         if (readyCancelled) return;
         window.requestAnimationFrame(() => {

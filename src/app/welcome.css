@@ -17,10 +17,21 @@
 .welcome-buy-national { background: linear-gradient(#e6bbc9, #D9A6B9); border-color: #af6a87; color: #35263d; }
 .welcome-buy:hover { filter: brightness(1.05); }
 .welcome-purchase > p { margin: 14px 0 0; text-align: center; font-size: 16px; line-height: 1.45; color: #6b5566; }
-.welcome-community { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; background: #f8e8ee; border: 1px solid #eed3df; border-radius: 12px; padding: 16px 20px; }
+.welcome-community { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 16px; background: #f8e8ee; border: 1px solid #eed3df; border-radius: 12px; padding: 16px 20px; min-width: 0; }
 .welcome-paw { font-size: 32px; }
 .welcome-community h2 { margin: 0; flex: 1; font: 600 21px/1.3 var(--font-cinzel), serif; }
-.welcome-community-photo { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 3px solid white; object-fit: cover; object-position: 50% 68%; }
+.community-carousel { grid-column: 1 / -1; min-width: 0; min-height: 320px; }
+.community-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 14px; }
+.community-controls span { flex: 1; }
+.community-controls button { flex: none; min-width: 48px; min-height: 48px; border: 1px solid #425BBC; border-radius: 8px; background: #fffaf6; color: #334da5; font-size: 22px; cursor: pointer; }
+.community-track { display: flex; align-items: flex-start; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 12px; }
+.community-card { flex: 0 0 min(320px, 100%); min-width: 0; scroll-snap-align: start; background: #fffaf6; border: 1px solid #eed3df; border-radius: 10px; }
+.community-card img { display: block; width: 100%; height: 170px; object-fit: contain; background: #f1e5e9; border-radius: 10px 10px 0 0; }
+.community-card blockquote { margin: 0; padding: 16px; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.community-card p { margin: 0; white-space: pre-line; }
+.community-card footer { margin-top: 12px; font-weight: 600; color: #334da5; }
+.community-status { margin: 0; padding: 24px 0; font-size: 16px; }
+.community-track:focus-visible { outline: 3px solid #425BBC; outline-offset: 2px; }
 .welcome-community a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; font-size: 16px; line-height: 1.4; text-decoration: underline; text-underline-offset: 4px; color: #334da5; }
 .welcome-app :is(button, a):focus-visible, .welcome-window-dialog button:focus-visible { outline: 3px solid #425BBC; outline-offset: 4px; }
 @media (min-width: 1200px) {
@@ -49,9 +60,8 @@
   .welcome-photo img { height: 156px; }
   .welcome-purchase { grid-column: 1; grid-row: 3; }
   .welcome-buy { min-height: 50px; font-size: 16px; }
-  .welcome-community { grid-row: 4; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; padding: 12px; }
+  .welcome-community { grid-row: 4; gap: 8px; padding: 12px; }
   .welcome-community h2 { font-size: 17px; }
-  .welcome-community-photo { width: 48px; height: 48px; }
   .welcome-community a { grid-column: 1 / -1; font-size: 16px; }
   .welcome-paw { font-size: 24px; }
 }

@@ -713,16 +713,10 @@ export default function Desktop() {
   );
 
   useEffect(() => {
-    let active = true;
-    const initialImages = Array.from(document.images).filter(image => !image.complete).map(image =>
-      new Promise<void>(resolve => {
-        image.addEventListener("load", () => resolve(), { once: true });
-        image.addEventListener("error", () => resolve(), { once: true });
-      }),
-    );
-    Promise.allSettled([document.fonts?.ready, ...initialImages]).then(() => { if (active) markWelcomeReady(); });
+    // Hydration makes the controls usable; decorative assets must not gate entry.
+    const frame = window.requestAnimationFrame(markWelcomeReady);
     return () => {
-      active = false;
+      window.cancelAnimationFrame(frame);
       if (launchTimer.current) clearTimeout(launchTimer.current);
     };
   }, []);
