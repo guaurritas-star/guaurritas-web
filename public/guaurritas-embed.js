@@ -568,6 +568,13 @@
         window.location.href,
       );
       const requestedApp = new URLSearchParams(window.location.search).get("app");
+      const entryParams = new URLSearchParams(window.location.search);
+      if (window.location.hash ||
+          window.location.pathname.replace(/\/$/, "") !== "" ||
+          ["app", "world", "product", "fulfillment"].some(key => entryParams.has(key)) ||
+          Array.from(entryParams.keys()).some(key => /checkout|payment|order|return|thank.?you|transaction/i.test(key))) {
+        iframeSrc.searchParams.set("welcome", "0");
+      }
       // Guaurrinicio already has the global Wix navigation above the OS.
       if (window.location.pathname.replace(/\/$/, "") === "/guaurrinicio") {
         iframeSrc.searchParams.set("externalHeader", "1");
@@ -597,8 +604,8 @@
       const requestedFulfillment = new URLSearchParams(
         window.location.search,
       ).get("fulfillment");
-      if (requestedFulfillment === "national") {
-        iframeSrc.searchParams.set("fulfillment", "national");
+      if (requestedFulfillment === "national" || requestedFulfillment === "leon") {
+        iframeSrc.searchParams.set("fulfillment", requestedFulfillment);
       }
 
       const requestedProduct = new URLSearchParams(window.location.search).get(
@@ -963,6 +970,18 @@
         }
 
         if (!message || typeof message !== "object") return;
+
+        if (message.source === BRIDGE_SOURCE && message.type === "guaurritas:community-open") {
+          const comments = document.getElementById("comp-m4qz2a3f_r_comp-mnnkixwd");
+          if (comments) {
+            comments.setAttribute("tabindex", "-1");
+            comments.scrollIntoView({ block: "start", behavior: "instant" });
+            comments.focus({ preventScroll: true });
+          } else {
+            window.location.assign("https://www.guaurritas.com/#comp-m4qz2a3f_r_comp-mnnkixwd");
+          }
+          return;
+        }
 
         if (
           message.source === BRIDGE_SOURCE &&

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   PointerEvent as ReactPointerEvent,
   ReactNode,
@@ -12,7 +12,7 @@ type RetroWindowProps = {
   children: ReactNode;
   onClose: () => void;
   onMinimize?: () => void;
-  variant?: "default" | "wide";
+  variant?: "default" | "wide" | "welcome";
   fixedContent?: boolean;
 };
 
@@ -42,6 +42,17 @@ export default function RetroWindow({
   fixedContent = false,
 }: RetroWindowProps) {
   const dragState = useRef<DragState | null>(null);
+  const dialog = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (variant !== "welcome") return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialog.current?.querySelector<HTMLElement>("button")?.focus({ preventScroll: true });
+    return () => {
+      const nextWindow = document.querySelector<HTMLElement>(".retro-window-dialog button");
+      const target = nextWindow ?? (previous?.isConnected && previous !== document.body ? previous : document.getElementById("desktop-start"));
+      target?.focus({ preventScroll: true });
+    };
+  }, [variant]);
 
   const [position, setPosition] = useState<Position>({
     x: 0,
@@ -115,16 +126,23 @@ export default function RetroWindow({
   };
 
   return (
-    <div className="retro-window-overlay pointer-events-none fixed inset-0 z-50 flex h-[100dvh] items-center justify-center p-0 sm:bottom-[52px] sm:h-auto sm:p-4">
+    <div className={`retro-window-overlay pointer-events-none fixed inset-0 z-50 flex h-[100dvh] items-center justify-center p-0 sm:bottom-[52px] sm:h-auto sm:p-4 ${variant === "welcome" ? "welcome-window-overlay" : ""}`}>
       <section
+        ref={dialog}
+        onKeyDown={event => {
+          if (variant === "welcome" && event.key === "Escape") {
+            event.preventDefault();
+            onClose();
+          }
+        }}
         role="dialog"
-        aria-modal="true"
+        aria-modal={variant === "welcome" ? undefined : true}
         aria-labelledby="retro-window-title"
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
         }}
         className={`retro-window-dialog retro-window-shell pointer-events-auto flex h-full max-h-full w-full flex-col border-0 border-[#425b8c] bg-white shadow-none sm:h-auto sm:max-h-full sm:border-2 sm:shadow-[8px_8px_0_#425b8c] ${
-          variant === "wide" ? "max-w-7xl" : "max-w-2xl"
+          variant === "welcome" ? "welcome-window-dialog" : variant === "wide" ? "max-w-7xl" : "max-w-2xl"
         } ${fixedContent ? "store-window-dialog sm:!h-full" : ""
         }`}
       >
@@ -144,7 +162,7 @@ export default function RetroWindow({
                 {icon}
               </span>
             )}
-            {title}.exe
+            {title}{variant === "welcome" ? "" : ".exe"}
           </p>
 
           <div className="retro-window-controls flex shrink-0 items-center gap-1">
@@ -167,8 +185,8 @@ export default function RetroWindow({
               title="Volver a las aplicaciones"
               className="retro-window-control retro-window-close flex h-8 min-w-8 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white px-2 font-mono font-bold hover:bg-[#425b8c] hover:text-white sm:h-7 sm:min-w-7 sm:px-0"
             >
-              <span aria-hidden="true" className="sm:hidden">←</span>
-              <span aria-hidden="true" className="hidden sm:inline">×</span>
+              <span aria-hidden="true" className={variant === "welcome" ? "hidden" : "sm:hidden"}>←</span>
+              <span aria-hidden="true" className={variant === "welcome" ? "" : "hidden sm:inline"}>×</span>
             </button>
           </div>
         </header>

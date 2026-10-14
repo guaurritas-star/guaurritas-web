@@ -1,7 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useBrowserSearch } from "@/lib/browser-location";
+import { notifyLocationChange, useBrowserSearch } from "@/lib/browser-location";
+import { dismissWelcome, isGeneralEntry, markWelcomeReady, useWelcomeAvailable } from "@/lib/welcome-session";
+import { setFulfillmentMode, type FulfillmentMode } from "@/lib/fulfillment-store";
+import WelcomeApp, { COMMUNITY_URL } from "@/components/apps/WelcomeApp";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import ChatGuaurritasApp from "@/components/apps/ChatGuaurritasApp";
@@ -37,6 +40,7 @@ const apps = [
   { id: "chat", name: "Chat Guaurritas", icon: "chat" as const },
   { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const },
 ];
+const systemApps = [{ id: "bienvenida", name: "Bienvenido a Guaurritas", icon: "pet" as const }, ...apps];
 
 type AppIconKind = (typeof apps)[number]["icon"] | "cart";
 
@@ -692,27 +696,39 @@ function DesktopClock() {
 
 export default function Desktop() {
   const search = useBrowserSearch();
+  const welcomeAvailable = useWelcomeAvailable();
   const requestedApp = new URLSearchParams(search).get("app");
   const [activeAppOverride, setActiveApp] = useState<string | null | undefined>(undefined);
   const activeApp = activeAppOverride === undefined
-    ? (apps.some((app) => app.id === requestedApp) ? requestedApp : null)
+    ? (systemApps.some((app) => app.id === requestedApp) ? requestedApp :
+      welcomeAvailable && isGeneralEntry(search, typeof window !== "undefined" ? window.location.hash : "") ? "bienvenida" : null)
     : activeAppOverride;
   const [minimizedApp, setMinimizedApp] = useState<string | null>(null);
   const [launchingApp, setLaunchingApp] = useState<string | null>(null);
   const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const selectedApp = apps.find((app) => app.id === activeApp);
-  const taskApp = apps.find(
+  const selectedApp = systemApps.find((app) => app.id === activeApp);
+  const taskApp = systemApps.find(
     (app) => app.id === activeApp || app.id === minimizedApp,
   );
 
   useEffect(() => {
+    let active = true;
+    const initialImages = Array.from(document.images).filter(image => !image.complete).map(image =>
+      new Promise<void>(resolve => {
+        image.addEventListener("load", () => resolve(), { once: true });
+        image.addEventListener("error", () => resolve(), { once: true });
+      }),
+    );
+    Promise.allSettled([document.fonts?.ready, ...initialImages]).then(() => { if (active) markWelcomeReady(); });
     return () => {
+      active = false;
       if (launchTimer.current) clearTimeout(launchTimer.current);
     };
   }, []);
 
   const openApp = (appId: string) => {
+    dismissWelcome();
     setActiveApp(appId);
     setMinimizedApp(null);
   };
@@ -741,13 +757,14 @@ export default function Desktop() {
   };
 
   const closeActiveApp = () => {
+    dismissWelcome();
     setActiveApp(null);
     setMinimizedApp(null);
   };
 
   const minimizeActiveApp = () => {
     if (!activeApp) return;
-
+    dismissWelcome();
     setMinimizedApp(activeApp);
     setActiveApp(null);
   };
@@ -756,6 +773,7 @@ export default function Desktop() {
     if (!taskApp) return;
 
     if (activeApp === taskApp.id) {
+      dismissWelcome();
       setMinimizedApp(taskApp.id);
       setActiveApp(null);
       return;
@@ -769,20 +787,33 @@ export default function Desktop() {
     const url = new URL(window.location.href);
     url.searchParams.set("world", world);
     window.history.pushState({ world }, "", url);
+    notifyLocationChange();
+    dismissWelcome();
     setActiveApp("mundos");
     setMinimizedApp(null);
   };
 
   const openCuisineFromPaint = () => openShopWorld("cuisine");
 
-  const openStore = (category?: "cuisine" | "couture") => {
+  const openStore = (category?: "cuisine" | "couture", delivery?: FulfillmentMode) => {
     const url = new URL(window.location.href);
     if (category) url.searchParams.set("world", category);
     else url.searchParams.delete("world");
     url.searchParams.delete("product");
     url.searchParams.set("app", "tienda");
+    if (delivery) {
+      setFulfillmentMode(delivery);
+      url.searchParams.set("fulfillment", delivery);
+    }
     window.history.pushState({ world: null }, "", url);
+    notifyLocationChange();
     openApp("tienda");
+  };
+
+  const openCommunity = () => {
+    closeActiveApp();
+    if (window.self === window.top) window.location.assign(COMMUNITY_URL);
+    else window.parent.postMessage({ source: "guaurritas-web", type: "guaurritas:community-open" }, "*");
   };
 
   return (
@@ -791,7 +822,7 @@ export default function Desktop() {
         backgroundImage: `url("${withBasePath("/guaurritas-desktop-wallpaper.jpeg")}")`,
       }}
       className={`desktop-wallpaper relative h-dvh min-h-0 overflow-hidden text-[#263650] ${
-        selectedApp ? "mobile-app-open" : ""
+        selectedApp?.id === "bienvenida" ? "mobile-welcome-open" : selectedApp ? "mobile-app-open" : ""
       }`}
     >
       <GuaurritasHeader
@@ -833,7 +864,7 @@ export default function Desktop() {
           onClose={closeActiveApp}
           onMinimize={minimizeActiveApp}
           fixedContent={selectedApp.id === "tienda"}
-          variant={
+          variant={selectedApp.id === "bienvenida" ? "welcome" :
             selectedApp.id === "tienda" ||
             selectedApp.id === "mundos" ||
             selectedApp.id === "mascota" ||
@@ -844,7 +875,9 @@ export default function Desktop() {
               : "default"
           }
         >
-          {selectedApp.id === "tienda" ? (
+          {selectedApp.id === "bienvenida" ? (
+            <WelcomeApp onShop={mode => openStore("cuisine", mode)} onCommunity={openCommunity} />
+          ) : selectedApp.id === "tienda" ? (
             <StoreApp />
           ) : selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
@@ -879,6 +912,9 @@ export default function Desktop() {
       <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 px-2 font-title text-white">
         <button
           type="button"
+          id="desktop-start"
+          onClick={() => openApp("bienvenida")}
+          aria-label="Inicio: abrir bienvenida"
           className="desktop-taskbar-start shrink-0 font-title text-xs font-bold text-white"
         >
           <span className="flex items-center gap-2">
