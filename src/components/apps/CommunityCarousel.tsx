@@ -6,6 +6,31 @@ import { normalizeReviews, selectReviews, type CommunityReview } from "@/lib/com
 
 const SELECTION_KEY = "guaurritas-community-first";
 
+function ReviewCard({ review }: { review: CommunityReview }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  return <article className="community-card">
+    <div className="community-card-media" aria-hidden={!review.photo || undefined}>
+      {review.photo && <Image src={review.photo} alt={`Foto compartida por ${review.name} en su opinión`}
+        width={400} height={260} sizes="(max-width: 639px) 280px, 320px" loading="lazy"
+        onError={event => { event.currentTarget.style.visibility = "hidden"; }} />}
+    </div>
+    <blockquote>
+      <p className="community-card-excerpt">{review.text}</p>
+      <footer>{review.name}</footer>
+      <button type="button" className="community-read-review"
+        aria-label={`Ver opinión completa de ${review.name}`} onClick={() => dialog.current?.showModal()}>
+        Ver opinión completa
+      </button>
+    </blockquote>
+    <dialog ref={dialog} className="community-review-dialog" aria-label={`Opinión de ${review.name}`}
+      onKeyDown={event => { if (event.key === "Escape") event.stopPropagation(); }}>
+      <button type="button" className="community-review-close" onClick={() => dialog.current?.close()}
+        aria-label="Cerrar opinión">Cerrar ×</button>
+      <blockquote><p>{review.text}</p><footer>{review.name}</footer></blockquote>
+    </dialog>
+  </article>;
+}
+
 export default function CommunityCarousel() {
   const [reviews, setReviews] = useState<CommunityReview[]>([]);
   const [status, setStatus] = useState("Cargando opiniones de nuestra comunidad…");
@@ -49,11 +74,7 @@ export default function CommunityCarousel() {
         <button type="button" aria-label="Opiniones siguientes" onClick={() => move(1)}>→</button>
       </div>
       <div className="community-track" ref={track} tabIndex={0} aria-label="Opiniones; usa las flechas del teclado o desliza">
-        {reviews.map(review => <article key={review.id} className="community-card">
-          {review.photo && <Image src={review.photo} alt={`Foto compartida por ${review.name} en su opinión`}
-            width={400} height={260} sizes="(max-width: 639px) 280px, 320px" loading="lazy" />}
-          <blockquote><p>{review.text}</p><footer>{review.name}</footer></blockquote>
-        </article>)}
+        {reviews.map(review => <ReviewCard key={review.id} review={review} />)}
       </div>
     </> : <p className="community-status" role="status">{status}</p>}
   </div>;
