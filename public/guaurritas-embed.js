@@ -1,6 +1,7 @@
 (() => {
   const TAG_NAME = "guaurritas-embed";
   const DEFAULT_SRC = "https://guaurritas-star.github.io/guaurritas-web/";
+  const APP_RELEASE = "__GUAURRITAS_RELEASE__";
   const ALLOWED_ORIGIN = "https://guaurritas-star.github.io";
   const BRIDGE_SOURCE = "guaurritas-web";
   const HEIGHT_MESSAGE = "guaurritas:height";
@@ -568,7 +569,7 @@
         window.location.href,
       );
       // A release-specific URL avoids a stale Pages HTML shell inside Wix.
-      iframeSrc.searchParams.set("release", "community-20261014");
+      iframeSrc.searchParams.set("release", APP_RELEASE);
       const requestedApp = new URLSearchParams(window.location.search).get("app");
       const entryParams = new URLSearchParams(window.location.search);
       if (window.location.hash ||
