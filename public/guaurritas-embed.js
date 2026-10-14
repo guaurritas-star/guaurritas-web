@@ -567,6 +567,8 @@
         this.getAttribute("data-src") || DEFAULT_SRC,
         window.location.href,
       );
+      // A release-specific URL avoids a stale Pages HTML shell inside Wix.
+      iframeSrc.searchParams.set("release", "welcome-20261014");
       const requestedApp = new URLSearchParams(window.location.search).get("app");
       const entryParams = new URLSearchParams(window.location.search);
       if (window.location.hash ||
