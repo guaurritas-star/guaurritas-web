@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -43,11 +44,60 @@ jobs:
       - name: Generar HTML estático
         run: npm run build
 
+      - name: Identificar publicaciones anteriores
+        id: previous
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              ...context.repo, workflow_id: 'deploy-pages.yml',
+              branch: 'main', status: 'success', per_page: 2,
+            });
+            for (let i = 0; i < 2; i++) {
+              const run = data.workflow_runs[i];
+              if (!run) continue;
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                ...context.repo, run_id: run.id,
+              });
+              const available = artifacts.data.artifacts.some(a =>
+                !a.expired && a.name === `github-pages-${run.id}`);
+              if (available) core.setOutput(`run${i}`, String(run.id));
+            }
+
+      - name: Recuperar recursos de la publicación anterior
+        if: steps.previous.outputs.run0 != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages-${{ steps.previous.outputs.run0 }}
+          run-id: ${{ steps.previous.outputs.run0 }}
+          github-token: ${{ github.token }}
+          path: .previous-pages/first
+
+      - name: Recuperar recursos de la penúltima publicación
+        if: steps.previous.outputs.run1 != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages-${{ steps.previous.outputs.run1 }}
+          run-id: ${{ steps.previous.outputs.run1 }}
+          github-token: ${{ github.token }}
+          path: .previous-pages/second
+
+      - name: Conservar hashes recientes y verificar recursos
+        run: |
+          for archive in .previous-pages/*/artifact.tar; do
+            [ -f "$archive" ] || continue
+            destination="$(dirname "$archive")/site"
+            mkdir -p "$destination"
+            tar -xf "$archive" -C "$destination" ./_next/static
+          done
+          node scripts/prepare-pages.mjs .previous-pages/first/site .previous-pages/second/site
+
       - name: Subir HTML de GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           name: github-pages-${{ github.run_id }}
           path: ./out
+          retention-days: 3
 
   deploy:
     environment:
