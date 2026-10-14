@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { useEffect, useState, type CSSProperties } from "react";
 import { useBrowserSearch, useBrowserReady, notifyLocationChange } from "@/lib/browser-location";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
@@ -312,7 +313,7 @@ export default function GuaurriverseApp() {
                     : "text-[#42516a] hover:bg-white/60"
                 }`}
               >
-                {mode === "leon" ? "📍 León" : "📦 Nacional"}
+                {mode === "leon" ? <><SystemIcon name="pin" /> León</> : <><SystemIcon name="box" /> Nacional</>}
               </button>
             ))}
           </div>
@@ -353,7 +354,7 @@ export default function GuaurriverseApp() {
                   ? "bg-white/90 text-[#263650]"
                   : "bg-[#263650]/75 text-white"
               }`}>
-                {world.available ? "Explorar" : "🔒 Próximamente"}
+                {world.available ? "Explorar" : <><SystemIcon name="lock" /> Próximamente</>}
               </span>
               <span className="world-card-content absolute inset-x-0 bottom-0 z-10 block p-5">
                 <span className="world-card-tag inline-flex items-center rounded-full border px-2.5 py-1 font-sans text-[8px] font-bold uppercase tracking-[0.18em]">
@@ -377,7 +378,7 @@ export default function GuaurriverseApp() {
                 className="world-card-cta absolute bottom-5 right-5 z-20 flex h-9 w-9 items-center justify-center rounded-full border text-xl"
                 aria-hidden="true"
               >
-                {world.available ? "→" : "🔒"}
+                {world.available ? "→" : <SystemIcon name="lock" />}
               </span>
             </button>
           ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
@@ -53,7 +54,7 @@ export default function StoreApp() {
                   aria-pressed={mode === delivery}
                   className={`min-h-10 rounded-full px-2 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] transition sm:min-h-9 sm:px-4 ${mode === delivery ? "bg-[#263650] text-white shadow-sm" : "text-[#42516a] hover:bg-white/60"}`}
                 >
-                  {delivery === "leon" ? "📍 León" : "📦 Nacional"}
+                  {delivery === "leon" ? <><SystemIcon name="pin" /> León</> : <><SystemIcon name="box" /> Nacional</>}
                 </button>
               ))}
             </div>

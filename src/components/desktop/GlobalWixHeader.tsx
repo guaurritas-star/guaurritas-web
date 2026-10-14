@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { withBasePath } from "@/lib/base-path";
@@ -213,7 +214,7 @@ function WixMemberAccess({
           </div>
           <div className="desktop-os-member-menu-actions">
             <WixPageLink href={wixPages.mascota} className="desktop-os-member-menu-item">
-              <span className="desktop-os-member-menu-icon" aria-hidden="true">🐾</span>
+              <span className="desktop-os-member-menu-icon" aria-hidden="true"><SystemIcon name="paw" /></span>
               <span><strong>Mi mascota</strong><small>Compras y recomendaciones</small></span>
             </WixPageLink>
             <button

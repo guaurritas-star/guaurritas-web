@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useBrowserSearch } from "@/lib/browser-location";
 import { useAsyncResource } from "@/lib/use-async-resource";
@@ -221,7 +222,7 @@ function PetRecipeFields({
                   : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
               }`}
             >
-              {kind === "lomito" ? "🐶 Lomito" : "🐱 Michi"}
+              {kind === "lomito" ? <><SystemIcon name="dog" /> Lomito</> : <><SystemIcon name="cat" /> Michi</>}
             </button>
           ))}
         </div>
@@ -2969,8 +2970,8 @@ export default function CuisineStoreApp({
             </p>
             <span className="mt-4 inline-flex rounded-full border border-[#c4d2d9] bg-[#f6fafb] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#536a78]">
               {fulfillmentMode === "national"
-                ? "📦 Catálogo con envío nacional"
-                : "📍 Catálogo completo de León"}
+                ? <><SystemIcon name="box" /> Catálogo con envío nacional</>
+                : <><SystemIcon name="pin" /> Catálogo completo de León</>}
             </span>
           </div>
           <div className="hidden rotate-1 border-2 border-[#425b8c] bg-white px-5 py-4 text-center shadow-[4px_4px_0_#9bc3ca] lg:block">

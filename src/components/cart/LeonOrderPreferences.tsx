@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { useMemo } from "react";
 import {
   LEON_TIME_OPTIONS,
@@ -102,7 +103,7 @@ export default function LeonOrderPreferencesForm({
       </div>
 
       <div className="mt-3 flex min-w-0 max-w-full items-start gap-2 overflow-hidden rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">
-        <span className="mt-0.5 shrink-0 text-[12px]">💬</span>
+        <span className="mt-0.5 shrink-0 text-[12px]"><SystemIcon name="chat" /></span>
         <div className="min-w-0 max-w-full flex-1 overflow-hidden">
           <p className="whitespace-normal break-words font-interface text-[8px] font-bold leading-4 text-[#6f5720] [overflow-wrap:anywhere]">
             Horario por confirmar

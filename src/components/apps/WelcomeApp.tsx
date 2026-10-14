@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
@@ -24,16 +25,16 @@ export default function WelcomeApp({ onShop, onCommunity }: {
     <div className="welcome-purchase">
       <div className="welcome-actions">
         <button type="button" onClick={() => onShop("leon")} className="welcome-buy welcome-buy-leon">
-          <span aria-hidden="true">🛒</span> Comprar en León
+          <span aria-hidden="true"><SystemIcon name="cart" /></span> Comprar en León
         </button>
         <button type="button" onClick={() => onShop("national")} className="welcome-buy welcome-buy-national">
-          <span aria-hidden="true">🚚</span> Envíos a todo México
+          <span aria-hidden="true"><SystemIcon name="truck" /></span> Envíos a todo México
         </button>
       </div>
       <p>Elige tu ubicación para ver el catálogo.</p>
     </div>
     <section className="welcome-community" aria-labelledby="welcome-community-title">
-      <span aria-hidden="true" className="welcome-paw">🐾</span>
+      <span aria-hidden="true" className="welcome-paw"><SystemIcon name="paw" /></span>
       <h2 id="welcome-community-title">Nuestra comunidad</h2>
       <CommunityCarousel />
       <a href={COMMUNITY_URL} target="_top" onClick={event => { event.preventDefault(); onCommunity(); }}>

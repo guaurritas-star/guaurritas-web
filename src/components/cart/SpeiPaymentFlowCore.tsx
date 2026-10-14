@@ -315,7 +315,7 @@ export default function SpeiPaymentFlowCore({
   const copyText = async (value: string, label: string) => {
     try {
       await navigator.clipboard.writeText(value);
-      setStatus(`${label} copiada. ✨`);
+      setStatus(`${label} copiada.`);
     } catch {
       setStatus(`No se pudo copiar ${label.toLowerCase()} automáticamente.`);
     }

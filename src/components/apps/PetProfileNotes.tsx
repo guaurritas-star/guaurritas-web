@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import GuaurrinotasLoading from "./GuaurrinotasLoading";
 import styles from "./Guaurrinotas.module.css";
@@ -471,7 +472,7 @@ export default function PetProfileNotes({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span aria-hidden="true">🐾</span>
+                <span aria-hidden="true"><SystemIcon name="paw" /></span>
               )}
             </div>
             <div className="min-w-0">
@@ -596,7 +597,7 @@ export default function PetProfileNotes({
       ) : hasLoadError ? null : notes.length === 0 ? (
         <div className="mt-5 border-2 border-dashed border-[#cbd4e4] bg-[#f8f8f8] p-6 text-center">
           <span aria-hidden="true" className="text-3xl">
-            📝
+            <SystemIcon name="notes" />
           </span>
           <h3 className="mt-3 font-bold text-[#263650]">
             {profile.name} todavía no ha publicado notas
@@ -625,7 +626,7 @@ export default function PetProfileNotes({
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span aria-hidden="true">🐾</span>
+                      <span aria-hidden="true"><SystemIcon name="paw" /></span>
                     )}
                   </div>
                   <div className="min-w-0">

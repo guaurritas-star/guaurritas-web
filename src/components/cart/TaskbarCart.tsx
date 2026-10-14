@@ -1,5 +1,6 @@
 "use client";
 
+import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -202,7 +203,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     nationalShippingPromo.state === "overweight"
       ? `Supera ${NATIONAL_SHIPPING_PROMO.maxWeightKg} kg · confirmamos tarifa especial antes del cobro.`
       : nationalShippingPromo.state === "free"
-        ? "Envío nacional gratis desbloqueado ✨"
+        ? "Envío nacional gratis desbloqueado"
         : nationalShippingPromo.state === "below_minimum"
           ? `Faltan ${money(nationalShippingPromo.amountToMinimumOrder)} para el mínimo de ${money(NATIONAL_SHIPPING_PROMO.minimumOrder)}.`
           : `Envío ${money(NATIONAL_SHIPPING_PROMO.standardRate)} · faltan ${money(nationalShippingPromo.amountToFreeShipping)} para envío gratis.`;
@@ -354,8 +355,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               }`}
             >
               {item.fulfillment === "national"
-                ? "📦 Envío nacional"
-                : "📍 Entrega en León"}
+                ? <><SystemIcon name="box" /> Envío nacional</>
+                : <><SystemIcon name="pin" /> Entrega en León</>}
             </small>
             {!item.wix.supported && (
               <small className="mt-1 font-bold text-[#9f5860]">
@@ -468,7 +469,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#955b69]">
-                          📍 Pedido en León
+                          <SystemIcon name="pin" /> Pedido en León
                         </p>
                         <p className="mt-1 text-[9px] leading-4 text-[#657287]">
                           {itemUnits(leonItems)} {itemUnits(leonItems) === 1 ? "producto" : "productos"} · {money(leonTransferTotal)}
@@ -496,7 +497,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#487986]">
-                          📦 Envío nacional
+                          <SystemIcon name="box" /> Envío nacional
                         </p>
                         <p className="mt-1 text-[9px] leading-4 text-[#657287]">
                           {itemUnits(nationalItems)} {itemUnits(nationalItems) === 1 ? "producto" : "productos"} · {money(nationalOnlineTotal)}
@@ -567,7 +568,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 {nationalItems.length > 0 && (
                   <section className="min-w-0 rounded-lg border border-[#9fc1cb] bg-[#eef7f9] p-3 text-left sm:hidden">
                     <p className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#487986]">
-                      📦 Envío nacional
+                      <SystemIcon name="box" /> Envío nacional
                     </p>
 
                     <div className="mt-2 flex min-w-0 items-end justify-between gap-3">
