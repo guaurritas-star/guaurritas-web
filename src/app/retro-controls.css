@@ -1,0 +1,41 @@
+/* Original Guaurritas controls, referencing the raised/pressed behavior of
+   classic Windows controls (98.css / XP.css). No third-party theme is bundled. */
+:root {
+  --retro-button-raised: inset 1px 1px #fffaf0, inset -1px -1px #293b64,
+    inset 2px 2px #e5e9f4, inset -2px -2px #8591ab;
+  --retro-button-pressed: inset 1px 1px #293b64, inset -1px -1px #fffaf0,
+    inset 2px 2px #8591ab, inset -2px -2px #e5e9f4;
+}
+.welcome-buy, .community-controls button, .community-read-review,
+.community-review-close, .store-navigation button {
+  border: 1px solid #293b64; border-radius: 2px;
+  box-shadow: var(--retro-button-raised); background: #e9e4dc; color: #24345c;
+  text-shadow: 0 1px #fff9; transition: none; min-height: 48px;
+}
+.welcome-buy { font: 600 14px/1.5 var(--font-cinzel), serif; min-height: 64px; padding: 10px 14px; gap: 12px; }
+.welcome-buy svg { width: 28px; height: 28px; }
+.welcome-buy-leon { background: #425BBC; color: #fffaf0; text-shadow: 1px 1px #263b88; }
+.welcome-buy-national { background: #D9A6B9; }
+.welcome-buy:hover { filter: none; outline: 1px solid #e5bd72; outline-offset: -5px; }
+.welcome-photo { border: 2px solid #9c8394; border-radius: 2px; background: #f3e2e9; box-shadow: inset 1px 1px #fffaf0, inset -1px -1px #c6a9b8; }
+.welcome-community { border: 2px solid #a88a9a; border-radius: 2px; box-shadow: inset 1px 1px #fffaf0, inset -1px -1px #dcc3cf; }
+.welcome-community h2 { text-align: left; }
+.community-card, .community-card-media, .community-card-media img { border-radius: 0; }
+.community-card { border-color: #b09da7; box-shadow: 1px 1px #fffaf0; }
+.community-review-dialog { border-radius: 2px; box-shadow: var(--retro-button-raised), 4px 4px #24345c66; }
+.community-read-review, .community-review-close { font: 400 17px/1.4 var(--font-mansalva), cursive; }
+.community-controls { font-size: 16px; }
+.store-navigation button { font-size: 13px; line-height: 1.4; letter-spacing: normal; }
+.store-navigation [role="group"][aria-label="Ubicación de compra"] { border: 0; border-radius: 0; padding: 0; gap: 4px; }
+.store-navigation button[aria-pressed="true"] { background: #425BBC; color: #fffaf0; text-shadow: 1px 1px #263b88; box-shadow: var(--retro-button-pressed); }
+:is(.welcome-buy, .community-controls button, .community-read-review, .community-review-close, .store-navigation button):not(:disabled):active {
+  box-shadow: var(--retro-button-pressed); translate: 1px 1px;
+}
+:is(.welcome-buy, .community-controls button, .community-read-review, .community-review-close, .store-navigation button):focus-visible {
+  outline: 2px dotted #24345c; outline-offset: 3px;
+}
+@media (max-width: 639px) {
+  .welcome-buy { font-size: 14px; min-height: 56px; }
+  .welcome-photo { border-radius: 2px; }
+  .welcome-intro > p { font-size: 18px; line-height: 1.5; }
+}

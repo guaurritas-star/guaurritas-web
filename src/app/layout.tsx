@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cinzel, Mansalva, Open_Sans } from "next/font/google";
+import { Cinzel, Mansalva } from "next/font/google";
 import CartPersistenceGuard from "@/components/cart/CartPersistenceGuard";
 import "./globals.css";
 import "./iframe-scroll-fix.css";
@@ -8,6 +8,7 @@ import "./paint-icon-animation.css";
 import "./cart-payment-overrides.css";
 import "./cart-final-polish.css";
 import "./welcome.css";
+import "./retro-controls.css";
 
 const mansalva = Mansalva({
   weight: "400",
@@ -22,12 +23,6 @@ const cinzel = Cinzel({
   display: "swap",
 });
 
-const openSans = Open_Sans({
-  variable: "--font-open-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: "Guaurritas OS",
   description:
@@ -38,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${mansalva.variable} ${cinzel.variable} ${openSans.variable} h-full antialiased`}
+      className={`${mansalva.variable} ${cinzel.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <CartPersistenceGuard />
