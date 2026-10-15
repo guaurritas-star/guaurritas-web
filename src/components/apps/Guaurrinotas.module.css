@@ -3,14 +3,14 @@
   --blue: #425bbc;
   --pink: #d9a6b9;
   color: var(--ink);
-  font-family: var(--font-open-sans), Arial, sans-serif;
+  font-family: var(--font-mansalva), cursive;
   font-size: 14px;
   line-height: 1.55;
   max-width: 840px;
   margin: 0 auto;
   padding-bottom: 24px;
 }
-.workspace :global(.font-mono) { font-family: var(--font-open-sans), Arial, sans-serif; letter-spacing: normal; }
+.workspace :global(.font-mono) { font-family: var(--font-mansalva), cursive; letter-spacing: normal; }
 .workspace h2 { font-size: clamp(23px, 4vw, 30px); line-height: 1.25; }
 .workspace h3 { font-size: 19px; line-height: 1.3; }
 .workspace button, .workspace summary { cursor: pointer; }
@@ -146,7 +146,7 @@
 .noteComposer input::file-selector-button { border: 0; border-radius: 8px; background: #e9edf8; }
 .profileNotes article { border: 1px solid #d9dfea; border-radius: 16px; box-shadow: none; background: white; }
 .authPanel { max-width: 540px; }
-.loading { font-family: var(--font-open-sans), Arial, sans-serif; max-width: 840px; margin: 0 auto; padding: 12px 0 24px; color: #34466e; }
+.loading { font-family: var(--font-mansalva), cursive; max-width: 840px; margin: 0 auto; padding: 12px 0 24px; color: #34466e; }
 .loadingBrand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
 .loadingBrand > span { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg,#e0e6fa,#f3dfe9); color: #425bbc; font-size: 30px; }
 .loadingBrand strong { font-size: 18px; font-family: var(--font-cinzel), serif; }

@@ -10,7 +10,7 @@
   --color-foreground: var(--foreground);
   --font-brand: var(--font-mansalva);
   --font-title: var(--font-cinzel);
-  --font-interface: var(--font-open-sans);
+  --font-interface: var(--font-mansalva);
   --font-sans: var(--font-mansalva);
   --font-serif: var(--font-cinzel);
   --font-mono: var(--font-mansalva);
@@ -152,7 +152,7 @@ h3 {
 input,
 select,
 textarea {
-  font-family: var(--font-open-sans), sans-serif;
+  font-family: var(--font-mansalva), cursive;
 }
 
 .desktop-wallpaper {
@@ -346,7 +346,7 @@ body:has(.global-wix-header-shell) {
   flex: 0 0 auto;
   align-items: center;
   color: #fff;
-  font-family: var(--font-open-sans), sans-serif;
+  font-family: var(--font-mansalva), cursive;
   white-space: nowrap;
 }
 
@@ -495,7 +495,7 @@ body:has(.global-wix-header-shell) {
 
 .desktop-os-member-menu-kicker {
   color: #6b78a2;
-  font-family: var(--font-open-sans), sans-serif;
+  font-family: var(--font-mansalva), cursive;
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -567,7 +567,7 @@ body:has(.global-wix-header-shell) {
 
 .desktop-os-member-menu-item small {
   color: #667492;
-  font-family: var(--font-open-sans), sans-serif;
+  font-family: var(--font-mansalva), cursive;
   font-size: 9px;
 }
 
@@ -677,7 +677,7 @@ body:has(.global-wix-header-shell) {
   border-radius: 999px;
   background: #263f9a;
   color: #fff;
-  font: 700 10px/1 var(--font-open-sans), sans-serif;
+  font: 700 10px/1 var(--font-mansalva), cursive;
   box-shadow: 1px 1px 0 #875773;
 }
 
@@ -693,7 +693,7 @@ body:has(.global-wix-header-shell) {
   background: #fff9fb;
   color: #263650;
   box-shadow: 5px 5px 0 rgba(88, 45, 69, 0.48);
-  font-family: var(--font-open-sans), sans-serif;
+  font-family: var(--font-mansalva), cursive;
 }
 
 .taskbar-cart-titlebar {
@@ -1778,7 +1778,7 @@ body:has(.global-wix-header-shell) {
 
 .world-card-subtitle {
   color: color-mix(in srgb, var(--world-accent-soft) 82%, white 8%);
-  font-family: var(--font-open-sans), sans-serif;
+  font-family: var(--font-mansalva), cursive;
   opacity: 1;
   transform: translateY(0);
   transition:
@@ -1888,7 +1888,7 @@ body:has(.global-wix-header-shell) {
 
 .retro-window-caption {
   color: #f2f2f2;
-  font-family: var(--font-open-sans), sans-serif !important;
+  font-family: var(--font-mansalva), cursive !important;
   font-weight: 700 !important;
   letter-spacing: 0.015em;
   text-shadow: 1px 1px 0 rgba(38, 54, 80, 0.88);
@@ -1914,7 +1914,7 @@ body:has(.global-wix-header-shell) {
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.95),
     inset -1px -1px 0 rgba(99, 122, 166, 0.42);
-  font-family: var(--font-open-sans), sans-serif !important;
+  font-family: var(--font-mansalva), cursive !important;
   font-weight: 800 !important;
 }
 

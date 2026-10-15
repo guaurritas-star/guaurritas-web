@@ -4,7 +4,7 @@
 .welcome-window-dialog .retro-window-titlebar { background: linear-gradient(180deg, #637dd4, #425BBC 56%, #2f4399) !important; }
 .welcome-window-dialog .retro-window-caption { font-size: 16px; }
 .welcome-window-dialog .retro-window-client { padding: clamp(20px, 3vw, 36px); background: #fffaf6; }
-.welcome-app { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px 28px; color: #182e59; font-family: var(--font-open-sans), sans-serif; }
+.welcome-app { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px 28px; color: #182e59; font-family: var(--font-mansalva), cursive; }
 .welcome-intro { grid-column: 1; grid-row: 1; align-self: end; }
 .welcome-intro h1 { margin: 0; font-family: var(--font-cinzel), serif; font-size: clamp(32px, 3.7vw, 52px); font-weight: 650; line-height: 1.12; letter-spacing: -0.035em; text-transform: none; }
 .welcome-intro > p { margin: 16px 0 0; font-size: clamp(17px, 1.65vw, 22px); line-height: 1.45; }
@@ -12,7 +12,7 @@
 .welcome-photo img { display: block; width: 100%; height: 330px; object-fit: contain; }
 .welcome-purchase { grid-column: 1; grid-row: 2; align-self: start; }
 .welcome-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
-.welcome-buy { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 12px 16px; border: 2px solid #425BBC; border-radius: 9px; font: 600 17px/1.35 var(--font-open-sans), sans-serif; box-shadow: inset 0 1px 0 #ffffff88, 2px 3px 0 #425BBC38; cursor: pointer; }
+.welcome-buy { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 12px 16px; border: 2px solid #425BBC; border-radius: 9px; font: 600 17px/1.35 var(--font-mansalva), cursive; box-shadow: inset 0 1px 0 #ffffff88, 2px 3px 0 #425BBC38; cursor: pointer; }
 .welcome-buy-leon { background: linear-gradient(#5470d2, #425BBC); color: white; }
 .welcome-buy-national { background: linear-gradient(#e6bbc9, #D9A6B9); border-color: #af6a87; color: #35263d; }
 .welcome-buy:hover { filter: brightness(1.05); }
