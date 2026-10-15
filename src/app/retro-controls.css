@@ -13,7 +13,7 @@
   text-shadow: 0 1px #fff9; transition: none; min-height: 48px;
 }
 .welcome-buy { font: 600 14px/1.5 var(--font-cinzel), serif; min-height: 64px; padding: 10px 14px; gap: 12px; }
-.welcome-buy svg { width: 28px; height: 28px; }
+.welcome-buy .system-icon { width: 32px !important; height: 32px !important; }
 .welcome-buy-leon { background: #425BBC; color: #fffaf0; text-shadow: 1px 1px #263b88; }
 .welcome-buy-national { background: #D9A6B9; }
 .welcome-buy:hover { filter: none; outline: 1px solid #e5bd72; outline-offset: -5px; }
