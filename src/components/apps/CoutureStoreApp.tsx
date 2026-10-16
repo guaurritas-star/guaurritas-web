@@ -396,7 +396,7 @@ export default function CoutureStoreApp({
 
   return (
     <section ref={catalogRef} className="boutique-retail boutique-couture -m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
-      <div className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+      <div className="retail-cart-toolbar sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
         <button
           type="button"
           onClick={onBack}
