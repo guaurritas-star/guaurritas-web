@@ -914,7 +914,12 @@ export default function CuisineStoreApp({
 
     const frame = window.requestAnimationFrame(() => {
       const productView = productViewRef.current;
-      const scrollContainer = productView?.closest(".store-catalog, .retro-window-content");
+      // Desktop scrolls the whole store so its toolbar does not cover products.
+      // Mobile keeps its existing Wix/document scroll and reveal message below.
+      const storeScrollContainer = window.matchMedia("(min-width: 640px)").matches
+        ? productView?.closest(".store-app")
+        : null;
+      const scrollContainer = storeScrollContainer ?? productView?.closest(".store-catalog, .retro-window-content");
 
       if (scrollContainer instanceof HTMLElement) {
         scrollContainer.scrollTo({ top: 0, left: 0, behavior: "auto" });
