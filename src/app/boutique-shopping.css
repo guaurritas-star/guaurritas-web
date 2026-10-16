@@ -122,6 +122,17 @@
   box-shadow: inset 1px 1px #425b8c33, 1px 1px #fff;
 }
 .boutique-product :is(section, details, div.rounded-2xl) { border-radius: 3px; }
+.retro-window-client:has(> .boutique-retail) { padding: 0 !important; }
+.retro-window-client > .boutique-retail { margin: 0; }
+.boutique-product > .cuisine-mobile-sticky-header {
+  background: #f2f2f2; padding: 10px 16px; min-height: 68px;
+  border-bottom: 1px solid #637aa6;
+}
+.boutique-product > .cuisine-mobile-sticky-header > button {
+  padding: 10px 14px; border: 1px solid #637aa6; background: #f2f2f2;
+  color: #425b8c; font: 600 14px/1.5 var(--font-cinzel), serif;
+  letter-spacing: 0; text-transform: none;
+}
 .boutique-couture > header { background: #f2f2f2; border-color: #637aa6; }
 
 .taskbar-cart-panel {
@@ -159,7 +170,7 @@
   .taskbar-cart-panel { right: 0; }
 }
 @media (min-width: 640px) {
-  .retro-window-overlay:has(> .store-window-dialog) { top: 58px; }
+  html:not(.guaurritas-external-header) .retro-window-overlay:not(.welcome-window-overlay) { top: 58px; }
   /* One desktop scroll owner: the full store, not only the catalogue below
      a permanently reserved toolbar. Keep the window titlebar outside it. */
   .store-app { overflow-y: auto; overscroll-behavior-y: contain; }
@@ -193,4 +204,33 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .boutique-retail *, .taskbar-cart-panel * { animation: none !important; transition: none !important; }
+}
+
+/* Shared retro feedback: tactile travel, not a delayed animation. Include
+   selection controls and secondary actions as well as purchase buttons. */
+:is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled),
+.welcome-buy, .retro-window-control {
+  transition: translate 120ms ease-out, box-shadow 120ms ease-out, outline-color 120ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover,
+  .welcome-buy:not(:disabled):hover, .retro-window-control:hover {
+    cursor: pointer; translate: 0 -1px;
+    outline: 1px solid #637aa6; outline-offset: -4px;
+  }
+}
+:is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):active,
+.welcome-buy:not(:disabled):active, .retro-window-control:active {
+  translate: 0 1px; transform: none;
+  box-shadow: var(--retro-button-pressed) !important;
+}
+:is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:focus-visible,
+.welcome-buy:focus-visible {
+  outline: 2px solid #425b8c !important; outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button,
+  .welcome-buy, .retro-window-control {
+    transition: none !important; translate: none !important; transform: none !important;
+  }
 }
