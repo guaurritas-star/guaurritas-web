@@ -160,6 +160,20 @@
 }
 @media (min-width: 640px) {
   .retro-window-overlay:has(> .store-window-dialog) { top: 58px; }
+  /* One desktop scroll owner: the full store, not only the catalogue below
+     a permanently reserved toolbar. Keep the window titlebar outside it. */
+  .store-app { overflow-y: auto; overscroll-behavior-y: contain; }
+  .store-app > .store-catalog { flex: none; overflow: visible; }
+  .store-navigation {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end; gap: 8px 16px;
+  }
+  .store-navigation .store-folder-tabs { margin-top: 0; }
+  .store-navigation > div:last-child { grid-column: 1 / -1; margin-top: 0; }
+}
+@media (min-width: 640px) and (max-width: 1000px) {
+  .store-navigation { grid-template-columns: minmax(0, 1fr); }
+  .store-navigation .store-folder-tabs { width: 100%; }
 }
 @media (max-width: 639px) {
   .retro-window-titlebar { min-height: 52px; }
