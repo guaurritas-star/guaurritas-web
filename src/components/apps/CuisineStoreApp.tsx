@@ -1,5 +1,6 @@
 "use client";
 
+import { halloweenIsActive, halloweenRate, halloweenPrice } from "@/lib/seasonal-promotions";
 import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useBrowserSearch } from "@/lib/browser-location";
@@ -49,7 +50,6 @@ type GuaranteedAnalysisItem = {
 type ProductOption = {
   label: string;
   price: number;
-  originalPrice?: number;
   grams?: number;
   image?: string;
   imageAlt?: string;
@@ -604,12 +604,11 @@ const products: CuisineProduct[] = [
     image: "/cuisine/products/chilaquidogs-card-v4.webp",
     imageAlt: "ChilaquiDogs servido en una cajita",
     options: [
-      { label: "Petit", price: 55.25, originalPrice: 65 },
-      { label: "Grande", price: 72.25, originalPrice: 85 },
+      { label: "Petit", price: 65 },
+      { label: "Grande", price: 85 },
     ],
     detail:
       "Los totopos se preparan con harina de avena. Elige proteína de res o pollo y salsa roja de zanahoria con manzana, o verde de calabaza con manzana. La receta incorpora probióticos y está disponible en tamaño Petit o Grande.",
-    badge: "Mes patrio · -15%",
     imageTone: "#edf1f5",
     imageScale: 1.18,
   },
@@ -700,7 +699,7 @@ function money(value: number) {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 
@@ -1205,7 +1204,7 @@ export default function CuisineStoreApp({
         name: selectedProduct.name,
         detail: `4 bolsas de 100 g · ${summary}`,
         personalization: `Combinación del kit: ${summary}`,
-        unitPrice: KIT_GUAURRICOOKIES_PRICE,
+        unitPrice: halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE),
         image: cartImage,
         fulfillment: "national",
       });
@@ -1495,7 +1494,7 @@ export default function CuisineStoreApp({
       fulfillmentMode,
     );
     const bulkDiscountRate =
-      fulfillmentMode === "national" ? 0 : bulkLocalDiscountRate;
+      fulfillmentMode === "national" || halloweenIsActive() ? 0 : bulkLocalDiscountRate;
     const bulkSavings = Math.round(bulkBasePrice - bulkLocalPrice);
     const bulkAssignedGrams = Object.values(bulkFlavorGrams).reduce(
       (total, grams) => total + grams,
@@ -1621,22 +1620,8 @@ export default function CuisineStoreApp({
             <p className="mt-3 max-w-xl text-lg leading-7 text-[#53627a]">
               {selectedProduct.description}
             </p>
-            <div className="mt-5 hidden max-w-xl rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4 lg:block">
-              <p className="font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5]">
-                Antes de pedir
-              </p>
-              <p className="mt-2 font-interface text-sm leading-6 text-[#657287]">
-                {selectedProduct.detail}
-              </p>
-              {isEdibleProduct && !isSticks && (
-                <p className="mt-3 border-t border-[#d7e0e5] pt-3 font-interface text-[10px] leading-5 text-[#718093]">
-                  <strong className="text-[#53627a]">Guía Cuisine:</strong>{" "}
-                  es un premio complementario y no sustituye su alimento diario.
-                  Si tu lomito o michi tiene alergias, intolerancias o una dieta
-                  indicada por su veterinario, consúltanos antes de pedir.
-                </p>
-              )}
-            </div>
+            {isEdibleProduct && !isSticks && <p className="product-safety-note">Premio complementario; no sustituye su alimento diario. Si tiene alergias, intolerancias o una dieta veterinaria, consúltanos antes de pedir.</p>}
+            {halloweenRate(selectedProduct.id) > 0 && <p className="halloween-product-note">Halloween · 15 % de descuento aplicado · hasta el 31 de octubre</p>}
 
             {isPetcake ? (
               <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
@@ -2663,7 +2648,7 @@ export default function CuisineStoreApp({
               </>
             )}
 
-            <details className="group mt-7 rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4 lg:hidden">
+            <details className="group mt-7 rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5] marker:content-none">
                 <span>Antes de pedir</span>
                 <span
@@ -2854,11 +2839,6 @@ export default function CuisineStoreApp({
                       ? `${currentOption.label} · Número: ${birthdayCandleNumber || "pendiente"}`
                     : currentOption.label}
                 </p>
-                {isChilaquidogs && currentOption.originalPrice && (
-                  <p className="mt-1 font-interface text-xs text-[#8993a1] line-through">
-                    Antes {money(currentOption.originalPrice)}
-                  </p>
-                )}
                 <p className="mt-1 font-serif text-2xl font-semibold text-[#263650]">
                   {isBulkCookies
                     ? !bulkQuantityIsValid
@@ -2867,7 +2847,7 @@ export default function CuisineStoreApp({
                         ? "Cotización de mayoreo"
                         : money(bulkPrice)
                     : isGuaurriCookiesKit
-                      ? money(KIT_GUAURRICOOKIES_PRICE)
+                      ? money(halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE))
                     : isDescubreGuaurritas
                       ? money(DESCUBRE_GUAURRITAS_PRICE)
                     : isPetcake && petcakeFinish === null
@@ -2883,7 +2863,7 @@ export default function CuisineStoreApp({
               >
                 {isGuaurriCookiesKit
                   ? kitSelectionComplete
-                    ? `Agregar kit al carrito · ${money(KIT_GUAURRICOOKIES_PRICE)}`
+                    ? `Agregar kit al carrito · ${money(halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE))}`
                     : "Elige 4 bolsas para continuar"
                   : isDescubreGuaurritas
                     ? descubreSelectionComplete
@@ -2990,7 +2970,7 @@ export default function CuisineStoreApp({
         </header>
 
         <div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="retail-category-filters flex gap-2 overflow-x-auto pb-1">
             {categories.map((item) => (
               <button
                 key={item.id}
@@ -3050,9 +3030,9 @@ export default function CuisineStoreApp({
                     className="object-contain p-5 transition duration-500 group-hover:scale-105"
                   />
                 </span>
-                {product.badge && (
+                {(halloweenRate(product.id) > 0 || product.badge) && (
                   <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#263650] px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
-                    {product.badge}
+                    {halloweenRate(product.id) > 0 ? "Halloween · −15 %" : product.badge}
                   </span>
                 )}
               </span>

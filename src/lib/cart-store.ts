@@ -10,7 +10,7 @@ import {
   getFulfillmentMode,
   type FulfillmentMode,
 } from "@/lib/fulfillment-store";
-import { getNationalPriceForCartItemId } from "@/lib/national-pricing";
+import { getCurrentCartPrice } from "@/lib/national-pricing";
 
 export type CartItem = {
   id: string;
@@ -89,10 +89,7 @@ function enrichCartItem(item: StoredCartItem): CartItem {
       typeof item.personalization === "string" ? item.personalization : "",
     // Cuisine is the source of truth for the public price. Wix IDs remain
     // the source of truth for catalog identity, not for overriding our margin.
-    unitPrice:
-      normalizeFulfillment(item.fulfillment) === "national"
-        ? getNationalPriceForCartItemId(item.id, item.unitPrice)
-        : item.unitPrice,
+    unitPrice: getCurrentCartPrice(item.id, wix.supported ? wix.wixUnitPrice : item.unitPrice, item.unitPrice, normalizeFulfillment(item.fulfillment)),
     image: item.image,
     quantity: item.quantity,
     fulfillment: normalizeFulfillment(item.fulfillment),

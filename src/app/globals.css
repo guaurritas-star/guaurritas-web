@@ -103,12 +103,7 @@ textarea {
   text-shadow: 1px 1px 0 #172d78;
 }
 
-.promotion-ticker-tag--patrio {
-  border-color: #75465f;
-  border-top-color: #d7a6be;
-  border-left-color: #d7a6be;
-  background: #a66d88;
-}
+
 
 .promotion-ticker-copy strong {
   color: #263f9a;

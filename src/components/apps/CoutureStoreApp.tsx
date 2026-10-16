@@ -1,6 +1,7 @@
 "use client";
 
 import SystemIcon from "@/components/ui/SystemIcon";
+import { halloweenPrice, halloweenIsActive } from "@/lib/seasonal-promotions";
 import Image from "next/image";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useRef, useState } from "react";
@@ -211,7 +212,7 @@ function money(value: number) {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 
@@ -225,7 +226,8 @@ function recommendedSize(neck: number): SizeId | null {
 }
 
 function pricesFor(collection: BandanaCollection, mode: FulfillmentMode) {
-  return mode === "national" ? collection.nationalPrices : collection.prices;
+  const base = mode === "national" ? collection.nationalPrices : collection.prices;
+  return Object.fromEntries(Object.entries(base).map(([size, price]) => [size, halloweenPrice("bandana", price)])) as Record<SizeId, number>;
 }
 
 export default function CoutureStoreApp({
@@ -789,6 +791,7 @@ export default function CoutureStoreApp({
                     {` · ${fulfillmentMode === "leon" ? "León" : "Envío nacional"}`}
                   </p>
                   <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]">{money(price)}</p>
+                  {halloweenIsActive() && <p className="halloween-product-note">Halloween · 10 % de descuento aplicado · hasta el 31 de octubre</p>}
                 </div>
                 <p className="font-interface text-[11px] uppercase tracking-[0.08em] text-[#907d87]">
                   {minimumPrice === price ? "Precio inicial" : `Desde ${money(minimumPrice)}`}
