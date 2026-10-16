@@ -1,5 +1,6 @@
 "use client";
 
+import { halloweenIsActive } from "@/lib/seasonal-promotions";
 import SystemIcon from "@/components/ui/SystemIcon";
 import { useEffect, useState } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
@@ -63,14 +64,16 @@ export default function StoreApp() {
             </button>
           ))}
         </div>
-      <div className="mt-3 border-t border-[#d4dce7] pt-2 font-interface text-xs leading-5 text-[#53627a]">
+      <details className="store-delivery-details mt-3 border-t border-[#d4dce7] pt-2 font-interface text-xs leading-5 text-[#53627a]">
+        <summary>{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · elige fecha y horario antes de pagar"} · Ver detalles de entrega</summary>
         {mode === "national" ? (
           <p>Envío nacional: pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder}. Envío ${NATIONAL_SHIPPING_PROMO.standardRate}; gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold} para pedidos de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. El plazo y el total se confirman en el checkout.</p>
         ) : (
           <p>En León eliges fecha y horario antes de pagar. Confirmamos por WhatsApp el horario y el punto de entrega; Uber tiene costo adicional. El total con SPEI y tarjeta se muestra en el carrito.</p>
         )}
-      </div>
+      </details>
       </header>
+      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween en Guaurritas</strong><span>15 % en Dognuts y Guaurricookies · 10 % en bandanas</span><small>Descuento aplicado en los precios · hasta el 31 de octubre</small></aside>}
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
         {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
       </div>

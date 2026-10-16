@@ -180,7 +180,7 @@
     align-items: end; gap: 8px 16px;
   }
   .store-navigation .store-folder-tabs { margin-top: 0; }
-  .store-navigation > div:last-child { grid-column: 1 / -1; margin-top: 0; }
+  .store-navigation > .store-delivery-details { grid-column: 1 / -1; margin-top: 0; }
 }
 @media (min-width: 640px) and (max-width: 1000px) {
   .store-navigation { grid-template-columns: minmax(0, 1fr); }
@@ -195,7 +195,7 @@
   .store-navigation > div:first-child > div { flex-basis: 100%; }
   .store-navigation > div:first-child > button { width: 100%; justify-content: center; }
   .store-folder-tabs button { padding: 8px; font-size: 15px; }
-  .store-navigation > div:last-child { font-size: 14px; }
+  .store-navigation > .store-delivery-details { font-size: 14px; }
   .boutique-product-grid { grid-template-columns: minmax(0, 1fr); }
   .boutique-catalog > div > header h2 { font-size: 26px; }
   .boutique-product > div:nth-child(2) { padding: 16px; gap: 20px; }
@@ -256,4 +256,37 @@
   .welcome-buy, .retro-window-control {
     transition: none !important; translate: none !important; transform: none !important;
   }
+}
+
+/* Purchase-first hierarchy: preserve the retro chrome without reserving a hero. */
+.store-delivery-details { grid-column: 1 / -1; margin-top: 0; font-size: 16px; }
+.store-delivery-details summary { cursor: pointer; color: #425b8c; padding: 4px 0; }
+.store-delivery-details summary:focus-visible { outline: 2px solid #425b8c; outline-offset: 3px; }
+.store-delivery-details p { margin-top: 8px; max-width: 80ch; }
+.halloween-store-announcement { flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; padding: 10px 20px; border-bottom: 1px solid #a66d88; background: #eadbe2; color: #263650; font-size: 16px; }
+.halloween-store-announcement strong { font-family: var(--font-cinzel), serif; font-size: 14px; }
+.halloween-store-announcement small { font-size: 14px; }
+.halloween-product-note { color: #425b8c; border-left: 3px solid #a66d88; padding: 8px 12px; margin-top: 12px; font-size: 16px; }
+.product-safety-note { font-size: 16px; line-height: 1.5; margin-top: 12px; color: #42516a; max-width: 65ch; }
+.boutique-catalog > div > header h2 { font-size: clamp(22px, 2vw, 26px); margin-top: 4px; }
+.boutique-catalog > div > header p { margin-top: 4px; }
+.boutique-catalog > div > header span { margin-top: 8px; }
+.boutique-catalog > div > header { padding-bottom: 12px; }
+.boutique-retail .boutique-product-card > span:last-child > span:first-child { color: #425b8c; text-transform: none; font-weight: 400; }
+.boutique-product-card > span:last-child > span:nth-last-child(2) { color: #42516a; font-size: 16px; line-height: 1.5; }
+@media(min-width:640px) {
+  .retail-category-filters { flex-wrap: wrap; overflow: visible; }
+  .boutique-catalog > div:last-child > div:has(> .retail-category-filters) { align-items: start; flex-direction: row; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+  .boutique-catalog .retail-category-filters button { font-size: 14px; min-height: 44px; padding: 8px 12px; }
+}
+@media(max-width:639px) {
+  .halloween-store-announcement { padding: 10px 12px; flex-direction: column; align-items: start; }
+  .retail-category-filters::after { content: "Desliza →"; align-self: center; white-space: nowrap; font-size: 14px; color: #425b8c; }
+}
+
+.store-app .boutique-catalog > div > header > div > p:first-child,
+.store-app .boutique-catalog > div > header > div > span { display: none; }
+@media(min-width:640px) {
+  .retail-category-filters { flex: 1 1 580px; min-width: 0; }
+  .boutique-catalog .retail-category-filters + label { width: min(100%, 260px); flex: 0 1 260px; }
 }

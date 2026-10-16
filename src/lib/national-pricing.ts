@@ -1,3 +1,4 @@
+import { halloweenPrice, halloweenRate } from "@/lib/seasonal-promotions";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
 export const NATIONAL_COMMERCE = {
@@ -78,10 +79,10 @@ export function getCuisineOptionPrice(
   localPrice: number,
   fulfillment: FulfillmentMode,
 ) {
-  if (fulfillment !== "national") return localPrice;
+  if (fulfillment !== "national") return halloweenPrice(productId, localPrice);
 
   const prices = NATIONAL_OPTION_PRICES[productId];
-  return prices?.[optionIndex] ?? localPrice;
+  return halloweenPrice(productId, prices?.[optionIndex] ?? localPrice);
 }
 
 export function getCuisineCookiePrice(
@@ -89,8 +90,10 @@ export function getCuisineCookiePrice(
   localPrice: number,
   fulfillment: FulfillmentMode,
 ) {
-  return fulfillment === "national"
-    ? getNationalCookiePrice(grams, localPrice)
+  if (fulfillment === "national") return halloweenPrice("guaurricookies", getNationalCookiePrice(grams, localPrice));
+  // Use the better seasonal/bulk rate, never stack discounts.
+  return halloweenRate("guaurricookies") > 0
+    ? halloweenPrice("guaurricookies", grams * 0.6)
     : localPrice;
 }
 
@@ -103,7 +106,7 @@ export function getNationalPriceForCartItemId(id: string, fallbackPrice: number)
   if (productId === "guaurricookies") {
     const grams = Number(parts[2]);
     return Number.isFinite(grams)
-      ? getNationalCookiePrice(grams, fallbackPrice)
+      ? halloweenPrice("guaurricookies", getNationalCookiePrice(grams, fallbackPrice))
       : fallbackPrice;
   }
 
@@ -114,5 +117,23 @@ export function getNationalPriceForCartItemId(id: string, fallbackPrice: number)
   const optionIndex = Number(parts[2]);
   if (!Number.isInteger(optionIndex) || optionIndex < 0) return fallbackPrice;
 
-  return NATIONAL_OPTION_PRICES[productId]?.[optionIndex] ?? fallbackPrice;
+  const basePrice = NATIONAL_OPTION_PRICES[productId]?.[optionIndex];
+  return basePrice === undefined ? fallbackPrice : halloweenPrice(productId, basePrice);
+}
+
+/** Refresh saved items from their catalogue base, preserving quantity and delivery. */
+export function getCurrentCartPrice(id: string, localBase: number, savedPrice: number, fulfillment: FulfillmentMode) {
+  const parts = id.split(":");
+  if (parts[0] === "couture") {
+    const sizes = ["mini", "chica", "mediana", "grande", "xl"];
+    const index = sizes.indexOf(parts[3]);
+    if (index < 0) return savedPrice;
+    const base = (fulfillment === "national" ? [249, 309, 359, 409, 479] : [219, 279, 329, 379, 439])[index];
+    return halloweenPrice("bandana", base);
+  }
+  if (parts[0] !== "cuisine") return savedPrice; // Reorders are priced by Wix.
+  if (parts[1] === "guaurricookies") return getCuisineCookiePrice(Number(parts[2]), localBase, fulfillment);
+  if (parts[1] === "guaurricookies-kit") return halloweenPrice(parts[1], 299);
+  if (fulfillment === "national") return getNationalPriceForCartItemId(id, savedPrice);
+  return halloweenPrice(parts[1], localBase);
 }

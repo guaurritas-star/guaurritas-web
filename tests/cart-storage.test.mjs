@@ -26,7 +26,7 @@ function cart(storage) {
     react: { useSyncExternalStore: (listen, snapshot) => { subscribe = listen; return snapshot(); } },
     '@/lib/fulfillment-store': fulfillment,
     '@/lib/wix-commerce-map': { resolveCuisineWixBinding: () => ({ supported: false }) },
-    '@/lib/national-pricing': { getNationalPriceForCartItemId: (_, price) => price },
+    '@/lib/national-pricing': { getCurrentCartPrice: (_, __, price) => price },
   });
   return { api, fulfillment, listen: (callback) => { api.useCart(); return subscribe(callback); } };
 }
