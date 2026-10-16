@@ -80,10 +80,12 @@
   font-size: 16px; box-shadow: inset 1px 1px #637aa655;
 }
 .boutique-retail :is(legend, label) { color: #263650; }
-.boutique-catalog > div > header { padding-bottom: 20px; gap: 16px; }
-.boutique-catalog > div > header h2 { font-size: clamp(26px, 3vw, 38px); }
+.boutique-catalog > div:last-child { padding-top: 18px; }
+.boutique-catalog > div > header { display: block; padding-bottom: 16px; }
+.boutique-catalog > div > header h2 { font-size: clamp(26px, 2.2vw, 30px); max-width: none; margin-top: 8px; }
+.boutique-catalog > div > header p { max-width: 65ch; }
 .boutique-catalog > div > header > div:last-child:not(:first-child) {
-  transform: none; background: #d9a689; box-shadow: 2px 2px #637aa6;
+  display: none; /* Decorative stamp; keep the catalogue itself above the fold. */
 }
 .boutique-catalog button[aria-pressed="true"] {
   background: #425b8c; color: #fff; border-color: #425b8c;
@@ -119,6 +121,7 @@
   border: 2px solid #637aa6; border-radius: 3px;
   box-shadow: inset 1px 1px #425b8c33, 1px 1px #fff;
 }
+.boutique-product :is(section, details, div.rounded-2xl) { border-radius: 3px; }
 .boutique-couture > header { background: #f2f2f2; border-color: #637aa6; }
 
 .taskbar-cart-panel {
@@ -152,6 +155,12 @@
   min-height: 48px; font-size: 14px;
 }
 .taskbar-cart-panel button:disabled { cursor: not-allowed; opacity: .5; }
+@media (min-width: 901px) {
+  .taskbar-cart-panel { right: 0; }
+}
+@media (min-width: 640px) {
+  .retro-window-overlay:has(> .store-window-dialog) { top: 58px; }
+}
 @media (max-width: 639px) {
   .retro-window-titlebar { min-height: 52px; }
   .retro-window-titlebar .retro-window-caption { font-size: 15px !important; }
