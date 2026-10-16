@@ -2104,7 +2104,7 @@ html.guaurritas-system-cart-open .desktop-taskbar {
 }
 
 .store-app .store-catalog .cuisine-mobile-sticky-header:has(> div),
-.store-app .store-catalog > section > .sticky:not(.cuisine-mobile-sticky-header) {
+.store-app .store-catalog > section > .sticky:not(.cuisine-mobile-sticky-header):not(.retail-cart-toolbar) {
   display: none;
 }
 
