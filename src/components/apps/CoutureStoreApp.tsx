@@ -395,7 +395,7 @@ export default function CoutureStoreApp({
   };
 
   return (
-    <section ref={catalogRef} className="-m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
+    <section ref={catalogRef} className="boutique-retail boutique-couture -m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
       <div className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
         <button
           type="button"
@@ -797,7 +797,7 @@ export default function CoutureStoreApp({
               <button
                 type="button"
                 onClick={addToCart}
-                className="mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0"
+                className="boutique-purchase mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0"
               >
                 Agregar al carrito · {money(price)}
               </button>

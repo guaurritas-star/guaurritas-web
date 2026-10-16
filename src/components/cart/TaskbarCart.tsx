@@ -479,7 +479,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         type="button"
                         onClick={goToLeonCheckout}
                         disabled={mixedCart}
-                        className="shrink-0"
+                        className="boutique-purchase shrink-0"
                       >
                         Continuar pedido
                       </button>
@@ -510,7 +510,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }
-                        className="shrink-0 !min-h-9 !px-3 !text-[10px] !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        className="boutique-purchase shrink-0 !px-3 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {checkoutBusy
                           ? "Preparando…"
@@ -586,7 +586,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         onClick={() =>
                           proceedToCheckout(nationalItems, "tu envío nacional")
                         }
-                        className="!min-h-10 !px-4 !text-[11px] !border-[#425b8c] !bg-[#425b8c] !text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        className="boutique-purchase !px-4 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {checkoutBusy
                           ? "Preparando…"

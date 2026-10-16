@@ -9,6 +9,7 @@ import "./cart-payment-overrides.css";
 import "./cart-final-polish.css";
 import "./welcome.css";
 import "./retro-controls.css";
+import "./boutique-shopping.css";
 
 const mansalva = Mansalva({
   weight: "400",
