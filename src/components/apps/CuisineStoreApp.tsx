@@ -1570,7 +1570,7 @@ export default function CuisineStoreApp({
 
     return (
       <section ref={productViewRef} className="boutique-retail boutique-product -m-4 min-h-[32rem] bg-white sm:-m-6">
-        <div className="cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
             onClick={() => setSelectedProduct(null)}
@@ -2944,7 +2944,7 @@ export default function CuisineStoreApp({
 
   return (
     <section className="boutique-retail boutique-catalog -m-4 min-h-[32rem] bg-white sm:-m-6">
-      <div className="cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
+      <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button
             type="button"

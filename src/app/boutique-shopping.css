@@ -210,19 +210,42 @@
    selection controls and secondary actions as well as purchase buttons. */
 :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled),
 .welcome-buy, .retro-window-control {
-  transition: translate 120ms ease-out, box-shadow 120ms ease-out, outline-color 120ms ease-out;
+  transition: background-color 160ms ease-out, color 160ms ease-out;
 }
 @media (hover: hover) and (pointer: fine) {
   :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover,
   .welcome-buy:not(:disabled):hover, .retro-window-control:hover {
-    cursor: pointer; translate: 0 -1px;
-    outline: 1px solid #637aa6; outline-offset: -4px;
+    cursor: pointer; translate: none; transform: none;
+    background: #d5bfc9 !important; color: #263650 !important;
+    text-shadow: none;
+  }
+  :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover:not(:focus-visible),
+  .welcome-buy:not(:disabled):hover:not(:focus-visible), .retro-window-control:hover:not(:focus-visible) {
+    outline: none;
   }
 }
 :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):active,
 .welcome-buy:not(:disabled):active, .retro-window-control:active {
-  translate: 0 1px; transform: none;
+  translate: none; transform: none;
   box-shadow: var(--retro-button-pressed) !important;
+}
+
+/* Reuse the catalogue/product cart controls in the direct Store entrance.
+   Only this compact toolbar stays sticky; delivery and category choices scroll. */
+.store-app .store-catalog > .boutique-retail > .retail-cart-toolbar {
+  display: block; position: sticky !important; top: 0; z-index: 40;
+  min-height: 64px; padding: 8px 16px; background: #f2f2f2;
+  border-bottom: 1px solid #637aa6;
+}
+.store-app .store-catalog > .boutique-product > .retail-cart-toolbar,
+.store-app .store-catalog > .boutique-couture > .retail-cart-toolbar { display: flex; }
+.store-app .store-catalog .retail-cart-toolbar > button:last-child { display: flex; }
+.store-app .boutique-catalog > .retail-cart-toolbar > div > button:first-child,
+.store-app .boutique-couture > .retail-cart-toolbar > button:first-child { display: none; }
+.store-app .retail-cart-toolbar button[aria-label^="Abrir carrito"] { margin-left: auto; }
+.retail-cart-toolbar button[aria-label^="Abrir carrito"] {
+  padding: 10px 14px; border: 1px solid #637aa6;
+  background: #f2f2f2; color: #425b8c;
 }
 :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:focus-visible,
 .welcome-buy:focus-visible {
