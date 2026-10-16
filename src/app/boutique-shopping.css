@@ -1,0 +1,173 @@
+/* Guaurritas boutique chrome. Keep window/checkout sizing and scroll ownership
+   in their existing stylesheets; this theme only styles shopping surfaces. */
+:root {
+  --boutique-blue: #425b8c;
+  --boutique-blue-light: #637aa6;
+  --boutique-peach: #d9a689;
+  --boutique-paper: #f2f2f2;
+  --boutique-mauve: #a66d88;
+  --boutique-ink: #263650;
+  --retro-button-raised: inset 1px 1px #fff, inset -1px -1px #425b8c,
+    inset 2px 2px #f2f2f2, inset -2px -2px #637aa6;
+  --retro-button-pressed: inset 1px 1px #425b8c, inset -1px -1px #fff,
+    inset 2px 2px #637aa6, inset -2px -2px #f2f2f2;
+}
+.retro-window-titlebar { min-height: 44px; }
+.retro-window-caption { min-width: 0; font-size: 16px; }
+.retro-window-control:focus-visible {
+  outline: 2px solid #fff; outline-offset: 2px;
+}
+.desktop-taskbar {
+  background: linear-gradient(#c49bad, #a66d88);
+}
+.welcome-buy-leon { background: #425b8c; }
+.welcome-buy-national { background: #d9a689; }
+.welcome-photo, .welcome-community { background-color: #f2f2f2; }
+
+.store-app, .store-app .store-navigation, .boutique-retail {
+  background: var(--boutique-paper); color: var(--boutique-ink);
+}
+.store-navigation {
+  border-bottom: 1px solid #637aa6;
+  box-shadow: inset 0 1px #fff;
+}
+.store-navigation > div:first-child { flex-wrap: wrap; }
+.store-navigation > div:first-child > div { min-width: min(100%, 190px); }
+.store-navigation p { font-size: 14px; line-height: 1.5; letter-spacing: 0; }
+.store-navigation button {
+  background: #f2f2f2; color: #263650; font-size: 16px;
+  text-transform: none; min-height: 48px;
+}
+.store-navigation button[aria-pressed="true"] {
+  background: #425b8c; color: #fff; text-shadow: none;
+}
+.store-navigation .store-folder-tabs {
+  gap: 4px; border-bottom: 1px solid #637aa6; padding: 4px 0 0;
+}
+.store-folder-tabs button {
+  position: relative; border-radius: 6px 6px 0 0; min-width: 0;
+  padding: 10px 18px; font-family: var(--font-cinzel), serif;
+  box-shadow: inset 1px 1px #fff, inset -1px 0 #637aa6;
+}
+.store-folder-tabs button span + span {
+  font-family: var(--font-mansalva), cursive; font-size: 14px; line-height: 1.4;
+}
+.store-folder-tabs button[aria-pressed="true"] {
+  background: #f2f2f2; color: #263650; text-shadow: none;
+  border-top: 3px solid #a66d88; border-bottom-color: #f2f2f2;
+  box-shadow: inset 1px 1px #fff, inset -1px 0 #637aa6;
+  bottom: -1px;
+}
+.boutique-retail { min-width: 0; }
+.boutique-retail :is(h2, h3, .font-serif) { font-family: var(--font-cinzel), serif; }
+.boutique-retail .font-interface {
+  font-size: max(14px, 1em); line-height: 1.5; letter-spacing: normal;
+}
+.boutique-retail :is(button, input, select, textarea, details) { border-radius: 3px; }
+.boutique-retail :is(button, input, select) { min-height: 48px; }
+.boutique-retail button:not(.boutique-product-card) {
+  box-shadow: var(--retro-button-raised); transition: none;
+}
+.boutique-retail button:not(:disabled):not(.boutique-product-card):active {
+  box-shadow: var(--retro-button-pressed);
+}
+.boutique-retail :is(button, input, select, textarea):focus-visible,
+.taskbar-cart-panel :is(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid #425b8c !important; outline-offset: 3px;
+}
+.boutique-retail :is(input, select, textarea) {
+  background: #fff; border-color: #637aa6; color: #263650;
+  font-size: 16px; box-shadow: inset 1px 1px #637aa655;
+}
+.boutique-retail :is(legend, label) { color: #263650; }
+.boutique-catalog > div > header { padding-bottom: 20px; gap: 16px; }
+.boutique-catalog > div > header h2 { font-size: clamp(26px, 3vw, 38px); }
+.boutique-catalog > div > header > div:last-child:not(:first-child) {
+  transform: none; background: #d9a689; box-shadow: 2px 2px #637aa6;
+}
+.boutique-catalog button[aria-pressed="true"] {
+  background: #425b8c; color: #fff; border-color: #425b8c;
+  box-shadow: var(--retro-button-pressed);
+}
+.boutique-retail .boutique-product-card {
+  display: flex; flex-direction: column; height: 100%; min-width: 0;
+  border: 1px solid #637aa6; border-radius: 3px; background: #fff;
+  box-shadow: inset 1px 1px #fff, 2px 2px #637aa633;
+  transform: none; transition: none;
+}
+.boutique-product-card:hover { outline: 1px solid #425b8c; outline-offset: 1px; }
+.boutique-product-card > span:last-child { display: flex; flex: 1; flex-direction: column; }
+.boutique-product-card > span:last-child > span:last-child {
+  margin-top: auto; padding: 12px 8px; background: #f2f2f2;
+  border: 1px solid #637aa6; box-shadow: var(--retro-button-raised);
+  color: #425b8c; font-size: 14px; text-transform: none;
+}
+.boutique-product-card > span:last-child > span:nth-last-child(2) { margin-bottom: 16px; }
+.boutique-product-card > span:last-child > span:nth-child(2) { flex-wrap: wrap; }
+.boutique-product-card > span:last-child > span:nth-child(2) > span:last-child {
+  color: #425b8c; font-size: 15px;
+}
+.boutique-retail .boutique-purchase {
+  background: linear-gradient(#637aa6, #425b8c); color: #fff;
+  border: 1px solid #425b8c; box-shadow: var(--retro-button-raised);
+  font: 600 15px/1.5 var(--font-cinzel), serif; letter-spacing: 0;
+  min-height: 52px; transform: none; text-transform: none;
+}
+.boutique-retail .boutique-purchase:hover { background: #425b8c; transform: none; }
+.boutique-retail button:disabled { cursor: not-allowed; opacity: .5; box-shadow: none; }
+.boutique-product .aspect-square, .boutique-couture .aspect-square {
+  border: 2px solid #637aa6; border-radius: 3px;
+  box-shadow: inset 1px 1px #425b8c33, 1px 1px #fff;
+}
+.boutique-couture > header { background: #f2f2f2; border-color: #637aa6; }
+
+.taskbar-cart-panel {
+  background: #f2f2f2; border-color: #fff #425b8c #425b8c #fff;
+  box-shadow: 0 0 0 1px #637aa6, 4px 4px #26365055;
+}
+.taskbar-cart-titlebar {
+  background: linear-gradient(#637aa6, #425b8c); min-height: 48px;
+  color: #fff; text-shadow: none; font-size: 15px;
+}
+.taskbar-cart-titlebar button {
+  width: 40px; height: 40px; background: #f2f2f2; color: #425b8c;
+  border-color: #fff #425b8c #425b8c #fff; box-shadow: var(--retro-button-raised);
+}
+.taskbar-cart-panel :is(input, select, textarea) { font-size: 16px; border-radius: 3px; }
+.taskbar-cart-item-copy strong {
+  font-family: var(--font-cinzel), serif; font-size: 14px;
+  white-space: normal; overflow-wrap: anywhere;
+}
+.taskbar-cart-item-copy small { font-size: 14px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; }
+.taskbar-cart-quantity button { min-width: 44px; min-height: 44px; box-shadow: var(--retro-button-raised); }
+.taskbar-cart-panel .taskbar-cart-footer button {
+  min-height: 48px; border-radius: 3px; box-shadow: var(--retro-button-raised) !important;
+  font-size: 14px; line-height: 1.5;
+}
+.taskbar-cart-panel .taskbar-cart-footer button:focus-visible {
+  outline: 2px solid #425b8c !important; outline-offset: 3px;
+}
+.taskbar-cart-panel .taskbar-cart-footer .boutique-purchase {
+  background: #425b8c !important; color: #fff !important; border-color: #425b8c !important;
+  min-height: 48px; font-size: 14px;
+}
+.taskbar-cart-panel button:disabled { cursor: not-allowed; opacity: .5; }
+@media (max-width: 639px) {
+  .retro-window-titlebar { min-height: 52px; }
+  .retro-window-titlebar .retro-window-caption { font-size: 15px !important; }
+  .retro-window-close { min-width: 44px; min-height: 44px; }
+  .store-navigation { padding: 10px 12px; }
+  .store-navigation > div:first-child { gap: 8px; }
+  .store-navigation > div:first-child > div { flex-basis: 100%; }
+  .store-navigation > div:first-child > button { width: 100%; justify-content: center; }
+  .store-folder-tabs button { padding: 8px; font-size: 15px; }
+  .store-navigation > div:last-child { font-size: 14px; }
+  .boutique-product-grid { grid-template-columns: minmax(0, 1fr); }
+  .boutique-catalog > div > header h2 { font-size: 26px; }
+  .boutique-product > div:nth-child(2) { padding: 16px; gap: 20px; }
+  .boutique-product > div:nth-child(2) > div:first-child { width: min(100%, 250px); justify-self: center; }
+  .boutique-product .boutique-purchase { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boutique-retail *, .taskbar-cart-panel * { animation: none !important; transition: none !important; }
+}

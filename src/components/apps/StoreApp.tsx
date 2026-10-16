@@ -64,7 +64,7 @@ export default function StoreApp() {
             Carrito · {count}
           </button>
         </div>
-        <div role="group" aria-label="Catálogo de la tienda" className="mt-3 flex gap-2">
+        <div role="group" aria-label="Catálogo de la tienda" className="store-folder-tabs mt-3 flex gap-2">
           {([ ["cuisine", "Cuisine"], ["couture", "Couture"] ] as const).map(([id, label]) => (
             <button key={id} type="button" aria-pressed={category === id} onClick={() => setCategory(id)} className={`min-h-11 flex-1 rounded-md border border-[#425b8c] px-4 font-interface text-xs font-bold sm:flex-none ${category === id ? "bg-[#425BBC] text-white" : "bg-white text-[#425b8c] hover:bg-[#dce4f2]"}`}>
               <span className="block">{label}</span>

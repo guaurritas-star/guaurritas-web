@@ -1564,7 +1564,7 @@ export default function CuisineStoreApp({
       !needsDescubreSelection;
 
     return (
-      <section ref={productViewRef} className="-m-4 min-h-[32rem] bg-white sm:-m-6">
+      <section ref={productViewRef} className="boutique-retail boutique-product -m-4 min-h-[32rem] bg-white sm:-m-6">
         <div className="cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -2874,7 +2874,7 @@ export default function CuisineStoreApp({
                 type="button"
                 onClick={addToCart}
                 disabled={!canAdd}
-                className="border-2 border-[#263650] bg-[#263650] px-6 py-3.5 font-interface text-xs font-bold uppercase tracking-[0.12em] text-white shadow-[3px_3px_0_#77aab6] transition hover:-translate-y-0.5 hover:bg-[#425b8c] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
+                className="boutique-purchase border-2 border-[#263650] bg-[#263650] px-6 py-3.5 font-interface text-xs font-bold uppercase tracking-[0.12em] text-white shadow-[3px_3px_0_#77aab6] transition hover:-translate-y-0.5 hover:bg-[#425b8c] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
               >
                 {isGuaurriCookiesKit
                   ? kitSelectionComplete
@@ -2938,7 +2938,7 @@ export default function CuisineStoreApp({
   }
 
   return (
-    <section className="-m-4 min-h-[32rem] bg-white sm:-m-6">
+    <section className="boutique-retail boutique-catalog -m-4 min-h-[32rem] bg-white sm:-m-6">
       <div className="cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button
@@ -2991,6 +2991,7 @@ export default function CuisineStoreApp({
                 key={item.id}
                 type="button"
                 onClick={() => setCategory(item.id)}
+                aria-pressed={category === item.id}
                 className={`shrink-0 rounded-full border px-4 py-2 font-interface text-[10px] font-bold uppercase tracking-[0.09em] transition ${
                   category === item.id
                     ? "border-[#263650] bg-[#263650] text-white"
@@ -3019,13 +3020,13 @@ export default function CuisineStoreApp({
           </label>
         </div>
 
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="boutique-product-grid mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((product) => (
             <button
               key={product.id}
               type="button"
               onClick={() => openProduct(product)}
-              className="group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
+              className="boutique-product-card group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
             >
               <span
                 className="relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da] sm:shrink-0"
