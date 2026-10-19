@@ -18,6 +18,11 @@
   display: none !important;
 }
 
+.taskbar-cart-footer section > .cart-payment-explanation {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .taskbar-cart-footer .spei-copy-button {
   min-height: 28px !important;
   padding: 4px 9px !important;
