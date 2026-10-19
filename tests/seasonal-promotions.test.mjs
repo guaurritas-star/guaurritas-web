@@ -24,26 +24,40 @@ test('Halloween prices retain cents and the correct local/national base without 
   assert.equal(pricing.getCuisineOptionPrice('dognuts', 1, 140, 'leon'), 119);
   assert.equal(pricing.getCuisineOptionPrice('happy-bag', 0, 85, 'leon'), 72.25);
   assert.equal(pricing.getCuisineOptionPrice('happy-bag', 0, 85, 'national'), 84.15);
-  assert.equal(pricing.getCuisineCookiePrice(300, 180, 'leon'), 153);
-  assert.equal(pricing.getCuisineCookiePrice(300, 180, 'national'), 177.65);
-  assert.equal(pricing.getCuisineCookiePrice(2000, 1140, 'leon'), 1020);
+  assert.equal(pricing.getCuisineCookiePrice(300, 180, 'leon'), 180);
+  assert.equal(pricing.getCuisineCookiePrice(300, 180, 'national'), 209);
+  assert.equal(pricing.getCuisineCookiePrice(2000, 1140, 'leon'), 1200);
   assert.equal(promo.halloweenPrice('guaurricookies-kit', 299), 254.15);
   assert.equal(promo.halloweenPrice('bandana', 219), 197.10);
   assert.equal(promo.halloweenPrice('bandana', 249), 224.10);
 });
 test('national cart hydration reprices from its source once, never discounts the saved offer twice', () => {
   assert.equal(pricing.getNationalPriceForCartItemId('cuisine:happy-bag:0:flavor', 84.15), 84.15);
-  assert.equal(pricing.getNationalPriceForCartItemId('cuisine:guaurricookies:300:flavors', 177.65), 177.65);
+  assert.equal(pricing.getNationalPriceForCartItemId('cuisine:guaurricookies:300:flavors', 177.65), 209);
   assert.equal(pricing.getNationalPriceForCartItemId('couture:amulette:mini:ciel', 224.10), 224.10);
 });
 test('saved carts receive current campaign prices without removing quantities or stacking discounts', () => {
   assert.equal(pricing.getCurrentCartPrice('cuisine:dognuts:0:dog:chicken', 105, 105, 'leon'), 89.25);
   assert.equal(pricing.getCurrentCartPrice('cuisine:dognuts:0:dog:chicken', 105, 89.25, 'leon'), 89.25);
-  assert.equal(pricing.getCurrentCartPrice('cuisine:guaurricookies:2000:flavors', 1140, 1140, 'leon'), 1020);
+  assert.equal(pricing.getCurrentCartPrice('cuisine:guaurricookies:2000:flavors', 1140, 1140, 'leon'), 1200);
   assert.equal(pricing.getCurrentCartPrice('couture:amulette:ciel:mini', 197.10, 197.10, 'leon'), 197.10);
   assert.equal(pricing.getCurrentCartPrice('cuisine:chilaquidogs:0:Pollo:Roja', 65, 55.25, 'leon'), 65);
   const expiredPromo = load('src/lib/seasonal-promotions.ts', {}, '2026-11-01T00:00:00-06:00');
   const expiredPricing = load('src/lib/national-pricing.ts', { '@/lib/seasonal-promotions': expiredPromo });
   assert.equal(expiredPricing.getCurrentCartPrice('cuisine:dognuts:0:dog:chicken', 105, 89.25, 'leon'), 105);
   assert.equal(expiredPricing.getCurrentCartPrice('couture:amulette:ciel:mini', 197.10, 197.10, 'leon'), 219);
+});
+
+test('bulk catalogue prices match its configurator in both delivery modes and never get Halloween labels', () => {
+  assert.equal(promo.halloweenRate('guaurricookies'), 0);
+  assert.equal(pricing.getCuisineOptionPrice('guaurricookies', 0, 180, 'national'), 209);
+  assert.equal(pricing.getCuisineOptionPrice('guaurricookies', 2, 300, 'national'), 349);
+  assert.equal(pricing.getCuisineOptionPrice('guaurricookies', 0, 180, 'leon'), 180);
+  assert.equal(pricing.getCartRegularPrice('cuisine:happy-bag:0', 85, 72.25, 'leon'), 85);
+  assert.equal(pricing.getCartRegularPrice('cuisine:happy-bag:0', 85, 84.15, 'national'), 99);
+  assert.equal(pricing.getCartRegularPrice('couture:amulette:ciel:mini', 197.10, 197.10, 'leon'), 219);
+});
+
+test('national named-size accessories keep their existing national prices', () => {
+  assert.equal(pricing.getCurrentCartPrice('cuisine:gorrito:chico', 50, 59, 'national'), 59);
 });

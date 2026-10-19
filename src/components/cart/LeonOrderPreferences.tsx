@@ -4,6 +4,7 @@ import SystemIcon from "@/components/ui/SystemIcon";
 import { useMemo } from "react";
 import {
   LEON_TIME_OPTIONS,
+  LEON_PICKUP_POINTS,
   minimumLeonDeliveryDate,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
@@ -29,14 +30,7 @@ export default function LeonOrderPreferencesForm({
   const minDate = useMemo(() => minimumLeonDeliveryDate(), []);
 
   const update = (patch: Partial<LeonOrderPreferences>) => {
-    onChange({
-      deliveryMethod: "pending_whatsapp",
-      deliveryPoint: "",
-      deliveryAddress: "",
-      personalizationNote: "",
-      whatsappConfirmed: false,
-      ...patch,
-    });
+    onChange(patch);
   };
 
   return (
@@ -100,6 +94,26 @@ export default function LeonOrderPreferencesForm({
             Es una preferencia; todavía no queda reservado.
           </small>
         </label>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <label className="block"><span>¿Cómo prefieres recibirlo?</span>
+          <select aria-label="Forma de entrega en León" value={value.deliveryMethod || "pending_whatsapp"} onChange={event => update({ deliveryMethod: event.target.value as LeonOrderPreferences["deliveryMethod"], deliveryPoint: "", deliveryAddress: "" })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
+            <option value="pending_whatsapp">Lo coordinaré por WhatsApp</option>
+            <option value="pickup_point">Punto medio</option>
+            <option value="home_delivery">A domicilio por Uber · costo adicional</option>
+          </select>
+        </label>
+        {value.deliveryMethod === "pickup_point" && <label className="block"><span>Punto medio preferido</span>
+          <select aria-label="Punto medio preferido" value={value.deliveryPoint} onChange={event => update({ deliveryPoint: event.target.value })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
+            <option value="">Selecciona un punto</option>{LEON_PICKUP_POINTS.map(point => <option key={point} value={point}>{point}</option>)}
+          </select>
+        </label>}
+        {["home_delivery", "uber_eats"].includes(value.deliveryMethod) && <label className="block"><span>Dirección para cotizar Uber</span>
+          <textarea aria-label="Dirección para cotizar Uber" maxLength={240} value={value.deliveryAddress} onChange={event => update({ deliveryAddress: event.target.value })} className="mt-2 block min-h-24 w-full border border-[#637aa6] bg-white p-3" />
+          <small className="mt-2 block">El costo de Uber no está incluido en los productos; te lo confirmamos por WhatsApp.</small>
+        </label>}
+        <p>Esta es tu preferencia de entrega. El horario y el punto se confirman por WhatsApp.</p>
       </div>
 
       <div className="mt-3 flex min-w-0 max-w-full items-start gap-2 overflow-hidden rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">

@@ -14,7 +14,7 @@
 
 /* El resumen del carrito ya no repite fecha/horario; ese contexto vive en
    “Completar pedido”. */
-.taskbar-cart-footer section > p:last-child {
+.taskbar-cart-footer section > p:last-child:not(.cart-payment-explanation) {
   display: none !important;
 }
 

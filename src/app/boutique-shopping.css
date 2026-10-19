@@ -290,3 +290,15 @@
   .retail-category-filters { flex: 1 1 580px; min-width: 0; }
   .boutique-catalog .retail-category-filters + label { width: min(100%, 260px); flex: 0 1 260px; }
 }
+
+.product-price-pair { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; max-width: 100%; }
+.product-price-pair del { color: #53627a; font-size: .85em; font-weight: 400; text-decoration-thickness: 1px; }
+.product-price-pair > span:last-child { color: #425b8c; }
+.petcake-measurement, .product-decision-help { display: block; font-family: var(--font-mansalva), cursive; font-size: 16px; line-height: 1.5; color: #42516a; margin-top: 8px; }
+.boutique-product-card .product-price-pair { justify-content: flex-end; }
+
+.product-price-pair del { font-size: 14px; }
+.taskbar-cart-price .product-price-pair { font-size: 16px; flex-direction: column; align-items: flex-end; }
+@media(max-width:639px) { .taskbar-cart-price .product-price-pair { align-items: flex-start; } }
+
+.cart-payment-explanation { font-size: 16px; line-height: 1.5; color: #42516a; }

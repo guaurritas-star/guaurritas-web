@@ -1,6 +1,7 @@
 "use client";
 
-import { halloweenIsActive, halloweenRate, halloweenPrice } from "@/lib/seasonal-promotions";
+import { halloweenRate, halloweenPrice } from "@/lib/seasonal-promotions";
+import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useBrowserSearch } from "@/lib/browser-location";
@@ -13,7 +14,9 @@ import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 import {
   getCuisineCookiePrice,
+  NATIONAL_COMMERCE,
   getCuisineOptionPrice,
+  getCuisineRegularOptionPrice,
 } from "@/lib/national-pricing";
 import {
   KIT_GUAURRICOOKIES_BAG_COUNT,
@@ -88,7 +91,8 @@ const categories: { id: CategoryId; label: string }[] = [
   { id: "birthday", label: "Cumpleaños" },
 ];
 
-const petcakeSizes = ["Chico", "Mediano", "Grande", "Plus grande"] as const;
+const petcakeSizes = ["Chico", "Mediano", "Grande", "Jumbo"] as const;
+const petcakeMeasurements = ["Diámetro aprox. 7.5 cm", "Diámetro aprox. 10 cm", "Diámetro aprox. 13 cm", "Medida por confirmar"] as const;
 
 const gorritoPetSizes: {
   size: GorritoPetSize;
@@ -508,13 +512,13 @@ const products: CuisineProduct[] = [
       { label: "Grande · betún", price: 405 },
       { label: "Grande · fondant", price: 475 },
       {
-        label: "Plus grande · betún",
+        label: "Jumbo · betún",
         price: 625,
         image: "/cuisine/products/petcakes-sizes-v2/plus-grande.webp",
         imageAlt: "Petcake plus grande con decoración colorida",
       },
       {
-        label: "Plus grande · fondant",
+        label: "Jumbo · fondant",
         price: 895,
         image: "/cuisine/products/petcakes-sizes-v2/plus-grande.webp",
         imageAlt: "Petcake plus grande con decoración colorida",
@@ -704,13 +708,10 @@ function money(value: number) {
 }
 
 function priceFrom(product: CuisineProduct, fulfillmentMode: FulfillmentMode) {
-  const prices = product.options.map((option, index) =>
-    getCuisineOptionPrice(product.id, index, option.price, fulfillmentMode),
-  );
+  const prices = product.options.map((option, index) => getCuisineOptionPrice(product.id, index, option.price, fulfillmentMode));
+  const regular = product.options.map((option, index) => getCuisineRegularOptionPrice(product.id, index, option.price, fulfillmentMode));
   const lowest = Math.min(...prices);
-  return prices.some((price) => price !== lowest)
-    ? `Desde ${money(lowest)}`
-    : money(lowest);
+  return <ProductPrice price={lowest} original={Math.min(...regular)} from={prices.some(price => price !== lowest)} />;
 }
 
 export default function CuisineStoreApp({
@@ -1327,9 +1328,8 @@ export default function CuisineStoreApp({
         return;
       }
 
-      const discountRate = totalGrams >= 2000 ? 0.05 : 0;
       const localCalculatedPrice = Math.round(
-        totalGrams * 0.6 * (1 - discountRate),
+        totalGrams * 0.6,
       );
       const calculatedPrice = getCuisineCookiePrice(
         totalGrams,
@@ -1481,21 +1481,7 @@ export default function CuisineStoreApp({
     const bulkTargetGrams = bulkQuantityIsValid ? bulkEnteredGrams : 0;
     const isBulkWholesaleQuote = bulkQuantityIsValid && bulkTargetGrams >= 5000;
     const bulkBasePrice = bulkTargetGrams * 0.6;
-    const bulkLocalDiscountRate =
-      bulkQuantityIsValid && !isBulkWholesaleQuote && bulkTargetGrams >= 2000
-        ? 0.05
-        : 0;
-    const bulkLocalPrice = Math.round(
-      bulkBasePrice * (1 - bulkLocalDiscountRate),
-    );
-    const bulkPrice = getCuisineCookiePrice(
-      bulkTargetGrams,
-      bulkLocalPrice,
-      fulfillmentMode,
-    );
-    const bulkDiscountRate =
-      fulfillmentMode === "national" || halloweenIsActive() ? 0 : bulkLocalDiscountRate;
-    const bulkSavings = Math.round(bulkBasePrice - bulkLocalPrice);
+    const bulkPrice = getCuisineCookiePrice(bulkTargetGrams, bulkBasePrice, fulfillmentMode);
     const bulkAssignedGrams = Object.values(bulkFlavorGrams).reduce(
       (total, grams) => total + grams,
       0,
@@ -1649,6 +1635,7 @@ export default function CuisineStoreApp({
                         key={size}
                         type="button"
                         onClick={() => setPetcakeSize(index)}
+                        aria-pressed={petcakeSize === index}
                         className={`rounded-xl border px-3 py-3 text-left font-interface text-[11px] font-semibold transition ${
                           petcakeSize === index
                             ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
@@ -1656,6 +1643,7 @@ export default function CuisineStoreApp({
                         }`}
                       >
                         <span className="block">{size}</span>
+                        <span className="petcake-measurement">{petcakeMeasurements[index]}</span>
                         <span className="mt-1 block text-[9px] font-normal text-[#718093]">
                           Desde {money(selectedProduct.options[index * 2].price)}
                         </span>
@@ -1674,6 +1662,7 @@ export default function CuisineStoreApp({
                         key={finish}
                         type="button"
                         onClick={() => setPetcakeFinish(finish)}
+                        aria-pressed={petcakeFinish === finish}
                         className={`flex items-center justify-between rounded-xl border px-3 py-3 text-left font-interface text-[11px] transition ${
                           petcakeFinish === finish
                             ? "border-[#a66271] bg-[#fcf2f4] text-[#6f3f4a] shadow-[2px_2px_0_#a66271]"
@@ -1686,6 +1675,8 @@ export default function CuisineStoreApp({
                     ))}
                   </div>
                 </fieldset>
+
+                <p className="product-decision-help">Betún: a base de papa. Fondant pet: elaborado con leche deslactosada y probióticos.</p>
 
                 <PetRecipeFields
                   petType={petType}
@@ -1749,11 +1740,7 @@ export default function CuisineStoreApp({
                           Mínimo 300 g · cantidades de 100 g en 100 g.
                         </p>
                       </div>
-                      {bulkDiscountRate > 0 && (
-                        <span className="shrink-0 rounded-full bg-[#e3f1e7] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#456a4e]">
-                          5% menos
-                        </span>
-                      )}
+
                     </div>
 
                     <div className="mt-4 grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
@@ -1870,15 +1857,8 @@ export default function CuisineStoreApp({
                       <div className="text-right font-interface text-[10px] leading-4 text-[#718093]">
                         {isBulkWholesaleQuote ? (
                           <p>Desde 5 kg confirmamos precio y producción.</p>
-                        ) : bulkDiscountRate > 0 ? (
-                          <>
-                            <p className="line-through">Antes {money(bulkBasePrice)}</p>
-                            <p className="font-bold text-[#456a4e]">
-                              Ahorras {money(bulkSavings)}
-                            </p>
-                          </>
                         ) : (
-                          <p>$60 por cada 100 g</p>
+                          <p>{fulfillmentMode === "national" ? "Precio nacional según gramaje · envío aparte" : "$60 por cada 100 g · sin descuento"}</p>
                         )}
                       </div>
                     </div>
@@ -2253,16 +2233,7 @@ export default function CuisineStoreApp({
                           )}
                           <span>{option.label}</span>
                         </span>
-                        <strong>
-                          {money(
-                            getCuisineOptionPrice(
-                              selectedProduct.id,
-                              index,
-                              option.price,
-                              fulfillmentMode,
-                            ),
-                          )}
-                        </strong>
+                        <strong><ProductPrice price={getCuisineOptionPrice(selectedProduct.id, index, option.price, fulfillmentMode)} original={getCuisineRegularOptionPrice(selectedProduct.id, index, option.price, fulfillmentMode)} /></strong>
                       </button>
                     ))}
                   </div>
@@ -2847,14 +2818,16 @@ export default function CuisineStoreApp({
                         ? "Cotización de mayoreo"
                         : money(bulkPrice)
                     : isGuaurriCookiesKit
-                      ? money(halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE))
+                      ? <ProductPrice price={halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE)} original={KIT_GUAURRICOOKIES_PRICE} />
                     : isDescubreGuaurritas
                       ? money(DESCUBRE_GUAURRITAS_PRICE)
                     : isPetcake && petcakeFinish === null
                       ? "Selecciona el acabado"
-                      : money(currentDisplayPrice)}
+                      : <ProductPrice price={currentDisplayPrice} original={getCuisineRegularOptionPrice(selectedProduct.id, currentOptionIndex, currentOption.price, fulfillmentMode)} />}
                 </p>
               </div>
+              {fulfillmentMode === "leon" && <p className="product-decision-help">Precio con transferencia SPEI. El total con tarjeta se muestra en el carrito antes de continuar. Pago completo; entrega por confirmar.</p>}
+              {isGuaurriCookiesKit && <p className="product-decision-help">Pedido mínimo nacional: ${NATIONAL_COMMERCE.minimumOrderMxn} en productos. {halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE) < NATIONAL_COMMERCE.minimumOrderMxn ? `Con este kit faltan ${money(NATIONAL_COMMERCE.minimumOrderMxn - halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE))} para alcanzar el mínimo; puedes agregar otra presentación desde el catálogo.` : "El envío se calcula aparte."}</p>}
               <button
                 type="button"
                 onClick={addToCart}

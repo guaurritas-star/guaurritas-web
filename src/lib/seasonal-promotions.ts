@@ -5,7 +5,7 @@ export function halloweenIsActive(now = new Date()) {
 }
 export function halloweenRate(productId: string, now = new Date()) {
   if (!halloweenIsActive(now)) return 0;
-  if (["dognuts", "guaurricookies", "happy-bag", "guaurricookies-kit"].includes(productId)) return 0.15;
+  if (["dognuts", "happy-bag", "guaurricookies-kit"].includes(productId)) return 0.15;
   return productId === "bandana" ? 0.10 : 0;
 }
 export function halloweenPrice(productId: string, basePrice: number, now = new Date()) {

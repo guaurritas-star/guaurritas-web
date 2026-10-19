@@ -73,7 +73,7 @@ export default function StoreApp() {
         )}
       </details>
       </header>
-      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween en Guaurritas</strong><span>15 % en Dognuts y Guaurricookies · 10 % en bandanas</span><small>Descuento aplicado en los precios · hasta el 31 de octubre</small></aside>}
+      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween en Guaurritas</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Descuento aplicado en los precios · hasta el 31 de octubre</small></aside>}
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
         {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
       </div>
