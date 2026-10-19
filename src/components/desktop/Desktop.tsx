@@ -932,7 +932,10 @@ export default function Desktop() {
           </span>
         </button>
 
-        <div className="flex min-w-0 flex-1 items-center">
+        <button type="button" className="shopping-mobile-store" onClick={() => openStore()} aria-label="Abrir tienda">
+          <SystemIcon name="cart" /> <span>Tienda</span>
+        </button>
+        <div className="desktop-taskbar-app flex min-w-0 flex-1 items-center">
           {taskApp && (
             <button
               type="button"

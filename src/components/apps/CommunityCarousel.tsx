@@ -9,10 +9,11 @@ const SELECTION_KEY = "guaurritas-community-first";
 function ReviewCard({ review }: { review: CommunityReview }) {
   const dialog = useRef<HTMLDialogElement>(null);
   return <article className="community-card">
-    <div className="community-card-media" aria-hidden={!review.photo || undefined}>
+    <div className="community-card-media">
       {review.photo && <Image src={review.photo} alt={`Foto compartida por ${review.name} en su opinión`}
         width={400} height={260} sizes="(max-width: 639px) 280px, 320px" loading="lazy"
         onError={event => { event.currentTarget.style.visibility = "hidden"; }} />}
+      {!review.photo && <span className="community-no-photo">Opinión sin fotografía</span>}
     </div>
     <blockquote>
       <p className="community-card-excerpt">{review.text}</p>

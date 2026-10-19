@@ -5,6 +5,7 @@ import Image from "next/image";
 import { withBasePath } from "@/lib/base-path";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 import CommunityCarousel from "./CommunityCarousel";
+import { ShoppingButton } from "@/components/ui/ShoppingControls";
 
 export const COMMUNITY_URL = "https://www.guaurritas.com/#comp-m4qz2a3f_r_comp-mnnkixwd";
 
@@ -24,12 +25,14 @@ export default function WelcomeApp({ onShop, onCommunity }: {
     </figure>
     <div className="welcome-purchase">
       <div className="welcome-actions">
-        <button type="button" onClick={() => onShop("leon")} className="welcome-buy welcome-buy-leon">
-          <span aria-hidden="true"><SystemIcon name="cart" /></span> Comprar en León
-        </button>
-        <button type="button" onClick={() => onShop("national")} className="welcome-buy welcome-buy-national">
-          <span aria-hidden="true"><SystemIcon name="truck" /></span> Envíos a todo México
-        </button>
+        <ShoppingButton $tone="blue" onClick={() => onShop("leon")} className="shopping-entry">
+          <span aria-hidden="true"><SystemIcon name="cart" /></span>
+          <span><strong>Comprar en León</strong><small>Repostería y catálogo local</small></span>
+        </ShoppingButton>
+        <ShoppingButton $tone="peach" onClick={() => onShop("national")} className="shopping-entry">
+          <span aria-hidden="true"><SystemIcon name="truck" /></span>
+          <span><strong>Envíos a todo México</strong><small>Ver productos para envío</small></span>
+        </ShoppingButton>
       </div>
       <p>Elige tu ubicación para ver el catálogo.</p>
     </div>

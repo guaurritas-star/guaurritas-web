@@ -1,6 +1,9 @@
 "use client";
 
 import { halloweenIsActive } from "@/lib/seasonal-promotions";
+import { ShoppingButton } from "@/components/ui/ShoppingControls";
+import { useCart } from "@/lib/cart-store";
+import { requestSystemCartOpen } from "@/lib/cart-events";
 import SystemIcon from "@/components/ui/SystemIcon";
 import { useEffect, useState } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
@@ -12,6 +15,7 @@ import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 const stayInStore = () => {};
 
 export default function StoreApp() {
+  const cart = useCart();
   const [category, setCategory] = useState<"cuisine" | "couture">(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("world") === "couture" ? "couture" : "cuisine",
   );
@@ -35,36 +39,31 @@ export default function StoreApp() {
 
   return (
     <section className="store-app flex h-auto min-h-0 flex-col bg-white sm:h-full">
-      <header className="store-navigation shrink-0 border-b-2 border-[#425b8c] bg-[#eef5f7] px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1 sm:flex-none">
-            <p className="mb-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#42516a] sm:text-[10px]">
-              ¿Dónde estás comprando?
-            </p>
-            <div role="group" aria-label="Ubicación de compra" className="grid grid-cols-2 rounded-full border border-[#8494ad] bg-transparent p-1 sm:min-w-72">
-              {(["leon", "national"] as const).map((delivery) => (
-                <button
-                  key={delivery}
-                  type="button"
-                  onClick={() => chooseMode(delivery)}
-                  aria-pressed={mode === delivery}
-                  className={`min-h-10 rounded-full px-2 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] transition sm:min-h-9 sm:px-4 ${mode === delivery ? "bg-[#263650] text-white shadow-sm" : "text-[#42516a] hover:bg-white/60"}`}
-                >
-                  {delivery === "leon" ? <><SystemIcon name="pin" /> León</> : <><SystemIcon name="box" /> Nacional</>}
-                </button>
+      <header className="shopping-navigation">
+        <div className="shopping-navigation-row">
+          <fieldset className="shopping-location">
+            <legend>¿Dónde recibes tu pedido?</legend>
+            <div role="group" aria-label="Ubicación de compra">
+              {(["leon", "national"] as const).map(delivery => (
+                <ShoppingButton key={delivery} onClick={() => chooseMode(delivery)} aria-pressed={mode === delivery}>
+                  <SystemIcon name={delivery === "leon" ? "pin" : "box"} />
+                  {delivery === "leon" ? "León, Gto." : "Todo México"}
+                </ShoppingButton>
               ))}
             </div>
-          </div>
+          </fieldset>
+          <ShoppingButton className="shopping-store-cart" onClick={() => requestSystemCartOpen()} aria-label={`Abrir carrito con ${cart.count} artículos`}>
+            <SystemIcon name="cart" /> <span className="shopping-store-cart-label">Carrito</span> <span className="shopping-cart-count">{cart.count}</span>
+          </ShoppingButton>
         </div>
-        <div role="group" aria-label="Catálogo de la tienda" className="store-folder-tabs mt-3 flex gap-2">
-          {([ ["cuisine", "Cuisine"], ["couture", "Couture"] ] as const).map(([id, label]) => (
-            <button key={id} type="button" aria-pressed={category === id} onClick={() => setCategory(id)} className={`min-h-11 flex-1 rounded-md border border-[#425b8c] px-4 font-interface text-xs font-bold sm:flex-none ${category === id ? "bg-[#425BBC] text-white" : "bg-white text-[#425b8c] hover:bg-[#dce4f2]"}`}>
-              <span className="block">{label}</span>
-              <span className="mt-1 block text-[10px] font-normal normal-case tracking-normal">{id === "cuisine" ? "Premios y repostería" : "Bandanas y accesorios"}</span>
-            </button>
+        <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
+          {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
+            <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
+              <strong>{label}</strong><span>{detail}</span>
+            </ShoppingButton>
           ))}
         </div>
-      <details className="store-delivery-details mt-3 border-t border-[#d4dce7] pt-2 font-interface text-xs leading-5 text-[#53627a]">
+      <details className="store-delivery-details">
         <summary>{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · elige fecha y horario antes de pagar"} · Ver detalles de entrega</summary>
         {mode === "national" ? (
           <p>Envío nacional: pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder}. Envío ${NATIONAL_SHIPPING_PROMO.standardRate}; gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold} para pedidos de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. El plazo y el total se confirman en el checkout.</p>
@@ -73,7 +72,7 @@ export default function StoreApp() {
         )}
       </details>
       </header>
-      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween en Guaurritas</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Descuento aplicado en los precios · hasta el 31 de octubre</small></aside>}
+      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Hasta el 31 de octubre</small></aside>}
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
         {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
       </div>

@@ -6,6 +6,7 @@ const repositoryName =
 const basePath = isGitHubPages ? `/${repositoryName}` : "";
 
 const nextConfig: NextConfig = {
+  compiler: { styledComponents: true },
   allowedDevOrigins: ["*.app.github.dev", "*.github.dev"],
   output: "export",
   trailingSlash: true,
