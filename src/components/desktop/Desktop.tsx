@@ -662,7 +662,7 @@ function PromotionTicker() {
       <span className="promotion-ticker-dot" aria-hidden="true">✦</span>
       {halloweenIsActive() && <>
         <span className="promotion-ticker-tag">HALLOWEEN</span>
-        <span className="promotion-ticker-copy"><strong>15 % de descuento</strong> en Dognuts y Guaurricookies</span>
+        <span className="promotion-ticker-copy"><strong>15 % de descuento</strong> en Dognuts y Guaurricookies empacadas</span>
         <span className="promotion-ticker-dot" aria-hidden="true">✦</span>
         <span className="promotion-ticker-copy"><strong>10 % de descuento</strong> en bandanas · hasta el 31 de octubre</span>
         <span className="promotion-ticker-dot" aria-hidden="true">✦</span>

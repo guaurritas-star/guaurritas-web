@@ -1,5 +1,7 @@
 "use client";
 
+import ProductPrice from "@/components/ui/ProductPrice";
+import { getCartRegularPrice } from "@/lib/national-pricing";
 import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -277,11 +279,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
       ...leonOrderPreferences,
       deliveryDate: String(dateControl?.value || leonOrderPreferences.deliveryDate || "").trim(),
       preferredTime: String(timeControl?.value || leonOrderPreferences.preferredTime || "").trim(),
-      deliveryMethod: "pending_whatsapp",
-      deliveryPoint: "",
-      deliveryAddress: "",
-      personalizationNote: "",
-      whatsappConfirmed: false,
     };
 
     return next;
@@ -302,7 +299,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     if (!isLeonOrderPreferencesComplete(resolved)) {
       setLeonPaymentMethod(null);
       setResolvedPaymentPreferences(null);
-      setCheckoutStatus("Selecciona una fecha válida y un horario para continuar.");
+      setCheckoutStatus("Completa fecha, horario y los datos de la entrega elegida para continuar.");
       return;
     }
 
@@ -316,12 +313,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     setLeonPaymentMethod(null);
     setLeonOrderPreferences((current) => ({
       ...current,
-      deliveryMethod: "pending_whatsapp",
-      deliveryPoint: "",
-      deliveryAddress: "",
-      personalizationNote: "",
-      whatsappConfirmed: false,
       ...patch,
+      whatsappConfirmed: false,
     }));
     setResolvedPaymentPreferences(null);
     setCheckoutStatus("");
@@ -391,7 +384,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             </button>
           </span>
           <strong className="taskbar-cart-price">
-            {money(item.unitPrice * item.quantity)}
+            <ProductPrice price={item.unitPrice * item.quantity} original={getCartRegularPrice(item.id, item.wix.supported ? item.wix.wixUnitPrice : item.unitPrice, item.unitPrice, item.fulfillment) * item.quantity} />
           </strong>
           <button
             type="button"
@@ -484,10 +477,11 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         Continuar pedido
                       </button>
                     </div>
-                    <p className="mt-2 break-words text-[8px] leading-4 text-[#7a7180]">
+                    <p className="cart-payment-explanation mt-2 break-words text-[8px] leading-4 text-[#7a7180]">
                       SPEI: {money(leonTransferTotal)} · Tarjeta: {money(leonOnlineTotal)}.
                       <br />
-                      Elige fecha y horario en el siguiente paso. Coordinamos el punto de entrega por WhatsApp; Uber tiene costo adicional.
+                      El total con tarjeta incluye procesamiento. Pago completo; el envío por Uber tiene costo adicional.
+                      <br />Elige fecha, horario y preferencia de entrega en el siguiente paso. La disponibilidad se confirma por WhatsApp.
                     </p>
                   </section>
                 )}
@@ -807,7 +801,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
                 <p className="mt-3 break-words border-t border-[#e3e7ef] pt-3 text-[8px] leading-4 text-[#69778c]">
                   <strong className="text-[#425BBC]">Entrega después del pago:</strong>{" "}
-                  coordinamos por WhatsApp el punto de entrega o Uber con costo adicional.
+                  tu selección de entrega se envía con el pedido. Fecha y horario quedan sujetos a confirmación por WhatsApp; Uber se cotiza aparte.
                 </p>
 
                 {leonPaymentMethod === "online" && resolvedPaymentPreferences && (

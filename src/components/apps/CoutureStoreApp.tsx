@@ -1,5 +1,6 @@
 "use client";
 
+import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
 import { halloweenPrice, halloweenIsActive } from "@/lib/seasonal-promotions";
 import Image from "next/image";
@@ -478,7 +479,7 @@ export default function CoutureStoreApp({
                       {item.name}
                     </span>
                     <span className="mt-1 block font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#97667e]">
-                      Desde {money(Math.min(...Object.values(pricesFor(item, fulfillmentMode))))}
+                      <ProductPrice price={Math.min(...Object.values(pricesFor(item, fulfillmentMode)))} original={Math.min(...Object.values(fulfillmentMode === "national" ? item.nationalPrices : item.prices))} from />
                     </span>
                   </span>
                   {active && (
@@ -759,7 +760,7 @@ export default function CoutureStoreApp({
                       <span className="flex items-center justify-between gap-3">
                         <span className="font-interface text-sm font-bold text-[#3a2030]">{item.name}</span>
                         <span className="font-title text-sm font-semibold text-[#70425a]">
-                          {money(activePrices[item.id])}
+                          <ProductPrice price={activePrices[item.id]} original={(fulfillmentMode === "national" ? collection.nationalPrices : collection.prices)[item.id]} />
                         </span>
                       </span>
                       <span className="mt-1 block font-interface text-[11px] font-bold text-[#8b6477]">
@@ -790,7 +791,7 @@ export default function CoutureStoreApp({
                     {color.name} · Talla {size.name}
                     {` · ${fulfillmentMode === "leon" ? "León" : "Envío nacional"}`}
                   </p>
-                  <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]">{money(price)}</p>
+                  <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]"><ProductPrice price={price} original={(fulfillmentMode === "national" ? collection.nationalPrices : collection.prices)[sizeId]} /></p>
                   {halloweenIsActive() && <p className="halloween-product-note">Halloween · 10 % de descuento aplicado · hasta el 31 de octubre</p>}
                 </div>
                 <p className="font-interface text-[11px] uppercase tracking-[0.08em] text-[#907d87]">

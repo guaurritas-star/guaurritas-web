@@ -1,4 +1,4 @@
-import { halloweenPrice, halloweenRate } from "@/lib/seasonal-promotions";
+import { halloweenPrice } from "@/lib/seasonal-promotions";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 
 export const NATIONAL_COMMERCE = {
@@ -73,16 +73,21 @@ export function getNationalCookiePrice(grams: number, fallbackPrice: number) {
   return NATIONAL_COOKIE_PRICES.get(grams) ?? fallbackPrice;
 }
 
-export function getCuisineOptionPrice(
+export function getCuisineRegularOptionPrice(
   productId: string,
   optionIndex: number,
   localPrice: number,
   fulfillment: FulfillmentMode,
 ) {
-  if (fulfillment !== "national") return halloweenPrice(productId, localPrice);
+  if (productId === "guaurricookies") {
+    const grams = [300, 400, 500, 1000][optionIndex];
+    return getCuisineCookiePrice(grams, localPrice, fulfillment);
+  }
+  return fulfillment === "national" ? NATIONAL_OPTION_PRICES[productId]?.[optionIndex] ?? localPrice : localPrice;
+}
 
-  const prices = NATIONAL_OPTION_PRICES[productId];
-  return halloweenPrice(productId, prices?.[optionIndex] ?? localPrice);
+export function getCuisineOptionPrice(productId: string, optionIndex: number, localPrice: number, fulfillment: FulfillmentMode) {
+  return halloweenPrice(productId, getCuisineRegularOptionPrice(productId, optionIndex, localPrice, fulfillment));
 }
 
 export function getCuisineCookiePrice(
@@ -90,11 +95,7 @@ export function getCuisineCookiePrice(
   localPrice: number,
   fulfillment: FulfillmentMode,
 ) {
-  if (fulfillment === "national") return halloweenPrice("guaurricookies", getNationalCookiePrice(grams, localPrice));
-  // Use the better seasonal/bulk rate, never stack discounts.
-  return halloweenRate("guaurricookies") > 0
-    ? halloweenPrice("guaurricookies", grams * 0.6)
-    : localPrice;
+  return fulfillment === "national" ? getNationalCookiePrice(grams, localPrice) : Math.round(grams * 0.6 * 100) / 100;
 }
 
 export function getNationalPriceForCartItemId(id: string, fallbackPrice: number) {
@@ -106,7 +107,7 @@ export function getNationalPriceForCartItemId(id: string, fallbackPrice: number)
   if (productId === "guaurricookies") {
     const grams = Number(parts[2]);
     return Number.isFinite(grams)
-      ? halloweenPrice("guaurricookies", getNationalCookiePrice(grams, fallbackPrice))
+      ? getNationalCookiePrice(grams, fallbackPrice)
       : fallbackPrice;
   }
 
@@ -121,19 +122,22 @@ export function getNationalPriceForCartItemId(id: string, fallbackPrice: number)
   return basePrice === undefined ? fallbackPrice : halloweenPrice(productId, basePrice);
 }
 
-/** Refresh saved items from their catalogue base, preserving quantity and delivery. */
-export function getCurrentCartPrice(id: string, localBase: number, savedPrice: number, fulfillment: FulfillmentMode) {
+/** Regular catalogue price for before/after labels and persisted cart refresh. */
+export function getCartRegularPrice(id: string, localBase: number, savedPrice: number, fulfillment: FulfillmentMode) {
   const parts = id.split(":");
   if (parts[0] === "couture") {
-    const sizes = ["mini", "chica", "mediana", "grande", "xl"];
-    const index = sizes.indexOf(parts[3]);
-    if (index < 0) return savedPrice;
-    const base = (fulfillment === "national" ? [249, 309, 359, 409, 479] : [219, 279, 329, 379, 439])[index];
-    return halloweenPrice("bandana", base);
+    const index = ["mini", "chica", "mediana", "grande", "xl"].indexOf(parts[3]);
+    return index < 0 ? savedPrice : (fulfillment === "national" ? [249, 309, 359, 409, 479] : [219, 279, 329, 379, 439])[index];
   }
-  if (parts[0] !== "cuisine") return savedPrice; // Reorders are priced by Wix.
+  if (parts[0] !== "cuisine") return savedPrice;
   if (parts[1] === "guaurricookies") return getCuisineCookiePrice(Number(parts[2]), localBase, fulfillment);
-  if (parts[1] === "guaurricookies-kit") return halloweenPrice(parts[1], 299);
-  if (fulfillment === "national") return getNationalPriceForCartItemId(id, savedPrice);
-  return halloweenPrice(parts[1], localBase);
+  if (parts[1] === "guaurricookies-kit") return 299;
+  if (parts[1] === "gorrito" && fulfillment === "national") return NATIONAL_OPTION_PRICES.gorrito[0];
+  return getCuisineRegularOptionPrice(parts[1], Number(parts[2]), localBase, fulfillment);
+}
+
+/** Refresh saved items without changing quantity, configuration or delivery. */
+export function getCurrentCartPrice(id: string, localBase: number, savedPrice: number, fulfillment: FulfillmentMode) {
+  const parts = id.split(":");
+  return halloweenPrice(parts[0] === "couture" ? "bandana" : parts[1], getCartRegularPrice(id, localBase, savedPrice, fulfillment));
 }

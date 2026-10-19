@@ -21,6 +21,7 @@ export const LEON_PICKUP_POINTS = [
   "Plaza Mayor",
   "Mercado Metropolitano",
   "Parque Cárcamos",
+  "Parque Metropolitano",
   "Parque Panorama",
 ] as const;
 
@@ -100,14 +101,19 @@ export function isLeonOrderPreferencesComplete(preferences: LeonOrderPreferences
   // nativos distintos y no debe bloquear el checkout por esa representación.
   const deliveryDate = String(preferences.deliveryDate || "").trim();
   const preferredTime = String(preferences.preferredTime || "").trim();
-  return Boolean(deliveryDate && preferredTime);
+  if (!deliveryDate || !preferredTime) return false;
+  if (preferences.deliveryMethod === "pickup_point") return LEON_PICKUP_POINTS.some(point => point === preferences.deliveryPoint);
+  if (["home_delivery", "uber_eats"].includes(preferences.deliveryMethod)) return Boolean(preferences.deliveryAddress.trim());
+  return preferences.deliveryMethod === "pending_whatsapp";
 }
 
 export function encodeOrderPreferencesMarker(preferences: LeonOrderPreferences) {
   const compact = {
     d: preferences.deliveryDate,
     t: preferences.preferredTime,
-    m: "pending_whatsapp",
+    m: preferences.deliveryMethod || "pending_whatsapp",
+    p: preferences.deliveryMethod === "pickup_point" ? preferences.deliveryPoint.slice(0, 100) : "",
+    a: ["home_delivery", "uber_eats"].includes(preferences.deliveryMethod) ? preferences.deliveryAddress.trim().slice(0, 240) : "",
     w: preferences.whatsappConfirmed ? 1 : 0,
     n: preferences.personalizationNote.trim().slice(0, 240),
   };
@@ -139,8 +145,8 @@ export function buildOrderBuyerNote(
 
   humanLines.push(
     `Fecha y horario solicitados: ${preferences.deliveryDate} · ${preferences.preferredTime}`,
-    "Entrega: se coordina por WhatsApp después del pago.",
-    "Opciones locales: HEB López Mateos, Plaza Mayor, Mercado Metropolitano, Parque Cárcamos, Parque Panorama o Uber con costo adicional.",
+    `Entrega solicitada: ${deliveryMethodLabel(preferences.deliveryMethod)}${preferences.deliveryMethod === "pickup_point" ? ` · ${preferences.deliveryPoint}` : ["home_delivery", "uber_eats"].includes(preferences.deliveryMethod) ? ` · ${preferences.deliveryAddress.trim().slice(0, 240)}` : ""}`,
+    "Fecha y horario sujetos a confirmación por WhatsApp. Uber se cotiza aparte.",
   );
 
   const combinedPersonalization = [
