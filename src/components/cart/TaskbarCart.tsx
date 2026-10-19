@@ -1,6 +1,7 @@
 "use client";
 
 import ProductPrice from "@/components/ui/ProductPrice";
+import { ShoppingButton } from "@/components/ui/ShoppingControls";
 import { getCartRegularPrice } from "@/lib/national-pricing";
 import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
@@ -361,7 +362,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             className="taskbar-cart-quantity"
             aria-label={`Cantidad de ${item.name}`}
           >
-            <button
+            <ShoppingButton
               type="button"
               aria-label={`Quitar una unidad de ${item.name}`}
               onClick={() => {
@@ -370,9 +371,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               }}
             >
               −
-            </button>
+            </ShoppingButton>
             <b>{item.quantity}</b>
-            <button
+            <ShoppingButton
               type="button"
               aria-label={`Agregar otra unidad de ${item.name}`}
               onClick={() => {
@@ -381,7 +382,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               }}
             >
               +
-            </button>
+            </ShoppingButton>
           </span>
           <strong className="taskbar-cart-price">
             <ProductPrice price={item.unitPrice * item.quantity} original={getCartRegularPrice(item.id, item.wix.supported ? item.wix.wixUnitPrice : item.unitPrice, item.unitPrice, item.fulfillment) * item.quantity} />
@@ -468,21 +469,20 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                           {itemUnits(leonItems)} {itemUnits(leonItems) === 1 ? "producto" : "productos"} · {money(leonTransferTotal)}
                         </p>
                       </div>
-                      <button
+                      <ShoppingButton
                         type="button"
                         onClick={goToLeonCheckout}
                         disabled={mixedCart}
                         className="boutique-purchase shrink-0"
                       >
                         Continuar pedido
-                      </button>
+                      </ShoppingButton>
                     </div>
-                    <p className="cart-payment-explanation mt-2 break-words text-[8px] leading-4 text-[#7a7180]">
-                      SPEI: {money(leonTransferTotal)} · Tarjeta: {money(leonOnlineTotal)}.
-                      <br />
-                      El total con tarjeta incluye procesamiento. Pago completo; el envío por Uber tiene costo adicional.
-                      <br />Elige fecha, horario y preferencia de entrega en el siguiente paso. La disponibilidad se confirma por WhatsApp.
-                    </p>
+                    <dl className="shopping-payment-totals" aria-label="Total según forma de pago">
+                      <div><dt>Transferencia SPEI</dt><dd>{money(leonTransferTotal)}</dd></div>
+                      <div><dt>Tarjeta · incluye procesamiento</dt><dd>{money(leonOnlineTotal)}</dd></div>
+                    </dl>
+                    <p className="cart-payment-explanation">Pago completo. Elige fecha, horario y entrega en el siguiente paso; confirmamos disponibilidad por WhatsApp. Uber se cotiza aparte.</p>
                   </section>
                 )}
 

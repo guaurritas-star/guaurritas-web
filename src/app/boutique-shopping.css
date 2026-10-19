@@ -20,43 +20,10 @@
 .desktop-taskbar {
   background: linear-gradient(#c49bad, #a66d88);
 }
-.welcome-buy-leon { background: #425b8c; }
-.welcome-buy-national { background: #d9a689; }
 .welcome-photo, .welcome-community { background-color: #f2f2f2; }
 
-.store-app, .store-app .store-navigation, .boutique-retail {
+.store-app, .boutique-retail {
   background: var(--boutique-paper); color: var(--boutique-ink);
-}
-.store-navigation {
-  border-bottom: 1px solid #637aa6;
-  box-shadow: inset 0 1px #fff;
-}
-.store-navigation > div:first-child { flex-wrap: wrap; }
-.store-navigation > div:first-child > div { min-width: min(100%, 190px); }
-.store-navigation p { font-size: 14px; line-height: 1.5; letter-spacing: 0; }
-.store-navigation button {
-  background: #f2f2f2; color: #263650; font-size: 16px;
-  text-transform: none; min-height: 48px;
-}
-.store-navigation button[aria-pressed="true"] {
-  background: #425b8c; color: #fff; text-shadow: none;
-}
-.store-navigation .store-folder-tabs {
-  gap: 4px; border-bottom: 1px solid #637aa6; padding: 4px 0 0;
-}
-.store-folder-tabs button {
-  position: relative; border-radius: 6px 6px 0 0; min-width: 0;
-  padding: 10px 18px; font-family: var(--font-cinzel), serif;
-  box-shadow: inset 1px 1px #fff, inset -1px 0 #637aa6;
-}
-.store-folder-tabs button span + span {
-  font-family: var(--font-mansalva), cursive; font-size: 14px; line-height: 1.4;
-}
-.store-folder-tabs button[aria-pressed="true"] {
-  background: #f2f2f2; color: #263650; text-shadow: none;
-  border-top: 3px solid #a66d88; border-bottom-color: #f2f2f2;
-  box-shadow: inset 1px 1px #fff, inset -1px 0 #637aa6;
-  bottom: -1px;
 }
 .boutique-retail { min-width: 0; }
 .boutique-retail :is(h2, h3, .font-serif) { font-family: var(--font-cinzel), serif; }
@@ -71,8 +38,7 @@
 .boutique-retail button:not(:disabled):not(.boutique-product-card):active {
   box-shadow: var(--retro-button-pressed);
 }
-.boutique-retail :is(button, input, select, textarea):focus-visible,
-.taskbar-cart-panel :is(button, input, select, textarea, a):focus-visible {
+.boutique-retail :is(button, input, select, textarea):focus-visible, .taskbar-cart-panel :is(button, input, select, textarea, a):focus-visible {
   outline: 2px solid #425b8c !important; outline-offset: 3px;
 }
 .boutique-retail :is(input, select, textarea) {
@@ -175,27 +141,11 @@
      a permanently reserved toolbar. Keep the window titlebar outside it. */
   .store-app { overflow-y: auto; overscroll-behavior-y: contain; }
   .store-app > .store-catalog { flex: none; overflow: visible; }
-  .store-navigation {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end; gap: 8px 16px;
-  }
-  .store-navigation .store-folder-tabs { margin-top: 0; }
-  .store-navigation > .store-delivery-details { grid-column: 1 / -1; margin-top: 0; }
-}
-@media (min-width: 640px) and (max-width: 1000px) {
-  .store-navigation { grid-template-columns: minmax(0, 1fr); }
-  .store-navigation .store-folder-tabs { width: 100%; }
 }
 @media (max-width: 639px) {
   .retro-window-titlebar { min-height: 52px; }
   .retro-window-titlebar .retro-window-caption { font-size: 15px !important; }
   .retro-window-close { min-width: 44px; min-height: 44px; }
-  .store-navigation { padding: 10px 12px; }
-  .store-navigation > div:first-child { gap: 8px; }
-  .store-navigation > div:first-child > div { flex-basis: 100%; }
-  .store-navigation > div:first-child > button { width: 100%; justify-content: center; }
-  .store-folder-tabs button { padding: 8px; font-size: 15px; }
-  .store-navigation > .store-delivery-details { font-size: 14px; }
   .boutique-product-grid { grid-template-columns: minmax(0, 1fr); }
   .boutique-catalog > div > header h2 { font-size: 26px; }
   .boutique-product > div:nth-child(2) { padding: 16px; gap: 20px; }
@@ -208,24 +158,20 @@
 
 /* Shared retro feedback: tactile travel, not a delayed animation. Include
    selection controls and secondary actions as well as purchase buttons. */
-:is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled),
-.welcome-buy, .retro-window-control {
+:is(.boutique-retail, .taskbar-cart-panel, .welcome-community) button:not(:disabled), .retro-window-control {
   transition: background-color 160ms ease-out, color 160ms ease-out;
 }
 @media (hover: hover) and (pointer: fine) {
-  :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover,
-  .welcome-buy:not(:disabled):hover, .retro-window-control:hover {
+  :is(.boutique-retail, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover, .retro-window-control:hover {
     cursor: pointer; translate: none; transform: none;
     background: #d5bfc9 !important; color: #263650 !important;
     text-shadow: none;
   }
-  :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover:not(:focus-visible),
-  .welcome-buy:not(:disabled):hover:not(:focus-visible), .retro-window-control:hover:not(:focus-visible) {
+  :is(.boutique-retail, .taskbar-cart-panel, .welcome-community) button:not(:disabled):hover:not(:focus-visible), .retro-window-control:hover:not(:focus-visible) {
     outline: none;
   }
 }
-:is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:not(:disabled):active,
-.welcome-buy:not(:disabled):active, .retro-window-control:active {
+:is(.boutique-retail, .taskbar-cart-panel, .welcome-community) button:not(:disabled):active, .retro-window-control:active {
   translate: none; transform: none;
   box-shadow: var(--retro-button-pressed) !important;
 }
@@ -247,13 +193,11 @@
   padding: 10px 14px; border: 1px solid #637aa6;
   background: #f2f2f2; color: #425b8c;
 }
-:is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button:focus-visible,
-.welcome-buy:focus-visible {
+:is(.boutique-retail, .taskbar-cart-panel, .welcome-community) button:focus-visible {
   outline: 2px solid #425b8c !important; outline-offset: 3px;
 }
 @media (prefers-reduced-motion: reduce) {
-  :is(.boutique-retail, .store-navigation, .taskbar-cart-panel, .welcome-community) button,
-  .welcome-buy, .retro-window-control {
+  :is(.boutique-retail, .taskbar-cart-panel, .welcome-community) button, .retro-window-control {
     transition: none !important; translate: none !important; transform: none !important;
   }
 }

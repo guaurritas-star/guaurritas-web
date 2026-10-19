@@ -1,0 +1,90 @@
+/* Layout for the shopping surfaces. React95 owns migrated control appearance. */
+.shopping-window { min-width: 0; }
+.shopping-window .retro-window-caption { margin: 0; font-size: 17px; font-weight: 400 !important; text-shadow: none; }
+.shopping-window-header .shopping-window-control { min-width: 40px; width: 40px; min-height: 40px; padding: 4px; font-size: 22px; }
+.shopping-window-header .shopping-window-control:focus-visible { outline-color: #fff; }
+.shopping-window .retro-window-client { border: 1px solid #637aa6; box-shadow: none; }
+.shopping-window .welcome-app { gap: 20px 28px; }
+.shopping-window .welcome-intro h1 { font-size: clamp(30px, 3.1vw, 43px); line-height: 1.15; font-weight: 500; letter-spacing: -.025em; }
+.shopping-window .welcome-intro > p:last-child { font-size: 19px; line-height: 1.5; }
+.shopping-window .welcome-photo { background: #f2f2f2; border: 1px solid #637aa6; padding: 12px; }
+.shopping-window .welcome-photo img { height: 270px; }
+.shopping-entry { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; text-align: left; }
+.shopping-entry .system-icon { width: 32px; height: 32px; }
+.shopping-entry > span:last-child { min-width: 0; }
+.shopping-entry strong, .shopping-entry small { display: block; }
+.shopping-entry strong { font-weight: 400; font-size: 19px; }
+.shopping-entry small { font-size: 16px; line-height: 1.4; margin-top: 3px; }
+.shopping-window .welcome-community { gap: 12px; padding: 16px; border: 1px solid #637aa6; }
+.shopping-window .welcome-community h2 { font-size: 21px; font-weight: 500; }
+.shopping-window .welcome-community .community-card-media { height: 144px; }
+.community-no-photo { display: grid; place-items: center; height: 100%; color: #6a5361; font-size: 16px; }
+.shopping-window .community-card > blockquote { grid-template-rows: 96px 48px 48px; }
+.shopping-window .community-status { padding: 12px 0; }
+.shopping-navigation { flex-shrink: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 24px; padding: 12px 20px; border-bottom: 1px solid #637aa6; background: #f2f2f2; }
+.shopping-navigation-row { display: flex; align-items: end; gap: 12px; min-width: 0; }
+.shopping-location { min-width: 0; margin: 0; padding: 0; border: 0; }
+.shopping-location legend { margin-bottom: 6px; font: 400 16px/1.4 var(--font-mansalva), cursive; }
+.shopping-location > div { display: flex; gap: 4px; }
+.shopping-location button { gap: 6px; flex: 1; }
+.shopping-store-cart { gap: 8px; flex-shrink: 0; }
+.shopping-cart-count { display: inline-grid; place-items: center; min-width: 24px; padding: 1px 5px; background: #fff; border: 1px solid #637aa6; color: #425b8c; font-variant-numeric: tabular-nums; }
+.shopping-catalog-tabs { display: flex; align-items: end; gap: 4px; min-width: 0; }
+.shopping-catalog-tabs button { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.shopping-catalog-tabs strong { font: 500 16px/1.4 var(--font-cinzel), serif; }
+.shopping-catalog-tabs button > span { font-size: 16px; }
+.shopping-navigation .store-delivery-details { grid-column: 1 / -1; font: 400 16px/1.5 var(--font-mansalva), cursive; color: #42516a; }
+.shopping-navigation .store-delivery-details summary { cursor: pointer; }
+.shopping-navigation .store-delivery-details p { margin-top: 8px; max-width: 80ch; }
+.shopping-navigation .store-delivery-details summary:focus-visible { outline: 3px solid #425b8c; outline-offset: 3px; }
+.store-app .halloween-store-announcement { padding: 8px 20px; gap: 6px 12px; }
+.store-app .halloween-store-announcement small { font: 400 14px/1.4 var(--font-mansalva), cursive; }
+.store-app .boutique-catalog > .retail-cart-toolbar { display: none !important; }
+.store-app .boutique-catalog > div:last-child { padding-top: 12px; }
+.store-app .boutique-catalog > div > header h2 { font-size: clamp(23px, 2vw, 28px); margin-top: 0; }
+.shopping-payment-totals { display: grid; gap: 8px; padding-top: 12px; margin-top: 12px; border-top: 1px solid #d2c5cd; font: 400 16px/1.4 var(--font-mansalva), cursive; }
+.shopping-payment-totals > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.shopping-payment-totals dd { margin: 0; color: #425b8c; font-size: 20px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.taskbar-cart-panel .cart-payment-explanation { margin-top: 12px; font: 400 16px/1.5 var(--font-mansalva), cursive; text-transform: none; letter-spacing: normal; }
+.taskbar-cart-panel .taskbar-cart-footer .boutique-purchase { font-family: var(--font-mansalva), cursive; font-size: 17px; }
+.taskbar-cart-panel .taskbar-cart-quantity button { min-width: 48px; min-height: 48px; padding: 8px; }
+.shopping-mobile-store { display: none; }
+@media (max-width: 1000px) {
+  .shopping-navigation { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .shopping-navigation-row { justify-content: space-between; }
+  .shopping-catalog-tabs button { flex-direction: row; align-items: baseline; gap: 8px; }
+}
+@media (max-width: 639px) {
+  .shopping-window { width: 100%; }
+  .shopping-window-header { position: sticky; top: 0; z-index: 45; }
+  .shopping-window .retro-window-caption { font-size: 16px; }
+  .shopping-window-header .shopping-window-control { min-width: 48px; min-height: 48px; width: 48px; }
+  .shopping-window .retro-window-minimize { display: none; }
+  .shopping-window .retro-window-client { padding: 16px 12px; }
+  .shopping-window .welcome-app { gap: 12px; }
+  .shopping-window .welcome-intro h1 { font-size: clamp(26px, 7.5vw, 30px); }
+  .shopping-window .welcome-intro > p:last-child { font-size: 17px; margin-top: 10px; }
+  .shopping-window .welcome-photo { padding: 6px; }
+  .shopping-window .welcome-photo img { height: 120px; }
+  .shopping-window .welcome-actions { gap: 8px; }
+  .shopping-window .welcome-purchase > p { margin-top: 8px; }
+  .shopping-entry { justify-content: flex-start; }
+  .shopping-entry strong { font-size: 18px; }
+  .shopping-window .welcome-community { margin-top: 8px; padding: 12px; }
+  .shopping-window .welcome-community h2 { font-size: 19px; }
+  .shopping-navigation { padding: 10px 12px; }
+  .shopping-navigation-row { flex-wrap: nowrap; gap: 8px; }
+  .shopping-location { flex: 1; }
+  .shopping-location button { padding: 10px 8px; font-size: 16px; }
+  .shopping-location .system-icon { display: none; }
+  .shopping-store-cart { padding: 10px 8px; gap: 4px; }
+  .shopping-store-cart-label { display: none; }
+  .shopping-catalog-tabs button { flex-direction: column; gap: 2px; padding: 8px; }
+  .shopping-catalog-tabs button > span { font-size: 15px; }
+  .store-app .halloween-store-announcement { padding: 8px 12px; }
+  .desktop-taskbar .desktop-taskbar-app { display: none; }
+  .desktop-taskbar .shopping-mobile-store { display: flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 4px 10px; border: 1px solid #425b8c; background: #f2f2f2; color: #263650; font: 400 17px/1.4 var(--font-mansalva), cursive; box-shadow: var(--retro-button-raised); }
+  .desktop-taskbar .shopping-mobile-store:focus-visible { outline: 3px solid #425b8c; }
+  .desktop-taskbar-clock > time, .desktop-taskbar-clock > .desktop-taskbar-divider { display: none; }
+  .shopping-payment-totals > div { flex-wrap: wrap; gap: 4px 12px; }
+}
