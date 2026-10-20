@@ -25,8 +25,10 @@ function normalizeText(value: string) {
  */
 export default function NationalCuisineStoreApp({
   onBack,
+  embeddedInStore = false,
 }: {
   onBack: () => void;
+  embeddedInStore?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +71,7 @@ export default function NationalCuisineStoreApp({
     <div ref={rootRef} className="contents">
       <CuisineStoreApp
         onBack={onBack}
+        embeddedInStore={embeddedInStore}
         fulfillmentMode="national"
       />
     </div>
