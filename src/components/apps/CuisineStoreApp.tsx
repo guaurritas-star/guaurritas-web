@@ -2785,7 +2785,7 @@ export default function CuisineStoreApp({
               </div>
             )}
 
-            <div className="mt-7 flex flex-col gap-3 border-t border-[#d6dee5] pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="product-purchase-summary mt-7 border-t border-[#d6dee5] pt-5">
               <div>
                 <p className="font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
                   {isPetcake

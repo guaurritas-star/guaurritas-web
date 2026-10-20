@@ -59,7 +59,7 @@ export default function StoreApp() {
         <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
           {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
             <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
-              <strong>{label}</strong><span className="sr-only">{detail}</span>
+              <strong>{label}</strong><span className="shopping-catalog-description">{detail}</span>
             </ShoppingButton>
           ))}
         </div>
