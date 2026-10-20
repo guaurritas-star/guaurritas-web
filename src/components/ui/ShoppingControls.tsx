@@ -42,7 +42,7 @@ export const ShoppingButton = styled(Button).attrs({ type: "button" })<{ $tone?:
 `;
 
 export const ShoppingWindow = styled(Window)`
-  && { display: flex; flex-direction: column; padding: 3px; border: 1px solid #637aa6; box-shadow: inset 1px 1px #fff, 3px 4px 0 #26365033; background: #f2f2f2; box-sizing: border-box; border-radius: 0; }
+  && { display: flex; flex-direction: column; white-space: normal; padding: 3px; border: 1px solid #637aa6; box-shadow: inset 1px 1px #fff, 3px 4px 0 #26365033; background: #f2f2f2; box-sizing: border-box; border-radius: 0; }
 `;
 
 export const ShoppingWindowHeader = styled(WindowHeader)`
