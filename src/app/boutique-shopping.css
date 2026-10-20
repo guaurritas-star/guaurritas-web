@@ -101,6 +101,18 @@
 }
 .boutique-couture > header { background: #f2f2f2; border-color: #637aa6; }
 
+.taskbar-cart-panel {
+  background: #f2f2f2; border-color: #fff #425b8c #425b8c #fff;
+  box-shadow: 0 0 0 1px #637aa6, 4px 4px #26365055;
+}
+.taskbar-cart-titlebar {
+  background: linear-gradient(#637aa6, #425b8c); min-height: 48px;
+  color: #fff; text-shadow: none; font-size: 15px;
+}
+.taskbar-cart-titlebar button {
+  width: 40px; height: 40px; background: #f2f2f2; color: #425b8c;
+  border-color: #fff #425b8c #425b8c #fff; box-shadow: var(--retro-button-raised);
+}
 .taskbar-cart-panel :is(input, select, textarea) { font-size: 16px; border-radius: 3px; }
 .taskbar-cart-item-copy strong {
   font-family: var(--font-cinzel), serif; font-size: 14px;
