@@ -176,19 +176,7 @@
   box-shadow: var(--retro-button-pressed) !important;
 }
 
-/* Reuse the catalogue/product cart controls in the direct Store entrance.
-   Only this compact toolbar stays sticky; delivery and category choices scroll. */
-.store-app .store-catalog > .boutique-retail > .retail-cart-toolbar {
-  display: block; position: sticky !important; top: 0; z-index: 40;
-  min-height: 64px; padding: 8px 16px; background: #f2f2f2;
-  border-bottom: 1px solid #637aa6;
-}
-.store-app .store-catalog > .boutique-product > .retail-cart-toolbar,
-.store-app .store-catalog > .boutique-couture > .retail-cart-toolbar { display: flex; }
-.store-app .store-catalog .retail-cart-toolbar > button:last-child { display: flex; }
-.store-app .boutique-catalog > .retail-cart-toolbar > div > button:first-child,
-.store-app .boutique-couture > .retail-cart-toolbar > button:first-child { display: none; }
-.store-app .retail-cart-toolbar button[aria-label^="Abrir carrito"] { margin-left: auto; }
+.retail-cart-toolbar button[aria-label^="Abrir carrito"] { margin-left: auto; }
 .retail-cart-toolbar button[aria-label^="Abrir carrito"] {
   padding: 10px 14px; border: 1px solid #637aa6;
   background: #f2f2f2; color: #425b8c;
