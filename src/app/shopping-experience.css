@@ -46,6 +46,13 @@
 .store-app .halloween-store-announcement small { font: 400 14px/1.4 var(--font-mansalva), cursive; }
 .store-app .boutique-catalog > div:last-child { padding-top: 12px; }
 .store-app .boutique-catalog > div > header h2 { font-size: clamp(23px, 2vw, 28px); margin-top: 0; }
+/* Cart and checkout reuse the exact shopping window chrome. Their existing
+   viewport placement and scroll behavior remain controlled by cart styles. */
+.taskbar-cart-panel.shopping-window { position: absolute; }
+.taskbar-cart-panel > :not(.shopping-window-header) { flex-shrink: 0; }
+.taskbar-cart-titlebar.shopping-window-header { touch-action: pan-y; }
+.taskbar-cart-titlebar .system-icon { width: 22px; height: 22px; }
+.taskbar-cart-panel .taskbar-cart-footer { background: #f2f2f2; }
 .shopping-payment-totals { display: grid; gap: 8px; padding-top: 12px; margin-top: 12px; border-top: 1px solid #d2c5cd; font: 400 16px/1.4 var(--font-mansalva), cursive; }
 .shopping-payment-totals > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .shopping-payment-totals dd { margin: 0; color: #425b8c; font-size: 20px; white-space: nowrap; font-variant-numeric: tabular-nums; }

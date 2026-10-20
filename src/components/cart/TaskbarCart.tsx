@@ -1,7 +1,7 @@
 "use client";
 
 import ProductPrice from "@/components/ui/ProductPrice";
-import { ShoppingButton } from "@/components/ui/ShoppingControls";
+import { ShoppingButton, ShoppingWindow, ShoppingWindowHeader } from "@/components/ui/ShoppingControls";
 import { getCartRegularPrice } from "@/lib/national-pricing";
 import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
@@ -67,7 +67,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [resolvedPaymentPreferences, setResolvedPaymentPreferences] =
     useState<LeonOrderPreferences | null>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const checkoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cart = useCart();
 
@@ -406,51 +406,50 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   return (
     <div ref={shellRef} className="taskbar-cart-shell">
       {open && (
-        <section
+        <ShoppingWindow
           ref={panelRef}
+          role="region"
           id="taskbar-cart-panel"
-          className={`taskbar-cart-panel ${
+          className={`shopping-window taskbar-cart-panel ${
             view === "leon-checkout" ? "taskbar-cart-panel--checkout" : ""
           } ${view === "cart" && nationalItems.length > 0 ? "taskbar-cart-panel--national" : ""}`}
           aria-label={view === "cart" ? "Artículos del carrito" : "Completar pedido"}
         >
-          <header className="taskbar-cart-titlebar">
-            {view === "leon-checkout" ? (
-              <>
-                <button
-                  type="button"
-                  aria-label="Volver al carrito"
-                  onClick={goBackToCart}
-                >
-                  ‹
-                </button>
-                <span className="flex-1 px-2 text-center">Completar pedido</span>
-                <button type="button" aria-label="Cerrar carrito" onClick={closeCart}>
-                  ×
-                </button>
-              </>
-            ) : (
-              <>
-                <span>Carrito</span>
-                <button type="button" aria-label="Cerrar carrito" onClick={closeCart}>
-                  ×
-                </button>
-              </>
+          <ShoppingWindowHeader className="shopping-window-header taskbar-cart-titlebar">
+            {view === "leon-checkout" && (
+              <ShoppingButton
+                aria-label="Volver al carrito"
+                onClick={goBackToCart}
+                className="shopping-window-control"
+              >
+                <span aria-hidden="true">‹</span>
+              </ShoppingButton>
             )}
-          </header>
+            <span className="retro-window-caption flex flex-1 items-center gap-2">
+              <span aria-hidden="true"><SystemIcon name="cart" /></span>
+              {view === "leon-checkout" ? "Completar pedido" : "Carrito"}
+            </span>
+            <ShoppingButton
+              aria-label="Cerrar carrito"
+              onClick={closeCart}
+              className="shopping-window-control"
+            >
+              <span aria-hidden="true">×</span>
+            </ShoppingButton>
+          </ShoppingWindowHeader>
 
           {cart.items.length === 0 ? (
             <div className="taskbar-cart-empty-message">
               <p>Tu carrito está esperando algo guarridelicioso.</p>
-              <button
-                type="button"
+              <ShoppingButton
+                $tone="blue"
                 onClick={() => {
                   closeCart();
                   onShop();
                 }}
               >
                 Ir a la tienda
-              </button>
+              </ShoppingButton>
             </div>
           ) : view === "cart" ? (
             <>
@@ -851,7 +850,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               </button>
             </div>
           )}
-        </section>
+        </ShoppingWindow>
       )}
 
       <button
