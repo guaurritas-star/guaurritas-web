@@ -682,8 +682,38 @@ body:has(.global-wix-header-shell) {
   bottom: calc(100% + 10px);
   width: min(540px, calc(100vw - 16px));
   overflow: hidden;
+  border: 2px solid #875773;
+  border-top-color: #f3cedc;
+  border-left-color: #f3cedc;
+  background: #fff9fb;
   color: #263650;
+  box-shadow: 5px 5px 0 rgba(88, 45, 69, 0.48);
   font-family: var(--font-mansalva), cursive;
+}
+
+.taskbar-cart-titlebar {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 5px 4px 10px;
+  background: linear-gradient(180deg, #dfa8bf, #bd7597);
+  color: #fff;
+  font-family: var(--font-cinzel), serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 1px 1px 0 #75435e;
+}
+
+.taskbar-cart-titlebar button {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #f5d6e2;
+  border-right-color: #76445f;
+  border-bottom-color: #76445f;
+  background: #c881a1;
+  color: #fff;
+  font: 700 17px/1 Arial, sans-serif;
 }
 
 .taskbar-cart-items {
@@ -2066,3 +2096,4 @@ html.guaurritas-system-cart-open .desktop-taskbar {
     animation: none !important;
   }
 }
+
