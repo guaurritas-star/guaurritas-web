@@ -2097,17 +2097,3 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 }
 
-/* Store navigation owns delivery, categories and the shared cart.
-   Keep the product's back button, without repeating the catalog toolbar. */
-.store-app .store-catalog .cuisine-mobile-sticky-header {
-  position: static !important;
-}
-
-.store-app .store-catalog .cuisine-mobile-sticky-header:has(> div),
-.store-app .store-catalog > section > .sticky:not(.cuisine-mobile-sticky-header):not(.retail-cart-toolbar) {
-  display: none;
-}
-
-.store-app .store-catalog .cuisine-mobile-sticky-header > button:last-child {
-  display: none;
-}

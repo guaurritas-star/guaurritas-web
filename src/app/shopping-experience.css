@@ -27,7 +27,7 @@
 .shopping-navigation-row { display: contents; }
 .shopping-location { min-width: 0; margin: 0; padding: 0; border: 0; }
 .shopping-location legend { margin-bottom: 4px; font: 400 16px/1.4 var(--font-mansalva), cursive; }
-.shopping-location > div { display: flex; gap: 4px; }
+.shopping-location > div { display: flex; gap: 4px; max-width: 340px; }
 .shopping-navigation .shopping-location button { gap: 6px; padding: 8px 12px; flex: 1; white-space: nowrap; }
 .shopping-location .system-icon { width: 22px; height: 22px; flex-shrink: 0; }
 .shopping-store-cart { grid-column: 3; grid-row: 1; gap: 8px; flex-shrink: 0; }
@@ -128,7 +128,7 @@
   background: transparent;
   font-size: 16px;
 }
-.boutique-retail .boutique-purchase { min-width: 150px; }
+.boutique-retail .boutique-purchase { min-width: 180px; flex-shrink: 0; white-space: nowrap; padding-inline: 16px; }
 .taskbar-cart-panel .taskbar-cart-footer button { font-size: 17px; }
 @media (max-width: 639px) {
   .shopping-window .welcome-photo img { height: 116px; }
