@@ -234,9 +234,11 @@ function pricesFor(collection: BandanaCollection, mode: FulfillmentMode) {
 export default function CoutureStoreApp({
   onBack,
   fulfillmentMode,
+  embeddedInStore = false,
 }: {
   onBack: () => void;
   fulfillmentMode: FulfillmentMode;
+  embeddedInStore?: boolean;
 }) {
   const catalogRef = useRef<HTMLElement>(null);
   const [collectionId, setCollectionId] = useState<CollectionId>("amulette");
@@ -399,7 +401,7 @@ export default function CoutureStoreApp({
 
   return (
     <section ref={catalogRef} className="boutique-retail boutique-couture -m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
-      <div className="retail-cart-toolbar sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+      {!embeddedInStore && <div className="retail-cart-toolbar sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
         <button
           type="button"
           onClick={onBack}
@@ -426,7 +428,7 @@ export default function CoutureStoreApp({
           </span>
           <span>{cartOpening ? "Abriendo…" : `Carrito · ${cartCount}`}</span>
         </button>
-      </div>
+      </div>}
 
       <header className="border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-5 text-center sm:px-8 sm:py-8">
         <p className="font-interface text-[11px] font-bold uppercase tracking-[0.24em] text-[#a66f89] sm:text-xs">

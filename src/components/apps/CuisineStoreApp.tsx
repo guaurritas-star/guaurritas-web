@@ -717,9 +717,11 @@ function priceFrom(product: CuisineProduct, fulfillmentMode: FulfillmentMode) {
 export default function CuisineStoreApp({
   onBack,
   fulfillmentMode = "leon",
+  embeddedInStore = false,
 }: {
   onBack: () => void;
   fulfillmentMode?: FulfillmentMode;
+  embeddedInStore?: boolean;
 }) {
   const [category, setCategory] = useState<CategoryId>("all");
   const [query, setQuery] = useState("");
@@ -1563,7 +1565,7 @@ export default function CuisineStoreApp({
           >
             ← Volver al catálogo
           </button>
-          {cuisineCartTrigger}
+          {!embeddedInStore && cuisineCartTrigger}
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
@@ -2897,7 +2899,7 @@ export default function CuisineStoreApp({
 
   return (
     <section className="boutique-retail boutique-catalog -m-4 min-h-[32rem] bg-white sm:-m-6">
-      <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
+      {!embeddedInStore && <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button
             type="button"
@@ -2911,7 +2913,7 @@ export default function CuisineStoreApp({
           </p>
           {cuisineCartTrigger}
         </div>
-      </div>
+      </div>}
 
       <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-7 sm:py-9">
         <header className="grid items-end gap-6 border-b border-[#c8d5dc] pb-7 lg:grid-cols-[1fr_auto]">

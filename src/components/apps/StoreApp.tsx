@@ -52,14 +52,14 @@ export default function StoreApp() {
               ))}
             </div>
           </fieldset>
-          <ShoppingButton className="shopping-store-cart" onClick={() => requestSystemCartOpen()} aria-label={`Abrir carrito con ${cart.count} artículos`}>
+          <ShoppingButton className="shopping-store-cart" onClick={() => requestSystemCartOpen()} aria-label={`Abrir carrito con ${cart.count} ${cart.count === 1 ? "artículo" : "artículos"}`}>
             <SystemIcon name="cart" /> <span className="shopping-store-cart-label">Carrito</span> <span className="shopping-cart-count">{cart.count}</span>
           </ShoppingButton>
         </div>
         <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
           {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
             <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
-              <strong>{label}</strong><span>{detail}</span>
+              <strong>{label}</strong><span className="sr-only">{detail}</span>
             </ShoppingButton>
           ))}
         </div>
@@ -74,7 +74,7 @@ export default function StoreApp() {
       </header>
       {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Hasta el 31 de octubre</small></aside>}
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
-        {category === "couture" ? <CoutureStoreApp onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp onBack={stayInStore} /> : <CuisineStoreApp onBack={stayInStore} fulfillmentMode="leon" />}
+        {category === "couture" ? <CoutureStoreApp embeddedInStore onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={stayInStore} /> : <CuisineStoreApp embeddedInStore onBack={stayInStore} fulfillmentMode="leon" />}
       </div>
     </section>
   );
