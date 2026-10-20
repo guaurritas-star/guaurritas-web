@@ -107,6 +107,9 @@
   letter-spacing: normal;
   text-shadow: none;
 }
+/* The Store keeps its navigation visible; let the product photo scroll normally
+   so a second sticky surface cannot slip underneath that navigation. */
+.store-app .boutique-product > div:nth-child(2) > div:first-child { position: static; }
 .store-app .boutique-product > .retail-cart-toolbar {
   position: static !important;
   min-height: 0;
