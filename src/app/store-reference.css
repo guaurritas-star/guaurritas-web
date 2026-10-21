@@ -2,28 +2,33 @@
    Deliberately preserve window geometry, scroll ownership and existing actions. */
 .retro-window-dialog.retro-window-dialog.retro-window-dialog {
   border-radius: 0;
-  border-color: #425b8c;
-  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #637aa6, 4px 4px 0 #425b8c55;
+  padding: 5px;
+  border: 2px solid !important;
+  border-color: #fff #425b8c #425b8c #fff !important;
+  background: #cdd4e3;
+  box-shadow: inset 2px 2px 0 #f2f2f2, inset -2px -2px 0 #637aa6, 0 0 0 1px #425b8c, 6px 6px 0 #425b8c66 !important;
 }
 .retro-window-dialog.retro-window-dialog > :is(.shopping-window-header, .retro-window-titlebar) {
   border-radius: 0;
-  background: linear-gradient(90deg, #425b8c 0%, #637aa6 100%);
+  background: linear-gradient(90deg, #425b8c 0%, #425b8c 65%, #637aa6 100%) !important;
   color: #fff;
   border-bottom-color: #425b8c;
   box-shadow: inset 0 1px 0 #ffffff55;
 }
 .retro-window-dialog.retro-window-dialog .retro-window-caption {
   color: #fff;
-  font-family: var(--font-mansalva), cursive;
-  font-weight: 400;
+  font-family: var(--font-cinzel), serif !important;
+  font-size: 18px;
+  font-weight: 600 !important;
   text-shadow: none;
 }
 .retro-window-dialog.retro-window-dialog .retro-window-controls > button {
   border-radius: 0;
-  border: 1px solid #425b8c;
+  border: 2px solid;
+  border-color: #fff #425b8c #425b8c #fff;
   background: #f2f2f2;
   color: #425b8c;
-  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #637aa6;
+  box-shadow: inset 1px 1px 0 #fff, inset -2px -2px 0 #637aa6;
   text-shadow: none;
   transition: background-color 140ms ease, color 140ms ease;
 }
@@ -42,11 +47,18 @@
 }
 .retro-window-dialog.retro-window-dialog > .retro-window-client {
   border-radius: 0;
-  border-color: #637aa6;
-  box-shadow: inset 1px 1px 0 #637aa633;
+  border: 2px solid;
+  border-color: #637aa6 #fff #fff #637aa6;
+  box-shadow: none;
+}
+@media (min-width: 640px) {
+  .retro-window-dialog.retro-window-dialog .retro-window-controls > button {
+    width: 36px; min-width: 36px; height: 36px; min-height: 36px;
+    font-family: monospace; font-size: 22px; line-height: 1;
+  }
 }
 @media (max-width: 639px) {
-  .retro-window-dialog.retro-window-dialog.retro-window-dialog { box-shadow: none; }
+  .retro-window-dialog.retro-window-dialog.retro-window-dialog { padding: 2px; box-shadow: none !important; }
   .retro-window-dialog.retro-window-dialog .retro-window-controls > button {
     min-width: 48px;
     min-height: 48px;
