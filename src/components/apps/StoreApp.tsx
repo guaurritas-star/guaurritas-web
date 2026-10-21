@@ -63,6 +63,13 @@ export default function StoreApp() {
             </ShoppingButton>
           ))}
         </div>
+
+      </header>
+      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Hasta el 31 de octubre</small></aside>}
+      <div className="store-catalog store-workspace min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
+        <aside className="store-support" aria-label="Información de tu compra">
+          <div className="store-support-title"><SystemIcon name="box" /><h2>Tu entrega</h2></div>
+          <div className="store-support-body">
       <details className="store-delivery-details">
         <summary>{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · elige fecha y horario antes de pagar"} · Ver detalles de entrega</summary>
         {mode === "national" ? (
@@ -71,10 +78,12 @@ export default function StoreApp() {
           <p>En León eliges fecha y horario antes de pagar. Confirmamos por WhatsApp el horario y el punto de entrega; Uber tiene costo adicional. El total con SPEI y tarjeta se muestra en el carrito.</p>
         )}
       </details>
-      </header>
-      {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Hasta el 31 de octubre</small></aside>}
-      <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
+            <p className="store-support-hint">Puedes cambiar la ubicación arriba. Cada pedido corresponde a una sola modalidad de entrega.</p>
+          </div>
+        </aside>
+        <div className="store-main-catalog">
         {category === "couture" ? <CoutureStoreApp embeddedInStore onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={stayInStore} /> : <CuisineStoreApp embeddedInStore onBack={stayInStore} fulfillmentMode="leon" />}
+        </div>
       </div>
     </section>
   );

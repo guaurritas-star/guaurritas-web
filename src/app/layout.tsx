@@ -12,6 +12,7 @@ import "./welcome.css";
 import "./retro-controls.css";
 import "./boutique-shopping.css";
 import "./shopping-experience.css";
+import "./store-reference.css";
 
 const mansalva = Mansalva({
   weight: "400",
