@@ -1,0 +1,40 @@
+.preview { min-height: 100dvh; background: #dce4f2; color: #425b8c; font-family: var(--font-mansalva), cursive; }
+.notice { margin: 0; padding: 12px 20px; font-size: 16px; }
+.preview :global(.retro-window-overlay) { top: 44px; padding: 16px 20px; }
+.preview :global(.retro-window-dialog.retro-window-dialog) {
+  border: 1px solid #637aa6 !important;
+  border-radius: 12px; padding: 0; background: #f2f2f2;
+  box-shadow: 0 12px 32px #425b8c33 !important;
+  white-space: normal;
+}
+.preview :global(.shopping-window-header.shopping-window-header) {
+  background: #425b8c; border: 0; border-radius: 11px 11px 0 0;
+  min-height: 52px; padding: 6px 12px; gap: 12px;
+}
+.preview :global(.retro-window-caption) { min-width: 0; flex: 1; font-size: 18px; }
+.preview :global(.retro-window-controls) { flex-shrink: 0; gap: 6px; }
+.preview :global(.shopping-window-header .shopping-window-control.shopping-window-control) {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; min-width: 40px; min-height: 40px;
+  padding: 0; border: 1px solid #ffffff55; border-radius: 4px;
+  box-shadow: inset 0 1px #ffffff44; background: #637aa6; color: #fff;
+  font: 400 24px/1 monospace;
+}
+.preview :global(.shopping-window-header .retro-window-close) { background: #a66d88; }
+.preview :global(.shopping-window-header .shopping-window-control:hover) { background: #d9a689; color: #263650; }
+.preview :global(.shopping-window-control:focus-visible) { outline: 2px solid #fff; outline-offset: 2px; }
+.preview :global(.retro-window-client) { border: 0; border-radius: 0 0 11px 11px; }
+.taskbar { position: fixed; bottom: 0; inset-inline: 0; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 12px; border-top: 1px solid #637aa6; background: #f2f2f2; }
+.taskbar button { display: flex; gap: 8px; align-items: center; min-height: 44px; padding: 6px 12px; border: 1px solid #637aa6; border-radius: 4px; background: #d9a689; }
+.taskbar button:focus-visible { outline: 3px solid #425b8c; outline-offset: 2px; }
+@media (max-width: 639px) {
+  .notice { font-size: 16px; padding: 8px 12px; }
+  .preview :global(.retro-window-overlay) { top: 0; padding: 0; }
+  .preview :global(.retro-window-dialog.retro-window-dialog) { border-radius: 0; }
+  .preview :global(.shopping-window-header.shopping-window-header) { border-radius: 0; }
+  .preview :global(.shopping-window-header .shopping-window-control.shopping-window-control) { width: 48px; height: 48px; min-width: 48px; min-height: 48px; }
+  .preview :global(.retro-window-minimize) { display: none !important; }
+  .preview :global(.retro-window-client) { border-radius: 0; }
+  .taskbar { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .taskbar > span { display: none; }
+}
