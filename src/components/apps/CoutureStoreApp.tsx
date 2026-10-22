@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
 import { halloweenPrice, halloweenIsActive } from "@/lib/seasonal-promotions";
@@ -258,10 +260,7 @@ export default function CoutureStoreApp({
     if (typeof window === "undefined") return;
 
     if (window.self !== window.top && window.matchMedia("(max-width: 639px)").matches) {
-      window.parent.postMessage(
-        { source: WEB_SOURCE, type: "guaurritas:cuisine-cart-request" },
-        "*",
-      );
+      postToWixParent({ source: WEB_SOURCE, type: "guaurritas:cuisine-cart-request" });
       return;
     }
 
@@ -295,24 +294,21 @@ export default function CoutureStoreApp({
   useEffect(() => {
     if (window.self === window.top) return;
 
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: WEB_SOURCE,
         type: CUISINE_UI_MESSAGE,
         active: true,
         count: cartCount,
         backTarget: "guaurriverse",
         backLabel: "← Volver a los mundos",
-      },
-      "*",
-    );
+      });
   }, [cartCount]);
 
   useEffect(() => {
     if (window.self === window.top) return;
 
     const handleCoutureCommand = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
 
       const message = event.data;
       if (
@@ -344,16 +340,13 @@ export default function CoutureStoreApp({
   useEffect(
     () => () => {
       if (window.self !== window.top) {
-        window.parent.postMessage(
-          {
+        postToWixParent({
             source: WEB_SOURCE,
             type: CUISINE_UI_MESSAGE,
             active: false,
             count: 0,
             backTarget: "guaurriverse",
-          },
-          "*",
-        );
+          });
       }
     },
     [],

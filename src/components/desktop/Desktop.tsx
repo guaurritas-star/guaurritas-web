@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import { halloweenIsActive } from "@/lib/seasonal-promotions";
 
 import SystemIcon from "@/components/ui/SystemIcon";
@@ -341,7 +343,7 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
       : null;
 
     const handleMemberState = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
 
       const message = event.data;
       if (
@@ -362,13 +364,10 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
 
     window.addEventListener("message", handleMemberState);
     const requestMemberState = () =>
-      window.parent.postMessage(
-        {
+      postToWixParent({
           source: WEB_SOURCE,
           type: MEMBER_STATE_REQUEST_MESSAGE,
-        },
-        "*",
-      );
+        });
     requestMemberState();
     const retryTimers = [250, 900].map((delay) => window.setTimeout(requestMemberState, delay));
 
@@ -403,13 +402,10 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
     if (window.self === window.top || authBusy) return;
     setAuthBusy(true);
 
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: WEB_SOURCE,
         type: MEMBER_LOGIN_REQUEST_MESSAGE,
-      },
-      "*",
-    );
+      });
   };
 
   const requestLogout = () => {
@@ -417,13 +413,10 @@ function WixMemberAccess({ onOpenMiMascota }: { onOpenMiMascota: () => void }) {
     setAuthBusy(true);
     setMenuOpen(false);
 
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: WEB_SOURCE,
         type: MEMBER_LOGOUT_REQUEST_MESSAGE,
-      },
-      "*",
-    );
+      });
   };
 
   if (!member.loggedIn) {
@@ -814,7 +807,7 @@ export default function Desktop() {
   const openCommunity = () => {
     closeActiveApp();
     if (window.self === window.top) window.location.assign(COMMUNITY_URL);
-    else window.parent.postMessage({ source: "guaurritas-web", type: "guaurritas:community-open" }, "*");
+    else postToWixParent({ source: "guaurritas-web", type: "guaurritas:community-open" });
   };
 
   return (

@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import SystemIcon from "@/components/ui/SystemIcon";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -91,7 +93,7 @@ function WixMemberAccess({
       : null;
 
     const handleMemberState = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
 
       const message = event.data;
       if (
@@ -120,7 +122,7 @@ function WixMemberAccess({
     window.addEventListener("storage", handleStorage);
 
     const requestMemberState = () =>
-      window.parent.postMessage({ source: WEB_SOURCE, type: MEMBER_STATE_REQUEST_MESSAGE }, "*");
+      postToWixParent({ source: WEB_SOURCE, type: MEMBER_STATE_REQUEST_MESSAGE });
     requestMemberState();
     const retryTimers = [250, 900].map((delay) => window.setTimeout(requestMemberState, delay));
 
@@ -154,7 +156,7 @@ function WixMemberAccess({
     if (authBusy) return;
     setAuthBusy(true);
     onMenuChange(false);
-    window.parent.postMessage({ source: WEB_SOURCE, type }, "*");
+    postToWixParent({ source: WEB_SOURCE, type });
   };
 
   if (!member.loggedIn) {
@@ -257,7 +259,7 @@ export default function GlobalWixHeader() {
       new URLSearchParams(window.location.search).get("mode") === "expanded";
 
     const handleParentMessage = (event: MessageEvent) => {
-      if (event.source !== window.parent || !event.data || typeof event.data !== "object") return;
+      if (!isTrustedWixMessage(event) || !event.data || typeof event.data !== "object") return;
       if (event.data.type === "openDesktopMenu") {
         const requested = event.data.menuId;
         if (requested === "pages" || requested === "mobile" || requested === "account") {
@@ -301,15 +303,12 @@ export default function GlobalWixHeader() {
       const panelBottom = panel?.getBoundingClientRect().bottom ?? baseHeight;
       const height = openMenu ? Math.ceil(Math.max(baseHeight, panelBottom + 7)) : baseHeight;
 
-      window.parent.postMessage(
-        {
+      postToWixParent({
           type: "headerDropdownState",
           open: openMenu !== null,
           menuId: openMenu,
           height,
-        },
-        "*",
-      );
+        });
     };
 
     animationFrame = window.requestAnimationFrame(() => {

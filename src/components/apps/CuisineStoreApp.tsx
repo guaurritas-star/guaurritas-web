@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import { halloweenRate, halloweenPrice } from "@/lib/seasonal-promotions";
 import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
@@ -785,10 +787,7 @@ export default function CuisineStoreApp({
   const openCuisineCart = () => {
     // Both mobile entrances need the visible Wix viewport, not the tall iframe.
     if (window.self !== window.top && window.matchMedia("(max-width: 639px)").matches) {
-      window.parent.postMessage(
-        { source: WEB_SOURCE, type: "guaurritas:cuisine-cart-request" },
-        "*",
-      );
+      postToWixParent({ source: WEB_SOURCE, type: "guaurritas:cuisine-cart-request" });
       return;
     }
 
@@ -837,23 +836,20 @@ export default function CuisineStoreApp({
   useEffect(() => {
     if (window.self === window.top) return;
 
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: WEB_SOURCE,
         type: CUISINE_UI_MESSAGE,
         active: true,
         count: cartCount,
         backTarget: selectedProduct ? "catalog" : "guaurriverse",
-      },
-      "*",
-    );
+      });
   }, [cartCount, selectedProduct]);
 
   useEffect(() => {
     if (window.self === window.top) return;
 
     const handleCuisineCommand = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
 
       const message = event.data;
       if (
@@ -896,16 +892,13 @@ export default function CuisineStoreApp({
       }
 
       if (window.self !== window.top) {
-        window.parent.postMessage(
-          {
+        postToWixParent({
             source: WEB_SOURCE,
             type: CUISINE_UI_MESSAGE,
             active: false,
             count: 0,
             backTarget: "guaurriverse",
-          },
-          "*",
-        );
+          });
       }
     },
     [],
@@ -932,15 +925,12 @@ export default function CuisineStoreApp({
         window.self !== window.top &&
         window.matchMedia("(max-width: 639px)").matches
       ) {
-        window.parent.postMessage(
-          {
+        postToWixParent({
             source: WEB_SOURCE,
             type: "guaurritas:cuisine-navigation",
             action: "reveal-product",
             top: productView.getBoundingClientRect().top,
-          },
-          "*",
-        );
+          });
       }
     });
 

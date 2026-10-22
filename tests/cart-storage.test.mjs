@@ -1,3 +1,4 @@
+import { loadWixSecurity } from './helpers/wix-security.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -75,7 +76,7 @@ test('checkout locks only mobile Wix scrolling and releases on desktop resize', 
   let cleanup;
   const context = {
     exports: {},
-    require: () => ({ useEffect: (effect) => { cleanup = effect(); } }),
+    require: name => name === "@/lib/wix-message-security" ? loadWixSecurity(context.window) : ({ useEffect: (effect) => { cleanup = effect(); } }),
     window: {
       matchMedia: () => ({ matches: mobile }),
       parent: { postMessage: (message) => messages.push(message) },

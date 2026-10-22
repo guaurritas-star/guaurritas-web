@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent } from "@/lib/wix-message-security";
+
 import ProductPrice from "@/components/ui/ProductPrice";
 import { ShoppingButton } from "@/components/ui/ShoppingControls";
 import { getCartRegularPrice } from "@/lib/national-pricing";
@@ -116,22 +118,22 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
       frame = requestAnimationFrame(() => {
         const panel = panelRef.current;
         if (!panel) return;
-        window.parent.postMessage({
+        postToWixParent({
           source: "guaurritas-web",
           type: "guaurritas:cart-navigation",
           action: "reveal",
           top: panel.getBoundingClientRect().top,
-        }, "*");
+        });
       });
     });
     return () => {
       cancelAnimationFrame(frame);
       revealCartRef.current = false;
-      window.parent.postMessage({
+      postToWixParent({
         source: "guaurritas-web",
         type: "guaurritas:cart-navigation",
         action: "return",
-      }, "*");
+      });
     };
   }, [open]);
 

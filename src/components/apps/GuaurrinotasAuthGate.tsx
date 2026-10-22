@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import { useEffect, useRef, useState } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
 import GuaurrinotasLoading from "./GuaurrinotasLoading";
@@ -185,17 +187,14 @@ export default function GuaurrinotasAuthGate() {
       setIsWixConnecting(true);
       setWixBridgeError("");
 
-      window.parent.postMessage(
-        {
+      postToWixParent({
           source: WEB_SOURCE,
           type: GUAURRINOTAS_SESSION_REQUEST_MESSAGE,
-        },
-        "*",
-      );
+        });
     };
 
     const handleWixBridgeMessage = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
 
       const message = event.data;
       if (
@@ -279,13 +278,10 @@ export default function GuaurrinotasAuthGate() {
     window.addEventListener("message", handleWixBridgeMessage);
 
     if (window.self !== window.top) {
-      window.parent.postMessage(
-        {
+      postToWixParent({
           source: WEB_SOURCE,
           type: MEMBER_STATE_REQUEST_MESSAGE,
-        },
-        "*",
-      );
+        });
     } else {
       window.clearTimeout(connectionTimer);
     }
@@ -313,13 +309,10 @@ export default function GuaurrinotasAuthGate() {
   const requestWixLogin = () => {
     if (window.self === window.top) return;
 
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: WEB_SOURCE,
         type: MEMBER_LOGIN_REQUEST_MESSAGE,
-      },
-      "*",
-    );
+      });
   };
 
   const changeMode = (nextMode: AuthMode) => {

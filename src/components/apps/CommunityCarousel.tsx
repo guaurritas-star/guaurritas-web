@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { normalizeReviews, selectReviews, type CommunityReview } from "@/lib/community-reviews";
@@ -39,7 +41,7 @@ export default function CommunityCarousel() {
   useEffect(() => {
     let received = false;
     const receive = (event: MessageEvent) => {
-      if (event.source !== window.parent || event.origin !== "https://www.guaurritas.com" ||
+      if (!isTrustedWixMessage(event) || event.origin !== "https://www.guaurritas.com" ||
           event.data?.source !== "guaurritas-embed" || event.data?.type !== "guaurritas:community-data" || received) return;
       const realReviews = normalizeReviews(event.data.reviews);
       if (!realReviews.length) return;
@@ -52,7 +54,7 @@ export default function CommunityCarousel() {
     };
     window.addEventListener("message", receive);
     if (window.parent !== window) {
-      window.parent.postMessage({ source: "guaurritas-web", type: "guaurritas:community-request" }, "https://www.guaurritas.com");
+      postToWixParent({ source: "guaurritas-web", type: "guaurritas:community-request" });
     }
     const timeout = window.setTimeout(() => {
       if (!received) setStatus("Puedes consultar las opiniones en el enlace de abajo.");

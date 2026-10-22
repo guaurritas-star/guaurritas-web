@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import SystemIcon from "@/components/ui/SystemIcon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReorderPurchase from "@/components/cart/ReorderPurchase";
@@ -151,19 +153,16 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
 
     requestIdRef.current += 1;
     setHistory({ kind: "loading" });
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: WEB_SOURCE,
         type: PURCHASE_HISTORY_REQUEST_MESSAGE,
         requestId: requestIdRef.current,
-      },
-      "*",
-    );
+      });
   }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
       const message = event.data;
 
       if (!message || typeof message !== "object") return;
@@ -209,10 +208,7 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
     window.addEventListener("message", handleMessage);
 
     if (window.self !== window.top) {
-      window.parent.postMessage(
-        { source: WEB_SOURCE, type: MEMBER_STATE_REQUEST_MESSAGE },
-        "*",
-      );
+      postToWixParent({ source: WEB_SOURCE, type: MEMBER_STATE_REQUEST_MESSAGE });
     } else {
       window.setTimeout(() => setMember({ loggedIn: false, name: "" }), 0);
     }
@@ -279,19 +275,13 @@ export default function MiMascotaApp({ onOpenWorld }: MiMascotaAppProps) {
   const requestLogin = () => {
     if (window.self === window.top || authBusy) return;
     setAuthBusy(true);
-    window.parent.postMessage(
-      { source: WEB_SOURCE, type: MEMBER_LOGIN_REQUEST_MESSAGE },
-      "*",
-    );
+    postToWixParent({ source: WEB_SOURCE, type: MEMBER_LOGIN_REQUEST_MESSAGE });
   };
 
   const requestLogout = () => {
     if (window.self === window.top || authBusy) return;
     setAuthBusy(true);
-    window.parent.postMessage(
-      { source: WEB_SOURCE, type: MEMBER_LOGOUT_REQUEST_MESSAGE },
-      "*",
-    );
+    postToWixParent({ source: WEB_SOURCE, type: MEMBER_LOGOUT_REQUEST_MESSAGE });
   };
 
   if (member === null) {
