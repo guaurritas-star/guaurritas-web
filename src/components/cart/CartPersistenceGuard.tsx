@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent } from "@/lib/wix-message-security";
+
 import { useEffect } from "react";
 
 const BRIDGE_SOURCE = "guaurritas-web";
@@ -32,14 +34,11 @@ export default function CartPersistenceGuard() {
       if (locked === lastLocked) return;
       lastLocked = locked;
 
-      window.parent.postMessage(
-        {
+      postToWixParent({
           source: BRIDGE_SOURCE,
           type: SCROLL_LOCK_MESSAGE,
           locked,
-        },
-        "*",
-      );
+        });
     };
 
     document.addEventListener("pointerdown", keepOpenWhileBrowsing);
@@ -59,14 +58,11 @@ export default function CartPersistenceGuard() {
       document.removeEventListener("pointerdown", keepOpenWhileBrowsing);
       observer.disconnect();
       window.removeEventListener("resize", syncCheckoutScrollLock);
-      window.parent.postMessage(
-        {
+      postToWixParent({
           source: BRIDGE_SOURCE,
           type: SCROLL_LOCK_MESSAGE,
           locked: false,
-        },
-        "*",
-      );
+        });
     };
   }, []);
 

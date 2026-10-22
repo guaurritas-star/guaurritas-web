@@ -1,3 +1,4 @@
+import { postToWixParent } from "@/lib/wix-message-security";
 import type { CartItem } from "@/lib/cart-store";
 import type { WixCatalogReference } from "@/lib/wix-commerce-map";
 import { buildProtectedUnitPrices } from "@/lib/payment-pricing";
@@ -99,6 +100,6 @@ export function requestWixCheckout(
     items: checkoutItems,
   };
 
-  window.parent.postMessage(payload, "*");
+  postToWixParent(payload);
   return { ok: true };
 }

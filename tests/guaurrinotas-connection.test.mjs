@@ -1,3 +1,4 @@
+import { loadWixSecurity } from './helpers/wix-security.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -44,6 +45,7 @@ function setup({ rejectSession = false } = {}) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
   }).outputText;
   vm.runInNewContext(code, { exports, window: win, URLSearchParams, require: (name) => {
+    if (name === "@/lib/wix-message-security") return loadWixSecurity(win);
     if (name === 'react') return react;
     if (name === 'react/jsx-runtime') return { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) };
     if (name.endsWith('/supabase/client')) return { createClient: () => client };
@@ -52,7 +54,7 @@ function setup({ rejectSession = false } = {}) {
   } });
   const mount = () => { index = 0; refIndex = 0; effects.length = 0; exports.default(); return effects[0](); };
   const cleanup = mount();
-  const send = (data) => handler({ source: parent, data: { source: 'guaurritas-embed', ...data } });
+  const send = (data) => handler({ source: parent, origin: 'https://www.guaurritas.com', data: { source: 'guaurritas-embed', ...data } });
   return { states, timers, messages, cleanup, mount, send,
     expire: () => { for (const [id, fn] of [...timers]) { timers.delete(id); fn(); } },
     error: () => states.find((s) => typeof s === 'string' && /conexión|confirmar tu sesión/.test(s)),

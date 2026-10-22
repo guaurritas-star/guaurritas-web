@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import { useEffect, useRef, useState } from "react";
 import { SpeiRequestTracker, type SpeiCustomer } from "@/lib/payment-session";
 import type { CartItem } from "@/lib/cart-store";
@@ -123,7 +125,7 @@ export default function SpeiPaymentFlowCore({
 
   useEffect(() => {
     const handleWixMessage = async (event: MessageEvent) => {
-      if (event.source !== window.parent) return;
+      if (!isTrustedWixMessage(event)) return;
 
       let message = event.data;
       if (typeof message === "string") {
@@ -212,8 +214,7 @@ export default function SpeiPaymentFlowCore({
           }
 
           if (!mountedRef.current || controller.signal.aborted) return;
-          window.parent.postMessage(
-            {
+          postToWixParent({
               source: BRIDGE_SOURCE,
               type: PROOF_SUBMIT_MESSAGE,
               requestId: requests.issue(PROOF_RECEIVED_MESSAGE),
@@ -227,9 +228,7 @@ export default function SpeiPaymentFlowCore({
               file: uploadedFile,
               fileName: file.name,
               mimeType: file.type,
-            },
-            "*",
-          );
+            });
         } catch (error) {
           if (!mountedRef.current || controller.signal.aborted) return;
           pendingFileRef.current = null;
@@ -292,8 +291,7 @@ export default function SpeiPaymentFlowCore({
       setStarting(true);
       setStatus("");
 
-      window.parent.postMessage(
-        {
+      postToWixParent({
           source: BRIDGE_SOURCE,
           type: START_MESSAGE,
           requestId: requests.issue(DETAILS_MESSAGE),
@@ -303,9 +301,7 @@ export default function SpeiPaymentFlowCore({
             preferences,
             "Pedido SPEI preparado desde Guaurritas OS",
           ),
-        },
-        "*",
-      );
+        });
     } catch (error) {
       setStarting(false);
       setStatus(error instanceof Error ? error.message : "No pudimos preparar tu transferencia.");
@@ -354,8 +350,7 @@ export default function SpeiPaymentFlowCore({
     setUploading(true);
     setStatus("Subiendo comprobante…");
 
-    window.parent.postMessage(
-      {
+    postToWixParent({
         source: BRIDGE_SOURCE,
         type: UPLOAD_URL_REQUEST,
         requestId: requests.issue(UPLOAD_URL_RESPONSE),
@@ -364,9 +359,7 @@ export default function SpeiPaymentFlowCore({
         fileName: selectedFile.name,
         mimeType: selectedFile.type,
         sizeInBytes: selectedFile.size,
-      },
-      "*",
-    );
+      });
   };
 
   if (proofResult) {

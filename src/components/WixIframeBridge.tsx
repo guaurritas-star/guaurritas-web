@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent } from "@/lib/wix-message-security";
+
 import { useEffect } from "react";
 
 const BRIDGE_SOURCE = "guaurritas-web";
@@ -194,19 +196,13 @@ export default function WixIframeBridge() {
       animationFrame = window.requestAnimationFrame(() => {
         const height = getCurrentHeight();
 
-        window.parent.postMessage(
-          {
+        postToWixParent({
             source: BRIDGE_SOURCE,
             type: HEIGHT_MESSAGE,
             height,
-          },
-          "*",
-        );
+          });
 
-        window.parent.postMessage(
-          JSON.stringify({ type: "resize", height }),
-          "*",
-        );
+        postToWixParent(JSON.stringify({ type: "resize", height }));
       });
     }
 
@@ -254,8 +250,8 @@ export default function WixIframeBridge() {
       const delta = event.deltaY * (event.deltaMode === 1 ? 16 :
         event.deltaMode === 2 ? window.innerHeight : 1);
       event.preventDefault();
-      window.parent.postMessage({ source: BRIDGE_SOURCE,
-        type: 'guaurritas:page-scroll', deltaY: delta }, '*');
+      postToWixParent({ source: BRIDGE_SOURCE,
+        type: 'guaurritas:page-scroll', deltaY: delta });
     };
     window.addEventListener('wheel', handleDesktopWheel, { passive: false });
 
@@ -278,10 +274,7 @@ export default function WixIframeBridge() {
         if (readyCancelled) return;
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => {
-            window.parent.postMessage(
-              { source: BRIDGE_SOURCE, type: READY_MESSAGE },
-              "*",
-            );
+            postToWixParent({ source: BRIDGE_SOURCE, type: READY_MESSAGE });
           });
         });
       }

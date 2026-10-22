@@ -1,5 +1,7 @@
 "use client";
 
+import { postToWixParent, isTrustedWixMessage } from "@/lib/wix-message-security";
+
 import { useEffect, useRef, useState } from "react";
 import { addReorderItems, cartFulfillmentConflict, type CartItem } from "@/lib/cart-store";
 import { getFulfillmentMode, fulfillmentLabel, type FulfillmentMode } from "@/lib/fulfillment-store";
@@ -28,7 +30,7 @@ export default function ReorderPurchase({ orderId, orderItems, onOpenStore }: {
   useEffect(() => {
     const receive = (event: MessageEvent) => {
       const data = event.data;
-      if (event.source !== window.parent ||
+      if (!isTrustedWixMessage(event) ||
           !["guaurritas-embed", "guaurritas-wix"].includes(data?.source) ||
           data?.type !== "guaurritas:purchase-history" ||
           data?.action !== "prepare-reorder" || data.requestId !== request.current) return;
@@ -60,10 +62,10 @@ export default function ReorderPurchase({ orderId, orderItems, onOpenStore }: {
     setState({ kind: "loading" });
     if (timeout.current) clearTimeout(timeout.current);
     request.current = crypto.randomUUID();
-    window.parent.postMessage({
+    postToWixParent({
       source: "guaurritas-web", type: "guaurritas:purchase-history-request",
       action: "prepare-reorder", orderId, fulfillment, requestId: request.current,
-    }, "*");
+    });
     timeout.current = setTimeout(() => {
       request.current = null;
       setState({ kind: "error", message: "La tienda tardó en responder. Inténtalo nuevamente." });
