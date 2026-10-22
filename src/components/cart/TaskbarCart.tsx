@@ -439,6 +439,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             )}
           </header>
 
+          <div className="taskbar-cart-scroll-body">
           {cart.items.length === 0 ? (
             <div className="taskbar-cart-empty-message">
               <p>Tu carrito está esperando algo guarridelicioso.</p>
@@ -851,6 +852,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
               </button>
             </div>
           )}
+          </div>
         </section>
       )}
 

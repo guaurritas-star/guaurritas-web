@@ -155,3 +155,21 @@
   .boutique-product .product-purchase-summary > button { width: 100%; }
   .boutique-retail .boutique-purchase { min-width: 0; white-space: normal; }
 }
+
+/* Title bars span the frame; scrollbars belong to the content below them. */
+.retro-window-dialog.shopping-window.shopping-window { padding-inline: 0; }
+@media (min-width: 640px) {
+  .taskbar-cart-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    scrollbar-gutter: auto;
+  }
+  .taskbar-cart-panel > .taskbar-cart-titlebar { flex-shrink: 0; }
+  .taskbar-cart-scroll-body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .taskbar-cart-scroll-body .taskbar-cart-items { max-height: none; overflow: visible; }
+}
