@@ -41,7 +41,7 @@ export default function LeonOrderPreferencesForm({
 
   return (
     <section className="leon-delivery-card rounded-xl border border-[#cbd5e8] bg-white p-4 text-left">
-      <h2 id="leon-delivery-heading" className="font-title text-[21px] leading-7 text-[#263650]">
+      <h2 id="leon-delivery-heading" tabIndex={-1} className="font-title text-[21px] leading-7 text-[#263650]">
         ¿Cuándo lo necesitas?
       </h2>
       <p className="mt-1 text-[15px] leading-6 text-[#53627a]">
