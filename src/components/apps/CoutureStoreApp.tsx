@@ -2,6 +2,7 @@
 
 import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
+import RetailCartButton from "@/components/ui/RetailCartButton";
 import { halloweenPrice, halloweenIsActive } from "@/lib/seasonal-promotions";
 import Image from "next/image";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
@@ -409,25 +410,7 @@ export default function CoutureStoreApp({
         >
           ← Volver a los mundos
         </button>
-        <button
-          type="button"
-          onClick={openCoutureCart}
-          aria-busy={cartOpening}
-          aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
-          className="group flex shrink-0 items-center gap-2 rounded-full border border-[#bfa9b4] bg-[#f5edf1] px-2.5 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#432536] shadow-[1px_1px_0_rgba(112,66,90,0.12)] transition hover:border-[#8f6178] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#70425a] sm:text-[10px]"
-        >
-          <span className="relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
-            <Image
-              src={withBasePath("/icons/desktop/taskbar-cart.webp")}
-              alt=""
-              fill
-              unoptimized
-              sizes="28px"
-              className="object-contain"
-            />
-          </span>
-          <span>{cartOpening ? "Abriendo…" : `Carrito · ${cartCount}`}</span>
-        </button>
+        <RetailCartButton count={cartCount} busy={cartOpening} onClick={openCoutureCart} />
       </div>}
 
       <header className="border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-5 text-center sm:px-8 sm:py-8">

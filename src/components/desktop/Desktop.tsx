@@ -879,7 +879,7 @@ export default function Desktop() {
           {selectedApp.id === "bienvenida" ? (
             <WelcomeApp onShop={mode => openStore("cuisine", mode)} onCommunity={openCommunity} />
           ) : selectedApp.id === "tienda" ? (
-            <StoreApp />
+            <StoreApp onBack={closeActiveApp} />
           ) : selectedApp.id === "mundos" ? (
             <GuaurriverseApp />
           ) : selectedApp.id === "mascota" ? (

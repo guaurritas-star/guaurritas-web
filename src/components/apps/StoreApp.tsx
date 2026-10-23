@@ -14,7 +14,7 @@ import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 
 const stayInStore = () => {};
 
-export default function StoreApp() {
+export default function StoreApp({ onBack = stayInStore }: { onBack?: () => void }) {
   const cart = useCart();
   const [category, setCategory] = useState<"cuisine" | "couture">(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("world") === "couture" ? "couture" : "cuisine",
@@ -74,7 +74,7 @@ export default function StoreApp() {
       </header>
       {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Hasta el 31 de octubre</small></aside>}
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
-        {category === "couture" ? <CoutureStoreApp embeddedInStore onBack={stayInStore} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={stayInStore} /> : <CuisineStoreApp embeddedInStore onBack={stayInStore} fulfillmentMode="leon" />}
+        {category === "couture" ? <CoutureStoreApp embeddedInStore onBack={onBack} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={onBack} /> : <CuisineStoreApp embeddedInStore onBack={onBack} fulfillmentMode="leon" />}
       </div>
     </section>
   );
