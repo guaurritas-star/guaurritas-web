@@ -3,6 +3,7 @@
 import { halloweenRate, halloweenPrice } from "@/lib/seasonal-promotions";
 import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
+import RetailCartButton from "@/components/ui/RetailCartButton";
 import Image from "next/image";
 import { useBrowserSearch } from "@/lib/browser-location";
 import { useAsyncResource } from "@/lib/use-async-resource";
@@ -1416,29 +1417,7 @@ export default function CuisineStoreApp({
     setNotice(`${selectedProduct.name}${inspirationSuffix} se agregó al carrito.`);
   };
 
-  const cuisineCartTrigger = (
-    <button
-      type="button"
-      onClick={openCuisineCart}
-      aria-busy={cartOpening}
-      aria-label={`Abrir carrito con ${cartCount} ${cartCount === 1 ? "artículo" : "artículos"}`}
-      className={`cuisine-cart-trigger group flex shrink-0 items-center gap-2 rounded-full border border-[#8ba9b5] bg-white px-2.5 py-1.5 font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-[1px_1px_0_rgba(66,91,140,0.12)] transition hover:border-[#a66d88] hover:bg-[#fff7fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c] ${
-        cartOpening ? "cuisine-cart-trigger--opening" : ""
-      }`}
-    >
-      <span className="cuisine-cart-trigger-icon relative h-7 w-7 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105">
-        <Image
-          src={withBasePath("/icons/desktop/taskbar-cart.webp")}
-          alt=""
-          fill
-          unoptimized
-          sizes="28px"
-          className="object-contain"
-        />
-      </span>
-      <span>{cartOpening ? "Abriendo…" : `Carrito · ${cartCount}`}</span>
-    </button>
-  );
+  const cuisineCartTrigger = <RetailCartButton count={cartCount} busy={cartOpening} onClick={openCuisineCart} />;
 
   if (selectedProduct) {
     const isPetcake = selectedProduct.id === "petcakes";

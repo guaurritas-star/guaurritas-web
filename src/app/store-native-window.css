@@ -49,3 +49,13 @@
 }
 
 .retro-window-dialog.shopping-window.shopping-window { padding:0; }
+
+/* Use the same cart control in standalone Cuisine/Couture and their Wix bar. */
+.retail-system-cart { display:inline-flex; flex-shrink:0; align-items:center; gap:8px; min-height:48px; padding:6px 12px; border:1px solid #bf9279; border-radius:7px; background:linear-gradient(#f5e7dd,#d9a689); box-shadow:inset 0 1px #fff,0 1px 2px #425b8c22; color:#263650; font:400 17px/1.3 var(--font-mansalva),cursive; }
+.retail-system-cart:hover { background:#e8c8d7; }
+.retail-system-cart:active { transform:translateY(1px); }
+@media (max-width:639px) {
+ .retro-window-dialog:not(.store-window-dialog) .retail-cart-toolbar { background:linear-gradient(#b8c8df,#7c96bb 14%,#637aa6 50%,#425b8c); border-bottom:1px solid #425b8c; }
+ .retro-window-dialog:not(.store-window-dialog) .retail-cart-toolbar :is(button:first-child, p) { color:white; }
+ .retro-window-dialog:not(.store-window-dialog) .retail-cart-toolbar button:first-child:not(.retail-system-cart) { min-height:48px; padding:6px 8px; font:400 16px/1.3 var(--font-mansalva),cursive; text-transform:none; letter-spacing:normal; }
+}

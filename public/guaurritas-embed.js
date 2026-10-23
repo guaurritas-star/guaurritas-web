@@ -379,15 +379,17 @@
             top: 0;
             z-index: 2147483000;
             display: flex;
-            height: 58px;
-            margin-bottom: -58px;
+            height: 64px;
+            margin-bottom: -64px;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
             padding: 8px 12px;
             box-sizing: border-box;
-            border-bottom: 1px solid #b9c8d8;
-            background: rgba(238, 245, 247, 0.98);
+            border: 1px solid #d6e0ee;
+            border-bottom-color: #425b8c;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(#b8c8df, #7c96bb 14%, #637aa6 50%, #425b8c);
             box-shadow:
               0 1px 0 rgba(66, 91, 140, 0.18),
               0 6px 16px rgba(66, 91, 140, 0.12);
@@ -406,48 +408,40 @@
           }
 
           .guaurritas-mobile-cuisine-back {
-            border: 0;
-            background: transparent;
-            color: #425b8c;
-            font: 700 10px/1.2 Arial, sans-serif;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 6px;
+            min-height: 48px; min-width: 48px; max-width: 52%;
+            padding: 6px 8px; border: 1px solid #ffffff66; border-radius: 6px;
+            background: #ffffff12; color: #fff;
+            font: 400 15px/1.25 "Guaurritas Embed Mansalva", Mansalva, cursive;
           }
-
           .guaurritas-mobile-cuisine-cart {
-            display: inline-flex;
-            min-height: 40px;
-            align-items: center;
-            gap: 7px;
-            padding: 6px 12px;
-            border: 1px solid #8ba9b5;
-            border-radius: 999px;
-            background: #fff;
-            color: #263650;
-            box-shadow:
-              1px 1px 0 rgba(66, 91, 140, 0.12),
-              0 4px 10px rgba(66, 91, 140, 0.08);
-            font: 700 10px/1 Arial, sans-serif;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            transition:
-              transform 120ms ease,
-              background-color 120ms ease,
-              border-color 120ms ease;
+            display: inline-flex; min-height: 48px; flex-shrink: 0;
+            align-items: center; gap: 7px; padding: 6px 10px;
+            border: 1px solid #bf9279; border-radius: 7px;
+            background: linear-gradient(#f5e7dd, #d9a689); color: #263650;
+            box-shadow: inset 0 1px #fff, 0 1px 2px #425b8c22;
+            font: 400 16px/1.3 "Guaurritas Embed Mansalva", Mansalva, cursive;
+            transition: background-color 120ms ease, transform 120ms ease;
           }
-
-          .guaurritas-mobile-cuisine-cart.is-opening {
-            border-color: #a66d88;
-            background: #fff3f7;
-            transform: scale(0.94);
+          .guaurritas-mobile-cuisine-cart:hover,
+          .guaurritas-mobile-cuisine-cart.is-opening { background: #e8c8d7; }
+          .guaurritas-mobile-cuisine-cart:active { transform: translateY(1px); }
+          .guaurritas-mobile-cuisine-cart-count {
+            display: inline-grid; place-items: center; min-width: 24px;
+            padding: 1px 4px; box-sizing: border-box; border: 1px solid #637aa6;
+            background: white; color: #425b8c; font-variant-numeric: tabular-nums;
           }
-
           .guaurritas-mobile-cuisine-cart-icon {
-            display: block;
-            width: 32px;
-            height: 32px;
-            flex: 0 0 32px;
-            object-fit: contain;
+            display: block; width: 28px; height: 28px; flex: 0 0 28px;
+            background-repeat: no-repeat; background-size: 435.4167% 435.4167%;
+            background-position: 4.5549% 5.9006%;
+          }
+          .guaurritas-mobile-cuisine-sticky button:focus-visible {
+            outline: 3px solid white; outline-offset: 2px;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .guaurritas-mobile-cuisine-sticky,
+            .guaurritas-mobile-cuisine-cart { transition: none; }
           }
         }
       `;
@@ -529,6 +523,17 @@
         this._loadingTimers.push(hideTimer);
       };
 
+      // Fonts loaded inside the iframe do not apply to Wix's outer toolbar.
+      // Register the same brand font once in the host document.
+      if (typeof FontFace === "function" && document.fonts &&
+          !Array.from(document.fonts).some(face => face.family === "Guaurritas Embed Mansalva")) {
+        const font = new FontFace("Guaurritas Embed Mansalva", `url("${new URL(
+          "fonts/mansalva-latin.woff2", DEFAULT_SRC,
+        ).href}")`, { weight: "400", style: "normal", display: "swap" });
+        document.fonts.add(font);
+        font.load().catch(() => {});
+      }
+
       const mobileCuisineSticky = document.createElement("div");
       mobileCuisineSticky.className = "guaurritas-mobile-cuisine-sticky";
       mobileCuisineSticky.setAttribute("aria-hidden", "true");
@@ -536,27 +541,31 @@
       const mobileCuisineBack = document.createElement("button");
       mobileCuisineBack.type = "button";
       mobileCuisineBack.className = "guaurritas-mobile-cuisine-back";
-      mobileCuisineBack.textContent = "← Guaurriverse";
+      mobileCuisineBack.textContent = "← Regresar";
+      mobileCuisineBack.setAttribute("aria-label", "Regresar al Guaurriverse");
 
       const mobileCuisineCart = document.createElement("button");
       mobileCuisineCart.type = "button";
       mobileCuisineCart.className = "guaurritas-mobile-cuisine-cart";
 
-      const mobileCuisineCartIcon = document.createElement("img");
+      const mobileCuisineCartIcon = document.createElement("span");
       mobileCuisineCartIcon.className = "guaurritas-mobile-cuisine-cart-icon";
-      mobileCuisineCartIcon.alt = "";
       mobileCuisineCartIcon.setAttribute("aria-hidden", "true");
-      mobileCuisineCartIcon.src = new URL(
-        "icons/desktop/taskbar-cart.webp",
+      mobileCuisineCartIcon.style.backgroundImage = `url("${new URL(
+        "icons/interface/guaurritas-emoji-v1.webp",
         this.getAttribute("data-src") || DEFAULT_SRC,
-      ).href;
+      ).href}")`;
 
       const mobileCuisineCartText = document.createElement("span");
-      mobileCuisineCartText.textContent = "Carrito · 0";
+      mobileCuisineCartText.textContent = "Carrito";
+      const mobileCuisineCartCount = document.createElement("span");
+      mobileCuisineCartCount.className = "guaurritas-mobile-cuisine-cart-count";
+      mobileCuisineCartCount.textContent = "0";
 
       mobileCuisineCart.append(
         mobileCuisineCartIcon,
         mobileCuisineCartText,
+        mobileCuisineCartCount,
       );
       mobileCuisineSticky.append(
         mobileCuisineBack,
@@ -672,8 +681,7 @@
 
         window.setTimeout(() => {
           mobileCuisineCart.classList.remove("is-opening");
-          mobileCuisineCartText.textContent =
-            `Carrito · ${mobileCuisineCart.dataset.count || "0"}`;
+          mobileCuisineCartText.textContent = "Carrito";
         }, 520);
       });
 
@@ -1320,13 +1328,16 @@
 
           const count = Math.max(0, Number(message.count) || 0);
           mobileCuisineCart.dataset.count = String(count);
-          mobileCuisineCartText.textContent = `Carrito · ${count}`;
+          mobileCuisineCartText.textContent = "Carrito";
+          mobileCuisineCartCount.textContent = String(count);
+          mobileCuisineCart.setAttribute("aria-label", `Abrir carrito con ${count} artículos`);
           mobileCuisineBack.textContent =
             typeof message.backLabel === "string" && message.backLabel
               ? message.backLabel
               : this._mobileCuisineBackTarget === "catalog"
                 ? "← Volver al catálogo"
-                : "← Guaurriverse";
+                : "← Regresar";
+          mobileCuisineBack.setAttribute("aria-label", mobileCuisineBack.textContent);
 
           this._mobileCuisineStickyHandler?.();
           return;
