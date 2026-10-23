@@ -569,9 +569,6 @@ export default function CoutureStoreApp({
               </div>
             </fieldset>
 
-            <p className="mt-3 text-center font-interface text-[11px] uppercase tracking-[0.1em] text-[#8d7a84]">
-              Fotografías de la colección Guaurritas Couture
-            </p>
           </div>
 
           <div className="min-w-0">

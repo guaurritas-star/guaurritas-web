@@ -59,3 +59,45 @@
  .retro-window-dialog:not(.store-window-dialog) .retail-cart-toolbar :is(button:first-child, p) { color:white; }
  .retro-window-dialog:not(.store-window-dialog) .retail-cart-toolbar button:first-child:not(.retail-system-cart) { min-height:48px; padding:6px 8px; font:400 16px/1.3 var(--font-mansalva),cursive; text-transform:none; letter-spacing:normal; }
 }
+
+/* A product is a focused view, not another catalogue below delivery filters. */
+.store-app:has(.boutique-product) > :is(.shopping-navigation, .halloween-store-announcement) {
+  display: none;
+}
+.store-app .boutique-product > .retail-cart-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.store-app .boutique-product > .retail-cart-toolbar > .retail-system-cart {
+  min-height: 48px;
+  padding: 6px 12px;
+  border: 1px solid #bf9279;
+  background: linear-gradient(#f5e7dd,#d9a689);
+  box-shadow: inset 0 1px #fff;
+}
+.store-app .boutique-product > .retail-cart-toolbar > .retail-system-cart:hover {
+  background: linear-gradient(#f7e7ee,#e2c2d2);
+}
+.boutique-product .product-gallery { min-width: 0; }
+.boutique-product .product-gallery > .aspect-square {
+  overflow: visible;
+}
+.boutique-product .product-detail-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  pointer-events: none;
+  font-size: 12px;
+  line-height: 1.3;
+}
+@media (max-width: 639px) {
+  .boutique-product > div:nth-child(2) > .product-gallery {
+    width: min(100%, 288px);
+  }
+  .store-app .boutique-product > .retail-cart-toolbar > button {
+    min-height: 48px;
+    letter-spacing: normal;
+  }
+}
