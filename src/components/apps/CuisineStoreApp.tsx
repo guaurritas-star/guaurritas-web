@@ -1544,11 +1544,11 @@ export default function CuisineStoreApp({
           >
             ← Volver al catálogo
           </button>
-          {!embeddedInStore && cuisineCartTrigger}
+          {cuisineCartTrigger}
         </div>
 
         <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
-          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
+          <div className="product-gallery lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
             <div
               className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce]"
               style={{ backgroundColor: selectedProduct.imageTone }}
@@ -1561,20 +1561,17 @@ export default function CuisineStoreApp({
                   priority
                   unoptimized
                   sizes="(max-width: 1024px) 90vw, 28rem"
-                  className={`object-contain p-7 sm:p-10 lg:p-12 ${
+                  className={`product-detail-image object-contain p-3 sm:p-4 ${
                     isGuaurriCookiesKit ? "mix-blend-multiply" : ""
                   }`}
                 />
               </span>
               {selectedProduct.badge && (
-                <span className="absolute left-4 top-4 rounded-full border border-white/70 bg-[#263650] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-white shadow-sm">
+                <span className="product-detail-badge rounded-full border border-white/70 bg-[#263650] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-white shadow-sm">
                   {selectedProduct.badge}
                 </span>
               )}
             </div>
-            <p className="mt-3 text-center font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
-              Fotografía del catálogo Guaurritas
-            </p>
           </div>
 
           <div className="flex flex-col justify-center">
