@@ -408,14 +408,17 @@
           }
 
           .guaurritas-mobile-cuisine-back {
-            display: inline-flex; align-items: center; gap: 6px;
-            min-height: 48px; min-width: 48px; max-width: 52%;
-            padding: 6px 8px; border: 1px solid #ffffff66; border-radius: 6px;
-            background: #ffffff12; color: #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; min-width: 48px; flex-shrink: 0;
+            padding: 0; border: 1px solid #80556b; border-radius: 6px;
+            background: linear-gradient(#d5adbf,#a66d88); color: #fff;
+            box-shadow: inset 0 1px #fff8,0 1px 2px #26365033;
             font: 400 15px/1.25 "Guaurritas Embed Mansalva", Mansalva, cursive;
           }
+          .guaurritas-mobile-cuisine-back[hidden] { display: none; }
+          .guaurritas-mobile-cuisine-back:hover { background: linear-gradient(#e9cada,#b9819b); }
           .guaurritas-mobile-cuisine-cart {
-            display: inline-flex; min-height: 48px; flex-shrink: 0;
+            display: inline-flex; min-height: 48px; flex-shrink: 0; margin-left: auto;
             align-items: center; gap: 7px; padding: 6px 10px;
             border: 1px solid #bf9279; border-radius: 7px;
             background: linear-gradient(#f5e7dd, #d9a689); color: #263650;
@@ -541,7 +544,21 @@
       const mobileCuisineBack = document.createElement("button");
       mobileCuisineBack.type = "button";
       mobileCuisineBack.className = "guaurritas-mobile-cuisine-back";
-      mobileCuisineBack.textContent = "← Regresar";
+      const backSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      backSvg.setAttribute("viewBox", "0 0 24 24");
+      backSvg.setAttribute("width", "24");
+      backSvg.setAttribute("height", "24");
+      backSvg.setAttribute("fill", "none");
+      backSvg.setAttribute("stroke", "currentColor");
+      backSvg.setAttribute("stroke-width", "2.5");
+      backSvg.setAttribute("stroke-linecap", "round");
+      backSvg.setAttribute("stroke-linejoin", "round");
+      backSvg.setAttribute("aria-hidden", "true");
+      const backPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      backPath.setAttribute("d", "M19 12H5m7-7-7 7 7 7");
+      backSvg.append(backPath);
+      mobileCuisineBack.append(backSvg);
+      mobileCuisineBack.hidden = true;
       mobileCuisineBack.setAttribute("aria-label", "Regresar al Guaurriverse");
 
       const mobileCuisineCart = document.createElement("button");
@@ -1331,13 +1348,9 @@
           mobileCuisineCartText.textContent = "Carrito";
           mobileCuisineCartCount.textContent = String(count);
           mobileCuisineCart.setAttribute("aria-label", `Abrir carrito con ${count} artículos`);
-          mobileCuisineBack.textContent =
-            typeof message.backLabel === "string" && message.backLabel
-              ? message.backLabel
-              : this._mobileCuisineBackTarget === "catalog"
-                ? "← Volver al catálogo"
-                : "← Regresar";
-          mobileCuisineBack.setAttribute("aria-label", mobileCuisineBack.textContent);
+          mobileCuisineBack.hidden = this._mobileCuisineBackTarget !== "catalog";
+          mobileCuisineBack.setAttribute("aria-label", "Volver al catálogo");
+          mobileCuisineBack.title = "Volver al catálogo";
 
           this._mobileCuisineStickyHandler?.();
           return;

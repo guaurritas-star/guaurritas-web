@@ -112,7 +112,8 @@
    so a second sticky surface cannot slip underneath that navigation. */
 .store-app .boutique-product > div:nth-child(2) > div:first-child { position: static; }
 .store-app .boutique-product > .retail-cart-toolbar {
-  position: static !important;
+  position: sticky;
+  top: 0;
   min-height: 0;
   padding: 8px 16px;
   border-bottom-color: #d2c5cd;

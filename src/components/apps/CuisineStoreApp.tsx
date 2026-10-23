@@ -1540,9 +1540,11 @@ export default function CuisineStoreApp({
           <button
             type="button"
             onClick={() => setSelectedProduct(null)}
-            className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#425b8c] hover:text-[#263650]"
+            className="retail-system-back"
+            aria-label="Volver al catálogo"
+            title="Volver al catálogo"
           >
-            ← Volver al catálogo
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7" /></svg>
           </button>
           {cuisineCartTrigger}
         </div>
