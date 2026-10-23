@@ -862,7 +862,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 )}
 
                 {leonPaymentMethod === "spei" && resolvedPaymentPreferences && (
-                  <div className="mt-3 min-w-0">
+                  <div className="leon-spei-flow mt-3 min-w-0">
                     <SpeiPaymentFlow
                       items={leonItems}
                       preferences={resolvedPaymentPreferences}
