@@ -1,13 +1,13 @@
-/* Approved ProSpeak-inspired chrome, scoped to the existing Tienda window. */
+/* Shared system chrome. Keep application sizing and Wix scroll ownership intact. */
 .store-window-dialog.shopping-window.shopping-window { max-width:1240px; padding:0; border:1px solid #d6e0ee; border-radius:15px; background:#f2f2f2; box-shadow:inset 0 1px 0 #fff,0 18px 48px #26365040,0 2px 5px #26365022; }
-.store-window-dialog .shopping-window-header.shopping-window-header { min-height:58px; padding:8px 12px 8px 18px; gap:12px; border:0; border-bottom:1px solid #425b8c; border-radius:14px 14px 0 0; background:linear-gradient(180deg,#b8c8df 0%,#7c96bb 14%,#637aa6 50%,#425b8c 100%); box-shadow:inset 0 1px #fff9,inset 0 -1px #ffffff38; }
-.store-window-dialog .retro-window-caption { display:flex; align-items:center; flex:1; min-width:0; gap:7px; font:600 17px/1.4 var(--font-cinzel),serif; text-shadow:0 1px 2px #26365080; }
-.store-window-dialog .retro-window-caption-icon { width:25px; height:25px; margin:0; }
-.store-window-dialog .retro-window-controls { flex:none; gap:6px; }
-.store-window-dialog .shopping-window-control.shopping-window-control { display:inline-flex; align-items:center; justify-content:center; flex:none; width:38px; min-width:38px; height:36px; min-height:36px; padding:0; border:1px solid #425b8c66; border-radius:5px; background:linear-gradient(#ffffffed,#d8e2ef); color:#263650; box-shadow:inset 0 1px #fff,0 1px 2px #26365033; font:700 20px/1 monospace; }
-.store-window-dialog .retro-window-close.retro-window-close { background:linear-gradient(#d5adbf,#a66d88); border-color:#80556b; color:white; }
-.store-window-dialog .shopping-window-control.shopping-window-control:hover { background:linear-gradient(#f8e5ed,#dcb6c8); }
-.store-window-dialog .retro-window-client { border-radius:0 0 14px 14px; }
+.retro-window-dialog.retro-window-dialog :is(.shopping-window-header, .retro-window-titlebar) { min-height:58px; padding:8px 12px 8px 18px; gap:12px; border:0; border-bottom:1px solid #425b8c; border-radius:14px 14px 0 0; background:linear-gradient(180deg,#b8c8df 0%,#7c96bb 14%,#637aa6 50%,#425b8c 100%); box-shadow:inset 0 1px #fff9,inset 0 -1px #ffffff38; }
+.retro-window-dialog .retro-window-caption { display:flex; align-items:center; flex:1; min-width:0; gap:7px; font:600 17px/1.4 var(--font-cinzel),serif; text-shadow:0 1px 2px #26365080; }
+.retro-window-dialog .retro-window-caption-icon { width:25px; height:25px; margin:0; }
+.retro-window-dialog .retro-window-controls { flex:none; gap:6px; }
+.retro-window-dialog.retro-window-dialog :is(.shopping-window-control, .retro-window-control) { display:inline-flex; align-items:center; justify-content:center; flex:none; width:38px; min-width:38px; height:36px; min-height:36px; padding:0; border:1px solid #425b8c66; border-radius:5px; background:linear-gradient(#ffffffed,#d8e2ef); color:#263650; box-shadow:inset 0 1px #fff,0 1px 2px #26365033; font:700 20px/1 monospace; }
+.retro-window-dialog .retro-window-close.retro-window-close { background:linear-gradient(#d5adbf,#a66d88); border-color:#80556b; color:white; }
+.retro-window-dialog.retro-window-dialog :is(.shopping-window-control, .retro-window-control):hover { background:linear-gradient(#f8e5ed,#dcb6c8); }
+.retro-window-dialog .retro-window-client { border-radius:0 0 14px 14px; }
 .store-window-dialog .shopping-navigation { background:linear-gradient(#fafbfd,#e5eaf2); border-bottom:1px solid #bdc9da; padding:12px 20px; box-shadow:inset 0 1px #fff; }
 .store-window-dialog .shopping-navigation button { border-radius:7px; border:1px solid #b0bfd3; background:linear-gradient(#fff,#e5eaf2); box-shadow:inset 0 1px #fff,0 1px 2px #425b8c15; }
 .store-window-dialog .shopping-navigation button[aria-pressed="true"] { background:linear-gradient(#f1dde6,#dfbfce); color:#55384a; border-color:#ba8da4; box-shadow:inset 0 1px #fff9; }
@@ -16,13 +16,36 @@
 .store-window-dialog .shopping-catalog-tabs button:last-child { border-left:1px solid #b0bfd3; border-radius:7px; }
 .store-window-dialog .shopping-navigation .shopping-store-cart { background:linear-gradient(#f5e7dd,#d9a689); border-color:#bf9279; }
 @media (max-width:639px) {
- .store-window-dialog.shopping-window.shopping-window { width:calc(100% - 24px); margin-inline:auto; }
- .store-window-dialog .shopping-window-header.shopping-window-header { min-height:62px; padding:6px 8px 6px 12px; }
- .store-window-dialog .shopping-window-control.shopping-window-control { width:48px; min-width:48px; height:48px; min-height:48px; }
- .store-window-dialog .retro-window-minimize.retro-window-minimize { display:none; }
+ .retro-window-dialog.retro-window-dialog :is(.shopping-window-header, .retro-window-titlebar) { min-height:62px; padding:6px 8px 6px 12px; }
+ .retro-window-dialog.retro-window-dialog :is(.shopping-window-control, .retro-window-control) { width:48px; min-width:48px; height:48px; min-height:48px; }
+ .retro-window-dialog .retro-window-minimize.retro-window-minimize { display:none; }
  .store-window-dialog .shopping-navigation { position:static; padding:12px; }
  .store-window-dialog .shopping-navigation button { min-height:48px; }
  .store-window-dialog .shopping-navigation .shopping-location button { white-space:normal; padding:8px 6px; font-size:16px; }
- .store-window-dialog .retro-window-caption { font:600 16px/1.4 var(--font-cinzel),serif; }
+ .retro-window-dialog .retro-window-caption { font:600 16px/1.4 var(--font-cinzel),serif; }
 }
-.store-window-dialog button:focus-visible { outline:3px solid #425b8c; outline-offset:3px; }
+.retro-window-dialog button:focus-visible { outline:3px solid #425b8c; outline-offset:3px; }
+/* Non-shopping apps use the same outer frame without changing their widths. */
+.retro-window-dialog.retro-window-dialog.retro-window-dialog { min-width:0; border:1px solid #d6e0ee; border-radius:15px; background:#f2f2f2; box-shadow:inset 0 1px #fff,0 18px 48px #26365040,0 2px 5px #26365022; }
+.retro-window-dialog > :is(.shopping-window-header,.retro-window-titlebar) { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.retro-window-dialog .retro-window-client { border:0; box-shadow:none; }
+.retro-window-dialog .retro-window-controls { flex-shrink:0; }
+.retro-window-dialog .retro-window-caption { margin:0; color:#fff; }
+.retro-window-dialog.retro-window-dialog :is(.shopping-window-control,.retro-window-control):active { transform:translateY(1px); box-shadow:inset 0 1px 3px #425b8c44; }
+.welcome-window-dialog .welcome-actions .shopping-entry { border-radius:7px; box-shadow:inset 0 1px #fff8,0 2px 3px #425b8c22; }
+.welcome-window-dialog .welcome-actions .shopping-entry:first-child { background:linear-gradient(#637aa6,#425b8c); }
+.welcome-window-dialog .welcome-actions .shopping-entry:last-child { background:linear-gradient(#edc8b2,#d9a689); }
+.welcome-window-dialog .welcome-actions .shopping-entry:hover { background:linear-gradient(#e9cada,#c995b0); color:#263650; }
+.taskbar-cart-panel { border:1px solid #d6e0ee; border-radius:15px; box-shadow:inset 0 1px #fff,0 12px 36px #26365040; }
+.taskbar-cart-titlebar { min-height:58px; padding:8px 12px 8px 16px; border-radius:14px 14px 0 0; border-bottom:1px solid #425b8c; background:linear-gradient(#b8c8df,#7c96bb 14%,#637aa6 50%,#425b8c); box-shadow:inset 0 1px #fff9; color:#fff; }
+.taskbar-cart-titlebar button { flex-shrink:0; width:38px; height:36px; min-width:38px; border:1px solid #80556b; border-radius:5px; background:linear-gradient(#d5adbf,#a66d88); box-shadow:inset 0 1px #fff8,0 1px 2px #26365033; color:white; }
+.taskbar-cart-titlebar button:hover { background:linear-gradient(#e9cada,#b9819b); }
+@media (max-width:639px) {
+ .retro-window-dialog.retro-window-dialog.retro-window-dialog { width:100%; margin-inline:0; }
+ .retro-window-dialog .retro-window-caption { font-size:15px !important; line-height:1.4; white-space:normal; overflow-wrap:anywhere; }
+ .retro-window-dialog.retro-window-dialog :is(.shopping-window-header,.retro-window-titlebar) { padding:6px 8px 6px 12px !important; }
+ .retro-window-dialog .retro-window-client { border:0; }
+ .taskbar-cart-titlebar button { width:48px; min-width:48px; height:48px; }
+}
+
+.retro-window-dialog.shopping-window.shopping-window { padding:0; }
