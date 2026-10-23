@@ -52,6 +52,7 @@
       this._mobileCuisineStickyHandler = null;
       this._mobileCuisineStickyFrame = 0;
       this._mobileCuisineActive = false;
+      this._mobileWindowHeaderBottom = null;
       this._mobileCuisineBackTarget = "guaurriverse";
       this._desktopOverflowStyle = null;
       this._pageScrollState = null;
@@ -540,6 +541,7 @@
       const mobileCuisineSticky = document.createElement("div");
       mobileCuisineSticky.className = "guaurritas-mobile-cuisine-sticky";
       mobileCuisineSticky.setAttribute("aria-hidden", "true");
+      mobileCuisineSticky.inert = true;
 
       const mobileCuisineBack = document.createElement("button");
       mobileCuisineBack.type = "button";
@@ -716,14 +718,17 @@
           ) {
             mobileCuisineSticky.classList.remove("is-visible");
             mobileCuisineSticky.setAttribute("aria-hidden", "true");
+            mobileCuisineSticky.inert = true;
             return;
           }
 
           const rect = this.getBoundingClientRect();
-          const scrolledIntoEmbed = Math.max(0, -rect.top);
+          const headerBottom = this._mobileWindowHeaderBottom;
           const shouldShow =
-            scrolledIntoEmbed > 112 &&
+            Number.isFinite(headerBottom) &&
+            iframe.getBoundingClientRect().top + headerBottom <= 0 &&
             rect.bottom > 72;
+          mobileCuisineSticky.inert = !shouldShow;
 
           mobileCuisineSticky.classList.toggle("is-visible", shouldShow);
           mobileCuisineSticky.setAttribute(
@@ -1427,7 +1432,14 @@
           message.source === BRIDGE_SOURCE &&
           message.type === HEIGHT_MESSAGE
         ) {
+          this._mobileWindowHeaderBottom =
+            typeof message.windowHeaderBottom === "number" &&
+            Number.isFinite(message.windowHeaderBottom) &&
+            message.windowHeaderBottom >= 0
+              ? message.windowHeaderBottom
+              : null;
           applyHeight(message.height);
+          this._mobileCuisineStickyHandler?.();
         }
       };
 
@@ -1496,6 +1508,7 @@
       this._mobileCuisineStickyHandler = null;
       this._mobileCuisineStickyFrame = 0;
       this._mobileCuisineActive = false;
+      this._mobileWindowHeaderBottom = null;
       this._mobileCuisineBackTarget = "guaurriverse";
       this._desktopOverflowStyle = null;
       this._restoreDesktopAncestorStyles = null;

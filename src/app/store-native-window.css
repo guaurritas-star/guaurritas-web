@@ -128,3 +128,11 @@
 .boutique-product > .retail-cart-toolbar > .retail-system-back:hover {
   background: linear-gradient(#e9cada,#b9819b);
 }
+
+/* Desktop separates the product actions from the blue window titlebar. */
+@media (min-width: 640px) {
+  .boutique-product > .retail-cart-toolbar {
+    background: #fff;
+    border-bottom-color: #d2c5cd;
+  }
+}
