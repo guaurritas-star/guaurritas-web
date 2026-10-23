@@ -54,7 +54,6 @@
       this._mobileCuisineActive = false;
       this._mobileWindowHeaderBottom = null;
       this._mobileCuisineBackTarget = "guaurriverse";
-      this._desktopOverflowStyle = null;
       this._pageScrollState = null;
       this._purchaseHistoryPayload = null;
       this._loadingTimers = [];
@@ -193,25 +192,6 @@
 
     connectedCallback() {
       if (this._iframe) return;
-
-      /*
-       * Desktop: nunca permitimos scroll horizontal de la página Wix.
-       * Esto NO toca overflow-y, así que el scroll vertical sigue funcionando.
-       */
-      if (!this._desktopOverflowStyle) {
-        const desktopOverflowStyle = document.createElement("style");
-        desktopOverflowStyle.id = "guaurritas-desktop-overflow-x-fix";
-        desktopOverflowStyle.textContent = `
-          @media (min-width: 640px) {
-            html,
-            body {
-              overflow-x: hidden !important;
-            }
-          }
-        `;
-        document.head.appendChild(desktopOverflowStyle);
-        this._desktopOverflowStyle = desktopOverflowStyle;
-      }
 
       this.style.setProperty("display", "block", "important");
       this.style.setProperty("width", "100%", "important");
@@ -561,7 +541,7 @@
       backSvg.append(backPath);
       mobileCuisineBack.append(backSvg);
       mobileCuisineBack.hidden = true;
-      mobileCuisineBack.setAttribute("aria-label", "Regresar al Guaurriverse");
+      mobileCuisineBack.setAttribute("aria-label", "Volver al escritorio de Guaurritas");
 
       const mobileCuisineCart = document.createElement("button");
       mobileCuisineCart.type = "button";
@@ -831,18 +811,19 @@
          * borde visible.
          */
         const sectionRect = this.closest("section")?.getBoundingClientRect();
-        const viewportLeft = sectionRect?.left ?? 0;
+        const pageWidth = document.documentElement.clientWidth || window.innerWidth || 1;
+        // Keep the OS inside the visible document, even if Wix's section
+        // extends beyond the viewport. Do not mask layout overflow on body.
+        const viewportLeft = Math.max(0, Math.min(sectionRect?.left ?? 0, pageWidth - 1));
         const viewportHeight =
           document.documentElement.clientHeight ||
           window.innerHeight ||
           1;
-        const viewportWidth =
-          sectionRect?.width ||
-          document.body.clientWidth ||
-          document.documentElement.clientWidth ||
-          window.innerWidth ||
-          1;
-        const viewportRight = viewportLeft + viewportWidth;
+        const viewportRight = Math.max(
+          viewportLeft + 1,
+          Math.min(sectionRect?.right ?? pageWidth, pageWidth),
+        );
+        const viewportWidth = viewportRight - viewportLeft;
 
         /*
          * Wix mete el Custom Element dentro de wrappers que pueden recortar
@@ -1353,9 +1334,14 @@
           mobileCuisineCartText.textContent = "Carrito";
           mobileCuisineCartCount.textContent = String(count);
           mobileCuisineCart.setAttribute("aria-label", `Abrir carrito con ${count} artículos`);
-          mobileCuisineBack.hidden = this._mobileCuisineBackTarget !== "catalog";
-          mobileCuisineBack.setAttribute("aria-label", "Volver al catálogo");
-          mobileCuisineBack.title = "Volver al catálogo";
+          // Catalogue: close Store; product detail: return to its catalogue.
+          // Reuse the existing back command instead of adding navigation state.
+          mobileCuisineBack.hidden = false;
+          const backLabel = this._mobileCuisineBackTarget === "catalog"
+            ? "Volver al catálogo"
+            : "Volver al escritorio de Guaurritas";
+          mobileCuisineBack.setAttribute("aria-label", backLabel);
+          mobileCuisineBack.title = backLabel;
 
           this._mobileCuisineStickyHandler?.();
           return;
@@ -1493,10 +1479,6 @@
         window.cancelAnimationFrame(this._mobileCuisineStickyFrame);
       }
 
-      if (this._desktopOverflowStyle) {
-        this._desktopOverflowStyle.remove();
-      }
-
       this._loadingTimers.forEach((timer) => {
         window.clearTimeout(timer);
         window.clearInterval(timer);
@@ -1510,7 +1492,6 @@
       this._mobileCuisineActive = false;
       this._mobileWindowHeaderBottom = null;
       this._mobileCuisineBackTarget = "guaurriverse";
-      this._desktopOverflowStyle = null;
       this._restoreDesktopAncestorStyles = null;
       this._iframe = null;
       this._wrapper = null;
