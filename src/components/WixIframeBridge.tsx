@@ -175,6 +175,10 @@ export default function WixIframeBridge() {
         .retro-window-content.store-window-client {
           overflow-y: visible !important;
         }
+        /* The Wix host owns the replacement action bar on mobile. */
+        .boutique-product > .retail-cart-toolbar {
+          display: none !important;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -199,6 +203,14 @@ export default function WixIframeBridge() {
             source: BRIDGE_SOURCE,
             type: HEIGHT_MESSAGE,
             height,
+            // The host cannot inspect the iframe DOM. Share the actual titlebar
+            // boundary so its mobile actions appear only after it leaves view.
+            windowHeaderBottom: (() => {
+              const header = document.querySelector<HTMLElement>(
+                ".retro-window-dialog > .shopping-window-header, .retro-window-dialog > .retro-window-titlebar",
+              );
+              return header ? header.getBoundingClientRect().bottom + window.scrollY : null;
+            })(),
           },
           "*",
         );
