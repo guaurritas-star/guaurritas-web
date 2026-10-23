@@ -50,7 +50,7 @@
   border-color: #b77c5f;
   box-shadow: inset 0 1px 0 #fff9, 0 2px 0 #b77c5f;
 }
-.taskbar-checkout-view .leon-edit-delivery {
+.taskbar-checkout-view section > button.leon-edit-delivery {
   background: #fff !important;
   border: 1px solid #637aa6 !important;
   color: #425b8c !important;
