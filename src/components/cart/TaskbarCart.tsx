@@ -42,6 +42,18 @@ function money(value: number) {
   }).format(value);
 }
 
+function prettyLeonDate(value: string) {
+  const parts = value.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(part => !Number.isInteger(part))) return value;
+  const [year, month, day] = parts;
+  return new Intl.DateTimeFormat("es-MX", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
 function itemTotal(items: CartItem[]) {
   return items.reduce(
     (total, item) => total + item.unitPrice * item.quantity,
@@ -726,7 +738,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             </>
           ) : (
             <div className="taskbar-checkout-view min-w-0 p-4 sm:p-5">
-              <p className="mb-3 font-interface text-[15px] text-[#425b8c]" aria-label="Progreso del pedido">
+              <p className="mb-3 font-interface text-[15px] text-[#425b8c]" aria-label="Progreso del pedido" aria-live="polite">
                 Paso {leonCheckoutStep === "delivery" ? "1" : "2"} de 2 · {leonCheckoutStep === "delivery" ? "Entrega" : "Pago"}
               </p>
 
@@ -738,7 +750,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className="block text-[13px] text-[#53627a]">Desde</span>
+                  <span className="block text-[14px] text-[#53627a]">Desde</span>
                   <strong className="font-title text-[20px] text-[#263650]">{money(leonTransferTotal)}</strong>
                 </div>
               </section>
@@ -773,7 +785,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <div className="min-w-0">
                         <h2 className="font-title text-[18px] text-[#263650]">Tu entrega</h2>
                         <p className="mt-2 text-[15px] leading-6 text-[#53627a]">
-                          {leonOrderPreferences.deliveryDate} · {leonOrderPreferences.preferredTime}
+                          {prettyLeonDate(leonOrderPreferences.deliveryDate)} · {leonOrderPreferences.preferredTime}
                         </p>
                         <p className="text-[15px] leading-6 text-[#53627a]">
                           {leonOrderPreferences.deliveryMethod === "pickup_point"
