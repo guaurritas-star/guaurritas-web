@@ -132,6 +132,10 @@
     padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
   }
 
+  .taskbar-checkout-view [aria-label="Progreso del pedido"] {
+    display: none !important;
+  }
+
   .taskbar-checkout-view {
     width: 100%;
     min-width: 0;
