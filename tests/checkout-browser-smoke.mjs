@@ -21,6 +21,11 @@ const types = {
 
 const server = createServer(async (req, res) => {
   const pathname = decodeURIComponent(new URL(req.url ?? "/", "http://localhost").pathname);
+  if (pathname === "/wix-test-host/") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.writeHead(200).end('<!doctype html><html lang="es"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><iframe id="guaurritas" title="Guaurritas OS" src="/guaurritas-web/" style="display:block;width:100%;height:900px;border:0"></iframe></body></html>');
+    return;
+  }
   const file = resolve(root, "." + pathname, pathname.endsWith("/") ? "index.html" : "");
   if (!file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
   try {
@@ -84,6 +89,25 @@ try {
     } finally {
       await context.close();
     }
+  }
+
+  // Wix-like iframe hosting smoke. The real Wix domain and Safari still need QA.
+  const iframeContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const iframePage = await iframeContext.newPage();
+  const iframeErrors = [];
+  iframePage.on("pageerror", error => iframeErrors.push(error.message));
+  try {
+    await iframePage.goto("http://127.0.0.1:" + server.address().port + "/wix-test-host/", { waitUntil: "domcontentloaded" });
+    await iframePage.frameLocator("#guaurritas").locator(".desktop-wallpaper").waitFor({ state: "visible", timeout: 30000 });
+    assert.deepEqual(iframeErrors, [], "iframe browser exceptions: " + iframeErrors.join("; "));
+    console.log("PASS checkout inside local iframe 390");
+  } catch (error) {
+    failures++;
+    await mkdir("checkout-smoke-artifacts", { recursive: true });
+    await iframePage.screenshot({ path: "checkout-smoke-artifacts/iframe-390.png", fullPage: true }).catch(() => {});
+    console.error("FAIL embedded checkout: " + String(error), "page errors:", iframeErrors);
+  } finally {
+    await iframeContext.close();
   }
 } finally {
   await browser.close();
