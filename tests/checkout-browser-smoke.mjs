@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { readFile, mkdir } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
+const browserEngine = process.env.CHECKOUT_BROWSER_ENGINE === "webkit" ? "webkit" : "chromium";
+const launcher = browserEngine === "webkit" ? webkit : chromium;
 
 const root = resolve(".preview");
 const types = {
@@ -37,17 +39,17 @@ const server = createServer(async (req, res) => {
 await new Promise(resolveListen => server.listen(0, "127.0.0.1", resolveListen));
 
 const base = "http://127.0.0.1:" + server.address().port + "/guaurritas-web/";
-const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+const browser = await launcher.launch({ headless: true, ...(browserEngine === "chromium" ? { args: ["--no-sandbox"] } : {}) });
 let failures = 0;
 try {
   for (const width of [390, 360]) {
     const context = await browser.newContext({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true });
     await context.addInitScript(() => {
       const seededCart = [{
-        id: "smoke-test-product",
-        name: "Premios prueba",
-        detail: "100 g",
-        unitPrice: 180,
+        id: "cuisine:cake-pops",
+        name: "Cake pops prueba",
+        detail: "2 piezas",
+        unitPrice: 40,
         image: "/icons/desktop/taskbar-cart.webp",
         quantity: 1,
         fulfillment: "leon",
@@ -80,7 +82,7 @@ try {
       await page.getByText("Paso 1 de 2 · Entrega").waitFor();
       assert.equal(await page.locator('input[data-leon-delivery-date]').inputValue(), "2099-11-20", "date must persist when editing delivery");
       assert.deepEqual(exceptions, [], "uncaught browser exceptions: " + exceptions.join("; "));
-      console.log("PASS checkout browser", width);
+      console.log("PASS checkout browser", browserEngine, width);
     } catch (error) {
       failures++;
       await mkdir("checkout-smoke-artifacts", { recursive: true });
@@ -93,14 +95,55 @@ try {
 
   // Wix-like iframe hosting smoke. The real Wix domain and Safari still need QA.
   const iframeContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  await iframeContext.addInitScript(() => {
+    localStorage.setItem("guaurritas-os-cart", JSON.stringify([{
+      id: "cuisine:cake-pops",
+      name: "Cake pops prueba",
+      detail: "2 piezas",
+      unitPrice: 40,
+      image: "/icons/desktop/taskbar-cart.webp",
+      quantity: 1,
+      fulfillment: "leon",
+    }]));
+    window.__wixCheckoutMessages = [];
+    window.addEventListener("message", (event) => {
+      if (event.data?.source === "guaurritas-web" && event.data?.type === "guaurritas:checkout") {
+        window.__wixCheckoutMessages.push(event.data);
+      }
+    });
+  });
   const iframePage = await iframeContext.newPage();
   const iframeErrors = [];
   iframePage.on("pageerror", error => iframeErrors.push(error.message));
   try {
     await iframePage.goto("http://127.0.0.1:" + server.address().port + "/wix-test-host/", { waitUntil: "domcontentloaded" });
     await iframePage.frameLocator("#guaurritas").locator(".desktop-wallpaper").waitFor({ state: "visible", timeout: 30000 });
+    const osFrame = iframePage.frameLocator("#guaurritas");
+    await osFrame.getByRole("button", { name: /Carrito con 1 artículo/ }).click();
+    await osFrame.getByRole("button", { name: "Continuar pedido" }).click();
+    await osFrame.locator('input[data-leon-delivery-date]').fill("2099-11-20");
+    await osFrame.locator('select[data-leon-preferred-time]').selectOption("13:00");
+    await osFrame.getByRole("button", { name: /Continuar al pago/ }).click();
+    await osFrame.getByText("Paso 2 de 2 · Pago").waitFor();
+    // Selecting SPEI may render details, but must not create or submit an order.
+    await osFrame.getByRole("button", { name: /Transferencia SPEI/ }).click();
+    assert.equal(await iframePage.evaluate(() => window.__wixCheckoutMessages.length), 0, "SPEI selection cannot dispatch Wix card checkout");
+    await osFrame.getByRole("button", { name: /Tarjeta \/ pago en línea/ }).click();
+    await osFrame.getByRole("button", { name: /^Pagar .* con tarjeta$/ }).click();
+    await iframePage.waitForFunction(() => window.__wixCheckoutMessages?.length === 1);
+    const payload = await iframePage.evaluate(() => window.__wixCheckoutMessages[0]);
+    assert.equal(payload.items.length, 1, "one Wix product must be handed off");
+    assert.equal(payload.items[0].fulfillment, "leon");
+    assert.match(payload.buyerNote, /GUAURRITAS_PREFS:/, "delivery notes must survive handoff");
+    // The local host intentionally does nothing with the message: no order, payment or redirect.
+    assert.ok(iframePage.url().endsWith("/wix-test-host/"), "mock Wix must not navigate to a payment gateway");
+    await osFrame.getByRole("button", { name: "Editar", exact: true }).click();
+    assert.equal(await osFrame.locator('input[data-leon-delivery-date]').inputValue(), "2099-11-20");
+    await osFrame.getByRole("button", { name: /Volver al carrito/ }).first().click();
+    await osFrame.getByRole("button", { name: "Continuar pedido" }).waitFor();
+    assert.equal(await osFrame.getByRole("button", { name: /Carrito con 1 artículo/ }).count(), 1);
     assert.deepEqual(iframeErrors, [], "iframe browser exceptions: " + iframeErrors.join("; "));
-    console.log("PASS checkout inside local iframe 390");
+    console.log("PASS checkout inside local iframe", browserEngine, 390);
   } catch (error) {
     failures++;
     await mkdir("checkout-smoke-artifacts", { recursive: true });
