@@ -29,16 +29,18 @@ jobs:
         run: npm test
       - name: Compilar como GitHub Pages
         run: npm run build
-      - name: Instalar Chromium para prueba local
+      - name: Instalar Chromium y WebKit para prueba local
         run: |
           npm install --no-save --package-lock=false playwright@1.56.1
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
       - name: Montar vista previa local (sin publicar)
         run: |
           mkdir -p .preview/guaurritas-web
           cp -a out/. .preview/guaurritas-web/
-      - name: Revisar arranque y checkout a 360 / 390 px
-        run: node tests/checkout-browser-smoke.mjs
+      - name: Revisar Chromium y retorno simulado sin cobros
+        run: CHECKOUT_BROWSER_ENGINE=chromium node tests/checkout-browser-smoke.mjs
+      - name: Revisar WebKit tipo Safari en móvil e iframe
+        run: CHECKOUT_BROWSER_ENGINE=webkit node tests/checkout-browser-smoke.mjs
       - name: Guardar capturas de fallos
         if: failure()
         uses: actions/upload-artifact@v4
