@@ -137,6 +137,17 @@ try {
     assert.match(payload.buyerNote, /GUAURRITAS_PREFS:/, "delivery notes must survive handoff");
     // The local host intentionally does nothing with the message: no order, payment or redirect.
     assert.ok(iframePage.url().endsWith("/wix-test-host/"), "mock Wix must not navigate to a payment gateway");
+    // Emulate returning to the tab after a Wix checkout attempt.
+    const paymentButton = osFrame.locator("button.leon-online-pay-button");
+    assert.equal(await paymentButton.isDisabled(), true, "payment CTA must lock during handoff");
+    await osFrame.locator("body").evaluate(() => window.dispatchEvent(new Event("pageshow")));
+    await iframePage.waitForFunction(() => {
+      const child = document.querySelector("#guaurritas")?.contentDocument;
+      const button = child?.querySelector("button.leon-online-pay-button");
+      return Boolean(button && !button.disabled);
+    });
+    assert.equal(await paymentButton.isEnabled(), true, "payment CTA must unlock on pageshow return");
+    assert.equal(await iframePage.evaluate(() => window.__wixCheckoutMessages.length), 1, "return must not send a duplicate payment");
     await osFrame.getByRole("button", { name: "Editar", exact: true }).click();
     assert.equal(await osFrame.locator('input[data-leon-delivery-date]').inputValue(), "2099-11-20");
     await osFrame.getByRole("button", { name: /Volver al carrito/ }).first().click();
