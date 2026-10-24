@@ -1,0 +1,48 @@
+name: Validar checkout sin publicar
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/checkout-browser-smoke.mjs"
+      - ".github/workflows/checkout-preview-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Preparar configuración de build público
+        run: cp .env.development .env.production
+      - name: Probar lógica sin transacciones
+        run: npm test
+      - name: Compilar como GitHub Pages
+        run: npm run build
+      - name: Instalar Chromium para prueba local
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Montar vista previa local (sin publicar)
+        run: |
+          mkdir -p .preview/guaurritas-web
+          cp -a out/. .preview/guaurritas-web/
+      - name: Revisar arranque y checkout a 360 / 390 px
+        run: node tests/checkout-browser-smoke.mjs
+      - name: Guardar capturas de fallos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkout-smoke-failures
+          path: checkout-smoke-artifacts/
+          if-no-files-found: ignore
