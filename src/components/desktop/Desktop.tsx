@@ -18,6 +18,7 @@ import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import MiMascotaApp from "@/components/apps/MiMascotaApp";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
+import CartErrorBoundary from "@/components/cart/CartErrorBoundary";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
 import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
@@ -958,7 +959,9 @@ export default function Desktop() {
         </div>
 
         <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
-          <TaskbarCart onShop={openStore} />
+          <CartErrorBoundary>
+            <TaskbarCart onShop={openStore} />
+          </CartErrorBoundary>
           <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
         </div>
