@@ -71,7 +71,7 @@ try {
       await page.getByText("Elige cómo pagar").waitFor();
       await page.getByRole("button", { name: /Transferencia SPEI/ }).waitFor();
       await page.getByRole("button", { name: /Tarjeta \/ pago en línea/ }).waitFor();
-      await page.getByRole("button", { name: "Editar" }).click();
+      await page.getByRole("button", { name: "Editar", exact: true }).click();
       await page.getByText("Paso 1 de 2 · Entrega").waitFor();
       assert.equal(await page.locator('input[data-leon-delivery-date]').inputValue(), "2099-11-20", "date must persist when editing delivery");
       assert.deepEqual(exceptions, [], "uncaught browser exceptions: " + exceptions.join("; "));
