@@ -41,16 +41,17 @@ function classifyClick(target: Element): SoundType | null {
   return "click";
 }
 
-/** Opt-in sound layer: no autoplay, no files fetched and no checkout data touched. */
+/** Sound enabled on first visit; tones only follow user gestures, never autoplay. */
 export default function OsSoundControl() {
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const [ready, setReady] = useState(false);
   const audioContext = useRef<AudioContext | null>(null);
   const lastPlayed = useRef(0);
 
   useEffect(() => {
     try {
-      setEnabled(window.localStorage.getItem(STORAGE_KEY) === "true");
+      // Enabled on first visit, but a previous mute choice takes precedence.
+      setEnabled(window.localStorage.getItem(STORAGE_KEY) !== "false");
     } catch {
       // Private-mode restrictions should never prevent the OS from loading.
     }
@@ -101,13 +102,38 @@ export default function OsSoundControl() {
     <button
       type="button"
       data-os-sound-toggle
-      aria-label={enabled ? "Desactivar sonidos de Guaurritas OS" : "Activar sonidos de Guaurritas OS"}
+      data-os-sound-state={enabled ? "on" : "muted"}
+      aria-label={enabled ? "Silenciar sonido de Guaurritas OS" : "Activar sonido de Guaurritas OS"}
       aria-pressed={enabled}
-      title={enabled ? "Sonidos activados · clic para silenciar" : "Sonidos desactivados · clic para activar"}
+      title={enabled ? "Volumen activado · silenciar" : "Sonido silenciado · activar"}
       onClick={toggle}
       className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center rounded border border-transparent px-2 text-[17px] text-white transition-colors duration-150 hover:border-white/50 hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-px"
     >
-      <span aria-hidden="true">{enabled ? "♫" : "♪"}</span>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="block shrink-0"
+      >
+        <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+        {enabled ? (
+          <>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+            <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+          </>
+        ) : (
+          <>
+            <path d="m16 9 5 6" />
+            <path d="m21 9-5 6" />
+          </>
+        )}
+      </svg>
     </button>
   );
 }
