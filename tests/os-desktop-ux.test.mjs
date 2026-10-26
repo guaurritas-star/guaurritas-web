@@ -60,13 +60,13 @@ test("animación respeta reducir movimiento, drag conserva su transform", () => 
 
 
 test("la barra de ayuda se dibuja encima de las promociones, sin ocultarse tras ticker", () => {
-  const ticker = css.match(/\\.promotion-ticker \\{([\\s\\S]*?)\\}/)?.[1] ?? "";
-  const status = css.match(/\\.desktop-status-help \\{\\s*position: absolute;([\\s\\S]*?)\\}/)?.[1] ?? "";
-  const tickerZ = Number(ticker.match(/z-index:\\s*(\\d+)/)?.[1]);
-  const statusZ = Number(status.match(/z-index:\\s*(\\d+)/)?.[1]);
+  const ticker = css.match(/\.promotion-ticker \{([\s\S]*?)\}/)?.[1] ?? "";
+  const status = css.match(/\.desktop-status-help \{\s*position: absolute;([\s\S]*?)\}/)?.[1] ?? "";
+  const tickerZ = Number(ticker.match(/z-index:\s*(\d+)/)?.[1]);
+  const statusZ = Number(status.match(/z-index:\s*(\d+)/)?.[1]);
   assert.ok(statusZ > tickerZ, "La ayuda debe pintarse por encima del ticker");
-  assert.match(status, /bottom:\\s*calc\\(52px \\+ 34px \\+ 12px\\)/);
-  assert.match(status, /pointer-events:\\s*none/);
-  assert.match(css, /\\.desktop-status-help\\[data-visible="true"\\]/);
-  assert.match(css, /\\.desktop-status-help \\{ display: none; \\}/);
+  assert.match(status, /bottom:\s*calc\(52px \+ 34px \+ 12px\)/);
+  assert.match(status, /pointer-events:\s*none/);
+  assert.match(css, /\.desktop-status-help\[data-visible="true"\]/);
+  assert.match(css, /\.desktop-status-help \{ display: none; \}/);
 });
