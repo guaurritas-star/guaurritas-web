@@ -21,11 +21,13 @@ for (const [name, src] of [["Desktop", desktop], ["CartNotification", toast], ["
   });
 }
 
-test("los iconos tienen etiquetas útiles y explicación táctil", () => {
-  assert.match(desktop, /data-description=\{app\.description\}/);
+test("los iconos conservan etiquetas accesibles y utilizan una barra de estado contextual", () => {
   assert.match(desktop, /aria-label=\{\`\$\{app\.name\}\. \$\{app\.description\}\`\}/);
-  assert.match(desktop, /desktop-shortcut-description/);
-  assert.match(css, /@media \(max-width: 639px\)[\s\S]*?desktop-shortcut-description/);
+  assert.match(desktop, /onPointerEnter=\{\(\) => setHelpedApp\(app\)\}/);
+  assert.match(desktop, /onFocus=\{\(\) => setHelpedApp\(app\)\}/);
+  assert.match(desktop, /className="desktop-status-help"/);
+  assert.doesNotMatch(desktop, /desktop-shortcut-tooltip|desktop-shortcut-description/);
+  assert.match(css, /\.desktop-status-help\[data-visible="true"\]/);
 });
 
 test("la barra indica minimizado o activo sin cambiar lógica de ventanas", () => {
