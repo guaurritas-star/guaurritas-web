@@ -36,14 +36,14 @@ const StoreApp = dynamic(() => import("@/components/apps/StoreApp"), {
 });
 
 const apps = [
-  { id: "tienda", name: "Tienda", icon: "cart" as const, description: "Compra snacks y accesorios" },
-  { id: "mundos", name: "Explora mundo", icon: "world" as const, description: "Descubre nuestro universo" },
-  { id: "mascota", name: "Mi mascota", icon: "pet" as const, description: "El espacio de tu mascota" },
-  { id: "paint", name: "Paint", icon: "paint" as const, description: "Dibuja y crea" },
-  { id: "notas", name: "Guaurrinotas", icon: "notes" as const, description: "Comparte sus momentos" },
-  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const, description: "Conoce nuestra historia" },
-  { id: "chat", name: "Chat Guaurritas", icon: "chat" as const, description: "Platica con nosotros" },
-  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const, description: "Conoce cómo distribuir" },
+  { id: "tienda", name: "Tienda", icon: "cart" as const, description: "Compra premios, repostería y accesorios", mobileDescription: "Premios, pasteles y más" },
+  { id: "mundos", name: "Explora mundo", icon: "world" as const, description: "Descubre el universo Guaurritas", mobileDescription: "Un mundo por explorar" },
+  { id: "mascota", name: "Mi mascota", icon: "pet" as const, description: "Crea el perfil de tu compañero", mobileDescription: "Su propio perfil" },
+  { id: "paint", name: "Paint", icon: "paint" as const, description: "Dibuja y personaliza ideas", mobileDescription: "Dibuja y crea" },
+  { id: "notas", name: "Guaurrinotas", icon: "notes" as const, description: "Guarda recuerdos y momentos especiales", mobileDescription: "Momentos especiales" },
+  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const, description: "Conoce nuestra historia", mobileDescription: "Nuestra historia" },
+  { id: "chat", name: "Chat Guaurritas", icon: "chat" as const, description: "Platica con nosotros", mobileDescription: "¡Platiquemos!" },
+  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const, description: "Conoce cómo distribuir Guaurritas", mobileDescription: "Distribuye Guaurritas" },
 ];
 const systemApps = [{ id: "bienvenida", name: "Bienvenido a Guaurritas", icon: "pet" as const }, ...apps];
 
@@ -857,7 +857,11 @@ export default function Desktop() {
               <span className="desktop-shortcut-label px-2 py-1 font-title text-xs font-bold tracking-[0.02em] text-[#263650] [text-shadow:0_1px_2px_rgba(255,255,255,0.9)]">
                 {app.name}
               </span>
-              <span className="desktop-shortcut-description" aria-hidden="true">{app.description}</span>
+              <span className="desktop-shortcut-description" aria-hidden="true">{app.mobileDescription}</span>
+              <span className="desktop-shortcut-tooltip" aria-hidden="true">
+                <span className="desktop-shortcut-tooltip-heading">✦ Ayuda Guaurri</span>
+                <span className="desktop-shortcut-tooltip-message">{app.description}</span>
+              </span>
             </button>
           );
         })}
