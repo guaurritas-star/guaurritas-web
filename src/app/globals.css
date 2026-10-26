@@ -1983,8 +1983,9 @@ html.guaurritas-system-cart-open .desktop-taskbar {
 }
 
 
-/* GUAURRITAS OS · Retro desktop refinements (independent of cart/checkout). */
-.desktop-shortcut-description { display: none; }
+/* GUAURRITAS OS · Native-feeling desktop elements; no checkout changes. */
+.desktop-shortcut-description,
+.desktop-shortcut-tooltip { display: none; }
 
 @media (min-width: 640px) {
   /* Pure opacity transition: never override drag-controlled transforms. */
@@ -1993,30 +1994,47 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 
   .desktop-shortcut { position: relative; }
-  .desktop-shortcut::after {
-    content: attr(data-description);
+  .desktop-shortcut-tooltip {
     position: absolute;
-    z-index: 5;
-    top: calc(100% + 3px);
-    left: 50%;
-    width: max-content;
-    max-width: 220px;
-    padding: 7px 10px;
-    border: 1px solid #425b8c;
-    border-radius: 3px;
-    background: #fffdfd;
-    box-shadow: 3px 3px 0 #637aa6;
+    z-index: 6;
+    top: calc(100% + 4px);
+    left: 0;
+    display: grid;
+    width: 232px;
+    max-width: min(232px, 70vw);
+    gap: 0;
+    border: 2px solid #425b8c;
+    border-radius: 2px;
+    background: #fff8fa;
+    box-shadow: 4px 4px 0 #637aa6;
     color: #263650;
-    font: 600 12px/1.3 var(--font-mansalva), sans-serif;
+    text-align: left;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transform: translate(-50%, -5px);
-    transition: opacity 130ms ease, transform 130ms ease;
+    transform: translateY(-5px);
+    transition: opacity 130ms ease, transform 130ms ease, visibility 130ms;
+  }
+  .desktop-shortcut-tooltip-heading {
+    display: block;
+    padding: 5px 9px 4px;
+    border-bottom: 1px solid #d9a6b9;
+    background: linear-gradient(90deg, #f3d7e2, #fff0f5);
+    font: 700 10px/1.3 var(--font-cinzel), serif;
+    letter-spacing: .02em;
+    color: #425b8c;
+  }
+  .desktop-shortcut-tooltip-message {
+    display: block;
+    padding: 9px 10px 10px;
+    font: 500 13px/1.38 var(--font-mansalva), cursive;
+    overflow-wrap: anywhere;
   }
   .desktop-shortcut:is(:hover, :focus-visible) { z-index: 6; }
-  .desktop-shortcut:is(:hover, :focus-visible)::after {
+  .desktop-shortcut:is(:hover, :focus-visible) .desktop-shortcut-tooltip {
     opacity: 1;
-    transform: translate(-50%, 0);
+    visibility: visible;
+    transform: translateY(0);
   }
   .desktop-taskbar-app button[aria-pressed="true"] {
     box-shadow: inset 0 -3px 0 #f7e4ed, 2px 2px 0 #6f3f5b;
@@ -2026,17 +2044,33 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 }
 
+@media (min-width: 640px) and (max-width: 1023px) {
+  .desktop-shortcut:nth-child(3n) .desktop-shortcut-tooltip {
+    left: auto;
+    right: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-shortcut:nth-child(5n) .desktop-shortcut-tooltip {
+    left: auto;
+    right: 0;
+  }
+}
+
 @media (max-width: 639px) {
-  /* Short static descriptions mean touch users need no hover discovery. */
+  /* Mobile hints are short and readable, without hover-only behaviour. */
   .desktop-shortcut-description {
     display: block;
     max-width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font: 500 10px/1.15 var(--font-mansalva), sans-serif;
-    color: #263650;
-    text-shadow: 0 1px 2px rgba(255,255,255,.95);
+    padding: 3px 7px;
+    border: 1px solid rgba(66, 91, 140, .36);
+    border-radius: 6px;
+    background: rgba(255, 247, 250, .93);
+    box-shadow: 1px 2px 0 rgba(166, 109, 136, .33);
+    color: #425b8c;
+    font: 500 11px/1.24 var(--font-mansalva), cursive;
+    text-wrap: balance;
   }
 }
 
@@ -2048,65 +2082,150 @@ html.guaurritas-system-cart-open .desktop-taskbar {
     bottom: calc(52px + 14px);
     z-index: 65;
     display: block;
-    width: min(355px, calc(100vw - 32px));
+    width: min(344px, calc(100vw - 32px));
+    overflow: hidden;
     border: 2px solid #425b8c;
-    background: #fffdfd;
+    border-radius: 2px;
+    background: #f2f2f2;
     color: #263650;
-    box-shadow: 5px 5px 0 rgba(66,91,140,.45);
+    box-shadow: inset 1px 1px #fff, 5px 5px 0 rgba(66, 91, 140, .42);
     animation: os-notice-enter 180ms ease-out both;
     pointer-events: auto;
   }
   .os-cart-notification-titlebar {
     display: flex;
+    min-height: 37px;
     align-items: center;
-    gap: 8px;
-    padding: 5px 8px;
-    background: #425b8c;
+    gap: 7px;
+    padding: 4px 7px;
+    border-bottom: 1px solid #637aa6;
+    background: linear-gradient(90deg, #425b8c, #637aa6);
     color: #fff;
-    font: 700 12px/1.3 var(--font-mansalva), sans-serif;
+    font: 500 14px/1.25 var(--font-mansalva), cursive;
   }
-  .os-cart-notification-titlebar > span:nth-child(2) { flex: 1; }
-  .os-cart-notification-close {
-    display: grid;
-    place-items: center;
-    min-width: 30px;
-    min-height: 30px;
-    border: 1px solid #dce4f2;
-    background: #fff;
-    color: #263650;
-    font: 700 18px/1 sans-serif;
-  }
-  .os-cart-notification-close:is(:hover, :focus-visible) { background: #fae6ed; }
-  .os-cart-notification-body {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 14px 8px;
-    font: 500 14px/1.4 var(--font-mansalva), sans-serif;
-    overflow-wrap: anywhere;
-  }
-  .os-cart-notification-body p { margin: 0; }
-  .os-cart-notification-check {
-    flex: 0 0 auto;
+  .os-cart-notification-title-icon {
     display: grid;
     place-items: center;
     width: 22px;
     height: 22px;
-    border-radius: 50%;
-    background: #edf6f0;
-    color: #446454;
-    font: 700 14px/1 sans-serif;
+    flex: 0 0 auto;
+    border: 1px solid #f2d4e0;
+    border-radius: 3px;
+    background: #d9a6b9;
+    color: #263650;
+    font: 700 16px/1 sans-serif;
   }
-  .os-cart-notification-actions { display: flex; justify-content: flex-end; padding: 3px 12px 12px; }
-  .os-cart-notification-actions button {
-    min-height: 36px;
-    padding: 6px 12px;
+  .os-cart-notification-titlebar > span:nth-child(2) { white-space: nowrap; }
+  .os-cart-notification-title-section {
+    min-width: 0;
+    flex: 1;
+    color: #ffeaf3;
+    font-size: 12px;
+  }
+  .os-cart-notification-close {
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    min-height: 28px;
     border: 1px solid #425b8c;
-    background: #425b8c;
-    color: #fff;
-    font: 700 13px/1.2 var(--font-mansalva), sans-serif;
+    border-radius: 1px;
+    background: #f2f2f2;
+    color: #263650;
+    box-shadow: inset 1px 1px #fff, 2px 2px 0 #263650;
+    font: 700 18px/1 sans-serif;
+    cursor: pointer;
   }
-  .os-cart-notification-actions button:is(:hover, :focus-visible) { background: #304771; }
+  .os-cart-notification-close:is(:hover, :focus-visible) {
+    background: #f3d7e2;
+    outline-color: #fff;
+  }
+  .os-cart-notification-body {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px 13px 11px;
+    background: #fff9fb;
+    overflow-wrap: anywhere;
+  }
+  .os-cart-notification-mascot {
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 65px;
+    flex: 0 0 60px;
+    border: 1px solid #e2bfd1;
+    border-radius: 9px;
+    background: #f5dfe8;
+  }
+  .os-cart-notification-mascot-image {
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+  }
+  .os-cart-notification-copy { flex: 1; min-width: 0; }
+  .os-cart-notification-eyebrow {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    color: #965976;
+    font: 700 9px/1.2 var(--font-cinzel), serif;
+    letter-spacing: .025em;
+  }
+  .os-cart-notification-eyebrow > span {
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #e6c7d5;
+    color: #425b8c;
+    font: 700 10px/1 sans-serif;
+  }
+  .os-cart-notification-heading {
+    margin: 5px 0 4px;
+    color: #425b8c;
+    font: 700 13px/1.36 var(--font-cinzel), serif;
+  }
+  .os-cart-notification-product {
+    margin: 0;
+    color: #34456c;
+    font: 500 13px/1.3 var(--font-mansalva), cursive;
+  }
+  .os-cart-notification-actions {
+    display: flex;
+    min-height: 51px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 12px;
+    border-top: 1px solid #d3bbca;
+    background: #f2f2f2;
+  }
+  .os-cart-notification-hint {
+    color: #725e79;
+    font: 500 11px/1.3 var(--font-mansalva), cursive;
+  }
+  .os-cart-notification-actions button {
+    min-height: 35px;
+    padding: 7px 10px;
+    border: 1px solid #637aa6;
+    border-radius: 2px;
+    background: #d9a689;
+    box-shadow: inset 1px 1px #fff8f0, 2px 2px 0 #637aa6;
+    color: #263650;
+    font: 700 13px/1.2 var(--font-mansalva), cursive;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .os-cart-notification-actions button:is(:hover, :focus-visible) {
+    background: #e7bca4;
+    outline: 2px solid #425b8c;
+    outline-offset: 2px;
+  }
+  .os-cart-notification-actions button:active {
+    box-shadow: inset 2px 2px 0 #637aa6;
+    transform: translate(1px, 1px);
+  }
 }
 html.guaurritas-system-cart-open .os-cart-notification { display: none; }
 
@@ -2121,5 +2240,5 @@ html.guaurritas-system-cart-open .os-cart-notification { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .retro-window-dialog:not(.welcome-window-dialog),
   .os-cart-notification { animation: none !important; }
-  .desktop-shortcut::after { transition: none !important; }
+  .desktop-shortcut-tooltip { transition: none !important; }
 }
