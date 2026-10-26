@@ -1,3 +1,4 @@
+import { playOsSound } from "@/lib/os-sounds";
 "use client";
 
 import { useSyncExternalStore } from "react";
@@ -165,6 +166,7 @@ export function addCartItem(item: NewCartItem) {
     : [...items, enriched];
 
   emit();
+  playOsSound("cart");
 }
 
 /** Append the complete prepared order atomically, preserving the current cart. */
