@@ -844,7 +844,6 @@ export default function Desktop() {
               type="button"
               onClick={() => app.id === "tienda" ? openStore() : launchApp(app.id)}
               aria-busy={isLaunching || undefined}
-              title={`${app.name}: ${app.description}`}
               aria-label={`${app.name}. ${app.description}`}
               data-description={app.description}
               className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
