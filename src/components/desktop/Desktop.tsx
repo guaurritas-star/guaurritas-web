@@ -20,6 +20,7 @@ import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
 import OsSoundControl from "@/components/desktop/OsSoundControl";
+import OsCartNotification from "@/components/desktop/OsCartNotification";
 import { withBasePath } from "@/lib/base-path";
 import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 import {
@@ -35,14 +36,14 @@ const StoreApp = dynamic(() => import("@/components/apps/StoreApp"), {
 });
 
 const apps = [
-  { id: "tienda", name: "Tienda", icon: "cart" as const },
-  { id: "mundos", name: "Explora mundo", icon: "world" as const },
-  { id: "mascota", name: "Mi mascota", icon: "pet" as const },
-  { id: "paint", name: "Paint", icon: "paint" as const },
-  { id: "notas", name: "Guaurrinotas", icon: "notes" as const },
-  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const },
-  { id: "chat", name: "Chat Guaurritas", icon: "chat" as const },
-  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const },
+  { id: "tienda", name: "Tienda", icon: "cart" as const, description: "Compra snacks y accesorios" },
+  { id: "mundos", name: "Explora mundo", icon: "world" as const, description: "Descubre nuestro universo" },
+  { id: "mascota", name: "Mi mascota", icon: "pet" as const, description: "El espacio de tu mascota" },
+  { id: "paint", name: "Paint", icon: "paint" as const, description: "Dibuja y crea" },
+  { id: "notas", name: "Guaurrinotas", icon: "notes" as const, description: "Comparte sus momentos" },
+  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const, description: "Conoce nuestra historia" },
+  { id: "chat", name: "Chat Guaurritas", icon: "chat" as const, description: "Platica con nosotros" },
+  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const, description: "Conoce cómo distribuir" },
 ];
 const systemApps = [{ id: "bienvenida", name: "Bienvenido a Guaurritas", icon: "pet" as const }, ...apps];
 
@@ -843,6 +844,8 @@ export default function Desktop() {
               type="button"
               onClick={() => app.id === "tienda" ? openStore() : launchApp(app.id)}
               aria-busy={isLaunching || undefined}
+              aria-label={`${app.name}. ${app.description}`}
+              data-description={app.description}
               className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
                 isLaunching ? "is-launching" : ""
               }`}
@@ -854,6 +857,7 @@ export default function Desktop() {
               <span className="desktop-shortcut-label px-2 py-1 font-title text-xs font-bold tracking-[0.02em] text-[#263650] [text-shadow:0_1px_2px_rgba(255,255,255,0.9)]">
                 {app.name}
               </span>
+              <span className="desktop-shortcut-description" aria-hidden="true">{app.description}</span>
             </button>
           );
         })}
@@ -909,6 +913,8 @@ export default function Desktop() {
         </RetroWindow>
       )}
 
+      <OsCartNotification />
+
       <PromotionTicker />
 
       <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-30 flex h-[52px] items-center gap-2 px-2 font-title text-white">
@@ -946,6 +952,8 @@ export default function Desktop() {
                   ? `Minimizar ${taskApp.name}`
                   : `Restaurar ${taskApp.name}`
               }
+              aria-pressed={activeApp === taskApp.id}
+              title={activeApp === taskApp.id ? `Minimizar ${taskApp.name}` : `Restaurar ${taskApp.name}`}
               className={`flex min-w-0 max-w-[260px] items-center gap-2 border-2 border-[#875773] px-3 py-2 font-title text-[10px] font-bold text-white shadow-[2px_2px_0_#6f3f5b] sm:text-xs ${
                 activeApp === taskApp.id ? "bg-[#b97496]" : "bg-[#c985a5]"
               }`}

@@ -1982,3 +1982,144 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 }
 
+
+/* GUAURRITAS OS · Retro desktop refinements (independent of cart/checkout). */
+.desktop-shortcut-description { display: none; }
+
+@media (min-width: 640px) {
+  /* Pure opacity transition: never override drag-controlled transforms. */
+  .retro-window-dialog:not(.welcome-window-dialog) {
+    animation: os-window-appear 180ms ease-out both;
+  }
+
+  .desktop-shortcut { position: relative; }
+  .desktop-shortcut::after {
+    content: attr(data-description);
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 3px);
+    left: 50%;
+    width: max-content;
+    max-width: 220px;
+    padding: 7px 10px;
+    border: 1px solid #425b8c;
+    border-radius: 3px;
+    background: #fffdfd;
+    box-shadow: 3px 3px 0 #637aa6;
+    color: #263650;
+    font: 600 12px/1.3 var(--font-mansalva), sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -5px);
+    transition: opacity 130ms ease, transform 130ms ease;
+  }
+  .desktop-shortcut:is(:hover, :focus-visible) { z-index: 6; }
+  .desktop-shortcut:is(:hover, :focus-visible)::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  .desktop-taskbar-app button[aria-pressed="true"] {
+    box-shadow: inset 0 -3px 0 #f7e4ed, 2px 2px 0 #6f3f5b;
+  }
+  .desktop-taskbar-app button[aria-pressed="false"] {
+    filter: saturate(.8);
+  }
+}
+
+@media (max-width: 639px) {
+  /* Short static descriptions mean touch users need no hover discovery. */
+  .desktop-shortcut-description {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 500 10px/1.15 var(--font-mansalva), sans-serif;
+    color: #263650;
+    text-shadow: 0 1px 2px rgba(255,255,255,.95);
+  }
+}
+
+.os-cart-notification { display: none; }
+@media (min-width: 640px) {
+  .os-cart-notification {
+    position: fixed;
+    right: 16px;
+    bottom: calc(52px + 14px);
+    z-index: 65;
+    display: block;
+    width: min(355px, calc(100vw - 32px));
+    border: 2px solid #425b8c;
+    background: #fffdfd;
+    color: #263650;
+    box-shadow: 5px 5px 0 rgba(66,91,140,.45);
+    animation: os-notice-enter 180ms ease-out both;
+    pointer-events: auto;
+  }
+  .os-cart-notification-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    background: #425b8c;
+    color: #fff;
+    font: 700 12px/1.3 var(--font-mansalva), sans-serif;
+  }
+  .os-cart-notification-titlebar > span:nth-child(2) { flex: 1; }
+  .os-cart-notification-close {
+    display: grid;
+    place-items: center;
+    min-width: 30px;
+    min-height: 30px;
+    border: 1px solid #dce4f2;
+    background: #fff;
+    color: #263650;
+    font: 700 18px/1 sans-serif;
+  }
+  .os-cart-notification-close:is(:hover, :focus-visible) { background: #fae6ed; }
+  .os-cart-notification-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px 8px;
+    font: 500 14px/1.4 var(--font-mansalva), sans-serif;
+    overflow-wrap: anywhere;
+  }
+  .os-cart-notification-body p { margin: 0; }
+  .os-cart-notification-check {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #edf6f0;
+    color: #446454;
+    font: 700 14px/1 sans-serif;
+  }
+  .os-cart-notification-actions { display: flex; justify-content: flex-end; padding: 3px 12px 12px; }
+  .os-cart-notification-actions button {
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid #425b8c;
+    background: #425b8c;
+    color: #fff;
+    font: 700 13px/1.2 var(--font-mansalva), sans-serif;
+  }
+  .os-cart-notification-actions button:is(:hover, :focus-visible) { background: #304771; }
+}
+html.guaurritas-system-cart-open .os-cart-notification { display: none; }
+
+@keyframes os-window-appear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes os-notice-enter {
+  from { opacity: 0; translate: 0 10px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .retro-window-dialog:not(.welcome-window-dialog),
+  .os-cart-notification { animation: none !important; }
+  .desktop-shortcut::after { transition: none !important; }
+}
