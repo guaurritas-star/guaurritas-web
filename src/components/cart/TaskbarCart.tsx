@@ -1,5 +1,7 @@
 "use client";
 
+import { playOsSound } from "@/lib/os-sounds";
+
 import ProductPrice from "@/components/ui/ProductPrice";
 import { ShoppingButton } from "@/components/ui/ShoppingControls";
 import { getCartRegularPrice } from "@/lib/national-pricing";
@@ -862,7 +864,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
         aria-label={`Carrito con ${cart.count} ${cart.count === 1 ? "artículo" : "artículos"}`}
         aria-expanded={open}
         aria-controls="taskbar-cart-panel"
-        onClick={() => { if (open) closeCart(); else setOpen(true); }}
+        onClick={() => { if (open) { playOsSound("close"); closeCart(); } else { playOsSound("open"); setOpen(true); } }}
       >
         <span className="taskbar-cart-tray-image">
           <Image

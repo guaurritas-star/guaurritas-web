@@ -1982,3 +1982,102 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   }
 }
 
+
+
+/* GUAURRITAS OS / optional audio + purposeful UI feedback (v1)
+   Respect the OS identity, mobile space, keyboard, and reduced motion. */
+.desktop-sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 5px;
+  min-height: 42px;
+  min-width: 42px;
+  padding: 4px 7px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-right-color: #875773;
+  border-bottom-color: #875773;
+  border-radius: 5px;
+  background: rgba(125, 68, 100, 0.20);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background-color 140ms ease, transform 140ms ease;
+}
+.desktop-sound-toggle:hover,
+.desktop-sound-toggle.is-on {
+  background: rgba(114, 59, 95, 0.48);
+}
+.desktop-sound-toggle:active {
+  transform: translateY(1px);
+}
+.desktop-sound-toggle:focus-visible,
+.welcome-explore-link:focus-visible {
+  outline: 3px solid #425bbc;
+  outline-offset: 2px;
+}
+.desktop-sound-label {
+  font-family: var(--font-open-sans), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+@media (max-width: 639px) {
+  .desktop-sound-toggle {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 4px;
+  }
+  .desktop-sound-label { display: none; }
+}
+.welcome-explore-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  color: #425bbc;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  font-family: var(--font-open-sans), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.welcome-explore-link:hover { background: rgba(66, 91, 188, 0.07); }
+.welcome-explore-link:active { transform: translateY(1px); }
+.desktop-shortcut { position: relative; }
+.desktop-shortcut.is-launching::after {
+  content: "";
+  position: absolute;
+  left: 26%;
+  right: 26%;
+  bottom: 2px;
+  height: 3px;
+  border-radius: 99px;
+  background: #425bbc;
+  transform-origin: left center;
+  animation: guaurritas-launch-progress 520ms ease-out forwards;
+}
+@keyframes guaurritas-launch-progress {
+  from { transform: scaleX(0); opacity: 0.5; }
+  to { transform: scaleX(1); opacity: 0.95; }
+}
+.retro-window-controls > button {
+  transition: background-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+.retro-window-controls > button:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) {
+  .desktop-sound-toggle,
+  .welcome-explore-link,
+  .retro-window-controls > button {
+    transition: none !important;
+  }
+  .desktop-shortcut.is-launching::after { animation: none; transform: scaleX(1); }
+}

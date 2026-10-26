@@ -1,5 +1,7 @@
 "use client";
 
+import { playOsSound } from "@/lib/os-sounds";
+
 import { useSyncExternalStore } from "react";
 import {
   resolveCuisineWixBinding,
@@ -165,6 +167,7 @@ export function addCartItem(item: NewCartItem) {
     : [...items, enriched];
 
   emit();
+  playOsSound("cart");
 }
 
 /** Append the complete prepared order atomically, preserving the current cart. */

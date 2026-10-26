@@ -27,6 +27,7 @@ function cart(storage) {
     '@/lib/fulfillment-store': fulfillment,
     '@/lib/wix-commerce-map': { resolveCuisineWixBinding: () => ({ supported: false }) },
     '@/lib/national-pricing': { getCurrentCartPrice: (_, __, price) => price },
+    '@/lib/os-sounds': { playOsSound: () => {} },
   });
   return { api, fulfillment, listen: (callback) => { api.useCart(); return subscribe(callback); } };
 }
