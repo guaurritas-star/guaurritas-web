@@ -1983,251 +1983,200 @@ html.guaurritas-system-cart-open .desktop-taskbar {
 }
 
 
-/* GUAURRITAS OS · Native-feeling desktop elements; no checkout changes. */
-.desktop-shortcut-description,
-.desktop-shortcut-tooltip { display: none; }
-
+/* GUAURRITAS OS · Store-native cart toast and uncluttered contextual desktop status. */
 @media (min-width: 640px) {
-  /* Pure opacity transition: never override drag-controlled transforms. */
+  /* Opacity only: preserve window dragging and translate3d. */
   .retro-window-dialog:not(.welcome-window-dialog) {
     animation: os-window-appear 180ms ease-out both;
-  }
-
-  .desktop-shortcut { position: relative; }
-  .desktop-shortcut-tooltip {
-    position: absolute;
-    z-index: 6;
-    top: calc(100% + 4px);
-    left: 0;
-    display: grid;
-    width: 232px;
-    max-width: min(232px, 70vw);
-    gap: 0;
-    border: 2px solid #425b8c;
-    border-radius: 2px;
-    background: #fff8fa;
-    box-shadow: 4px 4px 0 #637aa6;
-    color: #263650;
-    text-align: left;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-5px);
-    transition: opacity 130ms ease, transform 130ms ease, visibility 130ms;
-  }
-  .desktop-shortcut-tooltip-heading {
-    display: block;
-    padding: 5px 9px 4px;
-    border-bottom: 1px solid #d9a6b9;
-    background: linear-gradient(90deg, #f3d7e2, #fff0f5);
-    font: 700 10px/1.3 var(--font-cinzel), serif;
-    letter-spacing: .02em;
-    color: #425b8c;
-  }
-  .desktop-shortcut-tooltip-message {
-    display: block;
-    padding: 9px 10px 10px;
-    font: 500 13px/1.38 var(--font-mansalva), cursive;
-    overflow-wrap: anywhere;
-  }
-  .desktop-shortcut:is(:hover, :focus-visible) { z-index: 6; }
-  .desktop-shortcut:is(:hover, :focus-visible) .desktop-shortcut-tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
   }
   .desktop-taskbar-app button[aria-pressed="true"] {
     box-shadow: inset 0 -3px 0 #f7e4ed, 2px 2px 0 #6f3f5b;
   }
-  .desktop-taskbar-app button[aria-pressed="false"] {
-    filter: saturate(.8);
-  }
+  .desktop-taskbar-app button[aria-pressed="false"] { filter: saturate(.8); }
 }
 
-@media (min-width: 640px) and (max-width: 1023px) {
-  .desktop-shortcut:nth-child(3n) .desktop-shortcut-tooltip {
-    left: auto;
-    right: 0;
-  }
-}
+/* No duplicate descriptions on icon tiles (mobile or desktop). */
+.desktop-shortcut-description,
+.desktop-shortcut-tooltip { display: none !important; }
 
-@media (min-width: 1024px) {
-  .desktop-shortcut:nth-child(5n) .desktop-shortcut-tooltip {
-    left: auto;
-    right: 0;
-  }
-}
-
-@media (max-width: 639px) {
-  /* Mobile hints are short and readable, without hover-only behaviour. */
-  .desktop-shortcut-description {
-    display: block;
-    max-width: 100%;
-    padding: 3px 7px;
-    border: 1px solid rgba(66, 91, 140, .36);
-    border-radius: 6px;
-    background: rgba(255, 247, 250, .93);
-    box-shadow: 1px 2px 0 rgba(166, 109, 136, .33);
-    color: #425b8c;
-    font: 500 11px/1.24 var(--font-mansalva), cursive;
-    text-wrap: balance;
-  }
-}
-
-.os-cart-notification { display: none; }
+/* Status indicator is part of the OS desktop, not a floating tooltip over the apps. */
+.desktop-status-help { display: none; }
 @media (min-width: 640px) {
-  .os-cart-notification {
-    position: fixed;
-    right: 16px;
-    bottom: calc(52px + 14px);
-    z-index: 65;
-    display: block;
-    width: min(344px, calc(100vw - 32px));
-    overflow: hidden;
-    border: 2px solid #425b8c;
+  .desktop-status-help {
+    position: absolute;
+    left: 16px;
+    bottom: 63px;
+    z-index: 25;
+    display: flex;
+    min-height: 36px;
+    max-width: min(470px, calc(100vw - 32px));
+    align-items: center;
+    gap: 9px;
+    padding: 6px 11px;
+    border: 1px solid #637aa6;
     border-radius: 2px;
     background: #f2f2f2;
+    box-shadow: inset 1px 1px #fff, 3px 3px 0 #425b8c66;
     color: #263650;
-    box-shadow: inset 1px 1px #fff, 5px 5px 0 rgba(66, 91, 140, .42);
+    font: 500 13px/1.35 var(--font-mansalva), cursive;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition: opacity 130ms ease, transform 130ms ease, visibility 130ms;
+  }
+  .desktop-status-help[data-visible="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .desktop-status-help-marker {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    border: 1px solid #637aa6;
+    background: #dce4f2;
+    color: #425b8c;
+    font: 700 15px/1 sans-serif;
+  }
+  .desktop-status-help strong {
+    color: #425b8c;
+    font: 600 13px/1.3 var(--font-mansalva), cursive;
+    white-space: nowrap;
+  }
+  .desktop-status-help-divider {
+    width: 1px;
+    height: 20px;
+    flex: 0 0 1px;
+    background: #b5bccc;
+  }
+  .desktop-status-help-message {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Reuse the actual Store shopping window rather than a separate notification skin. */
+.shopping-window.os-cart-notification { display: none !important; }
+@media (min-width: 640px) {
+  .shopping-window.os-cart-notification {
+    position: fixed;
+    right: 16px;
+    bottom: 66px;
+    z-index: 65;
+    display: flex !important;
+    flex-direction: column;
+    width: min(350px, calc(100vw - 32px));
+    max-height: min(260px, calc(100dvh - 105px));
+    overflow: hidden;
+    border-radius: 0;
     animation: os-notice-enter 180ms ease-out both;
     pointer-events: auto;
   }
-  .os-cart-notification-titlebar {
+  .shopping-window-header.os-cart-notification-titlebar {
     display: flex;
-    min-height: 37px;
     align-items: center;
-    gap: 7px;
-    padding: 4px 7px;
-    border-bottom: 1px solid #637aa6;
-    background: linear-gradient(90deg, #425b8c, #637aa6);
-    color: #fff;
-    font: 500 14px/1.25 var(--font-mansalva), cursive;
+    justify-content: space-between;
+    min-height: 42px;
   }
-  .os-cart-notification-title-icon {
-    display: grid;
-    place-items: center;
-    width: 22px;
-    height: 22px;
-    flex: 0 0 auto;
-    border: 1px solid #f2d4e0;
-    border-radius: 3px;
-    background: #d9a6b9;
-    color: #263650;
-    font: 700 16px/1 sans-serif;
-  }
-  .os-cart-notification-titlebar > span:nth-child(2) { white-space: nowrap; }
-  .os-cart-notification-title-section {
+  .os-cart-notification-caption {
+    display: flex;
     min-width: 0;
-    flex: 1;
-    color: #ffeaf3;
-    font-size: 12px;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    color: #fff;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 400 17px/1.4 var(--font-mansalva), cursive;
   }
-  .os-cart-notification-close {
+  .os-cart-notification-caption-icon {
+    display: flex;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+  }
+  .os-cart-notification-caption-icon .system-icon { width: 19px; height: 19px; }
+  .shopping-window-header .os-cart-notification-close.shopping-window-control {
     display: grid;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    flex: 0 0 32px;
     place-items: center;
-    min-width: 28px;
-    min-height: 28px;
-    border: 1px solid #425b8c;
-    border-radius: 1px;
+    padding: 0;
+    border: 1px solid #637aa6;
+    border-radius: 2px;
+    box-shadow: var(--retro-button-raised);
     background: #f2f2f2;
     color: #263650;
-    box-shadow: inset 1px 1px #fff, 2px 2px 0 #263650;
-    font: 700 18px/1 sans-serif;
+    font: 700 23px/1 sans-serif;
     cursor: pointer;
   }
-  .os-cart-notification-close:is(:hover, :focus-visible) {
-    background: #f3d7e2;
-    outline-color: #fff;
+  .shopping-window-header .os-cart-notification-close:hover { background: #e8c8d7; }
+  .shopping-window-header .os-cart-notification-close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+  .os-cart-notification-client {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid #637aa6;
+    background: #fff;
   }
   .os-cart-notification-body {
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 13px 13px 11px;
-    background: #fff9fb;
+    gap: 12px;
+    padding: 16px 13px 12px;
     overflow-wrap: anywhere;
   }
-  .os-cart-notification-mascot {
+  .os-cart-notification-success {
     display: grid;
+    width: 31px;
+    height: 31px;
+    flex: 0 0 31px;
     place-items: center;
-    width: 60px;
-    height: 65px;
-    flex: 0 0 60px;
-    border: 1px solid #e2bfd1;
-    border-radius: 9px;
-    background: #f5dfe8;
-  }
-  .os-cart-notification-mascot-image {
-    width: 54px;
-    height: 54px;
-    object-fit: contain;
-  }
-  .os-cart-notification-copy { flex: 1; min-width: 0; }
-  .os-cart-notification-eyebrow {
-    display: inline-flex;
-    gap: 5px;
-    align-items: center;
-    color: #965976;
-    font: 700 9px/1.2 var(--font-cinzel), serif;
-    letter-spacing: .025em;
-  }
-  .os-cart-notification-eyebrow > span {
-    display: grid;
-    place-items: center;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #e6c7d5;
+    border: 1px solid #637aa6;
+    background: #dce4f2;
     color: #425b8c;
-    font: 700 10px/1 sans-serif;
+    font: 700 17px/1 sans-serif;
   }
+  .os-cart-notification-copy { min-width: 0; flex: 1; }
   .os-cart-notification-heading {
-    margin: 5px 0 4px;
-    color: #425b8c;
-    font: 700 13px/1.36 var(--font-cinzel), serif;
+    margin: 0 0 5px;
+    color: #263650;
+    font: 600 16px/1.25 var(--font-mansalva), cursive;
   }
   .os-cart-notification-product {
     margin: 0;
-    color: #34456c;
-    font: 500 13px/1.3 var(--font-mansalva), cursive;
+    color: #53627a;
+    font: 500 13px/1.35 var(--font-mansalva), cursive;
   }
   .os-cart-notification-actions {
     display: flex;
-    min-height: 51px;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 7px 12px;
-    border-top: 1px solid #d3bbca;
-    background: #f2f2f2;
+    justify-content: flex-end;
+    padding: 0 12px 12px;
   }
-  .os-cart-notification-hint {
-    color: #725e79;
-    font: 500 11px/1.3 var(--font-mansalva), cursive;
-  }
-  .os-cart-notification-actions button {
-    min-height: 35px;
-    padding: 7px 10px;
-    border: 1px solid #637aa6;
-    border-radius: 2px;
-    background: #d9a689;
-    box-shadow: inset 1px 1px #fff8f0, 2px 2px 0 #637aa6;
-    color: #263650;
-    font: 700 13px/1.2 var(--font-mansalva), cursive;
+  .os-cart-notification-actions .os-cart-notification-open {
+    min-height: 36px;
+    padding: 6px 16px;
     white-space: nowrap;
-    cursor: pointer;
-  }
-  .os-cart-notification-actions button:is(:hover, :focus-visible) {
-    background: #e7bca4;
-    outline: 2px solid #425b8c;
-    outline-offset: 2px;
-  }
-  .os-cart-notification-actions button:active {
-    box-shadow: inset 2px 2px 0 #637aa6;
-    transform: translate(1px, 1px);
+    font-size: 14px;
   }
 }
-html.guaurritas-system-cart-open .os-cart-notification { display: none; }
+html.guaurritas-system-cart-open .shopping-window.os-cart-notification {
+  display: none !important;
+}
 
 @keyframes os-window-appear {
   from { opacity: 0; }
@@ -2240,5 +2189,5 @@ html.guaurritas-system-cart-open .os-cart-notification { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .retro-window-dialog:not(.welcome-window-dialog),
   .os-cart-notification { animation: none !important; }
-  .desktop-shortcut-tooltip { transition: none !important; }
+  .desktop-status-help { transition: none !important; }
 }
