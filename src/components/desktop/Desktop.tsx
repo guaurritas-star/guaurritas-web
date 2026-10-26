@@ -18,6 +18,8 @@ import GuaurrinotasAuthGate from "@/components/apps/GuaurrinotasAuthGate";
 import MiMascotaApp from "@/components/apps/MiMascotaApp";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
+import OsSoundToggle from "@/components/desktop/OsSoundToggle";
+import { playOsSound } from "@/lib/os-sounds";
 import RetroWindow from "@/components/windows/RetroWindow";
 import { withBasePath } from "@/lib/base-path";
 import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
@@ -736,6 +738,7 @@ export default function Desktop() {
 
   const launchApp = (appId: string) => {
     if (launchingApp) return;
+    playOsSound("open");
 
     const isMobile = window.matchMedia("(max-width: 639px)").matches;
     const reduceMotion = window.matchMedia(
@@ -758,6 +761,7 @@ export default function Desktop() {
   };
 
   const closeActiveApp = () => {
+    playOsSound("close");
     dismissWelcome();
     setActiveApp(null);
     setMinimizedApp(null);
@@ -765,6 +769,7 @@ export default function Desktop() {
 
   const minimizeActiveApp = () => {
     if (!activeApp) return;
+    playOsSound("close");
     dismissWelcome();
     setMinimizedApp(activeApp);
     setActiveApp(null);
@@ -772,6 +777,7 @@ export default function Desktop() {
 
   const toggleTaskApp = () => {
     if (!taskApp) return;
+    playOsSound(activeApp === taskApp.id ? "close" : "open");
 
     if (activeApp === taskApp.id) {
       dismissWelcome();
@@ -785,6 +791,7 @@ export default function Desktop() {
   };
 
   const openShopWorld = (world: "cuisine" | "couture") => {
+    playOsSound("open");
     const url = new URL(window.location.href);
     url.searchParams.set("world", world);
     window.history.pushState({ world }, "", url);
@@ -797,6 +804,7 @@ export default function Desktop() {
   const openCuisineFromPaint = () => openShopWorld("cuisine");
 
   const openStore = (category?: "cuisine" | "couture", delivery?: FulfillmentMode) => {
+    playOsSound("open");
     const url = new URL(window.location.href);
     if (category) url.searchParams.set("world", category);
     else url.searchParams.delete("world");
@@ -828,8 +836,8 @@ export default function Desktop() {
     >
       <GuaurritasHeader
         onOpenShop={openStore}
-        onOpenRobbie={() => openApp("robbie")}
-        onOpenMiMascota={() => openApp("mascota")}
+        onOpenRobbie={() => { playOsSound("open"); openApp("robbie"); }}
+        onOpenMiMascota={() => { playOsSound("open"); openApp("mascota"); }}
       />
 
       <section className="desktop-launcher grid h-[calc(100dvh-136px)] grid-cols-2 content-start gap-5 overflow-y-auto p-6 sm:grid-cols-3 lg:grid-cols-5">
@@ -877,7 +885,7 @@ export default function Desktop() {
           }
         >
           {selectedApp.id === "bienvenida" ? (
-            <WelcomeApp onShop={mode => openStore("cuisine", mode)} onCommunity={openCommunity} />
+            <WelcomeApp onShop={mode => openStore("cuisine", mode)} onCommunity={openCommunity} onExplore={closeActiveApp} />
           ) : selectedApp.id === "tienda" ? (
             <StoreApp onBack={closeActiveApp} />
           ) : selectedApp.id === "mundos" ? (
@@ -914,7 +922,7 @@ export default function Desktop() {
         <button
           type="button"
           id="desktop-start"
-          onClick={() => openApp("bienvenida")}
+          onClick={() => { playOsSound("open"); openApp("bienvenida"); }}
           aria-label="Inicio: abrir bienvenida"
           className="desktop-taskbar-start shrink-0 font-title text-xs font-bold text-white"
         >
@@ -958,6 +966,7 @@ export default function Desktop() {
         </div>
 
         <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
+          <OsSoundToggle />
           <TaskbarCart onShop={openStore} />
           <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
