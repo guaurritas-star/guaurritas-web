@@ -45,10 +45,10 @@ test("notificar solo compras añadidas, no errores ni mayoreo pendiente", () => 
   assert.match(toast, /requestSystemCartOpen\(\)/);
 });
 
-test("toast discreto sólo en desktop; móvil conserva mensaje original", () => {
-  assert.match(css, /\.os-cart-notification \{ display: none; \}/);
-  assert.match(css, /@media \(min-width: 640px\)[\s\S]*?\.os-cart-notification \{/);
-  assert.match(css, /guaurritas-system-cart-open \.os-cart-notification \{ display: none; \}/);
+test("toast nativo se oculta en móvil y cuando se abre el carrito", () => {
+  assert.match(css, /\.shopping-window\.os-cart-notification \{ display: none !important; \}/);
+  assert.match(css, /@media \(min-width: 640px\)[\s\S]*?\.shopping-window\.os-cart-notification \{/);
+  assert.match(css, /guaurritas-system-cart-open \.shopping-window\.os-cart-notification/);
   assert.match(feedback, /role=\{blocked \? "alert" : "status"\}/);
 });
 
