@@ -1,5 +1,6 @@
-import { playOsSound } from "@/lib/os-sounds";
 "use client";
+
+import { playOsSound } from "@/lib/os-sounds";
 
 import { useSyncExternalStore } from "react";
 import {
