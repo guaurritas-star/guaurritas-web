@@ -959,8 +959,8 @@ export default function Desktop() {
         </div>
 
         <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
-          <OsSoundControl />
           <TaskbarCart onShop={openStore} />
+          <OsSoundControl />
           <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
         </div>
