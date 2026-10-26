@@ -48,8 +48,8 @@ try {
       viewport: { width, height: width < 640 ? 844 : 936 },
       isMobile: width < 640, hasTouch: width < 640,
     });
-    if (width < 640) await context.emulateMedia({ reducedMotion: "reduce" });
     const page = await context.newPage();
+    if (width < 640) await page.emulateMedia({ reducedMotion: "reduce" });
     const pageErrors = [];
     page.on("pageerror", error => pageErrors.push(error.message));
     try {
