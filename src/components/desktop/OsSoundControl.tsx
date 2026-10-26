@@ -95,7 +95,12 @@ export default function OsSoundControl() {
     const next = !enabled;
     setEnabled(next);
     try { window.localStorage.setItem(STORAGE_KEY, String(next)); } catch { /* optional */ }
-    if (next) play("confirm");
+    if (next) {
+      play("confirm");
+    } else if (audioContext.current?.state === "running") {
+      // Immediately silence any tone that is still ringing when muting.
+      void audioContext.current.suspend().catch(() => {});
+    }
   };
 
   return (
@@ -107,7 +112,7 @@ export default function OsSoundControl() {
       aria-pressed={enabled}
       title={enabled ? "Volumen activado · silenciar" : "Sonido silenciado · activar"}
       onClick={toggle}
-      className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center rounded border border-transparent px-2 text-[17px] text-white transition-colors duration-150 hover:border-white/50 hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-px"
+      className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center rounded border border-transparent px-2 text-[#263650] transition-colors duration-150 hover:border-[#875773] hover:bg-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#425b8c] active:translate-y-px"
     >
       <svg
         aria-hidden="true"
