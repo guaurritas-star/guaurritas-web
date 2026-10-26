@@ -19,6 +19,7 @@ import MiMascotaApp from "@/components/apps/MiMascotaApp";
 import PaintStudioApp from "@/components/apps/PaintStudioApp";
 import TaskbarCart from "@/components/cart/TaskbarCart";
 import RetroWindow from "@/components/windows/RetroWindow";
+import OsSoundControl from "@/components/desktop/OsSoundControl";
 import { withBasePath } from "@/lib/base-path";
 import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 import {
@@ -842,7 +843,7 @@ export default function Desktop() {
               type="button"
               onClick={() => app.id === "tienda" ? openStore() : launchApp(app.id)}
               aria-busy={isLaunching || undefined}
-              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
+              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
                 isLaunching ? "is-launching" : ""
               }`}
             >
@@ -958,6 +959,7 @@ export default function Desktop() {
         </div>
 
         <div className="desktop-taskbar-clock shrink-0 font-title text-xs text-white">
+          <OsSoundControl />
           <TaskbarCart onShop={openStore} />
           <span className="desktop-taskbar-divider" aria-hidden="true" />
           <DesktopClock />
