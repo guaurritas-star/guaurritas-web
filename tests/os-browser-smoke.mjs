@@ -38,7 +38,8 @@ let failed = 0;
 async function openDesktop(frame) {
   await frame.locator(".desktop-wallpaper").waitFor({ state: "visible", timeout: 25000 });
   const explore = frame.getByRole("button", { name: /Prefiero explorar Guaurritas OS/ });
-  if (await explore.isVisible().catch(() => false)) await explore.click();
+  const hasWelcome = await explore.waitFor({ state: "visible", timeout: 1600 }).then(() => true).catch(() => false);
+  if (hasWelcome) await explore.click();
   await frame.getByRole("button", { name: "Activar sonidos de Guaurritas OS" }).waitFor({ timeout: 12000 });
 }
 try {
