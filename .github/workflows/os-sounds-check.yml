@@ -1,0 +1,30 @@
+name: Verificar sonidos Guaurritas OS sin publicar
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - ".github/workflows/os-sounds-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Preparar exportación estática
+        run: cp .env.development .env.production
+      - name: Pruebas del proyecto
+        run: npm test
+      - name: Compilar y validar TypeScript
+        run: npm run build
