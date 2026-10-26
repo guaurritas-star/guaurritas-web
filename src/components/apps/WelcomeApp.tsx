@@ -9,9 +9,10 @@ import { ShoppingButton } from "@/components/ui/ShoppingControls";
 
 export const COMMUNITY_URL = "https://www.guaurritas.com/#comp-m4qz2a3f_r_comp-mnnkixwd";
 
-export default function WelcomeApp({ onShop, onCommunity }: {
+export default function WelcomeApp({ onShop, onCommunity, onExplore }: {
   onShop: (mode: FulfillmentMode) => void;
   onCommunity: () => void;
+  onExplore: () => void;
 }) {
   return <div className="welcome-app">
     <div className="welcome-intro">
@@ -35,6 +36,9 @@ export default function WelcomeApp({ onShop, onCommunity }: {
         </ShoppingButton>
       </div>
       <p>Elige tu ubicación para ver el catálogo.</p>
+      <button type="button" className="welcome-explore-link" onClick={onExplore}>
+        Prefiero explorar Guaurritas OS <span aria-hidden="true">→</span>
+      </button>
     </div>
     <section className="welcome-community" aria-labelledby="welcome-community-title">
       <span aria-hidden="true" className="welcome-paw"><SystemIcon name="paw" /></span>
