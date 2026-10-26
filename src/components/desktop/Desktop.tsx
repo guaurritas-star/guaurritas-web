@@ -36,14 +36,14 @@ const StoreApp = dynamic(() => import("@/components/apps/StoreApp"), {
 });
 
 const apps = [
-  { id: "tienda", name: "Tienda", icon: "cart" as const, description: "Compra premios, repostería y accesorios", mobileDescription: "Premios, pasteles y más" },
-  { id: "mundos", name: "Explora mundo", icon: "world" as const, description: "Descubre el universo Guaurritas", mobileDescription: "Un mundo por explorar" },
-  { id: "mascota", name: "Mi mascota", icon: "pet" as const, description: "Crea el perfil de tu compañero", mobileDescription: "Su propio perfil" },
-  { id: "paint", name: "Paint", icon: "paint" as const, description: "Dibuja y personaliza ideas", mobileDescription: "Dibuja y crea" },
-  { id: "notas", name: "Guaurrinotas", icon: "notes" as const, description: "Guarda recuerdos y momentos especiales", mobileDescription: "Momentos especiales" },
-  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const, description: "Conoce nuestra historia", mobileDescription: "Nuestra historia" },
-  { id: "chat", name: "Chat Guaurritas", icon: "chat" as const, description: "Platica con nosotros", mobileDescription: "¡Platiquemos!" },
-  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const, description: "Conoce cómo distribuir Guaurritas", mobileDescription: "Distribuye Guaurritas" },
+  { id: "tienda", name: "Tienda", icon: "cart" as const, description: "Compra premios, repostería y accesorios" },
+  { id: "mundos", name: "Explora mundo", icon: "world" as const, description: "Descubre el universo Guaurritas" },
+  { id: "mascota", name: "Mi mascota", icon: "pet" as const, description: "Crea el perfil de tu compañero" },
+  { id: "paint", name: "Paint", icon: "paint" as const, description: "Dibuja y personaliza ideas" },
+  { id: "notas", name: "Guaurrinotas", icon: "notes" as const, description: "Guarda recuerdos y momentos especiales" },
+  { id: "robbie", name: "Expediente Robbie", icon: "robbie" as const, description: "Conoce nuestra historia" },
+  { id: "chat", name: "Chat Guaurritas", icon: "chat" as const, description: "Platica con nosotros" },
+  { id: "distribuidores", name: "Info para distribuidores", icon: "distributors" as const, description: "Conoce cómo distribuir Guaurritas" },
 ];
 const systemApps = [{ id: "bienvenida", name: "Bienvenido a Guaurritas", icon: "pet" as const }, ...apps];
 
@@ -714,6 +714,7 @@ export default function Desktop() {
     : activeAppOverride;
   const [minimizedApp, setMinimizedApp] = useState<string | null>(null);
   const [launchingApp, setLaunchingApp] = useState<string | null>(null);
+  const [helpedApp, setHelpedApp] = useState<(typeof apps)[number] | null>(null);
   const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedApp = systemApps.find((app) => app.id === activeApp);
@@ -845,7 +846,10 @@ export default function Desktop() {
               onClick={() => app.id === "tienda" ? openStore() : launchApp(app.id)}
               aria-busy={isLaunching || undefined}
               aria-label={`${app.name}. ${app.description}`}
-              data-description={app.description}
+              onPointerEnter={() => setHelpedApp(app)}
+              onPointerLeave={() => setHelpedApp(current => current?.id === app.id ? null : current)}
+              onFocus={() => setHelpedApp(app)}
+              onBlur={() => setHelpedApp(current => current?.id === app.id ? null : current)}
               className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
                 isLaunching ? "is-launching" : ""
               }`}
@@ -856,11 +860,6 @@ export default function Desktop() {
 
               <span className="desktop-shortcut-label px-2 py-1 font-title text-xs font-bold tracking-[0.02em] text-[#263650] [text-shadow:0_1px_2px_rgba(255,255,255,0.9)]">
                 {app.name}
-              </span>
-              <span className="desktop-shortcut-description" aria-hidden="true">{app.mobileDescription}</span>
-              <span className="desktop-shortcut-tooltip" aria-hidden="true">
-                <span className="desktop-shortcut-tooltip-heading">✦ Ayuda Guaurri</span>
-                <span className="desktop-shortcut-tooltip-message">{app.description}</span>
               </span>
             </button>
           );
@@ -918,6 +917,14 @@ export default function Desktop() {
       )}
 
       <OsCartNotification />
+
+      {/* Contextual OS status: never floats over desktop shortcuts. */}
+      <div className="desktop-status-help" data-visible={Boolean(helpedApp && !selectedApp)} aria-hidden="true">
+        <span className="desktop-status-help-marker" aria-hidden="true">ⓘ</span>
+        <strong>{helpedApp?.name ?? "Guaurritas OS"}</strong>
+        <span className="desktop-status-help-divider" aria-hidden="true" />
+        <span className="desktop-status-help-message">{helpedApp?.description ?? ""}</span>
+      </div>
 
       <PromotionTicker />
 

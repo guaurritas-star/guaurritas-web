@@ -19,39 +19,43 @@ test("mini ventana y escritorio siguen compilando como TSX válido", () => {
   }
 });
 
-test("aviso usa mascota real, jerarquía de marca y acción al carrito", () => {
-  assert.match(toast, /guaurritas-mascot-hd\.webp/);
-  assert.match(toast, /¡Ya quedó en tu carrito!/);
-  assert.match(toast, /LISTO PARA CONSENTIR/);
-  assert.match(toast, /Ver carrito/);
+test("aviso usa ventana y botón auténticos de Tienda sin adornos añadidos", () => {
+  assert.match(toast, /ShoppingWindow, ShoppingWindowHeader/);
+  assert.match(toast, /<ShoppingWindow className="os-cart-notification shopping-window"/);
+  assert.match(toast, /<ShoppingWindowHeader className="os-cart-notification-titlebar shopping-window-header"/);
+  assert.match(toast, /<ShoppingButton[\s\S]*?\$tone="peach"/);
+  assert.match(toast, /Carrito\.exe/);
+  assert.match(toast, /Se agregó a tu carrito/);
+  assert.doesNotMatch(toast, /mascot|LISTO PARA CONSENTIR/);
   assert.match(toast, /requestSystemCartOpen\(\)/);
   assert.match(toast, /onClick=\{dismiss\}/);
   assert.match(toast, /DISMISS_AFTER_MS = 4200/);
   assert.match(toast, /replace\(\/\\s\*se agregó al carrito/);
 });
 
-test("tarjetas de ayuda ofrecen copy claro para las ocho apps", () => {
-  assert.equal((desktop.match(/mobileDescription: /g) ?? []).length, 8);
-  assert.match(desktop, /desktop-shortcut-tooltip-heading/);
-  assert.match(desktop, /Ayuda Guaurri/);
+test("barra de ayuda sustituye tooltips y subtítulos de las ocho apps", () => {
+  assert.equal((desktop.match(/description: /g) ?? []).length, 8);
+  assert.match(desktop, /desktop-status-help/);
+  assert.match(desktop, /helpedApp\?\.description/);
   assert.match(desktop, /Compra premios, repostería y accesorios/);
   assert.match(desktop, /Crea el perfil de tu compañero/);
   assert.match(desktop, /Guarda recuerdos y momentos especiales/);
+  assert.doesNotMatch(desktop, /desktop-shortcut-tooltip|mobileDescription|desktop-shortcut-description/);
   assert.match(desktop, /aria-label=\{\`\$\{app\.name\}\. \$\{app\.description\}\`\}/);
 });
 
-test("los nuevos paneles comparten paleta y tipografía con Guaurritas OS", () => {
-  assert.match(styles, /\.desktop-shortcut-tooltip-heading/);
-  assert.match(styles, /\.os-cart-notification-mascot/);
-  assert.match(styles, /\.os-cart-notification-titlebar[\s\S]*?background: linear-gradient\(90deg, #425b8c, #637aa6\)/);
-  assert.match(styles, /\.os-cart-notification-actions button[\s\S]*?background: #d9a689/);
-  assert.match(styles, /var\(--font-cinzel\)/);
+test("mini ventana hereda el sistema visual de Tienda y ayuda discreta", () => {
+  assert.match(styles, /\.shopping-window\.os-cart-notification/);
+  assert.match(styles, /\.shopping-window-header\.os-cart-notification-titlebar/);
+  assert.match(styles, /\.os-cart-notification-actions \.os-cart-notification-open/);
+  assert.match(styles, /\.desktop-status-help\[data-visible="true"\]/);
   assert.match(styles, /var\(--font-mansalva\)/);
+  assert.doesNotMatch(styles, /\.desktop-shortcut-tooltip-heading|\.os-cart-notification-mascot/);
 });
 
 test("sin interrupciones en móvil ni para usuarios con movimiento reducido", () => {
-  assert.match(styles, /\.os-cart-notification \{ display: none; \}/);
-  assert.match(styles, /html\.guaurritas-system-cart-open \.os-cart-notification \{ display: none; \}/);
-  assert.match(styles, /@media \(max-width: 639px\)[\s\S]*?\.desktop-shortcut-description \{/);
+  assert.match(styles, /\.shopping-window\.os-cart-notification \{ display: none !important; \}/);
+  assert.match(styles, /html\.guaurritas-system-cart-open \.shopping-window\.os-cart-notification/);
+  assert.match(styles, /\.desktop-status-help \{ display: none; \}/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
 });
