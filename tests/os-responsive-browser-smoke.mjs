@@ -82,7 +82,14 @@ try {
     assert.equal(chrome.close, "auto", "close remains clickable");
     assert.equal(chrome.action, "auto", "cart CTA remains clickable");
     assert.equal(chrome.under, true, "clicks through informational area reach underlying store");
-    await toast.getByRole("button", { name: /cerrar aviso/i }).click();
+    // Verify the close control is topmost; dispatch synchronously before the
+    // 4.2s auto-dismiss timer races a WebKit actionability retry.
+    const close = toast.getByRole("button", { name: /cerrar aviso/i });
+    assert.equal(await close.evaluate(node => {
+      const rect = node.getBoundingClientRect();
+      return document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) === node;
+    }), true, "close must remain the actual hit target");
+    await close.evaluate(node => node.click());
     assert.equal(await toast.count(), 0, "close dismisses toast");
     await page.evaluate(() => window.dispatchEvent(new CustomEvent("guaurritas:os-cart-notification", {
       detail: "Cake pops prueba se agregó al carrito",
