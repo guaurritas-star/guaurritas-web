@@ -54,11 +54,18 @@ try {
   try {
     await page.goto(base, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.locator(".desktop-wallpaper").waitFor({ state: "visible", timeout: 20000 });
+    await page.waitForTimeout(1200);
+    console.log("DIAG desktop", JSON.stringify(await page.evaluate(() => ({
+      tray: document.querySelector(".taskbar-cart-tray")?.getAttribute("aria-label"),
+      cart: localStorage.getItem("guaurritas-os-cart"),
+      scripts: document.querySelectorAll("script[src]").length,
+      windows: document.querySelectorAll(".retro-window-dialog").length,
+    }))));
     await page.evaluate(() => window.dispatchEvent(new CustomEvent("guaurritas:os-cart-notification", {
       detail: "Cake pops prueba se agregó al carrito",
     })));
     const toast = page.locator(".os-cart-notification");
-    await toast.waitFor({ state: "visible", timeout: 10000 });
+    await toast.waitFor({ state: "visible", timeout: 9000 });
     const rect = await toast.boundingBox();
     assert.ok(rect && rect.y > 0 && rect.y + rect.height < 768 - 52, "toast inside visible desktop safe area");
     const chrome = await toast.evaluate(node => ({
@@ -96,8 +103,15 @@ try {
     try {
       await mobile.goto(base, { waitUntil: "domcontentloaded", timeout: 45000 });
       await mobile.locator(".desktop-wallpaper").waitFor({ state: "visible", timeout: 25000 });
+      await mobile.waitForTimeout(1200);
+      console.log("DIAG mobile", width, JSON.stringify(await mobile.evaluate(() => ({
+        tray: document.querySelector(".taskbar-cart-tray")?.getAttribute("aria-label"),
+        cart: localStorage.getItem("guaurritas-os-cart"),
+        scripts: document.querySelectorAll("script[src]").length,
+        windows: document.querySelectorAll(".retro-window-dialog").length,
+      }))));
       const tray = mobile.getByRole("button", { name: /Carrito con 1 artículo/ });
-      await tray.waitFor({ state: "visible", timeout: 20000 });
+      await tray.waitFor({ state: "visible", timeout: 9000 });
       await tray.click();
       const panel = mobile.locator("#taskbar-cart-panel");
       await panel.waitFor({ state: "visible" });
@@ -141,7 +155,13 @@ try {
     await embed.goto(origin + "/wix-test-host/", { waitUntil: "domcontentloaded", timeout: 45000 });
     const frame = embed.frameLocator("#guaurritas");
     await frame.locator(".desktop-wallpaper").waitFor({ state: "visible", timeout: 25000 });
-    await frame.getByRole("button", { name: /Carrito con 1 artículo/ }).click();
+    await embed.waitForTimeout(1200);
+    console.log("DIAG iframe", JSON.stringify(await frame.locator("body").evaluate(() => ({
+      tray: document.querySelector(".taskbar-cart-tray")?.getAttribute("aria-label"),
+      cart: localStorage.getItem("guaurritas-os-cart"),
+      scripts: document.querySelectorAll("script[src]").length,
+    }))));
+    await frame.getByRole("button", { name: /Carrito con 1 artículo/ }).click({ timeout: 9000 });
     const panel = frame.locator("#taskbar-cart-panel");
     await panel.waitFor({ state: "visible" });
     const snapshot = await panel.evaluate(el => ({
