@@ -67,7 +67,8 @@ export default function StoreApp({
           <div className="shopping-world-toolbar" aria-label="Sección elegida en Guaurriverse">
             <ShoppingButton className="shopping-world-back" onClick={onBack} aria-label="Volver a explorar los mundos">
               <span className="shopping-world-back-symbol" aria-hidden="true">←</span>
-              <span>Volver a mundos</span>
+              <span className="shopping-world-back-full">Volver a mundos</span>
+              <span className="shopping-world-back-short" aria-hidden="true">Mundos</span>
             </ShoppingButton>
             <div className="shopping-world-identity">
               <span className="shopping-world-eyebrow">Guaurriverse <span aria-hidden="true">›</span> Estás en</span>
