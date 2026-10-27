@@ -87,7 +87,7 @@ try {
     const close = toast.getByRole("button", { name: /cerrar aviso/i });
     assert.equal(await close.evaluate(node => {
       const rect = node.getBoundingClientRect();
-      return document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) === node;
+      return node.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
     }), true, "close must remain the actual hit target");
     await close.evaluate(node => node.click());
     assert.equal(await toast.count(), 0, "close dismisses toast");
