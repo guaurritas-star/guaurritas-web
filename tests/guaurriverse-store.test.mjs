@@ -34,11 +34,14 @@ test("Guaurriverse ya no abre dos catálogos paralelos: comparte StoreApp", () =
   assert.match(world, /onBack=\{showAllWorlds\}/);
 });
 
-test("StoreApp bloquea la categoría elegida pero mantiene ubicación, carrito y catálogo", () => {
+test("StoreApp reutiliza la entrega elegida sin repetir el filtro dentro de mundos", () => {
   assert.match(store, /lockedCategory\?: StoreCategory/);
   assert.match(store, /const activeCategory = lockedCategory \?\? category/);
   assert.match(store, /lockedCategory \? \(/);
   assert.match(store, /Sección elegida en Guaurriverse/);
+  assert.match(store, /shopping-world-toolbar/);
+  assert.match(store, /Zona de entrega elegida en Guaurriverse/);
+  assert.match(store, /lockedCategory \? \(/);
   assert.match(store, /Volver a explorar los mundos/);
   assert.match(store, /shopping-location/);
   assert.match(store, /shopping-store-cart/);
@@ -51,7 +54,7 @@ test("mundo Cuisine/Couture utiliza el mismo chrome y scroll que Tienda.exe", ()
   assert.match(desktop, /fixedContent=\{selectedApp\.id === "tienda" \|\| worldStoreOpen\}/);
   assert.match(desktop, /Guaurritas Cuisine/);
   assert.match(desktop, /Guaurritas Couture/);
-  assert.match(css, /\.store-app--world \.shopping-world-context/);
+  assert.match(css, /\.store-app--world \.shopping-world-toolbar/);
   assert.match(layout, /import "\.\/guaurriverse-store\.css";/);
 });
 
