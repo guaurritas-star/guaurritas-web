@@ -3,9 +3,7 @@
 import SystemIcon from "@/components/ui/SystemIcon";
 import { useEffect, useState, type CSSProperties } from "react";
 import { useBrowserSearch, useBrowserReady, notifyLocationChange } from "@/lib/browser-location";
-import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
-import NationalCuisineStoreApp from "@/components/apps/NationalCuisineStoreApp";
-import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
+import StoreApp from "@/components/apps/StoreApp";
 import { withBasePath } from "@/lib/base-path";
 import {
   getFulfillmentMode,
@@ -215,28 +213,16 @@ export default function GuaurriverseApp() {
     setActiveFulfillmentMode(mode);
   };
 
-  if (selectedWorld?.id === "cuisine") {
-    if (fulfillmentMode === "national") {
-      return (
-        <NationalCuisineStoreApp
-          onBack={showAllWorlds}
-        />
-      );
-    }
-
+  if (selectedWorld?.id === "cuisine" || selectedWorld?.id === "couture") {
+    // The same purchasing UI as Tienda.exe, with this world already selected.
+    // Avoid a parallel shop implementation that drifts from the main Store.
     return (
-      <CuisineStoreApp
+      <StoreApp
+        key={selectedWorld.id}
+        lockedCategory={selectedWorld.id}
+        initialFulfillmentMode={fulfillmentMode}
+        onFulfillmentChange={chooseFulfillmentMode}
         onBack={showAllWorlds}
-        fulfillmentMode="leon"
-      />
-    );
-  }
-
-  if (selectedWorld?.id === "couture") {
-    return (
-      <CoutureStoreApp
-        onBack={showAllWorlds}
-        fulfillmentMode={fulfillmentMode}
       />
     );
   }

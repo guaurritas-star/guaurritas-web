@@ -14,12 +14,28 @@ import { NATIONAL_SHIPPING_PROMO } from "@/lib/shipping-promotions";
 
 const stayInStore = () => {};
 
-export default function StoreApp({ onBack = stayInStore }: { onBack?: () => void }) {
+type StoreCategory = "cuisine" | "couture";
+type StoreAppProps = {
+  onBack?: () => void;
+  /** Guaurriverse already chose a world; show that exact catalogue without category tabs. */
+  lockedCategory?: StoreCategory;
+  initialFulfillmentMode?: FulfillmentMode;
+  onFulfillmentChange?: (mode: FulfillmentMode) => void;
+};
+
+export default function StoreApp({
+  onBack = stayInStore,
+  lockedCategory,
+  initialFulfillmentMode,
+  onFulfillmentChange,
+}: StoreAppProps) {
   const cart = useCart();
-  const [category, setCategory] = useState<"cuisine" | "couture">(() =>
+  const [category, setCategory] = useState<StoreCategory>(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).get("world") === "couture" ? "couture" : "cuisine",
   );
+  const activeCategory = lockedCategory ?? category;
   const [mode, setMode] = useState<FulfillmentMode>(() => {
+    if (initialFulfillmentMode) return initialFulfillmentMode;
     const requested = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("fulfillment") : null;
     return requested === "national" || requested === "leon" ? requested : getFulfillmentMode();
   });
@@ -31,6 +47,7 @@ export default function StoreApp({ onBack = stayInStore }: { onBack?: () => void
   const chooseMode = (next: FulfillmentMode) => {
     setFulfillmentMode(next);
     setMode(next);
+    onFulfillmentChange?.(next);
     // Keep deep links consistent when the delivery choice is edited.
     const url = new URL(window.location.href);
     url.searchParams.set("fulfillment", next);
@@ -38,7 +55,7 @@ export default function StoreApp({ onBack = stayInStore }: { onBack?: () => void
   };
 
   return (
-    <section className="store-app flex h-auto min-h-0 flex-col bg-white sm:h-full">
+    <section className={`store-app flex h-auto min-h-0 flex-col bg-white sm:h-full${lockedCategory ? " store-app--world" : ""}`}>
       <header className="shopping-navigation">
         <div className="shopping-navigation-row">
           <fieldset className="shopping-location">
@@ -56,13 +73,25 @@ export default function StoreApp({ onBack = stayInStore }: { onBack?: () => void
             <SystemIcon name="cart" /> <span className="shopping-store-cart-label">Carrito</span> <span className="shopping-cart-count">{cart.count}</span>
           </ShoppingButton>
         </div>
-        <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
-          {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
-            <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
-              <strong>{label}</strong><span className="shopping-catalog-description">{detail}</span>
+        {lockedCategory ? (
+          <div className="shopping-world-context" aria-label="Sección elegida en Guaurriverse">
+            <div className="shopping-world-context-copy">
+              <span>Estás en Guaurriverse</span>
+              <strong>{lockedCategory === "cuisine" ? "Cuisine" : "Couture"}</strong>
+            </div>
+            <ShoppingButton onClick={onBack} aria-label="Volver a explorar los mundos">
+              ← Mundos
             </ShoppingButton>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
+            {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
+              <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
+                <strong>{label}</strong><span className="shopping-catalog-description">{detail}</span>
+              </ShoppingButton>
+            ))}
+          </div>
+        )}
       <details className="store-delivery-details">
         <summary>{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · elige fecha y horario antes de pagar"} · Ver detalles de entrega</summary>
         {mode === "national" ? (
@@ -74,7 +103,7 @@ export default function StoreApp({ onBack = stayInStore }: { onBack?: () => void
       </header>
       {halloweenIsActive() && <aside className="halloween-store-announcement" aria-label="Promociones de Halloween"><strong>Halloween</strong><span>15 % en Dognuts y Guaurricookies empacadas · 10 % en bandanas</span><small>Hasta el 31 de octubre</small></aside>}
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
-        {category === "couture" ? <CoutureStoreApp embeddedInStore onBack={onBack} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={onBack} /> : <CuisineStoreApp embeddedInStore onBack={onBack} fulfillmentMode="leon" />}
+        {activeCategory === "couture" ? <CoutureStoreApp embeddedInStore onBack={onBack} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={onBack} /> : <CuisineStoreApp embeddedInStore onBack={onBack} fulfillmentMode="leon" />}
       </div>
     </section>
   );

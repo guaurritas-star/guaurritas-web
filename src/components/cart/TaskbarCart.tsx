@@ -671,9 +671,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             </>
           ) : (
             <div className="taskbar-checkout-view min-w-0 p-3 sm:p-4">
-              <div className="mb-3 flex min-w-0 items-center gap-2" aria-label="Progreso del pedido">
+              <div className="taskbar-checkout-steps mb-3 flex min-w-0 items-center gap-2" aria-label="Progreso del pedido">
                 <span className="shrink-0 rounded-full bg-[#425BBC] px-2.5 py-1 font-interface text-[8px] font-bold text-white">
-                  1 · Horario
+                  1 · Entrega
                 </span>
                 <span className="h-px min-w-0 flex-1 bg-[#dbe1ed]" />
                 <span
@@ -686,6 +686,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                   2 · Pago
                 </span>
               </div>
+
+              <p className="taskbar-checkout-guidance">Primero elige cuándo recibir tu pedido y después cómo pagar.</p>
 
               <section className="mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-[#ead7de] bg-[#fff9fb] px-3 py-2.5">
                 <div className="min-w-0">

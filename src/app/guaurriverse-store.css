@@ -1,0 +1,67 @@
+/* Guaurriverse reuses the same Store chrome; only the world selection UI differs. */
+.store-app--world .shopping-world-context {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.store-app--world .shopping-world-context-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+  color: #53627a;
+  font: 400 13px/1.3 var(--font-mansalva), cursive;
+}
+.store-app--world .shopping-world-context-copy strong {
+  color: #425b8c;
+  font: 500 17px/1.3 var(--font-cinzel), serif;
+}
+.store-app--world .shopping-world-context button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  white-space: nowrap;
+}
+@media (max-width: 1000px) {
+  .store-app--world .shopping-world-context {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: space-between;
+    padding-top: 3px;
+    border-top: 1px solid #cbd4e1;
+  }
+}
+@media (max-width: 639px) {
+  .store-app--world .shopping-world-context button {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+  .store-app--world .shopping-world-context-copy strong { font-size: 15px; }
+}
+
+/* Simple orientation, not a new checkout: keep the existing form and payment logic. */
+.taskbar-checkout-steps {
+  border-bottom: 1px solid #dbe1ed;
+  padding-bottom: 10px;
+}
+.taskbar-checkout-guidance {
+  margin: 0 0 12px;
+  color: #53627a;
+  font: 400 14px/1.4 var(--font-mansalva), cursive;
+}
+@media (max-width: 900px) {
+  /* Previously hidden in mobile, leaving new buyers without an overview. */
+  .taskbar-checkout-view .taskbar-checkout-steps[aria-label="Progreso del pedido"] {
+    display: flex !important;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+  .taskbar-checkout-steps > span:first-child,
+  .taskbar-checkout-steps > span:last-child {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
