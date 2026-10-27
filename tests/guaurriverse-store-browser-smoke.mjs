@@ -47,6 +47,12 @@ async function capture(page, name) {
   await mkdir("world-store-failures", { recursive: true });
   await page.screenshot({ path: "world-store-failures/" + engine + "-" + name + ".png", fullPage: true }).catch(() => {});
 }
+// Wix-only backend discovery endpoints cannot be called from local GitHub Pages
+// test origins. Ignore exactly these known CORS-origin errors, but fail on
+// every other JS exception or UI/checkout assertion.
+const unexpectedPageErrors = errors => errors.filter(message =>
+  !/^\/www\.guaurritas\.com\/_functions\/(?:kitGuaurriCookies|descubreGuaurritas) due to access control checks\.$/.test(message)
+);
 let failures = 0;
 try {
   for (const width of [1366, 390]) for (const world of ["cuisine", "couture"]) {
@@ -79,7 +85,7 @@ try {
       assert.equal(await page.getByRole("button", { name: /Todo México/ }).getAttribute("aria-pressed"), "true", "delivery change available in Guaurriverse");
       await page.getByRole("button", { name: /Volver a explorar los mundos/ }).click();
       await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).waitFor({ state: "visible" });
-      assert.deepEqual(errors, [], "page errors: " + errors.join("; "));
+      assert.deepEqual(unexpectedPageErrors(errors), [], "page errors: " + errors.join("; "));
       console.log("PASS world/store shared design", engine, width, world);
     } catch (e) {
       failures++; await capture(page, "world-" + width + "-" + world);
