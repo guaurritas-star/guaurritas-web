@@ -110,7 +110,7 @@ try {
         scripts: document.querySelectorAll("script[src]").length,
         windows: document.querySelectorAll(".retro-window-dialog").length,
       }))));
-      const tray = mobile.getByRole("button", { name: /Carrito con 1 artículo/ });
+      const tray = mobile.locator(".shopping-store-cart");
       await tray.waitFor({ state: "visible", timeout: 9000 });
       await tray.click();
       const panel = mobile.locator("#taskbar-cart-panel");
@@ -161,7 +161,7 @@ try {
       cart: localStorage.getItem("guaurritas-os-cart"),
       scripts: document.querySelectorAll("script[src]").length,
     }))));
-    await frame.getByRole("button", { name: /Carrito con 1 artículo/ }).click({ timeout: 9000 });
+    await frame.locator(".shopping-store-cart").click({ timeout: 9000 });
     const panel = frame.locator("#taskbar-cart-panel");
     await panel.waitFor({ state: "visible" });
     const snapshot = await panel.evaluate(el => ({
