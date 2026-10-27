@@ -69,7 +69,7 @@ test("mini Carrito.exe comparte marco redondeado, título y control de Tienda.ex
   assert.match(styles, /\.shopping-window-header\.os-cart-notification-titlebar \{[\s\S]*?min-height: 56px/);
   assert.match(styles, /\.shopping-window-header\.os-cart-notification-titlebar \{[\s\S]*?background: linear-gradient\(180deg, #9eb1cb/);
   assert.match(styles, /\.os-cart-notification-close\.shopping-window-control \{[\s\S]*?background: linear-gradient\(180deg, #d7b2c2/);
-  assert.match(styles, /bottom: calc\\(52px \\+ 34px \\+ 24px\\)/);
+  assert.match(styles, /bottom: calc\(52px \+ 34px \+ 24px\)/);
   assert.doesNotMatch(styles, /bottom: 152px/);
   assert.match(styles, /@media \(min-width: 640px\) and \(max-height: 520px\)/);
 });
