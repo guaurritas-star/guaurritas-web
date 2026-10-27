@@ -86,8 +86,9 @@ try {
       const back = page.getByRole("button", { name: "Volver a explorar los mundos" });
       await back.click();
       await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).waitFor({ state: "visible" });
-      await page.getByRole("button", { name: /Todo México/ }).click();
-      assert.equal(await page.getByRole("button", { name: /Todo México/ }).getAttribute("aria-pressed"), "true", "delivery can be changed at the Guaurriverse entrance");
+      const nationalWorldChoice = page.getByRole("button", { name: "Nacional", exact: true });
+      await nationalWorldChoice.click();
+      assert.equal(await nationalWorldChoice.getAttribute("aria-pressed"), "true", "delivery can be changed at the Guaurriverse entrance");
       await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).click();
       await page.locator(".shopping-world-mode").waitFor({ state: "visible" });
       assert.equal(await page.locator(".shopping-world-mode").getAttribute("aria-label"), "Zona de entrega elegida en Guaurriverse: Todo México");
