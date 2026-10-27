@@ -2069,8 +2069,8 @@ html.guaurritas-system-cart-open .desktop-taskbar {
   .shopping-window.os-cart-notification {
     position: fixed;
     right: 28px;
-    /* Clear the taskbar, promotion strip and floating WhatsApp bubble. */
-    bottom: 152px;
+    /* Sit just above the taskbar (52px) and promo ticker (34px), with 24px breathing room. */
+    bottom: calc(52px + 34px + 24px);
     z-index: 65;
     display: flex !important;
     flex-direction: column;
