@@ -718,6 +718,9 @@ export default function Desktop() {
   const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedApp = systemApps.find((app) => app.id === activeApp);
+  const requestedWorld = new URLSearchParams(search).get("world");
+  const worldStoreOpen = selectedApp?.id === "mundos" &&
+    (requestedWorld === "cuisine" || requestedWorld === "couture");
   const taskApp = systemApps.find(
     (app) => app.id === activeApp || app.id === minimizedApp,
   );
@@ -868,11 +871,11 @@ export default function Desktop() {
 
       {selectedApp && (
         <RetroWindow
-          title={selectedApp.name}
+          title={worldStoreOpen ? (requestedWorld === "cuisine" ? "Guaurritas Cuisine" : "Guaurritas Couture") : selectedApp.name}
           icon={<DesktopAppIcon kind={selectedApp.icon} className="h-full w-full" />}
           onClose={closeActiveApp}
           onMinimize={minimizeActiveApp}
-          fixedContent={selectedApp.id === "tienda"}
+          fixedContent={selectedApp.id === "tienda" || worldStoreOpen}
           variant={selectedApp.id === "bienvenida" ? "welcome" :
             selectedApp.id === "tienda" ||
             selectedApp.id === "mundos" ||
