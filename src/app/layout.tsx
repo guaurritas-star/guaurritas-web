@@ -13,6 +13,7 @@ import "./retro-controls.css";
 import "./boutique-shopping.css";
 import "./shopping-experience.css";
 import "./store-native-window.css";
+import "./ux-overlap-fixes.css";
 
 const mansalva = Mansalva({
   weight: "400",
