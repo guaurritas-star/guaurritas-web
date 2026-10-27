@@ -41,17 +41,17 @@ export default function OsCartNotification() {
 
   return (
     <ShoppingWindow className="os-cart-notification shopping-window" role="status" aria-label="Producto añadido al carrito">
-      <ShoppingWindowHeader className="os-cart-notification-titlebar shopping-window-header">
-        <span className="os-cart-notification-caption retro-window-caption">
+      <ShoppingWindowHeader className="os-cart-notification-titlebar shopping-window-header retro-window-titlebar">
+        <p className="os-cart-notification-caption retro-window-caption">
           <span className="os-cart-notification-caption-icon" aria-hidden="true"><SystemIcon name="cart" /></span>
           Carrito.exe
-        </span>
-        <button
+        </p>
+        <ShoppingButton
           type="button"
-          className="os-cart-notification-close shopping-window-control"
+          className="os-cart-notification-close shopping-window-control retro-window-control retro-window-close"
           aria-label="Cerrar aviso del carrito"
           onClick={dismiss}
-        >×</button>
+        ><span aria-hidden="true">×</span></ShoppingButton>
       </ShoppingWindowHeader>
       <div className="os-cart-notification-client">
         <div className="os-cart-notification-body">
