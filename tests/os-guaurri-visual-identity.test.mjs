@@ -22,9 +22,10 @@ test("mini ventana y escritorio siguen compilando como TSX válido", () => {
 test("aviso usa ventana y botón auténticos de Tienda sin adornos añadidos", () => {
   assert.match(toast, /ShoppingWindow, ShoppingWindowHeader/);
   assert.match(toast, /<ShoppingWindow className="os-cart-notification shopping-window"/);
-  assert.match(toast, /<ShoppingWindowHeader className="os-cart-notification-titlebar shopping-window-header"/);
+  assert.match(toast, /<ShoppingWindowHeader className="os-cart-notification-titlebar shopping-window-header retro-window-titlebar"/);
   assert.match(toast, /<ShoppingButton[\s\S]*?\$tone="peach"/);
   assert.match(toast, /Carrito\.exe/);
+  assert.match(toast, /os-cart-notification-close shopping-window-control retro-window-control retro-window-close/);
   assert.match(toast, /Se agregó a tu carrito/);
   assert.doesNotMatch(toast, /mascot|LISTO PARA CONSENTIR/);
   assert.match(toast, /requestSystemCartOpen\(\)/);
@@ -58,4 +59,16 @@ test("sin interrupciones en móvil ni para usuarios con movimiento reducido", ()
   assert.match(styles, /html\.guaurritas-system-cart-open \.shopping-window\.os-cart-notification/);
   assert.match(styles, /\.desktop-status-help \{ display: none; \}/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
+});
+
+test("mini Carrito.exe comparte marco redondeado, título y control de Tienda.exe", () => {
+  assert.match(toast, /<ShoppingWindow/);
+  assert.match(toast, /<ShoppingWindowHeader/);
+  assert.match(toast, /<ShoppingButton[\s\S]*?os-cart-notification-close/);
+  assert.match(styles, /\.shopping-window\.os-cart-notification \{[\s\S]*?border-radius: 16px 16px 5px 5px !important/);
+  assert.match(styles, /\.shopping-window-header\.os-cart-notification-titlebar \{[\s\S]*?min-height: 56px/);
+  assert.match(styles, /\.shopping-window-header\.os-cart-notification-titlebar \{[\s\S]*?background: linear-gradient\(180deg, #9eb1cb/);
+  assert.match(styles, /\.os-cart-notification-close\.shopping-window-control \{[\s\S]*?background: linear-gradient\(180deg, #d7b2c2/);
+  assert.match(styles, /bottom: 152px/);
+  assert.match(styles, /@media \(min-width: 640px\) and \(max-height: 520px\)/);
 });
