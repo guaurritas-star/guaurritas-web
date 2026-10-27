@@ -1,0 +1,50 @@
+name: Verificar tienda única Guaurriverse sin publicar
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/guaurriverse-store*"
+      - ".github/workflows/world-store-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  world-store-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Preparar configuración del sitio
+        run: cp .env.development .env.production
+      - name: Pruebas de regresión
+        run: npm test
+      - name: Compilar y validar TypeScript
+        run: npm run build
+      - name: Preparar navegadores de prueba
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Montar exportación estática local (sin publicar)
+        run: |
+          mkdir -p .preview/guaurritas-web
+          cp -a out/. .preview/guaurritas-web/
+      - name: Verificar Cuisine, Couture y checkout en Chromium
+        run: WORLD_STORE_BROWSER=chromium node tests/guaurriverse-store-browser-smoke.mjs
+      - name: Verificar Cuisine, Couture y checkout en WebKit
+        run: WORLD_STORE_BROWSER=webkit node tests/guaurriverse-store-browser-smoke.mjs
+      - name: Guardar capturas si falla alguna prueba
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: world-store-smoke-failures
+          path: world-store-failures/
+          if-no-files-found: ignore
