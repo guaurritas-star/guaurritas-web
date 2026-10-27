@@ -107,6 +107,11 @@
   border-top: 1px solid #d5ddeb;
   padding-top: 6px;
 }
+.store-app--world .shopping-world-back-short { display: none; }
+@media (max-width: 360px) {
+  .store-app--world .shopping-world-back-full { display: none; }
+  .store-app--world .shopping-world-back-short { display: inline; }
+}
 @media (max-width: 800px) {
   .store-app--world .shopping-world-toolbar {
     grid-template-columns: minmax(0, 1fr) auto;
