@@ -1,0 +1,51 @@
+name: Validar capas desktop y compra móvil sin publicar
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/os-responsive-browser-smoke.mjs"
+      - "tests/ux-overlap-protection.test.mjs"
+      - ".github/workflows/ux-responsive-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  responsive-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Preparar exportación pública local
+        run: cp .env.development .env.production
+      - name: Pruebas de regresión
+        run: npm test
+      - name: Validar TypeScript y compilar
+        run: npm run build
+      - name: Instalar Chromium y WebKit
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Montar sitio estático local, sin publicar
+        run: |
+          mkdir -p .preview/guaurritas-web
+          cp -a out/. .preview/guaurritas-web/
+      - name: Verificar desktop y móvil en Chromium
+        run: OS_QA_ENGINE=chromium node tests/os-responsive-browser-smoke.mjs
+      - name: Verificar móvil y entorno tipo Wix en WebKit
+        run: OS_QA_ENGINE=webkit node tests/os-responsive-browser-smoke.mjs
+      - name: Guardar capturas si falla la verificación
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: os-responsive-qa-failures
+          path: os-qa-artifacts/
+          if-no-files-found: ignore
