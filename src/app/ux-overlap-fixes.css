@@ -1,0 +1,56 @@
+/* Focused interaction fixes. Keep existing window geometry, checkout and Wix bridge. */
+
+/* The cart confirmation must never steal clicks from a product's purchase CTA.
+   Only its two actual controls remain interactive (close and view cart).
+   This also allows scroll gestures through the informational panel. */
+@media (min-width: 640px) {
+  .shopping-window.os-cart-notification {
+    pointer-events: none !important;
+  }
+  .shopping-window.os-cart-notification
+  :is(.os-cart-notification-close, .os-cart-notification-open) {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+  }
+}
+
+/* The cart is one vertically scrollable surface on mobile.
+   Trap the gesture at its own bounds so Wix/underlying product doesn't scroll
+   when a long order or keyboard-focused checkout field reaches an edge. */
+@media (max-width: 639px) {
+  .taskbar-cart-panel {
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .taskbar-cart-panel .taskbar-cart-scroll-body {
+    min-width: 0;
+    overflow: visible;
+  }
+  .taskbar-cart-panel .taskbar-cart-titlebar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .taskbar-cart-panel :is(button, input, select, textarea) {
+    scroll-margin-block: 68px 18px;
+  }
+  .taskbar-cart-panel .taskbar-cart-footer {
+    padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Keep the product back/cart controls tappable at 360px and with large text. */
+  .store-app .boutique-product > .retail-cart-toolbar {
+    min-width: 0;
+    gap: 8px;
+    padding-inline: max(12px, env(safe-area-inset-left))
+                    max(12px, env(safe-area-inset-right));
+  }
+  .store-app .boutique-product > .retail-cart-toolbar > button {
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+  .store-app .boutique-product > .retail-cart-toolbar > .retail-system-cart {
+    max-width: calc(100% - 56px);
+    min-width: 0;
+  }
+}
