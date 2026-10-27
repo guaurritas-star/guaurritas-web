@@ -81,10 +81,21 @@ try {
       assert.equal(await page.getByText(categoryName(world), { exact: true }).count() > 0, true, "chosen world visible");
       const cart = page.getByRole("button", { name: /Abrir carrito con/ });
       await cart.waitFor({ state: "visible" });
-      await page.getByRole("button", { name: /Todo México/ }).click();
-      assert.equal(await page.getByRole("button", { name: /Todo México/ }).getAttribute("aria-pressed"), "true", "delivery change available in Guaurriverse");
-      await page.getByRole("button", { name: /Volver a explorar los mundos/ }).click();
+      assert.equal(await page.getByRole("group", { name: "Ubicación de compra" }).count(), 0, "world header must not ask for delivery again");
+      assert.equal(await page.locator(".shopping-world-mode").getAttribute("aria-label"), "Zona de entrega elegida en Guaurriverse: León, Guanajuato");
+      const back = page.getByRole("button", { name: "Volver a explorar los mundos" });
+      await back.click();
       await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).waitFor({ state: "visible" });
+      const nationalWorldChoice = page.getByRole("button", { name: "Nacional", exact: true });
+      await nationalWorldChoice.click();
+      assert.equal(await nationalWorldChoice.getAttribute("aria-pressed"), "true", "delivery can be changed at the Guaurriverse entrance");
+      await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).click();
+      await page.locator(".shopping-world-mode").waitFor({ state: "visible" });
+      assert.equal(await page.locator(".shopping-world-mode").getAttribute("aria-label"), "Zona de entrega elegida en Guaurriverse: Todo México");
+      assert.equal(await page.getByRole("group", { name: "Ubicación de compra" }).count(), 0, "no repeated delivery picker after changing destination");
+      const toolbar = page.locator(".shopping-world-toolbar");
+      const toolbarBox = await toolbar.boundingBox();
+      assert.ok(toolbarBox && toolbarBox.x >= -1 && toolbarBox.x + toolbarBox.width <= width + 2, "world header fits viewport");
       assert.deepEqual(unexpectedPageErrors(errors), [], "page errors: " + errors.join("; "));
       console.log("PASS world/store shared design", engine, width, world);
     } catch (e) {

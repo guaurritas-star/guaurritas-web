@@ -1,45 +1,139 @@
-/* Guaurriverse reuses the same Store chrome; only the world selection UI differs. */
-.store-app--world .shopping-world-context {
-  grid-column: 2;
-  grid-row: 1;
+/* Inside a chosen world, show context rather than repeat Guaurriverse's delivery selector. */
+.store-app--world .shopping-navigation {
   display: flex;
-  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding-block: 10px;
+}
+.store-app--world .shopping-world-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: flex-end;
+  column-gap: clamp(12px, 2vw, 26px);
+  min-width: 0;
+}
+.store-app--world .shopping-world-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  white-space: nowrap;
+  min-height: 46px;
+  font-size: 16px;
+}
+.store-window-dialog .store-app--world .shopping-navigation .shopping-world-back {
+  background: linear-gradient(#fff, #e3eaf5);
+  border-color: #8fa3c3;
+  color: #344b76;
+}
+.store-app--world .shopping-world-back-symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid #425b8c;
+  border-radius: 7px;
+  background: #425b8c;
+  color: #fff;
+  font: 600 20px/1 var(--font-mansalva), cursive;
+}
+.store-app--world .shopping-world-identity {
+  min-width: 0;
+  padding-left: clamp(10px, 1.6vw, 20px);
+  border-left: 2px solid #d9a689;
+}
+.store-app--world .shopping-world-eyebrow {
+  display: block;
+  margin-bottom: 2px;
+  color: #63718a;
+  font: 400 12px/1.3 var(--font-mansalva), cursive;
+}
+.store-app--world .shopping-world-eyebrow span { color: #a66d88; }
+.store-app--world .shopping-world-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.store-app--world .shopping-world-name-row .system-icon {
+  width: 26px !important;
+  height: 26px !important;
+}
+.store-app--world .shopping-world-name-row strong {
+  color: #344b76;
+  font: 600 clamp(18px, 1.6vw, 23px)/1.25 var(--font-cinzel), serif;
+}
+.store-app--world .shopping-world-actions {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
-.store-app--world .shopping-world-context-copy {
+.store-app--world .shopping-world-mode {
   display: flex;
+  align-items: center;
   min-width: 0;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #ccd5e4;
+  border-radius: 8px;
+  background: #f9fafc;
+  box-shadow: inset 0 1px #fff;
+}
+.store-app--world .shopping-world-mode .system-icon {
+  font-size: 16px;
+}
+.store-app--world .shopping-world-mode-copy {
+  display: flex;
   flex-direction: column;
-  gap: 1px;
-  color: #53627a;
-  font: 400 13px/1.3 var(--font-mansalva), cursive;
-}
-.store-app--world .shopping-world-context-copy strong {
-  color: #425b8c;
-  font: 500 17px/1.3 var(--font-cinzel), serif;
-}
-.store-app--world .shopping-world-context button {
-  flex: 0 0 auto;
-  min-height: 40px;
+  min-width: 0;
   white-space: nowrap;
+  line-height: 1.2;
 }
-@media (max-width: 1000px) {
-  .store-app--world .shopping-world-context {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-content: space-between;
-    padding-top: 3px;
-    border-top: 1px solid #cbd4e1;
+.store-app--world .shopping-world-mode-copy > span {
+  color: #64718a;
+  font: 400 11px/1.2 var(--font-mansalva), cursive;
+}
+.store-app--world .shopping-world-mode-copy strong {
+  color: #344b76;
+  font: 600 13px/1.3 var(--font-cinzel), serif;
+}
+.store-app--world .shopping-store-cart {
+  grid-column: auto;
+  grid-row: auto;
+  min-height: 46px;
+}
+.store-app--world .store-delivery-details {
+  border-top: 1px solid #d5ddeb;
+  padding-top: 6px;
+}
+.store-app--world .shopping-world-back-short { display: none; }
+@media (max-width: 360px) {
+  .store-app--world .shopping-world-back-full { display: none; }
+  .store-app--world .shopping-world-back-short { display: inline; }
+}
+@media (max-width: 800px) {
+  .store-app--world .shopping-world-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "identity cart" "back mode";
+    gap: 8px;
   }
+  .store-app--world .shopping-world-actions { display: contents; }
+  .store-app--world .shopping-world-identity { grid-area: identity; }
+  .store-app--world .shopping-world-back { grid-area: back; width: fit-content; }
+  .store-app--world .shopping-world-mode { grid-area: mode; }
+  .store-app--world .shopping-store-cart { grid-area: cart; justify-self: end; }
 }
 @media (max-width: 639px) {
-  .store-app--world .shopping-world-context button {
-    min-height: 44px;
-    padding: 8px 12px;
-  }
-  .store-app--world .shopping-world-context-copy strong { font-size: 15px; }
+  .store-app--world .shopping-navigation { padding: 9px 12px; }
+  .store-app--world .shopping-world-identity { padding-left: 10px; }
+  .store-app--world .shopping-world-back { min-height: 44px; padding: 6px 10px; font-size: 14px; }
+  .store-app--world .shopping-world-back-symbol { width: 26px; height: 26px; flex-basis: 26px; }
+  .store-app--world .shopping-world-mode { padding: 5px 8px; }
+  .store-app--world .shopping-world-mode .system-icon { display: none; }
+  .store-app--world .shopping-world-name-row strong { font-size: 17px; }
+  .store-app--world .shopping-world-eyebrow { font-size: 11px; }
+  .store-app--world .shopping-world-mode-copy strong { font-size: 12px; }
 }
 
 /* Simple orientation, not a new checkout: keep the existing form and payment logic. */
