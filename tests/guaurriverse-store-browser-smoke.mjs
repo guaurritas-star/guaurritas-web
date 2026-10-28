@@ -105,6 +105,53 @@ try {
     await context.close();
   }
 
+  // Catalogue UX 2.0: product cards first, search reset and responsive layout.
+  for (const width of [1366, 390]) {
+    const context = await browser.newContext({
+      viewport: { width, height: width === 390 ? 844 : 768 },
+      isMobile: width === 390, hasTouch: width === 390,
+    });
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", error => errors.push(error.message));
+    try {
+      await page.goto(base + "/guaurritas-web/?app=tienda", { waitUntil: "domcontentloaded" });
+      const menu = page.locator(".cuisine-catalog-ux");
+      await menu.waitFor({ state: "visible", timeout: 25000 });
+      const cards = menu.locator(".cuisine-catalog-card");
+      const initialCount = await cards.count();
+      assert.ok(initialCount >= 3, "catalogue shows actual product cards");
+      const search = page.getByRole("searchbox", { name: "Buscar en el menú" });
+      await search.fill("petcake");
+      const filteredCount = await cards.count();
+      assert.ok(filteredCount > 0 && filteredCount < initialCount, "search filters real products");
+      await page.getByRole("button", { name: "Limpiar búsqueda" }).click();
+      assert.equal(await cards.count(), initialCount, "clear search restores products");
+      await menu.getByRole("group", { name: "Filtrar productos por categoría" })
+        .getByRole("button", { name: "Petcakes" }).click();
+      assert.ok(await cards.count() > 0 && await cards.count() < initialCount, "category narrows catalogue");
+      await page.getByRole("button", { name: "Limpiar filtros" }).click();
+      assert.equal(await cards.count(), initialCount, "reset restores full menu");
+      const metrics = await cards.first().evaluate(el => {
+        const card = el.getBoundingClientRect();
+        const photo = el.querySelector(".cuisine-catalog-card-media").getBoundingClientRect();
+        return { x: card.x, right: card.right, width: card.width, photoWidth: photo.width,
+          display: getComputedStyle(el).display, viewport: window.innerWidth };
+      });
+      assert.ok(metrics.x >= -2 && metrics.right <= width + 2, "product card stays inside viewport");
+      if (width === 390) {
+        assert.equal(metrics.display, "grid", "mobile presents compact horizontal cards");
+        assert.ok(metrics.photoWidth >= 110 && metrics.photoWidth < metrics.width * .55, "photo remains readable without full-width row");
+      }
+      assert.deepEqual(unexpectedPageErrors(errors), [], "unexpected catalogue errors: " + errors.join("; "));
+      console.log("PASS Cuisine catalogue UX 2.0", engine, width);
+    } catch (error) {
+      failures++; await capture(page, "catalogue-" + width);
+      console.error("FAIL Cuisine catalogue UX", engine, width, String(error), errors);
+    }
+    await context.close();
+  }
+
   for (const embedded of [false, true]) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     await context.addInitScript(seedCart);
