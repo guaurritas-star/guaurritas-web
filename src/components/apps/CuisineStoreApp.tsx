@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useBrowserSearch } from "@/lib/browser-location";
 import { useAsyncResource } from "@/lib/use-async-resource";
 import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { addCartItem, cartFulfillmentConflict, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
@@ -2968,8 +2968,8 @@ export default function CuisineStoreApp({
                 style={{ backgroundColor: product.imageTone }}
               >
                 <span
-                  className="absolute inset-0"
-                  style={{ transform: `scale(${product.imageScale ?? 1})` }}
+                  className="cuisine-catalog-image-shell absolute inset-0"
+                  style={{ "--cuisine-image-zoom": product.imageScale ?? 1 } as CSSProperties}
                 >
                   <Image
                     src={withBasePath(product.image)}
@@ -2980,15 +2980,19 @@ export default function CuisineStoreApp({
                     className="object-contain p-5 transition duration-500 group-hover:scale-105"
                   />
                 </span>
-                {(halloweenRate(product.id) > 0 || product.badge) && (
-                  <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#263650] px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
-                    {halloweenRate(product.id) > 0 ? "Halloween · −15 %" : product.badge}
-                  </span>
-                )}
               </span>
               <span className="cuisine-catalog-card-body block p-4 sm:flex sm:flex-1 sm:flex-col">
-                <span className="font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
-                  {product.eyebrow}
+                <span className="cuisine-catalog-card-meta">
+                  <span className="cuisine-catalog-card-eyebrow font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
+                    {product.eyebrow}
+                  </span>
+                  {(halloweenRate(product.id) > 0 || product.badge) && (
+                    <span className="cuisine-catalog-card-badge">
+                      {halloweenRate(product.id) > 0
+                        ? `Halloween · −${Math.round(halloweenRate(product.id) * 100)} %`
+                        : product.badge}
+                    </span>
+                  )}
                 </span>
                 <span className="cuisine-catalog-card-heading mt-1.5 flex items-start justify-between gap-3">
                   <span className="cuisine-catalog-product-name font-serif text-lg font-semibold leading-snug text-[#263650]">
