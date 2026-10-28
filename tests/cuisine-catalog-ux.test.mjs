@@ -39,5 +39,5 @@ test("Search, categories and reset preserve original filters", () => {
   assert.match(cuisine, /aria-pressed=\{category === item\.id\}/);
   assert.match(cuisine, /Limpiar búsqueda/);
   assert.match(cuisine, /Limpiar filtros/);
-  assert.match(cuisine, /setQuery\(" "\)/);
+  assert.match(cuisine, /setCategory\("all"\)/);
 });
