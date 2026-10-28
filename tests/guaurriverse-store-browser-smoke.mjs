@@ -105,6 +105,42 @@ try {
     await context.close();
   }
 
+  // Product configuration UX: guide uses the actual requirements; no checkout mutations.
+  for (const width of [1366, 390]) {
+    const context = await browser.newContext({
+      viewport: { width, height: width === 390 ? 844 : 768 },
+      isMobile: width === 390, hasTouch: width === 390,
+    });
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    try {
+      await page.goto(base + "/guaurritas-web/?app=tienda", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: "Ver opciones de Petcakes" }).click();
+      const detail = page.locator(".cuisine-detail-ux");
+      await detail.waitFor({ state: "visible" });
+      const guide = detail.getByRole("region", { name: "Progreso de configuración" });
+      const progress = guide.getByRole("progressbar", { name: "Elecciones de producto completadas" });
+      assert.equal(await progress.getAttribute("aria-valuemin"), "0");
+      assert.equal(await progress.getAttribute("aria-valuemax"), "5");
+      assert.equal(await progress.getAttribute("aria-valuenow"), "1", "default small size is shown as selected");
+      assert.match(await guide.innerText(), /Te falta: Acabado, Lomito o michi, Proteína, Personalización/);
+      await detail.getByRole("button", { name: /^betún/i }).click();
+      await detail.getByRole("button", { name: /Lomito/ }).click();
+      await detail.getByRole("button", { name: "Pollo", exact: true }).click();
+      await detail.getByRole("button", { name: "No", exact: true }).click();
+      assert.equal(await progress.getAttribute("aria-valuenow"), "5", "progress reflects real selections");
+      assert.match(await guide.innerText(), /¡Listo para agregar!/);
+      assert.equal(await detail.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
+      assert.deepEqual(unexpectedPageErrors(errors), [], "unexpected product detail errors");
+      console.log("PASS Cuisine product configuration guide", engine, width);
+    } catch (error) {
+      failures++; await capture(page, "product-guide-" + width);
+      console.error("FAIL Cuisine product guide", engine, width, String(error), errors);
+    }
+    await context.close();
+  }
+
   // Catalogue UX 2.0: product cards first, search reset and responsive layout.
   for (const width of [1366, 390]) {
     const context = await browser.newContext({

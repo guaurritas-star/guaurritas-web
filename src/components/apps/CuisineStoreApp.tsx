@@ -221,6 +221,7 @@ function PetRecipeFields({
               key={kind}
               type="button"
               onClick={() => onPetTypeChange(kind)}
+              aria-pressed={petType === kind}
               className={`rounded-xl border px-3 py-3 font-interface text-[11px] font-bold capitalize transition ${
                 petType === kind
                   ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
@@ -244,6 +245,7 @@ function PetRecipeFields({
                 key={protein}
                 type="button"
                 onClick={() => onPetProteinChange(protein)}
+                aria-pressed={petProtein === protein}
                 className={`rounded-xl border px-2 py-3 font-interface text-[10px] font-bold transition ${
                   petProtein === protein
                     ? "border-[#5e96a5] bg-[#e8f2f4] text-[#263650] shadow-[2px_2px_0_#5e96a5]"
@@ -1534,8 +1536,60 @@ export default function CuisineStoreApp({
       !needsKitSelection &&
       !needsDescubreSelection;
 
+    // Read-only checklist of the exact selections already required by the cart.
+    // Never mutate business rules, product options or prices from this UI.
+    const selectionSteps: { label: string; complete: boolean }[] = [];
+    if (isPetcake) {
+      selectionSteps.push(
+        { label: `Tamaño: ${petcakeSizes[petcakeSize]}`, complete: true },
+        { label: "Acabado", complete: petcakeFinish !== null },
+      );
+    } else if (isBulkCookies) {
+      selectionSteps.push(
+        { label: "Cantidad", complete: bulkQuantityIsValid },
+        { label: "Distribución de sabores", complete: bulkDistributionIsComplete },
+      );
+    } else if (isGuaurriCookiesKit) {
+      selectionSteps.push(
+        { label: "Sabores disponibles", complete: Boolean(kitConfig?.flavors.length) && !kitConfigLoading },
+        { label: `${KIT_GUAURRICOOKIES_BAG_COUNT} bolsitas`, complete: kitSelectionComplete },
+      );
+    } else if (isDescubreGuaurritas) {
+      selectionSteps.push(
+        { label: "Opciones disponibles", complete: Boolean(kitConfig?.flavors.length && descubreConfig?.sazonadores.length) && descubreConfig?.sticksAvailable !== false && !kitConfigLoading && !descubreConfigLoading },
+        { label: `${DESCUBRE_GUAURRITAS_COOKIE_COUNT} bolsitas`, complete: descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT },
+        { label: "Sazonador", complete: Boolean(descubreSazonador) },
+      );
+    } else if (selectedProduct.options.length > 1) {
+      selectionSteps.push({ label: `Presentación: ${currentOption.label}`, complete: true });
+    }
+    if (needsRecipe) {
+      selectionSteps.push(
+        { label: "Lomito o michi", complete: petType !== null },
+        { label: "Proteína", complete: petProtein !== null },
+      );
+    }
+    if (isChilaquidogs) {
+      selectionSteps.push(
+        { label: "Proteína", complete: chilaquiProtein !== null },
+        { label: "Salsa", complete: chilaquiSalsa !== null },
+      );
+    }
+    if (isGorrito) {
+      selectionSteps.push({ label: "Talla", complete: gorritoPetSize !== null });
+    }
+    if (needsBirthdayCandleNumber || (isVelitas && selectedOption === 1)) {
+      selectionSteps.push({ label: "Número de velita", complete: !needsBirthdayCandleNumber });
+    }
+    if (selectedProduct.customizable) {
+      selectionSteps.push({ label: "Personalización", complete: customize !== null });
+    }
+    const completedSteps = selectionSteps.filter((step) => step.complete).length;
+    const pendingSteps = selectionSteps.filter((step) => !step.complete).map((step) => step.label);
+    const showSelectionGuide = selectionSteps.length > 1 || pendingSteps.length > 0;
+
     return (
-      <section ref={productViewRef} className="boutique-retail boutique-product -m-4 min-h-[32rem] bg-white sm:-m-6">
+      <section ref={productViewRef} className="boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6">
         <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -1586,6 +1640,60 @@ export default function CuisineStoreApp({
             <p className="mt-3 max-w-xl text-lg leading-7 text-[#53627a]">
               {selectedProduct.description}
             </p>
+            {showSelectionGuide && (
+              <section className="cuisine-selection-guide" aria-label="Progreso de configuración">
+                <div className="cuisine-selection-topline">
+                  <div className="cuisine-selection-heading">
+                    <span className="cuisine-selection-eyebrow">Tu pedido, paso a paso</span>
+                    <strong>{canAdd ? "¡Listo para agregar!" : "Personaliza tu elección"}</strong>
+                  </div>
+                  <span className="cuisine-selection-counter" aria-live="polite">
+                    {completedSteps}/{selectionSteps.length} elecciones
+                  </span>
+                </div>
+                <div
+                  className="cuisine-selection-track"
+                  role="progressbar"
+                  aria-label="Elecciones de producto completadas"
+                  aria-valuemin={0}
+                  aria-valuemax={selectionSteps.length}
+                  aria-valuenow={completedSteps}
+                >
+                  <span style={{ width: `${(completedSteps / selectionSteps.length) * 100}%` }} />
+                </div>
+                <ul className="cuisine-selection-steps">
+                  {selectionSteps.map((step) => (
+                    <li key={step.label} className={step.complete ? "is-complete" : "is-pending"}>
+                      <span aria-hidden="true">{step.complete ? "✓" : "○"}</span>
+                      {step.label}
+                    </li>
+                  ))}
+                </ul>
+                <p className="cuisine-selection-next" aria-live="polite">
+                  {canAdd
+                    ? "Ya completaste las elecciones. Revisa el precio y agrega tu producto al carrito."
+                    : `Te falta: ${pendingSteps.join(", ")}.`}
+                </p>
+                <div className="cuisine-selection-price">
+                  <span>Precio de tu selección</span>
+                  <strong>
+                    {isBulkCookies
+                      ? !bulkQuantityIsValid
+                        ? "Define la cantidad"
+                        : isBulkWholesaleQuote
+                          ? "Cotización de mayoreo"
+                          : money(bulkPrice)
+                      : isGuaurriCookiesKit
+                        ? <ProductPrice price={halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE)} original={KIT_GUAURRICOOKIES_PRICE} />
+                      : isDescubreGuaurritas
+                        ? money(DESCUBRE_GUAURRITAS_PRICE)
+                      : isPetcake && petcakeFinish === null
+                        ? "Elige acabado"
+                        : <ProductPrice price={currentDisplayPrice} original={getCuisineRegularOptionPrice(selectedProduct.id, currentOptionIndex, currentOption.price, fulfillmentMode)} />}
+                  </strong>
+                </div>
+              </section>
+            )}
             {isEdibleProduct && !isSticks && <p className="product-safety-note">Premio complementario; no sustituye su alimento diario. Si tiene alergias, intolerancias o una dieta veterinaria, consúltanos antes de pedir.</p>}
             {halloweenRate(selectedProduct.id) > 0 && <p className="halloween-product-note">Halloween · 15 % de descuento aplicado · hasta el 31 de octubre</p>}
 
@@ -2635,6 +2743,7 @@ export default function CuisineStoreApp({
                       key={choice}
                       type="button"
                       onClick={() => setCustomize(choice)}
+                      aria-pressed={customize === choice}
                       className={`min-w-20 rounded-full border px-4 py-2 font-interface text-xs font-bold ${
                         customize === choice
                           ? "border-[#a66271] bg-[#a66271] text-white"
