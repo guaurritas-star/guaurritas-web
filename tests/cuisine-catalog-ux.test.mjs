@@ -48,3 +48,18 @@ test("Search, categories and reset preserve original filters", () => {
   assert.match(cuisine, /Limpiar filtros/);
   assert.match(cuisine, /setCategory\("all"\)/);
 });
+
+test("Cuisine detail reflects checkout requirements without changing cart actions", () => {
+  assert.match(cuisine, /const selectionSteps: \{ label: string; complete: boolean \}\[\]/);
+  assert.match(cuisine, /const pendingSteps = selectionSteps\.filter/);
+  assert.match(cuisine, /aria-label="Elecciones de producto completadas"/);
+  assert.match(cuisine, /role="progressbar"/);
+  assert.match(cuisine, /aria-pressed=\{petType === kind\}/);
+  assert.match(cuisine, /aria-pressed=\{petProtein === protein\}/);
+  assert.match(cuisine, /aria-pressed=\{customize === choice\}/);
+  assert.match(cuisine, /disabled=\{!canAdd\}/);
+  const css = readFileSync("src/app/cuisine-product-ux.css", "utf8");
+  assert.match(css, /\.cuisine-detail-ux \.cuisine-selection-guide/);
+  assert.doesNotMatch(css, /\.taskbar-cart-panel|\.boutique-couture/);
+  assert.match(layout, /import "\.\/cuisine-product-ux\.css"/);
+});
