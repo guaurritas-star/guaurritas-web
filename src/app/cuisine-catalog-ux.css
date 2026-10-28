@@ -133,6 +133,39 @@
 .cuisine-catalog-ux .cuisine-catalog-grid {
   margin-top: 9px;
 }
+.cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-image-shell {
+  transform: scale(var(--cuisine-image-zoom, 1));
+}
+.cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-image-shell > img {
+  object-fit: contain;
+}
+.cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+.cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-eyebrow {
+  min-width: 0;
+}
+.cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 23px;
+  padding: 3px 8px;
+  border: 1px solid #b9c6db;
+  border-radius: 5px;
+  background: #e5ebf5;
+  color: #344b76;
+  font: 400 12px/1.2 var(--font-mansalva), cursive;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-body {
   display: flex;
   flex-direction: column;
@@ -206,7 +239,33 @@
     border-bottom: 0;
     border-right: 1px solid #cbd5da;
   }
-  .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-media img { padding: 8px; }
+  /* Center every original product photo in a contained, square composition.
+     Don't stretch the photo canvas to the whole text column height. */
+  .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-image-shell {
+    position: absolute;
+    top: 50%;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    transform: translateY(-50%);
+  }
+  .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-image-shell > img {
+    padding: 10px;
+    object-fit: contain;
+    object-position: center;
+  }
+  .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-badge {
+    padding: 3px 7px;
+    font-size: 12px;
+  }
   .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-body { padding: 10px; min-width: 0; }
   .cuisine-catalog-ux .cuisine-catalog-card .cuisine-catalog-card-heading {
     display: flex;

@@ -27,6 +27,13 @@ test("The product-first menu is scoped only to Cuisine listing", () => {
   assert.match(cuisine, /cuisine-catalog-grid/);
   assert.match(cuisine, /cuisine-catalog-card-media/);
   assert.match(cuisine, /cuisine-catalog-product-price/);
+  assert.match(cuisine, /cuisine-catalog-image-shell/);
+  assert.match(cuisine, /cuisine-catalog-card-meta/);
+  assert.match(cuisine, /cuisine-catalog-card-badge/);
+  assert.doesNotMatch(cuisine, /absolute left-3 top-3 rounded-full border border-white\/70/);
+  assert.match(css, /transform: translateY\(-50%\)/);
+  assert.match(css, /object-fit: contain/);
+  assert.match(css, /overflow-wrap: anywhere/);
   assert.match(cuisine, /Ver opciones de \$\{product\.name\}/);
   assert.match(css, /\.cuisine-catalog-ux \.cuisine-catalog-card/);
   assert.doesNotMatch(css, /(^|\n)\s*(html|body|\.taskbar-cart-panel|\.boutique-couture)\s*\{/);

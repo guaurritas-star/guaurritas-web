@@ -139,6 +139,28 @@ try {
           display: getComputedStyle(el).display, viewport: window.innerWidth };
       });
       assert.ok(metrics.x >= -2 && metrics.right <= width + 2, "product card stays inside viewport");
+      const tagSample = menu.locator(".cuisine-catalog-card:has(.cuisine-catalog-card-badge)");
+      assert.ok(await tagSample.count() >= 2, "seasonal and personalization badges exist");
+      const tagFits = await tagSample.evaluateAll(cards => cards.every(card => {
+        const tag = card.querySelector(".cuisine-catalog-card-badge").getBoundingClientRect();
+        const body = card.querySelector(".cuisine-catalog-card-body").getBoundingClientRect();
+        return tag.left >= body.left - 1 && tag.right <= body.right + 1 &&
+          tag.top >= body.top - 1 && tag.bottom <= body.bottom + 1;
+      }));
+      assert.ok(tagFits, "no badge overflows or obscures the product photo");
+      const media = await cards.first().evaluate(card => {
+        const photo = card.querySelector(".cuisine-catalog-card-media").getBoundingClientRect();
+        const shell = card.querySelector(".cuisine-catalog-image-shell").getBoundingClientRect();
+        const img = card.querySelector("img");
+        return { photoHeight: photo.height, photoWidth: photo.width,
+          shellHeight: shell.height, shellWidth: shell.width,
+          fit: getComputedStyle(img).objectFit };
+      });
+      assert.equal(media.fit, "contain", "original product image keeps its proportions");
+      if (width === 390) {
+        assert.ok(Math.abs(media.shellHeight - media.shellWidth) <= 2, "mobile photo uses a square visual canvas");
+        assert.ok(media.shellHeight <= media.photoHeight + 2, "mobile photo fits within its panel");
+      }
       if (width === 390) {
         assert.equal(metrics.display, "grid", "mobile presents compact horizontal cards");
         assert.ok(metrics.photoWidth >= 110 && metrics.photoWidth < metrics.width * .55, "photo remains readable without full-width row");
