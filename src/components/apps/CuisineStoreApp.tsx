@@ -2876,7 +2876,7 @@ export default function CuisineStoreApp({
   }
 
   return (
-    <section className="boutique-retail boutique-catalog -m-4 min-h-[32rem] bg-white sm:-m-6">
+    <section className="boutique-retail boutique-catalog cuisine-catalog-ux -m-4 min-h-[32rem] bg-white sm:-m-6">
       {!embeddedInStore && <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-40 border-b border-[#b9c8d8] bg-[#eef5f7]/95 px-4 py-3 backdrop-blur sm:static sm:z-auto sm:bg-[#eef5f7] sm:backdrop-blur-none sm:px-6">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <button
@@ -2894,80 +2894,77 @@ export default function CuisineStoreApp({
       </div>}
 
       <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-7 sm:py-9">
-        <header className="grid items-end gap-6 border-b border-[#c8d5dc] pb-7 lg:grid-cols-[1fr_auto]">
-          <div>
-            <p className="font-interface text-[10px] font-bold uppercase tracking-[0.22em] text-[#5e96a5]">
-              ✦ Menú Guaurritas Cuisine ✦
-            </p>
-            <h2 className="mt-3 max-w-3xl font-serif text-3xl font-semibold leading-tight text-[#263650] sm:text-4xl">
-              Premios, antojitos y repostería hechos para ellos
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#53627a] sm:text-base">
-              Elige según especie, proteína y momento de consumo. Para celebrar,
-              premiar o consentir sin improvisar.
-            </p>
-            <span className="mt-4 inline-flex rounded-full border border-[#c4d2d9] bg-[#f6fafb] px-3 py-1.5 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#536a78]">
-              {fulfillmentMode === "national"
-                ? <><SystemIcon name="box" /> Catálogo con envío nacional</>
-                : <><SystemIcon name="pin" /> Catálogo completo de León</>}
-            </span>
+        <header className="cuisine-catalog-intro border-b border-[#c8d5dc]">
+          <div className="cuisine-catalog-intro-copy">
+            <p className="cuisine-catalog-eyebrow">✦ Menú Guaurritas Cuisine ✦</p>
+            <h2>Premios, antojitos y repostería para ellos</h2>
+            <p className="cuisine-catalog-lead">Encuentra algo rico para premiar, consentir o celebrar.</p>
           </div>
-          <div className="hidden rotate-1 border-2 border-[#425b8c] bg-white px-5 py-4 text-center shadow-[4px_4px_0_#9bc3ca] lg:block">
-            <span className="block font-serif text-lg font-semibold text-[#263650]">
-              Hecho para ellos
+          {!embeddedInStore && (
+            <span className="cuisine-catalog-location">
+              {fulfillmentMode === "national" ? (
+                <><SystemIcon name="box" /> Catálogo con envío nacional</>
+              ) : (
+                <><SystemIcon name="pin" /> Catálogo completo de León</>
+              )}
             </span>
-            <span className="mt-1 block font-interface text-[9px] uppercase tracking-[0.16em] text-[#68808c]">
-              Con el sello Guaurritas
-            </span>
-          </div>
+          )}
         </header>
 
-        <div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="retail-category-filters flex gap-2 overflow-x-auto pb-1">
+        <div className="cuisine-catalog-tools">
+          <label className="cuisine-catalog-search">
+            <span className="sr-only">Buscar en el menú</span>
+            <span className="cuisine-catalog-search-icon" aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar productos..."
+              aria-label="Buscar en el menú"
+            />
+            {query.length > 0 && (
+              <button type="button" onClick={() => setQuery("")} aria-label="Limpiar búsqueda" className="cuisine-catalog-clear-search">
+                ×
+              </button>
+            )}
+          </label>
+          <div className="retail-category-filters cuisine-catalog-filters" role="group" aria-label="Filtrar productos por categoría">
             {categories.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setCategory(item.id)}
                 aria-pressed={category === item.id}
-                className={`shrink-0 rounded-full border px-4 py-2 font-interface text-[10px] font-bold uppercase tracking-[0.09em] transition ${
-                  category === item.id
-                    ? "border-[#263650] bg-[#263650] text-white"
-                    : "border-[#b8c8d1] bg-white text-[#5f7180] hover:border-[#5e96a5] hover:bg-[#eef5f7]"
-                }`}
               >
                 {item.label}
               </button>
             ))}
           </div>
-          <label className="relative block w-full xl:w-72">
-            <span className="sr-only">Buscar en el menú</span>
-            <span
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6c8190]"
-              aria-hidden="true"
+        </div>
+        <div className="cuisine-catalog-results" role="status" aria-live="polite">
+          <span>{visibleProducts.length} {visibleProducts.length === 1 ? "producto" : "productos"}</span>
+          {(query || category !== "all") && (
+            <button
+              type="button"
+              onClick={() => { setQuery(""); setCategory("all"); }}
+              aria-label="Limpiar filtros"
             >
-              ⌕
-            </span>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar en el menú..."
-              className="w-full rounded-full border border-[#b8c8d1] bg-white py-2.5 pl-9 pr-4 text-xs text-[#263650] outline-none placeholder:text-[#8997a3] focus:border-[#5e96a5]"
-            />
-          </label>
+              Mostrar todo el menú
+            </button>
+          )}
         </div>
 
-        <div className="boutique-product-grid mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="boutique-product-grid cuisine-catalog-grid mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((product) => (
             <button
               key={product.id}
               type="button"
               onClick={() => openProduct(product)}
-              className="boutique-product-card group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
+              aria-label={`Ver opciones de ${product.name}`}
+              className="boutique-product-card cuisine-catalog-card group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
             >
               <span
-                className="relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da] sm:shrink-0"
+                className="cuisine-catalog-card-media relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da] sm:shrink-0"
                 style={{ backgroundColor: product.imageTone }}
               >
                 <span
@@ -2989,23 +2986,23 @@ export default function CuisineStoreApp({
                   </span>
                 )}
               </span>
-              <span className="block p-4 sm:flex sm:flex-1 sm:flex-col">
+              <span className="cuisine-catalog-card-body block p-4 sm:flex sm:flex-1 sm:flex-col">
                 <span className="font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
                   {product.eyebrow}
                 </span>
-                <span className="mt-1.5 flex items-start justify-between gap-3">
-                  <span className="font-serif text-lg font-semibold leading-snug text-[#263650]">
+                <span className="cuisine-catalog-card-heading mt-1.5 flex items-start justify-between gap-3">
+                  <span className="cuisine-catalog-product-name font-serif text-lg font-semibold leading-snug text-[#263650]">
                     {product.name}
                   </span>
-                  <span className="shrink-0 font-interface text-xs font-bold text-[#a66271]">
+                  <span className="cuisine-catalog-product-price shrink-0 font-interface text-xs font-bold text-[#a66271]">
                     {priceFrom(product, fulfillmentMode)}
                   </span>
                 </span>
-                <span className="mt-2 block min-h-10 font-interface text-[11px] leading-5 text-[#718093]">
+                <span className="cuisine-catalog-card-description mt-2 block min-h-10 font-interface text-[11px] leading-5 text-[#718093]">
                   {product.description}
                 </span>
-                <span className="mt-4 flex items-center justify-between border-t border-[#d7dfe3] pt-3 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#425b8c] sm:mt-auto">
-                  Ver producto
+                <span className="cuisine-catalog-card-cta mt-4 flex items-center justify-between border-t border-[#d7dfe3] pt-3 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#425b8c] sm:mt-auto">
+                  Ver opciones
                   <span
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e4f0f2] text-base transition group-hover:bg-[#5e96a5] group-hover:text-white"
                     aria-hidden="true"
@@ -3024,7 +3021,7 @@ export default function CuisineStoreApp({
               No encontramos ese producto
             </p>
             <p className="mt-2 font-interface text-xs text-[#718093]">
-              Prueba con otro nombre o cambia la categoría.
+              Prueba otra búsqueda o vuelve a ver todo el menú.
             </p>
           </div>
         )}

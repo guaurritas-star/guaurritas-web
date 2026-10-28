@@ -15,6 +15,7 @@ import "./shopping-experience.css";
 import "./store-native-window.css";
 import "./ux-overlap-fixes.css";
 import "./guaurriverse-store.css";
+import "./cuisine-catalog-ux.css";
 
 const mansalva = Mansalva({
   weight: "400",
