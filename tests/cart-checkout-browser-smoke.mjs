@@ -72,6 +72,7 @@ try {
       await expectText(panel.locator('details'), /2 × Pedido de prueba/);
       await expectText(panel.locator('details'), /Chico · Pollo · Betún/);
       await expectText(panel.locator('details'), /Personalización: Luna/);
+      assert.ok(await panel.locator('.taskbar-checkout-guidance').evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'checkout guidance wraps without clipped text');
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
       assert.equal(await isFocusedAfterPaint(panel.locator('[data-leon-delivery-date]')), true);
       // Native date controls may have internal tab stops; verify keyboard escape

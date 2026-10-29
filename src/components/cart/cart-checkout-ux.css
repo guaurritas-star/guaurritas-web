@@ -7,8 +7,10 @@
   color: #425b8c;
   font: 13px/1.5 var(--font-mansalva), cursive;
   text-align: left;
+  white-space: normal;
   overflow-wrap: anywhere;
 }
+#taskbar-cart-panel .taskbar-checkout-view { white-space: normal; }
 #taskbar-cart-panel .cart-order-review :is(summary, h3) { font-weight: 700; }
 #taskbar-cart-panel .cart-order-review summary { cursor: pointer; min-height: 48px; padding-block: 12px; }
 #taskbar-cart-panel .cart-order-review li { padding-block: 8px; border-bottom: 1px solid #e3e7ef; }
