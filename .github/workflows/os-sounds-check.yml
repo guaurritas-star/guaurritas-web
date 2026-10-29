@@ -3,6 +3,8 @@ name: Verificar sonidos Guaurritas OS sin publicar
 on:
   pull_request:
     paths:
+      - "public/guaurritas-embed.js"
+      - "tests/embed-recovery.test.mjs"
       - "src/**"
       - ".github/workflows/os-sounds-check.yml"
   workflow_dispatch:
