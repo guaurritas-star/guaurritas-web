@@ -3,6 +3,8 @@ name: Verificar tienda única Guaurriverse sin publicar
 on:
   pull_request:
     paths:
+      - "public/guaurritas-embed.js"
+      - "tests/embed-recovery.test.mjs"
       - "src/**"
       - "tests/guaurriverse-store*"
       - ".github/workflows/world-store-check.yml"
