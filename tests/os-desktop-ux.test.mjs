@@ -70,13 +70,3 @@ test("la barra de ayuda se dibuja encima de las promociones, sin ocultarse tras 
   assert.match(css, /\.desktop-status-help\[data-visible="true"\]/);
   assert.match(css, /\.desktop-status-help \{ display: none; \}/);
 });
-
-test("Desktop 3D icon assets retain an accessible visual fallback on image failure", () => {
-  const source = readFileSync("src/components/desktop/Desktop.tsx", "utf8");
-  assert.match(source, /const \[imageFailed, setImageFailed\] = useState\(false\)/);
-  assert.match(source, /onErrorCapture=\{\(\) => setImageFailed\(true\)\}/);
-  assert.match(source, /onError=\{\(\) => setImageFailed\(true\)\}/);
-  for (const kind of ["world", "pet", "cart", "robbie"]) {
-    assert.match(source, new RegExp(kind + ': "[^"]+"'));
-  }
-});

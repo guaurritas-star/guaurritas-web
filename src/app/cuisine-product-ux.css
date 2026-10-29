@@ -99,38 +99,6 @@
   font: 600 17px/1.3 var(--font-cinzel), serif;
   color: #425b8c;
 }
-.cuisine-detail-ux .cuisine-selection-preset {
-  display: inline-flex;
-  max-width: 100%;
-  margin: 0;
-  color: #566c8c;
-  font: 400 13px/1.35 var(--font-mansalva), cursive;
-}
-.cuisine-detail-ux .cuisine-selection-jump {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 45px;
-  width: 100%;
-  margin: 0;
-  padding: 8px 12px;
-  border: 1px solid #425b8c;
-  border-radius: 5px;
-  background: #425b8c;
-  color: #fff;
-  font: 400 15px/1.4 var(--font-mansalva), cursive;
-  box-shadow: inset 1px 1px #ffffff55, 2px 2px #425b8c22;
-}
-.cuisine-detail-ux .cuisine-selection-jump:focus-visible {
-  outline: 2px solid #425b8c;
-  outline-offset: 3px;
-}
-.cuisine-detail-ux :is(.cuisine-purchase-target, .cuisine-customize-target) {
-  scroll-margin-top: 108px;
-}
-.cuisine-detail-ux :is(.cuisine-purchase-target, .cuisine-customize-target):focus {
-  outline: none;
-}
 @media (max-width: 639px) {
   .cuisine-detail-ux .cuisine-selection-guide {
     gap: 8px;
@@ -140,17 +108,6 @@
   .cuisine-detail-ux .cuisine-selection-heading strong { font-size: 15px; }
   .cuisine-detail-ux .cuisine-selection-counter { font-size: 13px; }
   .cuisine-detail-ux .cuisine-selection-steps li { font-size: 12px; }
-  .cuisine-detail-ux .cuisine-detail-layout {
-    row-gap: 14px;
-    padding-top: 14px;
-    padding-bottom: 24px;
-  }
-  .cuisine-detail-ux .product-gallery {
-    width: min(100%, 288px);
-    margin-inline: auto;
-  }
-  .cuisine-detail-ux .cuisine-selection-preset { font-size: 12px; }
-  .cuisine-detail-ux .product-safety-note { line-height: 1.5; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cuisine-detail-ux .cuisine-selection-track > span { transition: none; }

@@ -63,17 +63,3 @@ test("Cuisine detail reflects checkout requirements without changing cart action
   assert.doesNotMatch(css, /\.taskbar-cart-panel|\.boutique-couture/);
   assert.match(layout, /import "\.\/cuisine-product-ux\.css"/);
 });
-
-test("Configured product guide counts only customer decisions and offers a safe shortcut", () => {
-  assert.doesNotMatch(cuisine, /label: `Tamaño: \$\{petcakeSizes\[petcakeSize\]\}`, complete: true/);
-  assert.doesNotMatch(cuisine, /selectionSteps\.push\(\{ label: `Presentación:/);
-  assert.match(cuisine, /const presetSelection = isPetcake/);
-  assert.match(cuisine, /const scrollToPurchaseNextStep =/);
-  assert.match(cuisine, /className="cuisine-selection-jump"/);
-  assert.match(cuisine, /ref=\{purchaseSummaryRef\}/);
-  assert.match(cuisine, /ref=\{customizationRef\}/);
-  assert.match(cuisine, /const showCustomizationShortcut = selectedProduct\.customizable && customize === "yes"/);
-  const productCss = readFileSync("src/app/cuisine-product-ux.css", "utf8");
-  assert.match(productCss, /\.cuisine-detail-ux \.product-gallery/);
-  assert.match(productCss, /\.cuisine-detail-ux \.cuisine-selection-jump/);
-});

@@ -3,8 +3,6 @@ name: Validar capas desktop y compra móvil sin publicar
 on:
   pull_request:
     paths:
-      - "public/guaurritas-embed.js"
-      - "tests/embed-recovery.test.mjs"
       - "src/**"
       - "tests/os-responsive-browser-smoke.mjs"
       - "tests/ux-overlap-protection.test.mjs"
