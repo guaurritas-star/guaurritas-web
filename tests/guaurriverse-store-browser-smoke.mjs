@@ -122,37 +122,17 @@ try {
       const guide = detail.getByRole("region", { name: "Progreso de configuración" });
       const progress = guide.getByRole("progressbar", { name: "Elecciones de producto completadas" });
       assert.equal(await progress.getAttribute("aria-valuemin"), "0");
-      assert.equal(await progress.getAttribute("aria-valuemax"), "4");
-      assert.equal(await progress.getAttribute("aria-valuenow"), "0", "preselected size is not counted as a customer decision");
-      assert.match(await guide.innerText(), /Tamaño elegido: Chico/);
+      assert.equal(await progress.getAttribute("aria-valuemax"), "5");
+      assert.equal(await progress.getAttribute("aria-valuenow"), "1", "default small size is shown as selected");
       assert.match(await guide.innerText(), /Te falta: Acabado, Lomito o michi, Proteína, Personalización/);
       await detail.getByRole("button", { name: /^betún/i }).click();
       await detail.getByRole("button", { name: /Lomito/ }).click();
       await detail.getByRole("button", { name: "Pollo", exact: true }).click();
       await detail.getByRole("button", { name: "No", exact: true }).click();
-      assert.equal(await progress.getAttribute("aria-valuenow"), "4", "progress reflects four real decisions");
+      assert.equal(await progress.getAttribute("aria-valuenow"), "5", "progress reflects real selections");
       assert.match(await guide.innerText(), /¡Listo para agregar!/);
-      const purchase = detail.locator(".cuisine-purchase-target");
       assert.equal(await detail.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
-      await guide.getByRole("button", { name: "Revisar y agregar al carrito ↓" }).click();
-      assert.equal(await purchase.evaluate(el => document.activeElement === el), true, "purchase shortcut focuses real checkout action");
-      assert.ok(await purchase.evaluate(el => el.getBoundingClientRect().top < innerHeight), "purchase summary brought into viewport");
       assert.deepEqual(unexpectedPageErrors(errors), [], "unexpected product detail errors");
-      await detail.getByRole("button", { name: "Volver al catálogo" }).click();
-      await page.getByRole("button", { name: "Ver opciones de Chilaquidogs" }).click();
-      const chila = page.locator(".cuisine-detail-ux");
-      const chilaGuide = chila.getByRole("region", { name: "Progreso de configuración" });
-      const chilaProgress = chilaGuide.getByRole("progressbar", { name: "Elecciones de producto completadas" });
-      assert.equal(await chilaProgress.getAttribute("aria-valuemax"), "2", "default ChilaquiDogs serving is not a decision");
-      assert.equal(await chilaProgress.getAttribute("aria-valuenow"), "0");
-      await chila.getByRole("button", { name: "Pollo", exact: true }).click();
-      await chila.getByRole("button", { name: /Salsa roja/i }).click();
-      assert.equal(await chilaProgress.getAttribute("aria-valuenow"), "2");
-      assert.equal(await chila.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
-      if (width === 390) {
-        const photo = await chila.locator(".product-gallery").boundingBox();
-        assert.ok(photo && photo.width <= 294, "mobile detail photo is compact without image distortion");
-      }
       console.log("PASS Cuisine product configuration guide", engine, width);
     } catch (error) {
       failures++; await capture(page, "product-guide-" + width);

@@ -779,8 +779,6 @@ export default function CuisineStoreApp({
   const [notice, setNotice] = useState("");
   const [cartOpening, setCartOpening] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
-  const purchaseSummaryRef = useRef<HTMLDivElement | null>(null);
-  const customizationRef = useRef<HTMLDivElement | null>(null);
   const cartOpeningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cartOpeningResetTimerRef =
     useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1542,7 +1540,10 @@ export default function CuisineStoreApp({
     // Never mutate business rules, product options or prices from this UI.
     const selectionSteps: { label: string; complete: boolean }[] = [];
     if (isPetcake) {
-      selectionSteps.push({ label: "Acabado", complete: petcakeFinish !== null });
+      selectionSteps.push(
+        { label: `Tamaño: ${petcakeSizes[petcakeSize]}`, complete: true },
+        { label: "Acabado", complete: petcakeFinish !== null },
+      );
     } else if (isBulkCookies) {
       selectionSteps.push(
         { label: "Cantidad", complete: bulkQuantityIsValid },
@@ -1559,6 +1560,8 @@ export default function CuisineStoreApp({
         { label: `${DESCUBRE_GUAURRITAS_COOKIE_COUNT} bolsitas`, complete: descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT },
         { label: "Sazonador", complete: Boolean(descubreSazonador) },
       );
+    } else if (selectedProduct.options.length > 1) {
+      selectionSteps.push({ label: `Presentación: ${currentOption.label}`, complete: true });
     }
     if (needsRecipe) {
       selectionSteps.push(
@@ -1583,18 +1586,7 @@ export default function CuisineStoreApp({
     }
     const completedSteps = selectionSteps.filter((step) => step.complete).length;
     const pendingSteps = selectionSteps.filter((step) => !step.complete).map((step) => step.label);
-    const showSelectionGuide = selectionSteps.length > 0;
-    const presetSelection = isPetcake
-      ? `Tamaño elegido: ${petcakeSizes[petcakeSize]}`
-      : selectedProduct.options.length > 1 && !isBulkCookies && !isGuaurriCookiesKit && !isDescubreGuaurritas
-        ? `Presentación elegida: ${currentOption.label}`
-        : null;
-    const showCustomizationShortcut = selectedProduct.customizable && customize === "yes";
-    const scrollToPurchaseNextStep = () => {
-      const target = showCustomizationShortcut ? customizationRef.current : purchaseSummaryRef.current;
-      target?.scrollIntoView({ behavior: "auto", block: "start" });
-      target?.focus({ preventScroll: true });
-    };
+    const showSelectionGuide = selectionSteps.length > 1 || pendingSteps.length > 0;
 
     return (
       <section ref={productViewRef} className="boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6">
@@ -1611,7 +1603,7 @@ export default function CuisineStoreApp({
           {cuisineCartTrigger}
         </div>
 
-        <div className="cuisine-detail-layout mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
+        <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-7 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12 lg:py-10">
           <div className="product-gallery lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
             <div
               className="relative aspect-square overflow-hidden rounded-[1.75rem] border border-[#b7c6ce]"
@@ -1650,7 +1642,6 @@ export default function CuisineStoreApp({
             </p>
             {showSelectionGuide && (
               <section className="cuisine-selection-guide" aria-label="Progreso de configuración">
-                {presetSelection && <p className="cuisine-selection-preset">{presetSelection} · puedes cambiarlo abajo</p>}
                 <div className="cuisine-selection-topline">
                   <div className="cuisine-selection-heading">
                     <span className="cuisine-selection-eyebrow">Tu pedido, paso a paso</span>
@@ -1701,15 +1692,6 @@ export default function CuisineStoreApp({
                         : <ProductPrice price={currentDisplayPrice} original={getCuisineRegularOptionPrice(selectedProduct.id, currentOptionIndex, currentOption.price, fulfillmentMode)} />}
                   </strong>
                 </div>
-                {canAdd && (
-                  <button
-                    type="button"
-                    className="cuisine-selection-jump"
-                    onClick={scrollToPurchaseNextStep}
-                  >
-                    {showCustomizationShortcut ? "Añadir detalles de personalización ↓" : "Revisar y agregar al carrito ↓"}
-                  </button>
-                )}
               </section>
             )}
             {isEdibleProduct && !isSticks && <p className="product-safety-note">Premio complementario; no sustituye su alimento diario. Si tiene alergias, intolerancias o una dieta veterinaria, consúltanos antes de pedir.</p>}
@@ -1723,7 +1705,7 @@ export default function CuisineStoreApp({
                       Configura su Petcake
                     </p>
                     <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
-                      El tamaño Chico está seleccionado; puedes cambiarlo.
+                      Completa las cuatro elecciones para continuar.
                     </p>
                   </div>
                   <span className="rounded-full bg-[#dceef0] px-2.5 py-1 font-interface text-[9px] font-bold uppercase tracking-[0.1em] text-[#425b8c]">
@@ -2749,7 +2731,7 @@ export default function CuisineStoreApp({
             </details>
 
             {selectedProduct.customizable && (
-              <div ref={customizationRef} tabIndex={-1} className="cuisine-customize-target mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5">
+              <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5">
                 <p className="font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
                   {usesDecorationPersonalization
                     ? "¿Quieres personalizar la decoración?"
@@ -2890,7 +2872,7 @@ export default function CuisineStoreApp({
               </div>
             )}
 
-            <div ref={purchaseSummaryRef} tabIndex={-1} className="product-purchase-summary cuisine-purchase-target mt-7 border-t border-[#d6dee5] pt-5">
+            <div className="product-purchase-summary mt-7 border-t border-[#d6dee5] pt-5">
               <div>
                 <p className="font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
                   {isPetcake

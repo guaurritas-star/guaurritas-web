@@ -318,33 +318,6 @@
           font: 700 16px/1 "Courier New", monospace;
           text-align: right;
         }
-        .guaurritas-boot-recovery[hidden] { display: none !important; }
-        .guaurritas-boot-recovery {
-          display: grid;
-          justify-items: center;
-          gap: 12px;
-          padding-top: 8px;
-          color: #25375f;
-          text-align: center;
-        }
-        .guaurritas-boot-recovery p {
-          margin: 0;
-          font: 400 13px/1.5 "Courier New", monospace;
-        }
-        .guaurritas-boot-retry {
-          min-height: 44px;
-          padding: 10px 18px;
-          border: 2px outset #b5c2d9;
-          border-radius: 4px;
-          background: #e8eef7;
-          color: #182d61;
-          font: 700 14px/1.25 "Courier New", monospace;
-          cursor: pointer;
-        }
-        .guaurritas-boot-retry:focus-visible {
-          outline: 3px solid #264ba0;
-          outline-offset: 3px;
-        }
 
         @media (max-width: 639px) {
           .guaurritas-boot-window {
@@ -475,25 +448,18 @@
               <div class="guaurritas-boot-track"><span class="guaurritas-boot-progress"></span></div>
               <span class="guaurritas-boot-percent">4%</span>
             </div>
-            <div class="guaurritas-boot-recovery" hidden>
-              <p>La conexión tardó más de lo normal. No se pudo confirmar el inicio de Guaurritas OS.</p>
-              <button class="guaurritas-boot-retry" type="button">Reintentar conexión</button>
-            </div>
           </div>
         </div>`;
 
       const bootLogo = bootScreen.querySelector(".guaurritas-boot-logo");
       const bootProgress = bootScreen.querySelector(".guaurritas-boot-progress");
       const bootPercent = bootScreen.querySelector(".guaurritas-boot-percent");
-      const bootRecovery = bootScreen.querySelector(".guaurritas-boot-recovery");
-      const bootRetry = bootScreen.querySelector(".guaurritas-boot-retry");
       bootLogo.src = new URL(
         "icons/desktop/guaurritas-mascot-hd.webp",
         this.getAttribute("data-src") || DEFAULT_SRC,
       ).href;
 
-      let loadingStartedAt = performance.now();
-      let loadingFallback = null;
+      const loadingStartedAt = performance.now();
       let storedEstimate = NaN;
       try {
         storedEstimate = Number(
@@ -521,8 +487,6 @@
       const finishLoading = () => {
         if (loadingComplete) return;
         loadingComplete = true;
-        window.clearTimeout(loadingFallback);
-        bootRecovery.hidden = true;
         window.clearInterval(progressTimer);
         const elapsed = performance.now() - loadingStartedAt;
         const previousEstimate = Number.isFinite(storedEstimate)
@@ -683,38 +647,8 @@
         this._forwardMemberState();
       });
 
-      // A cross-origin iframe can fire "load" even when GitHub Pages returns
-      // an error page. Only the authenticated ready postMessage dismisses
-      // the boot overlay. Never mistake a ten-second timeout for success.
-      const showConnectionProblem = () => {
-        if (loadingComplete || !this.isConnected) return;
-        bootRecovery.hidden = false;
-        bootScreen.setAttribute("aria-label", "Problema al iniciar Guaurritas OS");
-        bootScreen.querySelector(".guaurritas-boot-copy").textContent =
-          "No pudimos terminar de cargar Guaurriverse.";
-      };
-      const scheduleConnectionCheck = () => {
-        window.clearTimeout(loadingFallback);
-        loadingFallback = window.setTimeout(showConnectionProblem, 10000);
-        this._loadingTimers.push(loadingFallback);
-      };
-      let retryCount = 0;
-      bootRetry.addEventListener("click", () => {
-        if (loadingComplete) return;
-        retryCount += 1;
-        loadingStartedAt = performance.now();
-        bootRecovery.hidden = true;
-        bootScreen.setAttribute("aria-label", "Reintentando cargar Guaurritas OS");
-        bootScreen.querySelector(".guaurritas-boot-copy").textContent =
-          "Reintentando conexión con Guaurriverse…";
-        setLoadingProgress(4);
-        // Change the iframe URL (not the cart/session state) so the next
-        // request bypasses a cached failed document in mobile browsers.
-        iframeSrc.searchParams.set("attempt", String(retryCount));
-        iframe.src = iframeSrc.href;
-        scheduleConnectionCheck();
-      });
-      scheduleConnectionCheck();
+      const loadingFallback = window.setTimeout(finishLoading, 10000);
+      this._loadingTimers.push(loadingFallback);
 
       let cuisineReturnPosition = null;
 

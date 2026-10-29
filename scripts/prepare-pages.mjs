@@ -12,17 +12,14 @@ function files(directory) {
 
 export function preparePages(out, previous, release, now = Date.now()) {
   if (!/^[a-zA-Z0-9_-]+$/.test(release)) throw new Error("Invalid release identifier");
-  // Safari/Wix may reuse HTML from several releases ago. Keep the immutable
-  // Next.js CSS/JS/font hashes for a week, never old HTML or app configuration.
-  // The previous release artifact already contains earlier retained hashes,
-  // making retention cumulative without downloading many whole-site archives.
-  const retentionMs = 7 * 24 * 60 * 60 * 1000;
+  // Cached HTML can refer to old hashes. Retain only immutable static assets,
+  // never old HTML, application configuration or the embed bridge.
   let retained = 0;
   for (const directory of previous) {
     const staticRoot = path.join(directory, "_next/static");
     for (const source of files(staticRoot)) {
       const stat = fs.statSync(source);
-      if (now - stat.mtimeMs > retentionMs) continue;
+      if (now - stat.mtimeMs > 48 * 60 * 60 * 1000) continue;
       const destination = path.join(out, "_next/static", path.relative(staticRoot, source));
       if (fs.existsSync(destination)) continue;
       fs.mkdirSync(path.dirname(destination), { recursive: true });

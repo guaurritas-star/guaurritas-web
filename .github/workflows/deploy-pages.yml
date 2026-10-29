@@ -97,7 +97,7 @@ jobs:
         with:
           name: github-pages-${{ github.run_id }}
           path: ./out
-          retention-days: 8
+          retention-days: 3
 
   deploy:
     environment:
@@ -111,20 +111,3 @@ jobs:
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-${{ github.run_id }}
-
-      - name: Comprobar recursos críticos en GitHub Pages
-        run: |
-          set -euo pipefail
-          base="${{ steps.deployment.outputs.page_url }}"
-          base="${base%/}/"
-          for asset in \
-            "icons/desktop/cart-empty.webp" \
-            "icons/desktop/world-planet.webp" \
-            "icons/desktop/pet-food-bowl.webp" \
-            "icons/desktop/robbie-folder-closed.webp"; do
-            echo "Verificando ${base}${asset}"
-            curl --fail --silent --show-error --location \
-              --retry 8 --retry-all-errors --retry-delay 4 \
-              --output /dev/null "${base}${asset}"
-          done
-          echo "Los iconos de escritorio están disponibles públicamente."
