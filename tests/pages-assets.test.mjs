@@ -20,10 +20,13 @@ test("deploy retains recent hashes without overwriting current assets or copying
   const expired = write(previous, "_next/static/expired.css", "expired");
   const now = Date.now();
   fs.utimesSync(cached, new Date(now - 3600000), new Date(now - 3600000));
-  fs.utimesSync(expired, new Date(now - 3 * 86400000), new Date(now - 3 * 86400000));
+  fs.utimesSync(expired, new Date(now - 8 * 86400000), new Date(now - 8 * 86400000));
+  const older = write(previous, "_next/static/from-three-days-ago.js", "older");
+  fs.utimesSync(older, new Date(now - 3 * 86400000), new Date(now - 3 * 86400000));
   write(previous, "index.html", "old html");
   write(out, "index.html", '<link href="/guaurritas-web/_next/static/current.css"><link href="/guaurritas-web/_next/static/cached.css">');
-  assert.equal(preparePages(out, [previous], "release123", now), 1);
+  assert.equal(preparePages(out, [previous], "release123", now), 2);
+  assert.equal(fs.readFileSync(path.join(out, "_next/static/from-three-days-ago.js"), "utf8"), "older");
   assert.equal(fs.readFileSync(path.join(out, "_next/static/current.css"), "utf8"), "current");
   assert.equal(fs.existsSync(path.join(out, "_next/static/expired.css")), false);
   assert.match(fs.readFileSync(path.join(out, "index.html"), "utf8"), /current.css/);

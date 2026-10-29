@@ -67,11 +67,30 @@ function DesktopAppIcon({
   kind: AppIconKind;
   className?: string;
 }) {
+  // The OS must never display Safari's broken-image question mark if a
+  // public image request fails during a release or a temporary network outage.
+  const [imageFailed, setImageFailed] = useState(false);
+  if (imageFailed) {
+    const fallback: Record<AppIconKind, string> = {
+      world: "🌎", pet: "🐾", paint: "🎨", notes: "📝",
+      cart: "🛒", robbie: "📁", chat: "💬", distributors: "📦",
+    };
+    return (
+      <span
+        aria-hidden="true"
+        className={`desktop-icon-y2k desktop-icon-y2k-${kind} ${className}`}
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "clamp(42px, 7vw, 65px)" }}
+      >
+        {fallback[kind]}
+      </span>
+    );
+  }
   if (kind === "world") {
     return (
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-world relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.world}
@@ -99,6 +118,7 @@ function DesktopAppIcon({
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-notes relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.notes}
@@ -126,6 +146,7 @@ function DesktopAppIcon({
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-robbie relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.robbie}
@@ -153,6 +174,7 @@ function DesktopAppIcon({
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-pet relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.pet}
@@ -180,6 +202,7 @@ function DesktopAppIcon({
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-chat relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.chat}
@@ -207,6 +230,7 @@ function DesktopAppIcon({
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-distributors relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.distributors}
@@ -233,6 +257,7 @@ function DesktopAppIcon({
       <span
         aria-hidden="true"
         className={`desktop-icon-y2k desktop-icon-y2k-cart relative block ${className}`}
+        onErrorCapture={() => setImageFailed(true)}
       >
         <Image
           src={desktopIconImages.cart}
@@ -259,6 +284,7 @@ function DesktopAppIcon({
     <Image
       src={desktopIconImages[kind]}
       alt=""
+      onError={() => setImageFailed(true)}
       aria-hidden="true"
       width={96}
       height={96}
