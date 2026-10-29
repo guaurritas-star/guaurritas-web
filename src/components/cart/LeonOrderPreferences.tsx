@@ -2,6 +2,7 @@
 
 import SystemIcon from "@/components/ui/SystemIcon";
 import { useMemo } from "react";
+import type { LeonCheckoutErrors } from "@/lib/checkout-ux";
 import {
   LEON_TIME_OPTIONS,
   LEON_PICKUP_POINTS,
@@ -23,9 +24,11 @@ function prettyTime(value: string) {
 export default function LeonOrderPreferencesForm({
   value,
   onChange,
+  errors,
 }: {
   value: LeonOrderPreferences;
   onChange: (patch: Partial<LeonOrderPreferences>) => void;
+  errors?: LeonCheckoutErrors;
 }) {
   const minDate = useMemo(() => minimumLeonDeliveryDate(), []);
 
@@ -56,6 +59,8 @@ export default function LeonOrderPreferencesForm({
           </span>
           <input
             data-leon-delivery-date
+            aria-invalid={Boolean(errors?.date)}
+            aria-describedby={errors?.date ? "leon-date-error" : undefined}
             type="date"
             min={minDate}
             value={value.deliveryDate}
@@ -65,6 +70,7 @@ export default function LeonOrderPreferencesForm({
             onChange={(event) => update({ deliveryDate: event.currentTarget.value })}
             className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
           />
+          {errors?.date && <small id="leon-date-error" className="checkout-field-error">{errors.date}</small>}
           <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
             Mínimo 1 día hábil de anticipación. Hoy no está disponible.
           </small>
@@ -76,6 +82,8 @@ export default function LeonOrderPreferencesForm({
           </span>
           <select
             data-leon-preferred-time
+            aria-invalid={Boolean(errors?.time)}
+            aria-describedby={errors?.time ? "leon-time-error" : undefined}
             value={value.preferredTime}
             onInput={(event) =>
               update({ preferredTime: (event.currentTarget as HTMLSelectElement).value })
@@ -90,6 +98,7 @@ export default function LeonOrderPreferencesForm({
               </option>
             ))}
           </select>
+          {errors?.time && <small id="leon-time-error" className="checkout-field-error">{errors.time}</small>}
           <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
             Es una preferencia; todavía no queda reservado.
           </small>
@@ -105,12 +114,14 @@ export default function LeonOrderPreferencesForm({
           </select>
         </label>
         {value.deliveryMethod === "pickup_point" && <label className="block"><span>Punto medio preferido</span>
-          <select aria-label="Punto medio preferido" value={value.deliveryPoint} onChange={event => update({ deliveryPoint: event.target.value })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
+          <select aria-label="Punto medio preferido" aria-invalid={Boolean(errors?.point)} aria-describedby={errors?.point ? "leon-point-error" : undefined} value={value.deliveryPoint} onChange={event => update({ deliveryPoint: event.target.value })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
             <option value="">Selecciona un punto</option>{LEON_PICKUP_POINTS.map(point => <option key={point} value={point}>{point}</option>)}
           </select>
+          {errors?.point && <small id="leon-point-error" className="checkout-field-error">{errors.point}</small>}
         </label>}
         {["home_delivery", "uber_eats"].includes(value.deliveryMethod) && <label className="block"><span>Dirección para cotizar Uber</span>
-          <textarea aria-label="Dirección para cotizar Uber" maxLength={240} value={value.deliveryAddress} onChange={event => update({ deliveryAddress: event.target.value })} className="mt-2 block min-h-24 w-full border border-[#637aa6] bg-white p-3" />
+          <textarea aria-label="Dirección para cotizar Uber" aria-invalid={Boolean(errors?.address)} aria-describedby={errors?.address ? "leon-address-error" : undefined} maxLength={240} value={value.deliveryAddress} onChange={event => update({ deliveryAddress: event.target.value })} className="mt-2 block min-h-24 w-full border border-[#637aa6] bg-white p-3" />
+          {errors?.address && <small id="leon-address-error" className="checkout-field-error">{errors.address}</small>}
           <small className="mt-2 block">El costo de Uber no está incluido en los productos; te lo confirmamos por WhatsApp.</small>
         </label>}
         <p>Esta es tu preferencia de entrega. El horario y el punto se confirman por WhatsApp.</p>

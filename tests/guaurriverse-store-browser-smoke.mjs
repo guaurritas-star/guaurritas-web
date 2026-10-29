@@ -230,7 +230,7 @@ try {
       assert.ok(await steps.isVisible(), "delivery/payment progress visible on mobile");
       assert.match(await steps.innerText(), /1 · Entrega/);
       assert.match(await steps.innerText(), /2 · Pago/);
-      await root.getByText("Primero elige cuándo recibir tu pedido y después cómo pagar.").waitFor();
+      await root.getByText("Revisa tus productos, elige la entrega y después la forma de pago. Fecha y horario se confirman por WhatsApp.").waitFor();
       const checkout = root.locator(".taskbar-cart-panel--checkout");
       const rect = await checkout.boundingBox();
       assert.ok(rect && rect.x >= -1 && rect.x + rect.width <= 392, "checkout fits mobile viewport");

@@ -1,0 +1,26 @@
+#taskbar-cart-panel .cart-order-review {
+  margin-block: 12px;
+  padding: 12px;
+  border: 1px solid #cbd5e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #425b8c;
+  font: 13px/1.5 var(--font-mansalva), cursive;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#taskbar-cart-panel .taskbar-checkout-view { white-space: normal; }
+#taskbar-cart-panel .cart-order-review :is(summary, h3) { font-weight: 700; }
+#taskbar-cart-panel .cart-order-review summary { cursor: pointer; min-height: 48px; padding-block: 12px; }
+#taskbar-cart-panel .cart-order-review li { padding-block: 8px; border-bottom: 1px solid #e3e7ef; }
+#taskbar-cart-panel .cart-order-review dl > div { display: flex; justify-content: space-between; gap: 12px; margin-block: 6px; }
+#taskbar-cart-panel .cart-order-review dd { min-width: 0; max-width: 65%; text-align: right; font-weight: 700; }
+#taskbar-cart-panel .cart-order-review button { min-height: 48px; text-decoration: underline; }
+#taskbar-cart-panel .cart-personalization { white-space: normal; overflow-wrap: anywhere; }
+#taskbar-cart-panel .checkout-field-error { display: block; margin-top: 6px; color: #8a4545; font-size: 12px; }
+#taskbar-cart-panel [aria-invalid="true"] { outline: 2px solid #8a4545; outline-offset: 2px; }
+@media (max-width: 639px) {
+  #taskbar-cart-panel .taskbar-checkout-view :is(input:not([type="checkbox"]), select, button) { min-height: 48px; }
+  #taskbar-cart-panel .taskbar-checkout-view label:has(input[type="checkbox"]) { min-height: 48px; }
+}

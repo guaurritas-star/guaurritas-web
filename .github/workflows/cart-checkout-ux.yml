@@ -1,0 +1,48 @@
+name: Validar carrito y checkout sin publicar
+on:
+  pull_request:
+    paths:
+      - 'src/components/cart/**'
+      - 'src/lib/checkout-ux.ts'
+      - 'src/lib/cart-store.ts'
+      - 'src/lib/order-preferences.ts'
+      - 'src/lib/wix-checkout-bridge.ts'
+      - 'tests/cart-checkout-browser-smoke.mjs'
+      - 'tests/checkout-ux.test.mjs'
+      - '.github/workflows/cart-checkout-ux.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cart-checkout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx tsc --noEmit
+      - name: Preparar navegadores y exportación local
+        run: |
+          npm install --prefix /tmp/cart-qa playwright@1.56.1
+          ln -s /tmp/cart-qa/node_modules/playwright node_modules/playwright
+          ln -s /tmp/cart-qa/node_modules/playwright-core node_modules/playwright-core
+          /tmp/cart-qa/node_modules/.bin/playwright install --with-deps chromium webkit
+          mkdir -p .preview/guaurritas-web
+          cp -a out/. .preview/guaurritas-web/
+      - name: Chromium móvil y desktop
+        run: CART_QA_ENGINE=chromium node tests/cart-checkout-browser-smoke.mjs
+      - name: WebKit móvil y desktop
+        if: success() || failure()
+        run: CART_QA_ENGINE=webkit node tests/cart-checkout-browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cart-checkout-capturas
+          path: os-qa-artifacts/cart-*.png
+          if-no-files-found: ignore
