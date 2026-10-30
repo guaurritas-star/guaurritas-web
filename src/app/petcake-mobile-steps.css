@@ -2,7 +2,8 @@
 .petcake-mobile-step-heading,
 .petcake-mobile-review-back,
 .petcake-mobile-review-options,
-.petcake-mobile-optional { display: none; }
+.petcake-mobile-optional,
+.petcake-mobile-skip { display: none; }
 
 @media (max-width: 639px) {
   .cuisine-petcake-steps [data-petcake-step]:not([data-step-active="true"]),
@@ -50,6 +51,17 @@
     color: #657287;
     font: 400 13px/1.4 var(--font-mansalva), cursive;
   }
+  .cuisine-petcake-steps .petcake-mobile-skip {
+    display: block;
+    min-height: 48px;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    color: #425b8c;
+    text-decoration: underline;
+    font: 600 13px/1.4 var(--font-mansalva), cursive;
+  }
   .cuisine-petcake-steps [data-petcake-step="4"] button[aria-pressed] {
     min-height: 48px;
     min-width: 48px;
@@ -71,5 +83,6 @@
   .cuisine-petcake-steps [data-petcake-step] { scroll-margin-top: 100px; }
   .cuisine-petcake-steps [data-petcake-step]:focus { outline: none; }
   .cuisine-petcake-steps [data-petcake-step] button:focus-visible,
+  .cuisine-petcake-steps .petcake-mobile-skip:focus-visible,
   .cuisine-petcake-steps .petcake-mobile-navigation button:focus-visible { outline: 2px solid #425b8c; outline-offset: 2px; }
 }
