@@ -150,13 +150,25 @@ try {
         await detail.getByRole('button', { name: '← Editar decoración' }).click();
         assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 5 de 6 · Decoración/);
         await detail.getByRole('button', { name: 'Sí', exact: true }).click();
+        assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 6 de 9 · Nombre/);
+        assert.equal(await detail.getByRole('textbox', { name: 'Tema, colores o número' }).isVisible(), false);
         await detail.getByRole('textbox', { name: 'Nombre de tu mascota' }).fill('Luna');
+        await detail.getByRole('button', { name: 'Siguiente →' }).click();
+        assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 7 de 9 · Idea/);
         await detail.getByRole('textbox', { name: 'Tema, colores o número' }).fill('Flores rosas');
+        await detail.getByRole('button', { name: 'Siguiente →' }).click();
+        assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 8 de 9 · Fotos/);
+        await detail.getByRole('button', { name: '← Anterior' }).click();
+        assert.equal(await detail.getByRole('textbox', { name: 'Tema, colores o número' }).inputValue(), 'Flores rosas');
+        await detail.getByRole('button', { name: '← Anterior' }).click();
+        assert.equal(await detail.getByRole('textbox', { name: 'Nombre de tu mascota' }).inputValue(), 'Luna');
+        await detail.getByRole('button', { name: 'Siguiente →' }).click();
+        await detail.getByRole('button', { name: 'Siguiente →' }).click();
         await detail.getByRole('button', { name: 'Revisar pedido →' }).click();
         assert.match(await detail.locator('.petcake-mobile-review-options').innerText(), /Decoración personalizada para Luna: Flores rosas/);
       }
       assert.equal(await progress.getAttribute("aria-valuenow"), "5", "progress reflects real selections");
-      if (width === 390) assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 6 de 6 · Revisar pedido/);
+      if (width === 390) assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 9 de 9 · Revisar pedido/);
       else assert.match(await guide.innerText(), /¡Listo para agregar!/);
       assert.equal(await detail.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
       assert.deepEqual(unexpectedPageErrors(errors), [], "unexpected product detail errors");

@@ -1,10 +1,12 @@
 .petcake-mobile-navigation,
 .petcake-mobile-step-heading,
 .petcake-mobile-review-back,
-.petcake-mobile-review-options { display: none; }
+.petcake-mobile-review-options,
+.petcake-mobile-optional { display: none; }
 
 @media (max-width: 639px) {
   .cuisine-petcake-steps [data-petcake-step]:not([data-step-active="true"]),
+  .cuisine-petcake-steps [data-petcake-personalization]:not([data-active="true"]),
   .cuisine-petcake-steps [data-petcake-config]:not([data-active="true"]) { display: none; }
   .cuisine-petcake-steps .cuisine-selection-steps,
   .cuisine-petcake-steps .cuisine-selection-next { display: none; }
@@ -41,6 +43,30 @@
     color: #42516a;
     font: 400 15px/1.5 var(--font-mansalva), cursive;
     overflow-wrap: anywhere;
+  }
+  .cuisine-petcake-steps .petcake-mobile-optional {
+    display: block;
+    margin-top: 8px;
+    color: #657287;
+    font: 400 13px/1.4 var(--font-mansalva), cursive;
+  }
+  .cuisine-petcake-steps [data-petcake-step="4"] button[aria-pressed] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  .cuisine-petcake-steps [data-petcake-personalization] > div > .petcake-mobile-navigation {
+    margin-top: 18px;
+  }
+  .cuisine-petcake-steps [data-petcake-step="7"] label[for="inspiration-photos"] {
+    min-height: 48px;
+  }
+  .cuisine-petcake-steps [data-petcake-step="7"] button[aria-label^="Quitar foto"] {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  .cuisine-petcake-steps [data-petcake-step="7"] input:focus-visible + label {
+    outline: 2px solid #425b8c;
+    outline-offset: 2px;
   }
   .cuisine-petcake-steps [data-petcake-step] { scroll-margin-top: 100px; }
   .cuisine-petcake-steps [data-petcake-step]:focus { outline: none; }
