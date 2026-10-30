@@ -1591,8 +1591,11 @@ export default function CuisineStoreApp({
     const completedSteps = selectionSteps.filter((step) => step.complete).length;
     const pendingSteps = selectionSteps.filter((step) => !step.complete).map((step) => step.label);
     const showSelectionGuide = selectionSteps.length > 1 || pendingSteps.length > 0;
-    const petcakeStepNames = ["Tamaño", "Acabado", "Lomito o michi", "Proteína", "Decoración", "Revisar pedido"];
-    const petcakeStepComplete = [true, petcakeFinish !== null, petType !== null, petProtein !== null, customize !== null, canAdd];
+    const petcakeStepNames = customize === "yes"
+      ? ["Tamaño", "Acabado", "Lomito o michi", "Proteína", "Decoración", "Nombre", "Idea", "Fotos", "Revisar pedido"]
+      : ["Tamaño", "Acabado", "Lomito o michi", "Proteína", "Decoración", "Revisar pedido"];
+    const petcakeReviewStep = petcakeStepNames.length - 1;
+    const petcakeStepComplete = [true, petcakeFinish !== null, petType !== null, petProtein !== null, customize !== null, true, true, true, canAdd];
     const movePetcakeStep = (step: number) => {
       setPetcakeMobileStep(step);
       requestAnimationFrame(() => {
@@ -1605,7 +1608,7 @@ export default function CuisineStoreApp({
       <nav className="petcake-mobile-navigation" aria-label="Pasos de Petcake">
         <button type="button" onClick={() => movePetcakeStep(after - 1)} disabled={after === 0}>← Anterior</button>
         <button type="button" onClick={() => movePetcakeStep(after + 1)} disabled={!petcakeStepComplete[after]}>
-          {after === 4 ? "Revisar pedido →" : "Siguiente →"}
+          {after === petcakeReviewStep - 1 ? "Revisar pedido →" : "Siguiente →"}
         </button>
       </nav>
     );
@@ -1716,7 +1719,7 @@ export default function CuisineStoreApp({
                 </div>
               </section>
             )}
-            {isPetcake && <p className="petcake-mobile-step-heading" aria-live="polite">Paso {petcakeMobileStep + 1} de 6 · {petcakeStepNames[petcakeMobileStep]}</p>}
+            {isPetcake && <p className="petcake-mobile-step-heading" aria-live="polite">Paso {petcakeMobileStep + 1} de {petcakeStepNames.length} · {petcakeStepNames[petcakeMobileStep]}</p>}
             {isEdibleProduct && !isSticks && <p className="product-safety-note">Premio complementario; no sustituye su alimento diario. Si tiene alergias, intolerancias o una dieta veterinaria, consúltanos antes de pedir.</p>}
             {halloweenRate(selectedProduct.id) > 0 && <p className="halloween-product-note">Halloween · 15 % de descuento aplicado · hasta el 31 de octubre</p>}
 
@@ -2756,7 +2759,8 @@ export default function CuisineStoreApp({
             </details>
 
             {selectedProduct.customizable && (
-              <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5" data-petcake-step={isPetcake ? 4 : undefined} data-step-active={isPetcake && petcakeMobileStep === 4 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 4 ? -1 : undefined}>
+              <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5" data-petcake-personalization={isPetcake ? "true" : undefined} data-active={isPetcake && petcakeMobileStep >= 4 && petcakeMobileStep < petcakeReviewStep ? "true" : undefined}>
+                <div data-petcake-step={isPetcake ? 4 : undefined} data-step-active={isPetcake && petcakeMobileStep === 4 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 4 ? -1 : undefined}>
                 <p className="font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
                   {usesDecorationPersonalization
                     ? "¿Quieres personalizar la decoración?"
@@ -2767,7 +2771,11 @@ export default function CuisineStoreApp({
                     <button
                       key={choice}
                       type="button"
-                      onClick={() => setCustomize(choice)}
+                      onClick={() => {
+                        setCustomize(choice);
+                        if (isPetcake && choice === "yes" && window.matchMedia("(max-width: 639px)").matches) movePetcakeStep(5);
+                        if (isPetcake && choice === "no" && petcakeMobileStep > 4) setPetcakeMobileStep(4);
+                      }}
                       aria-pressed={customize === choice}
                       className={`min-w-20 rounded-full border px-4 py-2 font-interface text-xs font-bold ${
                         customize === choice
@@ -2779,9 +2787,12 @@ export default function CuisineStoreApp({
                     </button>
                   ))}
                 </div>
+                {isPetcake && petcakeStepNavigation(4)}
+                </div>
 
                 {customize === "yes" && (
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div data-petcake-step={isPetcake ? 5 : undefined} data-step-active={isPetcake && petcakeMobileStep === 5 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 5 ? -1 : undefined}>
                     <label className="font-interface text-[11px] font-semibold text-[#53627a]">
                       Nombre de tu mascota
                       <input
@@ -2792,6 +2803,10 @@ export default function CuisineStoreApp({
                         placeholder="Ej. Bruno"
                       />
                     </label>
+                    <p className="petcake-mobile-optional">Opcional · puedes continuar sin escribir un nombre.</p>
+                    {isPetcake && petcakeStepNavigation(5)}
+                    </div>
+                    <div data-petcake-step={isPetcake ? 6 : undefined} data-step-active={isPetcake && petcakeMobileStep === 6 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 6 ? -1 : undefined}>
                     <label className="font-interface text-[11px] font-semibold text-[#53627a]">
                       Tema, colores o número
                       <input
@@ -2802,8 +2817,11 @@ export default function CuisineStoreApp({
                         placeholder="Cuéntanos tu idea"
                       />
                     </label>
+                    <p className="petcake-mobile-optional">Opcional · cuéntanos tu idea o continúa.</p>
+                    {isPetcake && petcakeStepNavigation(6)}
+                    </div>
 
-                    <div className="mt-2 rounded-xl border border-[#e1bcc3] bg-white/80 p-3 sm:col-span-2 sm:p-4">
+                    <div className="mt-2 rounded-xl border border-[#e1bcc3] bg-white/80 p-3 sm:col-span-2 sm:p-4" data-petcake-step={isPetcake ? 7 : undefined} data-step-active={isPetcake && petcakeMobileStep === 7 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 7 ? -1 : undefined}>
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-interface text-[11px] font-bold text-[#53627a]">
@@ -2891,16 +2909,16 @@ export default function CuisineStoreApp({
                       >
                         {inspirationFeedback}
                       </p>
+                      {isPetcake && petcakeStepNavigation(7)}
                     </div>
                   </div>
                 )}
-                {isPetcake && petcakeStepNavigation(4)}
               </div>
             )}
 
-            <div className="product-purchase-summary mt-7 border-t border-[#d6dee5] pt-5" data-petcake-step={isPetcake ? 5 : undefined} data-step-active={isPetcake && petcakeMobileStep === 5 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 5 ? -1 : undefined}>
-              {isPetcake && <button type="button" className="petcake-mobile-review-back" onClick={() => movePetcakeStep(4)}>← Editar decoración</button>}
-              {isPetcake && <p className="petcake-mobile-review-options">{petcakeSizes[petcakeSize]} · {petcakeFinish ?? "acabado pendiente"} · {petType ?? "mascota pendiente"} · {petProtein ?? "proteína pendiente"} · {customize === "yes" ? `Decoración personalizada${personalizationPetName ? ` para ${personalizationPetName}` : ""}${personalizationIdea ? `: ${personalizationIdea}` : ""}` : "Sin personalización"}</p>}
+            <div className="product-purchase-summary mt-7 border-t border-[#d6dee5] pt-5" data-petcake-step={isPetcake ? petcakeReviewStep : undefined} data-step-active={isPetcake && petcakeMobileStep === petcakeReviewStep ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === petcakeReviewStep ? -1 : undefined}>
+              {isPetcake && <button type="button" className="petcake-mobile-review-back" onClick={() => movePetcakeStep(petcakeReviewStep - 1)}>← Editar decoración</button>}
+              {isPetcake && <p className="petcake-mobile-review-options">{petcakeSizes[petcakeSize]} · {petcakeFinish ?? "acabado pendiente"} · {petType ?? "mascota pendiente"} · {petProtein ?? "proteína pendiente"} · {customize === "yes" ? `Decoración personalizada${personalizationPetName ? ` para ${personalizationPetName}` : ""}${personalizationIdea ? `: ${personalizationIdea}` : ""}${inspirationPhotos.length ? ` · ${inspirationPhotos.length} foto${inspirationPhotos.length === 1 ? "" : "s"} de inspiración` : ""}` : "Sin personalización"}</p>}
               <div>
                 <p className="font-interface text-[10px] uppercase tracking-[0.13em] text-[#718093]">
                   {isPetcake
