@@ -1612,6 +1612,12 @@ export default function CuisineStoreApp({
         </button>
       </nav>
     );
+    const petcakeSkipOptionalDetails = () => (
+      <button type="button" className="petcake-mobile-skip" onClick={() => movePetcakeStep(petcakeReviewStep)}>
+        Saltar detalles opcionales →
+      </button>
+    );
+    const petcakeOptionsReady = isPetcake && canAdd && petcakeMobileStep < petcakeReviewStep;
 
     return (
       <section ref={productViewRef} className={`boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6 ${isPetcake ? "cuisine-petcake-steps" : ""}`}>
@@ -1670,10 +1676,12 @@ export default function CuisineStoreApp({
                 <div className="cuisine-selection-topline">
                   <div className="cuisine-selection-heading">
                     <span className="cuisine-selection-eyebrow">Tu pedido, paso a paso</span>
-                    <strong>{canAdd ? "¡Listo para agregar!" : "Personaliza tu elección"}</strong>
+                    <strong>{petcakeOptionsReady
+                      ? customize === "yes" ? "Opciones listas · decoración opcional" : "Opciones listas · revisa tu pedido"
+                      : canAdd ? "¡Listo para agregar!" : "Personaliza tu elección"}</strong>
                   </div>
                   <span className="cuisine-selection-counter" aria-live="polite">
-                    {completedSteps}/{selectionSteps.length} elecciones
+                    {completedSteps}/{selectionSteps.length} {isPetcake ? "opciones" : "elecciones"}
                   </span>
                 </div>
                 <div
@@ -1696,7 +1704,9 @@ export default function CuisineStoreApp({
                 </ul>
                 <p className="cuisine-selection-next" aria-live="polite">
                   {canAdd
-                    ? "Ya completaste las elecciones. Revisa el precio y agrega tu producto al carrito."
+                    ? isPetcake && customize === "yes"
+                      ? "Las opciones de compra están listas. Puedes añadir detalles de decoración antes de agregar el producto."
+                      : "Ya completaste las elecciones. Revisa el precio y agrega tu producto al carrito."
                     : `Te falta: ${pendingSteps.join(", ")}.`}
                 </p>
                 <div className="cuisine-selection-price">
@@ -2805,6 +2815,7 @@ export default function CuisineStoreApp({
                     </label>
                     <p className="petcake-mobile-optional">Opcional · puedes continuar sin escribir un nombre.</p>
                     {isPetcake && petcakeStepNavigation(5)}
+                    {isPetcake && petcakeSkipOptionalDetails()}
                     </div>
                     <div data-petcake-step={isPetcake ? 6 : undefined} data-step-active={isPetcake && petcakeMobileStep === 6 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 6 ? -1 : undefined}>
                     <label className="font-interface text-[11px] font-semibold text-[#53627a]">
@@ -2819,6 +2830,7 @@ export default function CuisineStoreApp({
                     </label>
                     <p className="petcake-mobile-optional">Opcional · cuéntanos tu idea o continúa.</p>
                     {isPetcake && petcakeStepNavigation(6)}
+                    {isPetcake && petcakeSkipOptionalDetails()}
                     </div>
 
                     <div className="mt-2 rounded-xl border border-[#e1bcc3] bg-white/80 p-3 sm:col-span-2 sm:p-4" data-petcake-step={isPetcake ? 7 : undefined} data-step-active={isPetcake && petcakeMobileStep === 7 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 7 ? -1 : undefined}>
@@ -2910,6 +2922,7 @@ export default function CuisineStoreApp({
                         {inspirationFeedback}
                       </p>
                       {isPetcake && petcakeStepNavigation(7)}
+                      {isPetcake && petcakeSkipOptionalDetails()}
                     </div>
                   </div>
                 )}

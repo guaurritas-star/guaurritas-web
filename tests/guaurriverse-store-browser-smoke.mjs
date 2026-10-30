@@ -145,14 +145,24 @@ try {
       if (width === 390) await detail.getByRole('button', { name: 'Siguiente →' }).click();
       await detail.getByRole("button", { name: "No", exact: true }).click();
       if (width === 390) {
+        assert.match(await guide.innerText(), /Opciones listas · revisa tu pedido/);
+        assert.match(await guide.innerText(), /5\/5 opciones/);
         await detail.getByRole('button', { name: 'Revisar pedido →' }).click();
+        assert.match(await guide.innerText(), /¡Listo para agregar!/);
         assert.match(await detail.locator('.petcake-mobile-review-options').innerText(), /Chico · betún · lomito · Pollo · Sin personalización/);
         await detail.getByRole('button', { name: '← Editar decoración' }).click();
         assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 5 de 6 · Decoración/);
         await detail.getByRole('button', { name: 'Sí', exact: true }).click();
         assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 6 de 9 · Nombre/);
+        assert.match(await guide.innerText(), /Opciones listas · decoración opcional/);
         assert.equal(await detail.getByRole('textbox', { name: 'Tema, colores o número' }).isVisible(), false);
         await detail.getByRole('textbox', { name: 'Nombre de tu mascota' }).fill('Luna');
+        await detail.getByRole('button', { name: 'Saltar detalles opcionales →' }).click();
+        assert.match(await detail.locator('.petcake-mobile-review-options').innerText(), /Decoración personalizada para Luna/);
+        await detail.getByRole('button', { name: '← Editar decoración' }).click();
+        await detail.getByRole('button', { name: '← Anterior' }).click();
+        await detail.getByRole('button', { name: '← Anterior' }).click();
+        assert.equal(await detail.getByRole('textbox', { name: 'Nombre de tu mascota' }).inputValue(), 'Luna');
         await detail.getByRole('button', { name: 'Siguiente →' }).click();
         assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 7 de 9 · Idea/);
         await detail.getByRole('textbox', { name: 'Tema, colores o número' }).fill('Flores rosas');
@@ -169,7 +179,7 @@ try {
       }
       assert.equal(await progress.getAttribute("aria-valuenow"), "5", "progress reflects real selections");
       if (width === 390) assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 9 de 9 · Revisar pedido/);
-      else assert.match(await guide.innerText(), /¡Listo para agregar!/);
+      else assert.match(await guide.innerText(), /Opciones listas · revisa tu pedido/);
       assert.equal(await detail.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
       assert.deepEqual(unexpectedPageErrors(errors), [], "unexpected product detail errors");
       console.log("PASS Cuisine product configuration guide", engine, width);
