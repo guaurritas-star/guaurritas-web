@@ -124,19 +124,75 @@ try {
       assert.equal(await progress.getAttribute("aria-valuemin"), "0");
       assert.equal(await progress.getAttribute("aria-valuemax"), "5");
       assert.equal(await progress.getAttribute("aria-valuenow"), "1", "default small size is shown as selected");
-      assert.match(await guide.innerText(), /Te falta: Acabado, Lomito o michi, Proteína, Personalización/);
+      if (width === 390) {
+        const step = detail.locator('.petcake-mobile-step-heading');
+        assert.match(await step.innerText(), /Paso 1 de 6 · Tamaño/);
+        assert.equal(await detail.getByRole('button', { name: /^betún/i }).isVisible(), false);
+        await detail.getByRole('button', { name: 'Siguiente →' }).click();
+        assert.match(await step.innerText(), /Paso 2 de 6 · Acabado/);
+        assert.equal(await detail.getByRole('button', { name: 'Siguiente →' }).isDisabled(), true);
+      } else {
+        assert.match(await guide.innerText(), /Te falta: Acabado, Lomito o michi, Proteína, Personalización/);
+      }
       await detail.getByRole("button", { name: /^betún/i }).click();
+      if (width === 390) {
+        await detail.getByRole('button', { name: 'Siguiente →' }).click();
+        assert.equal(await detail.getByRole('button', { name: 'Pollo', exact: true }).isVisible(), false);
+      }
       await detail.getByRole("button", { name: /Lomito/ }).click();
+      if (width === 390) await detail.getByRole('button', { name: 'Siguiente →' }).click();
       await detail.getByRole("button", { name: "Pollo", exact: true }).click();
+      if (width === 390) await detail.getByRole('button', { name: 'Siguiente →' }).click();
       await detail.getByRole("button", { name: "No", exact: true }).click();
+      if (width === 390) {
+        await detail.getByRole('button', { name: 'Revisar pedido →' }).click();
+        assert.match(await detail.locator('.petcake-mobile-review-options').innerText(), /Chico · betún · lomito · Pollo · Sin personalización/);
+        await detail.getByRole('button', { name: '← Editar decoración' }).click();
+        assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 5 de 6 · Decoración/);
+        await detail.getByRole('button', { name: 'Sí', exact: true }).click();
+        await detail.getByRole('textbox', { name: 'Nombre de tu mascota' }).fill('Luna');
+        await detail.getByRole('textbox', { name: 'Tema, colores o número' }).fill('Flores rosas');
+        await detail.getByRole('button', { name: 'Revisar pedido →' }).click();
+        assert.match(await detail.locator('.petcake-mobile-review-options').innerText(), /Decoración personalizada para Luna: Flores rosas/);
+      }
       assert.equal(await progress.getAttribute("aria-valuenow"), "5", "progress reflects real selections");
-      assert.match(await guide.innerText(), /¡Listo para agregar!/);
+      if (width === 390) assert.match(await detail.locator('.petcake-mobile-step-heading').innerText(), /Paso 6 de 6 · Revisar pedido/);
+      else assert.match(await guide.innerText(), /¡Listo para agregar!/);
       assert.equal(await detail.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
       assert.deepEqual(unexpectedPageErrors(errors), [], "unexpected product detail errors");
       console.log("PASS Cuisine product configuration guide", engine, width);
     } catch (error) {
       failures++; await capture(page, "product-guide-" + width);
       console.error("FAIL Cuisine product guide", engine, width, String(error), errors);
+    }
+    await context.close();
+  }
+
+  // Wix-like mobile iframe keeps the same one-choice-at-a-time flow.
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const page = await context.newPage();
+    try {
+      await page.goto(base + "/wix-test-host/", { waitUntil: "domcontentloaded" });
+      const frame = page.frameLocator("#guaurritas");
+      await frame.getByRole("button", { name: "Ver opciones de Petcakes" }).click();
+      const detail = frame.locator(".cuisine-detail-ux");
+      for (const [choice, next] of [
+        [null, "Siguiente →"],
+        [/^betún/i, "Siguiente →"],
+        [/Lomito/, "Siguiente →"],
+        ["Pollo", "Siguiente →"],
+        ["No", "Revisar pedido →"],
+      ]) {
+        if (choice) await detail.getByRole("button", { name: choice }).click();
+        await detail.getByRole("button", { name: next }).click();
+      }
+      assert.match(await detail.locator(".petcake-mobile-review-options").innerText(), /Chico · betún · lomito · Pollo · Sin personalización/);
+      assert.equal(await detail.getByRole("button", { name: "Agregar al carrito", exact: true }).isEnabled(), true);
+      console.log("PASS Petcake mobile wizard in Wix-like iframe", engine);
+    } catch (error) {
+      failures++; await capture(page, "petcake-iframe");
+      console.error("FAIL Petcake mobile wizard in iframe", engine, String(error));
     }
     await context.close();
   }
