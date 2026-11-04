@@ -7,3 +7,9 @@ export function canRepeatNational(items: { name: string; world: "cuisine" | "cou
   return items.every(item => item.world === "couture" || NATIONAL_PRODUCT_NAMES.some(name =>
     item.name.toLocaleLowerCase().includes(name.toLocaleLowerCase())));
 }
+
+/** Exact catalogue-name check used to hide local-only cards in national mode. */
+export function isNationalProductName(name: string) {
+  const normalized = name.trim().toLocaleLowerCase("es");
+  return NATIONAL_PRODUCT_NAMES.some(item => item.toLocaleLowerCase("es") === normalized);
+}

@@ -297,3 +297,51 @@
 @media (prefers-reduced-motion: reduce) {
   .cuisine-catalog-ux .cuisine-catalog-card img { transition: none; }
 }
+
+/* Direct "Agregar al carrito" for products whose detail has nothing to choose.
+   The card keeps opening the detail; the purchase button sits below it as a
+   separate target so neither action is nested inside the other. */
+.cuisine-catalog-ux .cuisine-catalog-card-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.cuisine-catalog-ux .cuisine-catalog-card-shell > .cuisine-catalog-card {
+  flex: 1 1 auto;
+  height: auto;
+}
+.cuisine-catalog-ux .cuisine-catalog-card-shell > .cuisine-catalog-quick-add {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  font-size: 17px;
+}
+.cuisine-catalog-ux .cuisine-catalog-quick-add-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid #89a79a;
+  border-radius: 3px;
+  background: #edf6f0;
+  color: #446454;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.cuisine-catalog-ux .cuisine-catalog-quick-add-status.is-blocked {
+  border-color: #d8c0c8;
+  background: #fff4f4;
+  color: #8a4545;
+}
+.cuisine-catalog-ux .cuisine-catalog-quick-add-status > button {
+  min-height: 48px;
+  padding: 4px 12px;
+  border: 1px solid #446454;
+  background: #fff;
+  color: #446454;
+  font-size: 15px;
+}
