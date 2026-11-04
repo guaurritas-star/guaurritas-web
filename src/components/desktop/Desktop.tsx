@@ -853,26 +853,12 @@ export default function Desktop() {
               onPointerLeave={() => setHelpedApp(current => current?.id === app.id ? null : current)}
               onFocus={() => setHelpedApp(app)}
               onBlur={() => setHelpedApp(current => current?.id === app.id ? null : current)}
-              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "tienda" ? "desktop-shortcut--tienda-app-icon" : ""} ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
+              className={`desktop-shortcut group flex w-32 flex-col items-center gap-2 rounded-md p-2 text-center transition-transform duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#425b8c] focus-visible:ring-offset-2 ${app.id === "distribuidores" ? "desktop-shortcut--distributors" : ""} ${
                 isLaunching ? "is-launching" : ""
               }`}
             >
               <span className="desktop-shortcut-icon flex h-[5.5rem] w-[5.5rem] items-center justify-center">
-                {app.id === "tienda" ? (
-                  <span className="desktop-tienda-app-icon" aria-hidden="true">
-                    <Image
-                      src={desktopIconImages.cart}
-                      alt=""
-                      width={96}
-                      height={96}
-                      unoptimized
-                      className="desktop-tienda-app-art"
-                    />
-                    <span className="desktop-tienda-app-title">Tienda</span>
-                  </span>
-                ) : (
-                  <DesktopAppIcon kind={app.icon} className="h-full w-full" />
-                )}
+                <DesktopAppIcon kind={app.icon} className="h-full w-full" />
               </span>
 
               <span className="desktop-shortcut-label px-2 py-1 font-title text-xs font-bold tracking-[0.02em] text-[#263650] [text-shadow:0_1px_2px_rgba(255,255,255,0.9)]">
