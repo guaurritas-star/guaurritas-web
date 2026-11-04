@@ -13,7 +13,6 @@ import { addCartItem, cartFulfillmentConflict, useCart } from "@/lib/cart-store"
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { announceCartAddition } from "@/lib/os-notification-events";
 import { withBasePath } from "@/lib/base-path";
-import { isNationalProductName } from "@/lib/national-catalog";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 import {
   getCuisineCookiePrice,
@@ -984,14 +983,11 @@ export default function CuisineStoreApp({
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
 
     return products.filter((product) => {
-      // National shipping only lists products that can travel by courier;
-      // the kit and Descubre bundles exist only for national shipping.
-      const matchesFulfillment = fulfillmentMode === "national"
-        ? isNationalProductName(product.name)
-        : ![
+      const matchesFulfillment =
+        ![
           KIT_GUAURRICOOKIES_PRODUCT_KEY,
           DESCUBRE_GUAURRITAS_PRODUCT_KEY,
-        ].includes(product.id);
+        ].includes(product.id) || fulfillmentMode === "national";
       const matchesCategory =
         category === "all" || product.category === category;
       const matchesSearch =
@@ -1004,15 +1000,6 @@ export default function CuisineStoreApp({
       return matchesFulfillment && matchesCategory && matchesSearch;
     });
   }, [category, query, fulfillmentMode]);
-
-  // Hide category filters that would be empty for the current delivery mode.
-  const availableCategories = categories.filter((item) =>
-    item.id === "all" ||
-    products.some((product) =>
-      product.category === item.id &&
-      (fulfillmentMode !== "national" || isNationalProductName(product.name)),
-    ),
-  );
 
   const openProduct = (product: CuisineProduct) => {
     setSelectedProduct(product);
@@ -3159,7 +3146,7 @@ export default function CuisineStoreApp({
             )}
           </label>
           <div className="retail-category-filters cuisine-catalog-filters" role="group" aria-label="Filtrar productos por categoría">
-            {availableCategories.map((item) => (
+            {categories.map((item) => (
               <button
                 key={item.id}
                 type="button"
