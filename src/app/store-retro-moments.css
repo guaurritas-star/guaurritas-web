@@ -16,7 +16,7 @@
 }
 
 /* Copiando a Carrito.exe */
-.os-cart-copying { padding: 12px 14px 14px; color: var(--boutique-ink, #263650); }
+.os-cart-copying { flex: 1; min-width: 0; padding: 2px 0 4px; color: var(--boutique-ink, #263650); }
 .os-cart-copying-label { margin: 0; font-size: 13px; font-weight: 600; }
 .os-cart-copying-file {
   margin: 2px 0 10px;
