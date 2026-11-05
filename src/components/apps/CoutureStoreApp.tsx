@@ -444,7 +444,7 @@ export default function CoutureStoreApp({
                   type="button"
                   onClick={() => selectCollection(item)}
                   aria-pressed={active}
-                  className={`couture-collection-card group relative flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
+                  className={`group relative flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
                     active
                       ? "border-[#70425a] bg-[#f6eaf0] shadow-[3px_3px_0_#70425a]"
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
