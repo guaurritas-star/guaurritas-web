@@ -800,6 +800,24 @@ export default function CuisineStoreApp({
     observer.observe(gallery);
     return () => observer.disconnect();
   }, [selectedProductId]);
+
+  // Alto visible real de la ventana Tienda (dentro del iframe de Wix 100dvh no
+  // corresponde a la ventana). Se usa en CSS para que la foto fija no se corte.
+  useEffect(() => {
+    const view = productViewRef.current;
+    if (!selectedProductId || !view || typeof ResizeObserver === "undefined") return;
+    let scroller: HTMLElement | null = view.parentElement;
+    while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) {
+      scroller = scroller.parentElement;
+    }
+    if (!scroller) return;
+    const target = scroller;
+    const update = () => view.style.setProperty("--ficha-viewport-h", `${target.clientHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [selectedProductId]);
   const cartOpeningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cartOpeningResetTimerRef =
     useRef<ReturnType<typeof setTimeout> | null>(null);

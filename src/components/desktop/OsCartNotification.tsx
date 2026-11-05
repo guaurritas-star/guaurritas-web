@@ -62,20 +62,24 @@ export default function OsCartNotification() {
         ><span aria-hidden="true">×</span></ShoppingButton>
       </ShoppingWindowHeader>
       <div className="os-cart-notification-client">
-        {copying ? (
-          <div className="os-cart-copying">
-            <p className="os-cart-copying-label">Copiando a Carrito.exe…</p>
-            <p className="os-cart-copying-file">{(productSummary || message).slice(0, 60)}</p>
-            <span className="os-cart-copying-bar" aria-hidden="true"><span /></span>
-          </div>
-        ) : (
-        <>
+        {/* El cuerpo y la acción existen siempre (la acción es usable desde el
+            primer instante); durante la copia solo cambia el contenido. */}
         <div className="os-cart-notification-body">
-          <span className="os-cart-notification-success" aria-hidden="true">✓</span>
-          <div className="os-cart-notification-copy">
-            <p className="os-cart-notification-heading">Se agregó a tu carrito</p>
-            <p className="os-cart-notification-product">{productSummary || message}</p>
-          </div>
+          {copying ? (
+            <div className="os-cart-copying">
+              <p className="os-cart-copying-label">Copiando a Carrito.exe…</p>
+              <p className="os-cart-copying-file">{(productSummary || message).slice(0, 60)}</p>
+              <span className="os-cart-copying-bar" aria-hidden="true"><span /></span>
+            </div>
+          ) : (
+            <>
+              <span className="os-cart-notification-success" aria-hidden="true">✓</span>
+              <div className="os-cart-notification-copy">
+                <p className="os-cart-notification-heading">Se agregó a tu carrito</p>
+                <p className="os-cart-notification-product">{productSummary || message}</p>
+              </div>
+            </>
+          )}
         </div>
         <div className="os-cart-notification-actions">
           <ShoppingButton
@@ -87,8 +91,6 @@ export default function OsCartNotification() {
             }}
           >Ver carrito <span aria-hidden="true">→</span></ShoppingButton>
         </div>
-        </>
-        )}
       </div>
     </ShoppingWindow>
   );
