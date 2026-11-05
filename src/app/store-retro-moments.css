@@ -1,0 +1,72 @@
+/* Tienda · momentos retro: fotos tipo sticker, "Copiando a Carrito.exe"
+   y barra de estado. Solo visual; usa la paleta --boutique-* existente. */
+
+/* Foto tipo sticker (Cuisine: productos recortados) */
+.cuisine-catalog-card .cuisine-catalog-card-media img {
+  filter:
+    drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff)
+    drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)
+    drop-shadow(0 4px 5px rgba(38, 54, 80, 0.18));
+  transition: rotate 260ms cubic-bezier(.3, 1.6, .5, 1), scale 260ms cubic-bezier(.3, 1.6, .5, 1);
+}
+.cuisine-catalog-card:hover .cuisine-catalog-card-media img,
+.cuisine-catalog-card:focus-visible .cuisine-catalog-card-media img {
+  rotate: -4deg;
+  scale: 1.05;
+}
+
+/* Copiando a Carrito.exe */
+.os-cart-copying { padding: 12px 14px 14px; color: var(--boutique-ink, #263650); }
+.os-cart-copying-label { margin: 0; font-size: 13px; font-weight: 600; }
+.os-cart-copying-file {
+  margin: 2px 0 10px;
+  overflow: hidden;
+  color: var(--boutique-blue, #425b8c);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.os-cart-copying-bar {
+  display: block;
+  height: 16px;
+  padding: 2px;
+  border: 1px solid var(--boutique-blue-light, #637aa6);
+  background: #fff;
+  box-shadow: inset 1px 1px rgba(38, 54, 80, 0.18);
+}
+.os-cart-copying-bar > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: repeating-linear-gradient(90deg, var(--boutique-mauve, #a66d88) 0 9px, transparent 9px 11px);
+  animation: os-cart-copy 900ms steps(12, end) forwards;
+}
+@keyframes os-cart-copy { to { width: 100%; } }
+
+/* Barra de estado tipo Explorador (solo escritorio) */
+.store-statusbar { display: none; }
+@media (min-width: 640px) {
+  .store-statusbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    flex: none;
+    border-top: 1px solid #c2cdd3;
+    background: #eef1f6;
+    color: var(--boutique-ink, #263650);
+    font-size: 12px;
+  }
+  .store-statusbar > span {
+    padding: 4px 12px;
+    border-right: 1px solid #c2cdd3;
+    box-shadow: inset 1px 1px #fff;
+    white-space: nowrap;
+  }
+  .store-statusbar > .store-statusbar-fill { flex: 1; border-right: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cuisine-catalog-card .cuisine-catalog-card-media img { transition: none; }
+  .cuisine-catalog-card:hover .cuisine-catalog-card-media img { rotate: none; scale: none; }
+}

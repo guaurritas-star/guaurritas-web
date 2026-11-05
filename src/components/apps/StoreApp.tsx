@@ -126,6 +126,12 @@ export default function StoreApp({
       <div className="store-catalog min-h-0 flex-none overflow-visible overscroll-auto p-4 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain sm:p-6">
         {activeCategory === "couture" ? <CoutureStoreApp embeddedInStore onBack={onBack} fulfillmentMode={mode} /> : mode === "national" ? <NationalCuisineStoreApp embeddedInStore onBack={onBack} /> : <CuisineStoreApp embeddedInStore onBack={onBack} fulfillmentMode="leon" />}
       </div>
+      <footer className="store-statusbar" aria-hidden="true">
+        <span>{activeCategory === "couture" ? "Couture" : "Cuisine"}</span>
+        <span>{mode === "leon" ? "León, Gto." : "Todo México"}</span>
+        <span>{cart.count} {cart.count === 1 ? "artículo" : "artículos"} en carrito</span>
+        <span className="store-statusbar-fill" />
+      </footer>
     </section>
   );
 }

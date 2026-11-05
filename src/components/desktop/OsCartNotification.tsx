@@ -7,11 +7,14 @@ import { requestSystemCartOpen } from "@/lib/cart-events";
 import { OS_CART_NOTIFICATION_EVENT } from "@/lib/os-notification-events";
 
 const DISMISS_AFTER_MS = 4200;
+const COPYING_MS = 950;
 
 /** Native Store mini-window. Visual confirmation only; never mutates the cart. */
 export default function OsCartNotification() {
   const [message, setMessage] = useState<string | null>(null);
+  const [copying, setCopying] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const dismiss = () => setMessage(null);
@@ -19,7 +22,11 @@ export default function OsCartNotification() {
       const notice = (event as CustomEvent<string>).detail;
       if (typeof notice !== "string" || !notice.trim()) return;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (copyingRef.current) clearTimeout(copyingRef.current);
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      setCopying(!reduceMotion);
       setMessage(notice.slice(0, 180));
+      if (!reduceMotion) copyingRef.current = setTimeout(() => setCopying(false), COPYING_MS);
       timeoutRef.current = setTimeout(dismiss, DISMISS_AFTER_MS);
     };
 
@@ -27,6 +34,7 @@ export default function OsCartNotification() {
     return () => {
       window.removeEventListener(OS_CART_NOTIFICATION_EVENT, show);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (copyingRef.current) clearTimeout(copyingRef.current);
     };
   }, []);
 
@@ -54,6 +62,14 @@ export default function OsCartNotification() {
         ><span aria-hidden="true">×</span></ShoppingButton>
       </ShoppingWindowHeader>
       <div className="os-cart-notification-client">
+        {copying ? (
+          <div className="os-cart-copying">
+            <p className="os-cart-copying-label">Copiando a Carrito.exe…</p>
+            <p className="os-cart-copying-file">{(productSummary || message).slice(0, 60)}</p>
+            <span className="os-cart-copying-bar" aria-hidden="true"><span /></span>
+          </div>
+        ) : (
+        <>
         <div className="os-cart-notification-body">
           <span className="os-cart-notification-success" aria-hidden="true">✓</span>
           <div className="os-cart-notification-copy">
@@ -71,6 +87,8 @@ export default function OsCartNotification() {
             }}
           >Ver carrito <span aria-hidden="true">→</span></ShoppingButton>
         </div>
+        </>
+        )}
       </div>
     </ShoppingWindow>
   );
