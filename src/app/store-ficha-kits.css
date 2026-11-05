@@ -1,0 +1,95 @@
+/* Ficha v2 · Kits (Kit GuaurriCookies y Descubre Guaurritas).
+   Solo presentación: sabores, inventario y precios siguen viniendo de Wix. */
+
+.cuisine-ficha-v2 .kit-steps { display: block; }
+.cuisine-ficha-v2 .kit-step {
+  padding: 14px 16px 16px;
+  border: 1px solid #c2cdd3;
+  border-radius: 12px;
+  background: #fff;
+}
+.cuisine-ficha-v2 .kit-step .ficha-step-title { font-size: 13px; color: var(--boutique-ink, #263650); }
+.cuisine-ficha-v2 .kit-step > div > div > p,
+.cuisine-ficha-v2 .kit-sazonador-step > legend + p { font-size: 13px; line-height: 1.45; }
+/* "Pendiente" también en títulos anidados */
+/* (los pasos con contador ya muestran su avance, así que no repiten la etiqueta) */
+.cuisine-ficha-v2 .kit-sazonador-step[data-step-current="true"] > .ficha-step-title::after {
+  content: "Pendiente";
+  margin-left: auto;
+  color: var(--boutique-mauve, #a66d88);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.cuisine-ficha-v2 .kit-step > div:first-child > div:first-child { flex: 1; }
+.cuisine-ficha-v2 .kit-step > div:first-child > span {
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+/* Barra de avance malva por segmentos */
+.cuisine-ficha-v2 .kit-progress {
+  display: block;
+  height: 8px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #eef1f6;
+}
+.cuisine-ficha-v2 .kit-progress > span {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--boutique-mauve, #a66d88) 0 10px, #c48ea6 10px 12px);
+  transition: width 250ms ease;
+}
+/* Tarjetas de sabor */
+.cuisine-ficha-v2 .kit-step > div.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.cuisine-ficha-v2 .kit-flavor-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  border-radius: 8px;
+}
+.cuisine-ficha-v2 .kit-flavor-card[data-filled="true"] {
+  border-color: var(--boutique-mauve, #a66d88);
+  background: #fbf6f8;
+}
+.cuisine-ficha-v2 .kit-flavor-card p:first-child { font-size: 14px; line-height: 1.3; color: var(--boutique-ink, #263650); }
+.cuisine-ficha-v2 .kit-flavor-card .rounded-full:not(button) {
+  border-radius: 4px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.cuisine-ficha-v2 .kit-flavor-card > div:last-child { justify-content: space-between; }
+.cuisine-ficha-v2 .kit-flavor-card button { border-radius: 6px; }
+/* Sazonador */
+.cuisine-ficha-v2 .kit-sazonador-step > legend { float: left; width: 100%; margin: 0 0 4px; padding: 0; }
+.cuisine-ficha-v2 .kit-sazonador-step > legend + p { clear: both; margin-top: 0; color: #718093; }
+.cuisine-ficha-v2 .kit-sazonador-step button {
+  min-height: 48px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: none;
+}
+/* GuaurriSticks incluidos */
+.cuisine-ficha-v2 .kit-included-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #cfe3d5;
+  border-radius: 8px;
+  background: #eef6f0;
+  color: #456a4e;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 639px) {
+  .cuisine-ficha-v2 .kit-step > div.grid { grid-template-columns: minmax(0, 1fr); }
+  .cuisine-ficha-v2 .kit-flavor-card { flex-direction: row; align-items: center; }
+}

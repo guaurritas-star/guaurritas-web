@@ -2054,11 +2054,11 @@ export default function CuisineStoreApp({
                     </div>
                   </div>
                 ) : isGuaurriCookiesKit ? (
-                  <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                  <fieldset className="ficha-step kit-step mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-step-done={kitSelectionComplete ? "true" : undefined} data-step-current={!kitSelectionComplete ? "true" : undefined}>
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                          Elige tus bolsas
+                        <legend className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Elige tus {KIT_GUAURRICOOKIES_BAG_COUNT} bolsas
                         </legend>
                         <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
                           Puedes repetir sabores. La selección se sincroniza con Wix.
@@ -2075,6 +2075,9 @@ export default function CuisineStoreApp({
                         {kitSelectedCount}/{KIT_GUAURRICOOKIES_BAG_COUNT}
                       </span>
                     </div>
+                    <span className="kit-progress" aria-hidden="true">
+                      <span style={{ width: `${Math.min(100, (kitSelectedCount / KIT_GUAURRICOOKIES_BAG_COUNT) * 100)}%` }} />
+                    </span>
 
                     {kitConfigLoading ? (
                       <div className="mt-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-4 font-interface text-[10px] text-[#718093]">
@@ -2109,7 +2112,8 @@ export default function CuisineStoreApp({
                           return (
                             <div
                               key={flavor.sourceProductId || flavor.label}
-                              className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
+                              data-filled={count > 0 ? "true" : undefined}
+                              className={`kit-flavor-card flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
                                 flavor.available
                                   ? "border-[#d1dce1] bg-white"
                                   : "border-[#e1d5d8] bg-[#f7f4f5] opacity-70"
@@ -2179,11 +2183,12 @@ export default function CuisineStoreApp({
                     </p>
                   </fieldset>
                 ) : isDescubreGuaurritas ? (
-                  <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                  <div className="kit-steps">
+                  <fieldset className="ficha-step kit-step mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-step-done={descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT ? "true" : undefined} data-step-current={descubreSelectedCount !== DESCUBRE_GUAURRITAS_COOKIE_COUNT ? "true" : undefined}>
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                          Elige tus GuaurriCookies
+                        <legend className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                          Elige {DESCUBRE_GUAURRITAS_COOKIE_COUNT} GuaurriCookies
                         </legend>
                         <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
                           Elige 2 bolsas. Puedes repetir sabor.
@@ -2200,6 +2205,9 @@ export default function CuisineStoreApp({
                         {descubreSelectedCount}/{DESCUBRE_GUAURRITAS_COOKIE_COUNT}
                       </span>
                     </div>
+                    <span className="kit-progress" aria-hidden="true">
+                      <span style={{ width: `${Math.min(100, (descubreSelectedCount / DESCUBRE_GUAURRITAS_COOKIE_COUNT) * 100)}%` }} />
+                    </span>
 
                     {kitConfigLoading || descubreConfigLoading ? (
                       <div className="mt-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-4 font-interface text-[10px] text-[#718093]">
@@ -2244,7 +2252,8 @@ export default function CuisineStoreApp({
                             return (
                               <div
                                 key={`descubre-${flavor.sourceProductId || flavor.label}`}
-                                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
+                                data-filled={count > 0 ? "true" : undefined}
+                                className={`kit-flavor-card flex items-center justify-between gap-3 rounded-xl border px-3 py-3 ${
                                   flavor.available
                                     ? "border-[#d1dce1] bg-white"
                                     : "border-[#e1d5d8] bg-[#f7f4f5] opacity-70"
@@ -2300,36 +2309,6 @@ export default function CuisineStoreApp({
                           })}
                         </div>
 
-                        <div className="mt-5 border-t border-[#d7e0e5] pt-5">
-                          <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
-                            Elige tu Sazonador
-                          </p>
-                          <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
-                            Selecciona exactamente un sabor.
-                          </p>
-                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                            {descubreConfig.sazonadores.map((choice) => (
-                              <button
-                                key={choice.label}
-                                type="button"
-                                onClick={() => setDescubreSazonador(choice.label)}
-                                disabled={!choice.available}
-                                className={`rounded-xl border px-4 py-3 text-left font-interface text-[10px] font-bold transition ${
-                                  descubreSazonador === choice.label
-                                    ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
-                                    : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
-                                } disabled:cursor-not-allowed disabled:opacity-40`}
-                              >
-                                {choice.label}
-                                {!choice.available && (
-                                  <span className="mt-1 block text-[9px] text-[#9f5860]">
-                                    Agotado
-                                  </span>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
                       </>
                     )}
 
@@ -2347,6 +2326,45 @@ export default function CuisineStoreApp({
                           : "Completa tus 2 GuaurriCookies y elige 1 Sazonador."}
                     </p>
                   </fieldset>
+                  {kitConfig && descubreConfig && !kitConfigLoading && !descubreConfigLoading && !kitConfigError && !descubreConfigError && (
+                  <fieldset className="ficha-step kit-step kit-sazonador-step mt-4 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-step-done={descubreSazonador ? "true" : undefined} data-step-current={descubreSelectedCount === DESCUBRE_GUAURRITAS_COOKIE_COUNT && !descubreSazonador ? "true" : undefined}>
+                          <legend className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                            Elige tu Sazonador
+                          </legend>
+                          <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                            Selecciona exactamente un sabor.
+                          </p>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            {descubreConfig.sazonadores.map((choice) => (
+                              <button
+                                key={choice.label}
+                                type="button"
+                                onClick={() => setDescubreSazonador(choice.label)}
+                                aria-pressed={descubreSazonador === choice.label}
+                                disabled={!choice.available}
+                                className={`rounded-xl border px-4 py-3 text-left font-interface text-[10px] font-bold transition ${
+                                  descubreSazonador === choice.label
+                                    ? "border-[#425b8c] bg-[#e5edf4] text-[#263650] shadow-[2px_2px_0_#425b8c]"
+                                    : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
+                                } disabled:cursor-not-allowed disabled:opacity-40`}
+                              >
+                                {choice.label}
+                                {!choice.available && (
+                                  <span className="mt-1 block text-[9px] text-[#9f5860]">
+                                    Agotado
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </fieldset>
+                  )}
+                  {descubreConfig?.sticksAvailable !== false && (
+                    <p className="kit-included-note">
+                      <span aria-hidden="true">✓</span> GuaurriSticks incluidos en tu kit
+                    </p>
+                  )}
+                  </div>
                 ) : isGorrito ? (
                   <fieldset className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <legend className="px-1 font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
