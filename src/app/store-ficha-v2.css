@@ -223,3 +223,14 @@
 @media (prefers-reduced-motion: reduce) {
   .cuisine-ficha-v2 .ficha-mini-header { transition: none; }
 }
+
+/* Desktop: la compra no va fija desde que se abre la ficha; aparece al final,
+   cuando ya se personalizó el producto. En móvil y tablet sigue fija abajo. */
+@media (min-width: 1024px) {
+  .boutique-product.cuisine-ficha-v2 .product-purchase-summary {
+    position: static;
+    border-bottom: 1px solid #c2cdd3;
+    border-radius: 10px;
+    box-shadow: none;
+  }
+}
