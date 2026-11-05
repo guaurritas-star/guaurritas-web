@@ -782,6 +782,22 @@ export default function CuisineStoreApp({
   const [notice, setNotice] = useState("");
   const [cartOpening, setCartOpening] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
+  const [bulkCustomOpen, setBulkCustomOpen] = useState(false);
+  const [fichaCompact, setFichaCompact] = useState(false);
+  const selectedProductId = selectedProduct?.id ?? null;
+
+  // Mini encabezado de la ficha: aparece cuando la foto sale de la vista.
+  // Solo visual; no participa en cálculo, variantes ni carrito.
+  useEffect(() => {
+    const gallery = productViewRef.current?.querySelector(".product-gallery");
+    if (!selectedProductId || !gallery || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setFichaCompact(!entry.isIntersecting),
+      { rootMargin: "-80px 0px 0px 0px" },
+    );
+    observer.observe(gallery);
+    return () => observer.disconnect();
+  }, [selectedProductId]);
   const cartOpeningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cartOpeningResetTimerRef =
     useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1620,7 +1636,7 @@ export default function CuisineStoreApp({
     const petcakeOptionsReady = isPetcake && canAdd && petcakeMobileStep < petcakeReviewStep;
 
     return (
-      <section ref={productViewRef} className={`boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6 ${isPetcake ? "cuisine-petcake-steps" : ""}`}>
+      <section ref={productViewRef} className={`boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6 ${isPetcake ? "cuisine-petcake-steps" : "cuisine-ficha-v2"}${fichaCompact ? " is-ficha-compact" : ""}`}>
         <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -1631,6 +1647,28 @@ export default function CuisineStoreApp({
           >
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7" /></svg>
           </button>
+          <div className="ficha-mini-header" aria-hidden="true">
+            <span className="ficha-mini-thumb" style={{ backgroundColor: selectedProduct.imageTone }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={withBasePath(currentProductImage)} alt="" />
+            </span>
+            <span className="ficha-mini-copy">
+              <strong>{selectedProduct.name}</strong>
+              <small>
+                {isBulkCookies
+                  ? bulkQuantityIsValid
+                    ? isBulkWholesaleQuote
+                      ? `${formatBulkWeight(bulkTargetGrams)} · por cotizar`
+                      : `${formatBulkWeight(bulkTargetGrams)} · ${money(bulkPrice)}`
+                    : "Elige cantidad"
+                  : isGuaurriCookiesKit
+                    ? money(halloweenPrice(KIT_GUAURRICOOKIES_PRODUCT_KEY, KIT_GUAURRICOOKIES_PRICE))
+                  : isDescubreGuaurritas
+                    ? money(DESCUBRE_GUAURRITAS_PRICE)
+                  : `${currentOption.label} · ${money(currentDisplayPrice)}`}
+              </small>
+            </span>
+          </div>
           {cuisineCartTrigger}
         </div>
 
@@ -1856,19 +1894,50 @@ export default function CuisineStoreApp({
                 )}
 
                 {isBulkCookies ? (
-                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                  <div className="ficha-step mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-step="1" data-step-done={bulkQuantityIsValid ? "true" : undefined}>
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                        <p className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                           ¿Cuánto necesitas?
                         </p>
-                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                        <p className="ficha-step-help mt-1 font-interface text-[10px] leading-4 text-[#718093]">
                           Mínimo 300 g · cantidades de 100 g en 100 g.
                         </p>
                       </div>
 
                     </div>
 
+                    <div className="bulk-preset-grid" role="group" aria-label="Cantidades sugeridas">
+                      {[300, 500, 1000, 2000].map((grams) => (
+                        <button
+                          key={grams}
+                          type="button"
+                          aria-pressed={bulkTargetGrams === grams}
+                          onClick={() => {
+                            setBulkQuantity(grams);
+                            setBulkCustomOpen(false);
+                          }}
+                          className="bulk-preset"
+                        >
+                          <strong>{formatBulkWeight(grams)}</strong>
+                          <span>{money(getCuisineCookiePrice(grams, grams * 0.6, fulfillmentMode))}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="bulk-preset-note">
+                      {fulfillmentMode === "national" ? "Precio nacional según gramaje · envío aparte" : "$60 por cada 100 g"}
+                      {" · "}
+                      <button
+                        type="button"
+                        className="bulk-custom-toggle"
+                        aria-expanded={bulkCustomOpen || (bulkQuantityIsValid && ![300, 500, 1000, 2000].includes(bulkTargetGrams)) || !bulkQuantityIsValid}
+                        onClick={() => setBulkCustomOpen((open) => !open)}
+                      >
+                        Otra cantidad
+                      </button>
+                    </p>
+
+                    <div className="bulk-custom-panel" hidden={!(bulkCustomOpen || (bulkQuantityIsValid && ![300, 500, 1000, 2000].includes(bulkTargetGrams)) || !bulkQuantityIsValid)}>
                     <div className="mt-4 grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
                       <div className="flex rounded-xl border border-[#b9c8d8] bg-white p-1">
                         {(["g", "kg"] as const).map((unit) => (
@@ -1947,25 +2016,9 @@ export default function CuisineStoreApp({
                         ? `${formatBulkWeight(bulkTargetGrams)} seleccionados.`
                         : "Ingresa entre 300 g y 10 kg en múltiplos de 100 g."}
                     </p>
-
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {[300, 500, 1000, 2000].map((grams) => (
-                        <button
-                          key={grams}
-                          type="button"
-                          onClick={() => setBulkQuantity(grams)}
-                          className={`rounded-full border px-3 py-2 font-interface text-[10px] font-bold transition ${
-                            bulkTargetGrams === grams
-                              ? "border-[#425b8c] bg-[#e5edf4] text-[#263650]"
-                              : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
-                          }`}
-                        >
-                          {formatBulkWeight(grams)}
-                        </button>
-                      ))}
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-3">
+                    <div className={`bulk-price-box mt-4 flex items-center justify-between gap-4 rounded-xl border border-[#d1dce1] bg-white px-4 py-3${isBulkWholesaleQuote ? " is-wholesale" : ""}`}>
                       <div>
                         <p className="font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#718093]">
                           {isBulkWholesaleQuote
@@ -2461,13 +2514,13 @@ export default function CuisineStoreApp({
                   )}
 
                 {isBulkCookies && (
-                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                  <div className="ficha-step bulk-flavor-step mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-step="2" data-step-done={bulkDistributionIsComplete ? "true" : undefined}>
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                        <p className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                           Distribuye tus sabores
                         </p>
-                        <p className="mt-1 font-interface text-[10px] leading-4 text-[#718093]">
+                        <p className="ficha-step-help mt-1 font-interface text-[10px] leading-4 text-[#718093]">
                           Suma o resta porciones de 100 g hasta completar tu presentación.
                         </p>
                       </div>
@@ -2514,7 +2567,8 @@ export default function CuisineStoreApp({
                         return (
                           <div
                             key={flavor}
-                            className={`flex items-center justify-between gap-3 rounded-xl border p-3 transition ${
+                            data-filled={grams > 0 ? "true" : undefined}
+                            className={`bulk-flavor-card flex items-center justify-between gap-3 rounded-xl border p-3 transition ${
                               grams > 0
                                 ? "border-[#7c9cab] bg-white shadow-[2px_2px_0_#d0e2e6]"
                                 : "border-[#d1d9df] bg-white/75"
@@ -2994,10 +3048,9 @@ export default function CuisineStoreApp({
                       ? "Solicitar cotización"
                       : "Agregar al carrito"}
               </button>
-            </div>
 
             {!canAdd && (
-              <p className="mt-3 font-interface text-[10px] leading-4 text-[#718093]">
+              <p className="product-pending-note mt-3 font-interface text-[10px] leading-4 text-[#718093]" aria-live="polite">
                 {needsKitSelection
                   ? kitConfigLoading
                     ? "Estamos sincronizando sabores e inventario con Wix."
@@ -3033,6 +3086,7 @@ export default function CuisineStoreApp({
                   : "Indica si deseas personalizarlo para agregarlo."}
               </p>
             )}
+            </div>
 
             {notice && (
               <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} onContinue={() => { setNotice(""); setSelectedProduct(null); }} />
