@@ -203,7 +203,9 @@ function PetRecipeFields({
   onPetProteinChange,
   firstStep,
   mobileStep,
+  currentStep = null,
 }: {
+  currentStep?: "pet" | "protein" | null;
   petType: PetType | null;
   petProtein: string | null;
   onPetTypeChange: (petType: PetType) => void;
@@ -213,9 +215,9 @@ function PetRecipeFields({
 }) {
   return (
     <>
-      <fieldset className="mt-5" data-petcake-step={mobileStep === undefined ? undefined : 2} data-step-active={mobileStep === 2 ? "true" : undefined} tabIndex={mobileStep === 2 ? -1 : undefined}>
-        <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-          {firstStep}. ¿Para quién es?
+      <fieldset className="ficha-step mt-5" data-step-done={petType !== null ? "true" : undefined} data-step-current={currentStep === "pet" ? "true" : undefined} data-petcake-step={mobileStep === undefined ? undefined : 2} data-step-active={mobileStep === 2 ? "true" : undefined} tabIndex={mobileStep === 2 ? -1 : undefined}>
+        <legend className="ficha-step-title font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+          <span className="legacy-step-num">{firstStep}. </span>¿Para quién es?
         </legend>
         <div className="mt-2 grid grid-cols-2 gap-2">
           {(["lomito", "michi"] as const).map((kind) => (
@@ -230,15 +232,15 @@ function PetRecipeFields({
                   : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#5e96a5]"
               }`}
             >
-              {kind === "lomito" ? <><SystemIcon name="dog" /> Lomito</> : <><SystemIcon name="cat" /> Michi</>}
+              {kind === "lomito" ? <><SystemIcon name="dog" className="pet-type-icon" /> <span>Lomito</span></> : <><SystemIcon name="cat" className="pet-type-icon" /> <span>Michi</span></>}
             </button>
           ))}
         </div>
       </fieldset>
 
-      <fieldset className="mt-5" data-petcake-step={mobileStep === undefined ? undefined : 3} data-step-active={mobileStep === 3 ? "true" : undefined} tabIndex={mobileStep === 3 ? -1 : undefined}>
-        <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-          {firstStep + 1}. Proteína
+      <fieldset className="ficha-step mt-5" data-step-done={petProtein !== null ? "true" : undefined} data-step-current={currentStep === "protein" ? "true" : undefined} data-petcake-step={mobileStep === undefined ? undefined : 3} data-step-active={mobileStep === 3 ? "true" : undefined} tabIndex={mobileStep === 3 ? -1 : undefined}>
+        <legend className="ficha-step-title font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+          <span className="legacy-step-num">{firstStep + 1}. </span>Proteína
         </legend>
         {petType ? (
           <div className="mt-2 grid grid-cols-3 gap-2">
@@ -259,7 +261,7 @@ function PetRecipeFields({
             ))}
           </div>
         ) : (
-          <p className="mt-2 rounded-xl border border-dashed border-[#b9c8d8] bg-white px-3 py-3 font-interface text-[10px] text-[#718093]">
+          <p className="recipe-protein-empty mt-2 rounded-xl border border-dashed border-[#b9c8d8] bg-white px-3 py-3 font-interface text-[10px] text-[#718093]">
             Primero elige lomito o michi para mostrar las proteínas disponibles.
           </p>
         )}
@@ -1556,6 +1558,15 @@ export default function CuisineStoreApp({
       !needsKitSelection &&
       !needsDescubreSelection;
 
+    // Paso pendiente que se resalta en la ficha v2 (solo presentación).
+    const currentFichaStep: "chili-protein" | "chili-salsa" | "pet" | "protein" | "customize" | null =
+      isChilaquidogs && chilaquiProtein === null ? "chili-protein"
+        : isChilaquidogs && chilaquiSalsa === null ? "chili-salsa"
+        : needsRecipe && !isPetcake && petType === null ? "pet"
+        : needsRecipe && !isPetcake && petProtein === null ? "protein"
+        : selectedProduct.customizable && !isPetcake && customize === null ? "customize"
+        : null;
+
     // Read-only checklist of the exact selections already required by the cart.
     // Never mutate business rules, product options or prices from this UI.
     const selectionSteps: { label: string; complete: boolean }[] = [];
@@ -2367,8 +2378,8 @@ export default function CuisineStoreApp({
                     </div>
                   </fieldset>
                 ) : (
-                <fieldset className="mt-7">
-                  <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
+                <fieldset className="ficha-step mt-7" data-step-done="true">
+                  <legend className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                     Elige una presentación
                   </legend>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -2711,7 +2722,7 @@ export default function CuisineStoreApp({
                 )}
 
                 {isChilaquidogs && (
-                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                  <div className="ficha-step-group mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
@@ -2726,9 +2737,9 @@ export default function CuisineStoreApp({
                       </span>
                     </div>
 
-                    <fieldset className="mt-5">
-                      <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-                        1. Proteína
+                    <fieldset className="ficha-step mt-5" data-step-done={chilaquiProtein !== null ? "true" : undefined} data-step-current={currentFichaStep === "chili-protein" ? "true" : undefined}>
+                      <legend className="ficha-step-title font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                        <span className="legacy-step-num">1. </span>Proteína
                       </legend>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         {(["Pollo", "Res"] as const).map((protein) => (
@@ -2749,9 +2760,9 @@ export default function CuisineStoreApp({
                       </div>
                     </fieldset>
 
-                    <fieldset className="mt-5">
-                      <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-                        2. Salsa
+                    <fieldset className="ficha-step mt-5" data-step-done={chilaquiSalsa !== null ? "true" : undefined} data-step-current={currentFichaStep === "chili-salsa" ? "true" : undefined}>
+                      <legend className="ficha-step-title font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                        <span className="legacy-step-num">2. </span>Salsa
                       </legend>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         {(["Roja", "Verde"] as const).map((salsa) => (
@@ -2777,7 +2788,7 @@ export default function CuisineStoreApp({
                 )}
 
                 {needsRecipe && (
-                  <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
+                  <div className="ficha-step-group mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5">
                     <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                       Configura su receta
                     </p>
@@ -2793,13 +2804,14 @@ export default function CuisineStoreApp({
                       }}
                       onPetProteinChange={setPetProtein}
                       firstStep={1}
+                      currentStep={currentFichaStep === "pet" || currentFichaStep === "protein" ? currentFichaStep : null}
                     />
                   </div>
                 )}
               </>
             )}
 
-            <details className="group mt-7 rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4">
+            <details className="product-before-order group mt-7 rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5] marker:content-none">
                 <span>Antes de pedir</span>
                 <span
@@ -2823,15 +2835,15 @@ export default function CuisineStoreApp({
             </details>
 
             {selectedProduct.customizable && (
-              <div className="mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5" data-petcake-personalization={isPetcake ? "true" : undefined} data-active={isPetcake && petcakeMobileStep >= 4 && petcakeMobileStep < petcakeReviewStep ? "true" : undefined}>
+              <div className="customize-step ficha-step mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5" data-step-done={customize !== null ? "true" : undefined} data-step-current={currentFichaStep === "customize" ? "true" : undefined} data-petcake-personalization={isPetcake ? "true" : undefined} data-active={isPetcake && petcakeMobileStep >= 4 && petcakeMobileStep < petcakeReviewStep ? "true" : undefined}>
                 <div data-petcake-step={isPetcake ? 4 : undefined} data-step-active={isPetcake && petcakeMobileStep === 4 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 4 ? -1 : undefined}>
-                <p className="font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
+                <p className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
                   {usesDecorationPersonalization
                     ? "¿Quieres personalizar la decoración?"
                     : "¿Quieres personalizar tu producto?"}
                 </p>
                 <div className="mt-3 flex gap-2">
-                  {(["yes", "no"] as const).map((choice) => (
+                  {(isPetcake ? (["yes", "no"] as const) : (["no", "yes"] as const)).map((choice) => (
                     <button
                       key={choice}
                       type="button"
@@ -2847,7 +2859,9 @@ export default function CuisineStoreApp({
                           : "border-[#d2a5ad] bg-white text-[#7a5660]"
                       }`}
                     >
-                      {choice === "yes" ? "Sí" : "No"}
+                      {isPetcake
+                        ? choice === "yes" ? "Sí" : "No"
+                        : <><strong>{choice === "yes" ? "Personalizar" : "Sencilla"}</strong><small>{choice === "yes" ? "Nombre, idea y fotos" : "Como en la foto"}</small></>}
                     </button>
                   ))}
                 </div>
@@ -3082,7 +3096,9 @@ export default function CuisineStoreApp({
                   : needsPetcakeFinish || needsRecipeConfiguration
                   ? isPetcake
                     ? "Completa tamaño, acabado, tipo de mascota y proteína para agregarlo."
-                    : "Elige si es para lomito o michi y selecciona su proteína para agregarlo."
+                    : petType === null
+                      ? "Elige si es para lomito o michi para continuar."
+                      : "Elige la proteína para agregarlo."
                   : "Indica si deseas personalizarlo para agregarlo."}
               </p>
             )}
