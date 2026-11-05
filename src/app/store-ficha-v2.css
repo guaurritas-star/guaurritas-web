@@ -1,0 +1,225 @@
+/* Ficha de producto v2 (Cuisine León y Nacional, excepto Petcakes).
+   Solo presentación: no altera cálculo, variantes, carrito ni checkout. */
+
+/* ---------- Guía duplicada: el estado vive ahora en pasos y barra de compra ---------- */
+.cuisine-ficha-v2 .cuisine-selection-guide { display: none; }
+
+/* ---------- Foto con efecto sticker ---------- */
+.cuisine-ficha-v2 .product-detail-image:not(.mix-blend-multiply) {
+  filter:
+    drop-shadow(4px 0 0 #fff) drop-shadow(-4px 0 0 #fff)
+    drop-shadow(0 4px 0 #fff) drop-shadow(0 -4px 0 #fff)
+    drop-shadow(0 6px 8px rgba(38, 54, 80, 0.16));
+}
+
+/* ---------- Pasos numerados ---------- */
+.cuisine-ficha-v2 .ficha-step { background: #fff; border-color: #c2cdd3; }
+.cuisine-ficha-v2 .ficha-step-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.cuisine-ficha-v2 .ficha-step-title::before {
+  content: attr(data-n);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--boutique-blue, #425b8c);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.cuisine-ficha-v2 .ficha-step[data-step="1"] .ficha-step-title::before { content: "1"; }
+.cuisine-ficha-v2 .ficha-step[data-step="2"] .ficha-step-title::before { content: "2"; }
+.cuisine-ficha-v2 .ficha-step[data-step-done="true"] .ficha-step-title::before {
+  content: "✓";
+  background: #5f9a7a;
+}
+.cuisine-ficha-v2 .ficha-step-help { font-size: 13px; line-height: 1.45; }
+
+/* ---------- Cantidad: atajos con precio ---------- */
+.cuisine-ficha-v2 .bulk-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.cuisine-ficha-v2 .bulk-preset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 58px;
+  padding: 8px 4px;
+  border: 1px solid #c2cdd3;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--boutique-ink, #263650);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.cuisine-ficha-v2 .bulk-preset strong { font-size: 16px; }
+.cuisine-ficha-v2 .bulk-preset span { color: #5b6b80; font-size: 13px; }
+.cuisine-ficha-v2 .bulk-preset:hover { border-color: var(--boutique-blue-light, #637aa6); }
+.cuisine-ficha-v2 .bulk-preset[aria-pressed="true"] {
+  border: 2px solid var(--boutique-blue, #425b8c);
+  background: #eef1f6;
+  box-shadow: inset 0 0 0 1px #fff;
+}
+.cuisine-ficha-v2 .bulk-preset-note { margin: 10px 0 0; color: var(--boutique-blue, #425b8c); font-size: 13px; }
+.cuisine-ficha-v2 .bulk-custom-toggle {
+  min-height: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  background: none !important;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.bulk-custom-panel[hidden] { display: none; }
+/* El precio ya está en la barra de compra; solo se muestra el aviso de mayoreo. */
+.cuisine-ficha-v2 .bulk-price-box:not(.is-wholesale) { display: none; }
+
+/* ---------- Sabores: nombre completo, control legible ---------- */
+.cuisine-ficha-v2 .bulk-flavor-step .h-2 { height: 8px; }
+.cuisine-ficha-v2 .bulk-flavor-step [role="progressbar"] > span {
+  background: repeating-linear-gradient(90deg, var(--boutique-mauve, #a66d88) 0 10px, #c48ea6 10px 12px);
+}
+.cuisine-ficha-v2 .bulk-flavor-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  box-shadow: none;
+}
+.cuisine-ficha-v2 .bulk-flavor-card[data-filled="true"] {
+  border-color: var(--boutique-mauve, #a66d88);
+  background: #fbf6f8;
+}
+.cuisine-ficha-v2 .bulk-flavor-card > .min-w-0 p:first-child {
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--boutique-ink, #263650);
+}
+.cuisine-ficha-v2 .bulk-flavor-card > .min-w-0 p + p { display: none; }
+.cuisine-ficha-v2 .bulk-flavor-card > .shrink-0 { justify-content: space-between; }
+.cuisine-ficha-v2 .bulk-flavor-card > .shrink-0 > button { border-radius: 6px; }
+.cuisine-ficha-v2 .bulk-flavor-card input { width: 5rem; padding-left: 4px; padding-right: 16px; font-size: 13px; }
+
+@media (min-width: 640px) {
+  .boutique-product.cuisine-ficha-v2 .product-purchase-summary {
+    margin-inline: 0;
+    border: 1px solid #c2cdd3;
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+  }
+}
+
+/* Foto fija en escritorio mientras se configura. Se posiciona debajo de la
+   barra de acciones (≈66 px) para no deslizarse por debajo de ella. */
+@media (min-width: 1024px) {
+  .store-app .boutique-product.cuisine-ficha-v2 > div:nth-child(2) > .product-gallery,
+  .cuisine-ficha-v2 > div:nth-child(2) > .product-gallery {
+    position: sticky;
+    top: 90px;
+    z-index: 1;
+    align-self: start;
+  }
+}
+
+/* ---------- Barra de compra fija ---------- */
+.cuisine-ficha-v2 .product-purchase-summary {
+  position: sticky;
+  bottom: 0;
+  z-index: 25;
+  margin-inline: -20px;
+  padding: 12px 20px;
+  border-top: 1px solid #c2cdd3;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 -6px 14px rgba(38, 54, 80, 0.07);
+}
+.cuisine-ficha-v2 .product-purchase-summary > div > p:last-child { margin-top: 2px; }
+.cuisine-ficha-v2 .product-purchase-summary > .product-decision-help { font-size: 12px; line-height: 1.4; color: #5b6b80; }
+.cuisine-ficha-v2 .product-pending-note {
+  grid-column: 1 / -1;
+  order: 2;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid #ecd6e0;
+  border-radius: 6px;
+  background: #fbf3f6;
+  color: var(--boutique-mauve, #a66d88);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* ---------- Mini encabezado (móvil) ---------- */
+.ficha-mini-header { display: none; }
+
+@media (max-width: 639px) {
+  /* Foto a ancho completo */
+  .boutique-product.cuisine-ficha-v2 > div:nth-child(2) > div.product-gallery { width: 100%; justify-self: stretch; }
+  .cuisine-ficha-v2 .product-gallery > .aspect-square { aspect-ratio: 4 / 3; }
+
+  .cuisine-ficha-v2 .bulk-preset-grid { gap: 6px; }
+  .cuisine-ficha-v2 .bulk-preset { min-height: 54px; }
+  .cuisine-ficha-v2 .bulk-preset strong { font-size: 15px; }
+
+  .cuisine-ficha-v2 .bulk-flavor-card { flex-direction: row; align-items: center; }
+  .cuisine-ficha-v2 .bulk-flavor-card > .shrink-0 { gap: 4px; }
+  .cuisine-ficha-v2 .bulk-flavor-card > .shrink-0 > button { width: 38px; height: 38px; }
+  .cuisine-ficha-v2 .bulk-flavor-card input { width: 4rem; height: 38px; }
+
+  .cuisine-ficha-v2 .product-purchase-summary {
+    margin-inline: -20px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .cuisine-ficha-v2 .product-purchase-summary > button { width: auto; }
+  .cuisine-ficha-v2 .product-purchase-summary > div > p:first-child { display: none; }
+  .cuisine-ficha-v2 .product-purchase-summary > .product-decision-help { display: none; }
+
+  .cuisine-ficha-v2 .ficha-mini-header {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+  .cuisine-ficha-v2.is-ficha-compact .ficha-mini-header { opacity: 1; transform: none; }
+  .ficha-mini-thumb {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border: 1px solid #dfe5ea;
+    border-radius: 6px;
+  }
+  .ficha-mini-thumb img { width: 88%; height: 88%; object-fit: contain; }
+  .ficha-mini-copy { display: flex; min-width: 0; flex-direction: column; line-height: 1.15; }
+  .ficha-mini-copy strong {
+    overflow: hidden;
+    color: #fff;
+    font-size: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ficha-mini-copy small { overflow: hidden; color: #f3dbe6; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .cuisine-ficha-v2.is-ficha-compact .retail-system-cart > span:not(.shopping-cart-count) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cuisine-ficha-v2 .ficha-mini-header { transition: none; }
+}

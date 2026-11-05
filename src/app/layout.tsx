@@ -19,6 +19,7 @@ import "./cuisine-catalog-ux.css";
 import "./cuisine-product-ux.css";
 import "./petcake-mobile-steps.css";
 import "./store-retro-moments.css";
+import "./store-ficha-v2.css";
 
 const mansalva = Mansalva({
   weight: "400",
