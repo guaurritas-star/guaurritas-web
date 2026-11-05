@@ -3123,14 +3123,22 @@ export default function CuisineStoreApp({
         </div>
 
         <div className="boutique-product-grid cuisine-catalog-grid mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visibleProducts.map((product) => (
+          {visibleProducts.map((product, index) => (
             <button
               key={product.id}
               type="button"
               onClick={() => openProduct(product)}
               aria-label={`Ver opciones de ${product.name}`}
-              className="boutique-product-card cuisine-catalog-card group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
+              style={{ "--retro-card-index": Math.min(index, 11) } as CSSProperties}
+              className="boutique-product-card cuisine-catalog-card retro-window-card group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
             >
+              <span className="retro-card-titlebar" aria-hidden="true">
+                <span className="retro-card-titlebar-name">{product.name}.exe</span>
+                <span className="retro-card-titlebar-controls">
+                  <span>_</span>
+                  <span>□</span>
+                </span>
+              </span>
               <span
                 className="cuisine-catalog-card-media relative block aspect-[4/3] overflow-hidden border-b border-[#cbd5da] sm:shrink-0"
                 style={{ backgroundColor: product.imageTone }}

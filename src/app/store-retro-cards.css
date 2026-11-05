@@ -1,0 +1,179 @@
+/* Tienda · tarjetas de producto como mini ventanas retro.
+   Solo usa la paleta aprobada de la boutique (--boutique-*). No toca precios,
+   variantes, carrito ni checkout: es una capa visual sobre el catálogo. */
+
+/* ---------- Cuisine: tarjeta = ventana ---------- */
+.boutique-retail .boutique-product-card.retro-window-card {
+  position: relative;
+  border: 2px solid var(--boutique-ink);
+  border-radius: 3px;
+  background: var(--boutique-paper);
+  box-shadow:
+    inset 1px 1px #fff,
+    inset -2px -2px var(--boutique-blue-light),
+    4px 4px 0 var(--boutique-mauve);
+  translate: none;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  animation: retro-card-open 320ms cubic-bezier(.2, .9, .3, 1.2) both;
+  animation-delay: calc(var(--retro-card-index, 0) * 45ms);
+}
+.boutique-retail .boutique-product-card.retro-window-card:hover {
+  outline: none;
+  transform: translate(-2px, -2px);
+  box-shadow:
+    inset 1px 1px #fff,
+    inset -2px -2px var(--boutique-blue-light),
+    6px 6px 0 var(--boutique-mauve);
+}
+.boutique-retail .boutique-product-card.retro-window-card:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    inset 1px 1px #fff,
+    inset -2px -2px var(--boutique-blue-light),
+    1px 1px 0 var(--boutique-mauve);
+}
+.boutique-retail .boutique-product-card.retro-window-card:focus-visible {
+  outline: 3px solid var(--boutique-blue) !important;
+  outline-offset: 3px;
+}
+
+/* Barra de título */
+.retro-window-card .retro-card-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+  padding: 3px 4px 3px 9px;
+  background: linear-gradient(90deg, var(--boutique-blue), var(--boutique-blue-light));
+  color: #fff;
+  font: 400 14px/1.2 var(--font-mansalva), cursive;
+}
+.retro-window-card:hover .retro-card-titlebar {
+  background: linear-gradient(90deg, var(--boutique-blue), var(--boutique-mauve));
+}
+.retro-window-card .retro-card-titlebar-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.retro-window-card .retro-card-titlebar-controls {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+}
+.retro-window-card .retro-card-titlebar-controls > span {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 15px;
+  border: 1px solid var(--boutique-ink);
+  background: var(--boutique-paper);
+  box-shadow: inset 1px 1px #fff, inset -1px -1px var(--boutique-blue-light);
+  color: var(--boutique-ink);
+  font: 700 10px/1 Tahoma, Verdana, sans-serif;
+}
+
+/* Foto en panel hundido */
+.cuisine-catalog-ux .retro-window-card .cuisine-catalog-card-media {
+  margin: 8px 8px 0;
+  border: 1px solid var(--boutique-blue-light);
+  box-shadow: inset 2px 2px #26365033, inset -1px -1px #fff;
+}
+.cuisine-catalog-ux .retro-window-card .cuisine-catalog-card-body { background: transparent; }
+
+/* Badge/promo como sello durazno */
+.cuisine-catalog-ux .retro-window-card .cuisine-catalog-card-badge {
+  border: 1px solid var(--boutique-ink);
+  border-radius: 2px;
+  background: var(--boutique-peach);
+  color: var(--boutique-ink);
+  box-shadow: 2px 2px 0 var(--boutique-ink);
+  transform: rotate(-2deg);
+}
+.cuisine-catalog-ux .retro-window-card .cuisine-catalog-card-eyebrow { color: var(--boutique-mauve); }
+
+/* Precio como campo de barra de estado */
+.cuisine-catalog-ux .retro-window-card .cuisine-catalog-product-price {
+  padding: 2px 7px;
+  border: 1px solid var(--boutique-blue-light);
+  background: #fff;
+  box-shadow: inset 1px 1px #637aa655;
+  color: var(--boutique-mauve);
+}
+
+/* "Ver opciones" como botón retro principal */
+.boutique-retail .retro-window-card > span:last-child > span:last-child {
+  border: 1px solid var(--boutique-blue);
+  background: linear-gradient(var(--boutique-blue-light), var(--boutique-blue));
+  color: #fff;
+  box-shadow: var(--retro-button-raised);
+}
+.boutique-retail .retro-window-card > span:last-child > span:last-child > span {
+  border-radius: 2px;
+  background: var(--boutique-paper);
+  color: var(--boutique-blue);
+}
+.retro-window-card:hover > span:last-child > span:last-child > span {
+  background: var(--boutique-peach);
+  color: var(--boutique-ink);
+}
+
+/* Móvil: la tarjeta es foto | texto; la barra cruza ambas columnas */
+@media (max-width: 639px) {
+  .cuisine-catalog-ux .retro-window-card .retro-card-titlebar {
+    grid-column: 1 / -1;
+    min-height: 26px;
+    font-size: 13px;
+  }
+  .cuisine-catalog-ux .retro-window-card .cuisine-catalog-card-media {
+    margin: 6px 0 6px 6px;
+    min-height: 140px;
+    border-right: 1px solid var(--boutique-blue-light);
+  }
+  .boutique-retail .boutique-product-card.retro-window-card {
+    box-shadow:
+      inset 1px 1px #fff,
+      inset -2px -2px var(--boutique-blue-light),
+      3px 3px 0 var(--boutique-mauve);
+  }
+}
+
+/* ---------- Couture: colecciones con el mismo marco retro ---------- */
+.boutique-couture .couture-collection-card {
+  border-width: 2px;
+  border-radius: 3px;
+  box-shadow: inset 1px 1px #fff, inset -2px -2px #ddcfd6, 3px 3px 0 #ddcfd6;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.boutique-couture .couture-collection-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: inset 1px 1px #fff, inset -2px -2px #ddcfd6, 5px 5px 0 #a77d91;
+}
+.boutique-couture .couture-collection-card[aria-pressed="true"] {
+  transform: translate(1px, 1px);
+  box-shadow: inset 2px 2px #70425a33, 2px 2px 0 #70425a;
+}
+.boutique-couture .couture-collection-card > span:first-child {
+  border: 1px solid #ddcfd6;
+  border-radius: 2px;
+  box-shadow: inset 2px 2px #70425a1a;
+}
+
+@keyframes retro-card-open {
+  from { opacity: 0; transform: scale(.94) translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boutique-retail .boutique-product-card.retro-window-card,
+  .boutique-couture .couture-collection-card {
+    animation: none;
+    transition: none;
+  }
+  .boutique-retail .boutique-product-card.retro-window-card:hover,
+  .boutique-couture .couture-collection-card:hover {
+    transform: none;
+  }
+}
