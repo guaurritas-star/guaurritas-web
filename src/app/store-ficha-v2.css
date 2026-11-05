@@ -345,3 +345,14 @@
     box-shadow: none;
   }
 }
+
+/* Desktop: la foto fija nunca es más alta que el espacio visible de la
+   ventana Tienda (alto real medido en --ficha-viewport-h), así no se corta. */
+@media (min-width: 1024px) {
+  .store-app .boutique-product.cuisine-ficha-v2 > div:nth-child(2) > .product-gallery,
+  .cuisine-ficha-v2 > div:nth-child(2) > .product-gallery {
+    width: 100%;
+    max-width: min(28rem, calc(var(--ficha-viewport-h, 100dvh) - 140px));
+    justify-self: center;
+  }
+}
