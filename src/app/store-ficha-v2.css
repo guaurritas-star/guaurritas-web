@@ -13,7 +13,13 @@
 }
 
 /* ---------- Pasos numerados ---------- */
-.cuisine-ficha-v2 .ficha-step { background: #fff; border-color: #c2cdd3; }
+/* Numeración automática: cada producto tiene distinta cantidad de pasos. */
+.cuisine-ficha-v2 > div:nth-child(2) > div:last-child { counter-reset: ficha-step; }
+.cuisine-ficha-v2 .ficha-step {
+  counter-increment: ficha-step;
+  background: #fff;
+  border-color: #c2cdd3;
+}
 .cuisine-ficha-v2 .ficha-step-title {
   display: flex;
   align-items: center;
@@ -21,7 +27,7 @@
   font-size: 13px;
 }
 .cuisine-ficha-v2 .ficha-step-title::before {
-  content: attr(data-n);
+  content: counter(ficha-step);
   display: grid;
   flex: none;
   place-items: center;
@@ -33,13 +39,118 @@
   font-size: 12px;
   letter-spacing: 0;
 }
-.cuisine-ficha-v2 .ficha-step[data-step="1"] .ficha-step-title::before { content: "1"; }
-.cuisine-ficha-v2 .ficha-step[data-step="2"] .ficha-step-title::before { content: "2"; }
-.cuisine-ficha-v2 .ficha-step[data-step-done="true"] .ficha-step-title::before {
+.cuisine-ficha-v2 .ficha-step[data-step-done="true"] > .ficha-step-title::before,
+.cuisine-ficha-v2 .ficha-step[data-step-done="true"] > div > .ficha-step-title::before,
+.cuisine-ficha-v2 .ficha-step[data-step-done="true"] > div > div > .ficha-step-title::before {
   content: "✓";
   background: #5f9a7a;
 }
 .cuisine-ficha-v2 .ficha-step-help { font-size: 13px; line-height: 1.45; }
+.cuisine-ficha-v2 .legacy-step-num { display: none; }
+
+/* Pasos como tarjetas independientes (presentación, receta, salsa, decoración) */
+.cuisine-ficha-v2 fieldset.ficha-step {
+  margin-top: 12px;
+  padding: 14px 16px 16px;
+  border: 1px solid #c2cdd3;
+  border-radius: 12px;
+}
+.cuisine-ficha-v2 fieldset.ficha-step > legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  color: var(--boutique-ink, #263650);
+  font-size: 13px;
+}
+.cuisine-ficha-v2 fieldset.ficha-step > legend + * { clear: both; margin-top: 0; }
+/* El contenedor que agrupaba los pasos se vuelve invisible */
+.cuisine-ficha-v2 .ficha-step-group {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.cuisine-ficha-v2 .ficha-step-group > :not(fieldset) { display: none; }
+.cuisine-ficha-v2 .ficha-step-group > fieldset.ficha-step:first-of-type { margin-top: 0; }
+/* Paso pendiente resaltado en malva */
+.cuisine-ficha-v2 .ficha-step[data-step-current="true"] {
+  border-color: var(--boutique-mauve, #a66d88);
+  box-shadow: 0 0 0 3px #f3e3ea;
+}
+.cuisine-ficha-v2 .ficha-step[data-step-current="true"] > .ficha-step-title::after,
+.cuisine-ficha-v2 .ficha-step[data-step-current="true"] > div > .ficha-step-title::after {
+  content: "Pendiente";
+  margin-left: auto;
+  color: var(--boutique-mauve, #a66d88);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+/* Opciones: mismo lenguaje que los atajos de Guaurricookies */
+.cuisine-ficha-v2 fieldset.ficha-step button[aria-pressed],
+.cuisine-ficha-v2 fieldset.ficha-step > div > button {
+  min-height: 48px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: none;
+}
+.cuisine-ficha-v2 fieldset.ficha-step button[aria-pressed="true"] {
+  border: 2px solid var(--boutique-blue, #425b8c);
+  background: #eef1f6;
+  color: var(--boutique-ink, #263650);
+  box-shadow: inset 0 0 0 1px #fff;
+}
+/* Lomito / michi con los íconos 3D existentes */
+.cuisine-ficha-v2 .pet-type-icon {
+  display: block !important;
+  width: 44px !important;
+  height: 44px !important;
+  margin: 0 auto 4px;
+}
+.cuisine-ficha-v2 fieldset.ficha-step button:has(.pet-type-icon) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  text-transform: none;
+}
+.cuisine-ficha-v2 .recipe-protein-empty {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  color: #718093;
+}
+/* Decoración */
+.cuisine-ficha-v2 .customize-step { background: #fff; border-color: #c2cdd3; border-radius: 12px; }
+.cuisine-ficha-v2 .customize-step > div > .ficha-step-title { font-size: 13px; }
+.cuisine-ficha-v2 .customize-step > div > .flex {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.cuisine-ficha-v2 .customize-step > div > .flex > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 56px;
+  border: 1px solid #c2cdd3;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--boutique-ink, #263650);
+}
+.cuisine-ficha-v2 .customize-step > div > .flex > button small { color: #5b6b80; font-size: 12px; font-weight: 400; }
+.cuisine-ficha-v2 .customize-step > div > .flex > button[aria-pressed="true"] {
+  border: 2px solid var(--boutique-blue, #425b8c);
+  background: #eef1f6;
+}
+/* "Antes de pedir" y la compra van al final */
+.cuisine-ficha-v2 .product-before-order { order: 90; }
+.cuisine-ficha-v2 .product-purchase-summary { order: 91; }
+.cuisine-ficha-v2 .product-purchase-summary ~ * { order: 92; }
 
 /* ---------- Cantidad: atajos con precio ---------- */
 .cuisine-ficha-v2 .bulk-preset-grid {
