@@ -483,7 +483,7 @@ export default function CoutureStoreApp({
                   </span>
                   <span className="couture-style-copy min-w-0 sm:mt-3 sm:block">
                     <span className="couture-style-name block font-title text-base font-semibold leading-tight text-[#3a2030]">
-                      {item.name}
+                      {item.name.startsWith("Bandana ") ? <><span className="couture-style-prefix">Bandana </span>{item.name.slice(8)}</> : item.name}
                     </span>
                     <span className="couture-style-price mt-1 block font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#97667e]">
                       <ProductPrice price={Math.min(...Object.values(pricesFor(item, fulfillmentMode)))} original={Math.min(...Object.values(fulfillmentMode === "national" ? item.nationalPrices : item.prices))} from />

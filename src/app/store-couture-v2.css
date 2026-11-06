@@ -144,13 +144,15 @@
   .couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(3) { font-size: 12px; line-height: 1.3; }
 }
 
-/* ---------- Desktop: encabezado fuera, estilos en chips, foto grande ---------- */
+/* ---------- Encabezado de Couture fuera en todos los tamaños ---------- */
+.couture-ficha-v2 .couture-hero { display: none; }
+
+/* ---------- Desktop: estilos en chips, foto grande ---------- */
 .couture-ficha-v2 .couture-styles-note,
 .couture-ficha-v2 .couture-photo-arrow,
 .couture-ficha-v2 .couture-photo-switch { display: none; }
 
 @media (min-width: 1024px) {
-  .couture-ficha-v2 .couture-hero { display: none; }
   .couture-ficha-v2 > div:last-child { padding-top: 0; }
 
   /* Fila de estilos en chips */
@@ -168,14 +170,18 @@
   .couture-ficha-v2 .couture-styles-row {
     display: flex;
     flex: 1;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
     align-items: center;
     gap: 8px;
     margin: 0;
     padding: 0;
-    overflow: visible;
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
+  .couture-ficha-v2 .couture-style-prefix { display: none; }
   .couture-ficha-v2 .couture-style-card {
+    flex: none;
     display: flex;
     align-items: center;
     gap: 8px;
