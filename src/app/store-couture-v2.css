@@ -200,8 +200,9 @@
   }
   .couture-ficha-v2 .couture-style-copy { margin-top: 0; }
   .couture-ficha-v2 .couture-style-name { font-size: 14px; white-space: nowrap; }
-  .couture-ficha-v2 .couture-styles-row:has(.couture-styles-note) .couture-style-price,
+  .couture-ficha-v2 .couture-styles.has-same-price .couture-style-price,
   .couture-ficha-v2 .couture-style-check { display: none !important; }
+  .couture-ficha-v2 .couture-styles-swipe { display: none; }
   .couture-ficha-v2 .couture-styles-note {
     display: block;
     margin-left: auto;

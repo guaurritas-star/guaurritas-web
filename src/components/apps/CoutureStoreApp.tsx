@@ -453,7 +453,7 @@ export default function CoutureStoreApp({
       </header>
 
       <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-7 sm:py-7 lg:px-9">
-        <div className="couture-styles">
+        <div className={`couture-styles${allStylesSamePrice ? " has-same-price" : ""}`}>
           <p className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]" data-n="1" data-done="true">
             Elige su estilo
           </p>
@@ -501,10 +501,10 @@ export default function CoutureStoreApp({
                 </button>
               );
             })}
-            {allStylesSamePrice && (
-              <span className="couture-styles-note">Todas desde {money(styleMinimums[0])}</span>
-            )}
           </div>
+          {allStylesSamePrice && (
+            <span className="couture-styles-note">Todas desde {money(styleMinimums[0])}<span className="couture-styles-swipe"> · desliza para ver más ›</span></span>
+          )}
         </div>
 
         <div className="couture-detail-grid mt-6 grid gap-5 sm:mt-8 sm:gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
@@ -677,7 +677,7 @@ export default function CoutureStoreApp({
                       value={neckInput}
                       onChange={(event) => setNeckInput(event.target.value)}
                       placeholder="Ej. 34"
-                      className="min-h-11 w-32 rounded-xl border border-[#bca8b2] bg-white px-3 text-sm text-[#3a2030] outline-none focus:border-[#70425a] focus:ring-2 focus:ring-[#d9bcca]"
+                      className="min-h-11 w-32 rounded-xl border border-[#bca8b2] bg-white px-3 text-base text-[#3a2030] outline-none focus:border-[#70425a] focus:ring-2 focus:ring-[#d9bcca]"
                     />
                     <span className="font-interface text-xs text-[#78636e]">cm</span>
                   </div>
@@ -771,7 +771,7 @@ export default function CoutureStoreApp({
                 <p className="couture-pending-note" aria-live="polite">Elige la talla de tu lomito para continuar.</p>
               )}
               {notice && (
-                <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} onContinue={() => { setNotice(""); catalogRef.current?.scrollIntoView({ block: "start" }); }} />
+                <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} image={withBasePath(color.productImage)} onContinue={() => { setNotice(""); catalogRef.current?.scrollIntoView({ block: "start" }); }} />
               )}
             </div>
           </div>

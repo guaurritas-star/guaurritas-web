@@ -221,7 +221,8 @@
 .cuisine-ficha-v2 .bulk-flavor-card > .min-w-0 p + p { display: none; }
 .cuisine-ficha-v2 .bulk-flavor-card > .shrink-0 { justify-content: space-between; }
 .cuisine-ficha-v2 .bulk-flavor-card > .shrink-0 > button { border-radius: 6px; }
-.cuisine-ficha-v2 .bulk-flavor-card input { width: 5rem; padding-left: 4px; padding-right: 16px; font-size: 13px; }
+.cuisine-ficha-v2 .bulk-flavor-card input { width: 5rem; padding-left: 4px; padding-right: 16px; font-size: 16px; }
+.cuisine-ficha-v2 .bulk-flavor-card input::placeholder { color: #a9b3c0; opacity: 1; }
 
 @media (min-width: 640px) {
   .boutique-product.cuisine-ficha-v2 .product-purchase-summary {
