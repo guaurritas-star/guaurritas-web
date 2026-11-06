@@ -143,3 +143,147 @@
   .couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(2) { font-size: 12px; }
   .couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(3) { font-size: 12px; line-height: 1.3; }
 }
+
+/* ---------- Desktop: encabezado fuera, estilos en chips, foto grande ---------- */
+.couture-ficha-v2 .couture-styles-note,
+.couture-ficha-v2 .couture-photo-arrow,
+.couture-ficha-v2 .couture-photo-switch { display: none; }
+
+@media (min-width: 1024px) {
+  .couture-ficha-v2 .couture-hero { display: none; }
+  .couture-ficha-v2 > div:last-child { padding-top: 0; }
+
+  /* Fila de estilos en chips */
+  .couture-ficha-v2 .couture-styles {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 -36px;
+    padding: 10px 36px;
+    border-bottom: 1px solid #e6dbe0;
+    background: #faf6f8;
+  }
+  .couture-ficha-v2 .couture-styles > .couture-step-title { flex: none; font-size: 12px; }
+  .couture-ficha-v2 .couture-styles > .couture-step-title::before { display: none; }
+  .couture-ficha-v2 .couture-styles-row {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .couture-ficha-v2 .couture-style-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    max-width: none;
+    padding: 4px 14px 4px 4px;
+    border-radius: 999px;
+    box-shadow: none;
+  }
+  .couture-ficha-v2 .couture-style-card[aria-pressed="true"] { border-width: 2px; box-shadow: none; }
+  .couture-ficha-v2 .couture-style-thumb {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50%;
+    background: #f4f4f4;
+  }
+  .couture-ficha-v2 .couture-style-copy { margin-top: 0; }
+  .couture-ficha-v2 .couture-style-name { font-size: 14px; white-space: nowrap; }
+  .couture-ficha-v2 .couture-styles-row:has(.couture-styles-note) .couture-style-price,
+  .couture-ficha-v2 .couture-style-check { display: none !important; }
+  .couture-ficha-v2 .couture-styles-note {
+    display: block;
+    margin-left: auto;
+    color: #425b8c;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Galería: miniaturas a la izquierda y foto grande */
+  .couture-ficha-v2 .couture-detail-grid { margin-top: 16px; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 32px; }
+  .couture-ficha-v2 .couture-gallery {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    top: 16px;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+  .couture-ficha-v2 .couture-photo {
+    grid-column: 2;
+    grid-row: 1;
+    aspect-ratio: auto;
+    height: max(320px, calc(var(--ficha-viewport-h, 100dvh) - 110px));
+    border-radius: 14px;
+  }
+  .couture-ficha-v2 .couture-photo img { padding: 24px; }
+  .couture-ficha-v2 .couture-photo-badge { display: none; }
+  .couture-ficha-v2 .couture-views {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: start;
+    margin-top: 0;
+  }
+  .couture-ficha-v2 .couture-views > button {
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 4px 6px;
+    text-align: center;
+  }
+  .couture-ficha-v2 .couture-views > button > span:first-child { width: 68px; height: 68px; }
+  .couture-ficha-v2 .couture-view-label { font-size: 11px; }
+  .couture-ficha-v2 .couture-view-label small { display: none; }
+  .couture-ficha-v2 .couture-views > button:last-child .couture-view-label { font-size: 0; }
+  .couture-ficha-v2 .couture-views > button:last-child .couture-view-label::after { content: "Puesta"; font-size: 11px; }
+
+  .couture-ficha-v2 .couture-photo-arrow {
+    position: absolute;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid #ddcfd6;
+    border-radius: 50%;
+    background: #fff;
+    color: #70425a;
+    font-size: 20px;
+    transform: translateY(-50%);
+    box-shadow: 0 2px 6px rgba(58, 32, 48, 0.08);
+  }
+  .couture-ficha-v2 .couture-photo-arrow--prev { left: 12px; }
+  .couture-ficha-v2 .couture-photo-arrow--next { right: 12px; }
+  .couture-ficha-v2 .couture-photo-switch {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: block;
+    min-height: 0;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: #3a2030;
+    color: #fff;
+    font-size: 13px;
+    box-shadow: none;
+  }
+
+  /* Texto: solo la frase corta; el detalle va en desplegable */
+  .couture-ficha-v2 .couture-detail-text { display: none; }
+  .couture-ficha-v2 .couture-detail-acc { display: block; }
+
+  /* Numeración: el estilo ya no es tarjeta, Color = 1 y Talla = 2 */
+  .couture-ficha-v2 .couture-color-step .couture-step-title:not([data-done="true"])::before { content: "1"; }
+  .couture-ficha-v2 .couture-size-step .couture-step-title:not([data-done="true"])::before { content: "2"; }
+}

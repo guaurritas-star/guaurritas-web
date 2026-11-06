@@ -395,6 +395,8 @@ export default function CoutureStoreApp({
       : `Perrito usando ${collection.name} color ${color.name}`;
 
   const minimumPrice = Math.min(...Object.values(activePrices));
+  const styleMinimums = collections.map((item) => Math.min(...Object.values(pricesFor(item, fulfillmentMode))));
+  const allStylesSamePrice = styleMinimums.every((value) => value === styleMinimums[0]);
 
   const selectCollection = (next: BandanaCollection) => {
     setCollectionId(next.id);
@@ -433,7 +435,7 @@ export default function CoutureStoreApp({
         <RetailCartButton count={cartCount} busy={cartOpening} onClick={openCoutureCart} />
       </div>}
 
-      <header className="border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-5 text-center sm:px-8 sm:py-8">
+      <header className="couture-hero border-b border-[#eadde3] bg-[radial-gradient(circle_at_top_left,#f9e7ef,transparent_38%),linear-gradient(135deg,#fffdfd,#f2e8ed)] px-5 py-5 text-center sm:px-8 sm:py-8">
         <p className="font-interface text-[11px] font-bold uppercase tracking-[0.24em] text-[#a66f89] sm:text-xs">
           ✦ El armario del Guaurriverse ✦
         </p>
@@ -451,11 +453,11 @@ export default function CoutureStoreApp({
       </header>
 
       <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-7 sm:py-7 lg:px-9">
-        <div>
+        <div className="couture-styles">
           <p className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]" data-n="1" data-done="true">
             Elige su estilo
           </p>
-          <div className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
+          <div className="couture-styles-row -mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
             {collections.map((item) => {
               const active = item.id === collection.id;
               return (
@@ -464,13 +466,13 @@ export default function CoutureStoreApp({
                   type="button"
                   onClick={() => selectCollection(item)}
                   aria-pressed={active}
-                  className={`group relative flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
+                  className={`couture-style-card group relative flex w-[76vw] max-w-[17rem] shrink-0 snap-start items-center gap-3 rounded-2xl border p-3 text-left transition sm:block sm:w-auto sm:max-w-none sm:p-4 ${
                     active
                       ? "border-[#70425a] bg-[#f6eaf0] shadow-[3px_3px_0_#70425a]"
                       : "border-[#ddcfd6] bg-white hover:border-[#a77d91] hover:bg-[#fff8fb]"
                   }`}
                 >
-                  <span className={`relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-full lg:h-28 ${item.id === "oracle" || item.id === "coeur-sacre" ? "bg-transparent" : "bg-white"}` }>
+                  <span className={`couture-style-thumb relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-full lg:h-28 ${item.id === "oracle" || item.id === "coeur-sacre" ? "bg-transparent" : "bg-white"}` }>
                     <BandanaImage
                       src={withBasePath(item.colors[0].productImage)}
                       alt=""
@@ -479,17 +481,17 @@ export default function CoutureStoreApp({
                       className={`object-contain transition duration-300 ${item.id === "oracle" || item.id === "coeur-sacre" ? "scale-[1.08] p-0 mix-blend-multiply group-hover:scale-[1.12]" : "p-1 group-hover:scale-105"}`}
                     />
                   </span>
-                  <span className="min-w-0 sm:mt-3 sm:block">
-                    <span className="block font-title text-base font-semibold leading-tight text-[#3a2030]">
+                  <span className="couture-style-copy min-w-0 sm:mt-3 sm:block">
+                    <span className="couture-style-name block font-title text-base font-semibold leading-tight text-[#3a2030]">
                       {item.name}
                     </span>
-                    <span className="mt-1 block font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#97667e]">
+                    <span className="couture-style-price mt-1 block font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#97667e]">
                       <ProductPrice price={Math.min(...Object.values(pricesFor(item, fulfillmentMode)))} original={Math.min(...Object.values(fulfillmentMode === "national" ? item.nationalPrices : item.prices))} from />
                     </span>
                   </span>
                   {active && (
                     <span
-                      className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#70425a] font-interface text-xs font-bold text-white sm:static sm:mt-2 sm:h-auto sm:w-auto sm:justify-start sm:bg-transparent sm:text-[11px] sm:uppercase sm:text-[#70425a]"
+                      className="couture-style-check absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#70425a] font-interface text-xs font-bold text-white sm:static sm:mt-2 sm:h-auto sm:w-auto sm:justify-start sm:bg-transparent sm:text-[11px] sm:uppercase sm:text-[#70425a]"
                       aria-label="Colección seleccionada"
                     >
                       <span className="sm:hidden">✓</span>
@@ -499,12 +501,15 @@ export default function CoutureStoreApp({
                 </button>
               );
             })}
+            {allStylesSamePrice && (
+              <span className="couture-styles-note">Todas desde {money(styleMinimums[0])}</span>
+            )}
           </div>
         </div>
 
-        <div className="mt-6 grid gap-5 sm:mt-8 sm:gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
+        <div className="couture-detail-grid mt-6 grid gap-5 sm:mt-8 sm:gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
           <div className="couture-gallery lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
-            <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border border-[#d3c3cb] bg-white shadow-[0_12px_35px_rgba(79,45,64,0.08)] sm:rounded-[1.75rem]">
+            <div className="couture-photo relative aspect-square overflow-hidden rounded-[1.5rem] border border-[#d3c3cb] bg-white shadow-[0_12px_35px_rgba(79,45,64,0.08)] sm:rounded-[1.75rem]">
               <BandanaImage
                 key={galleryImage}
                 src={withBasePath(galleryImage)}
@@ -514,7 +519,26 @@ export default function CoutureStoreApp({
                 sizes="(max-width: 1024px) 92vw, 28rem"
                 className="object-contain p-3 sm:p-7 lg:p-9"
               />
-              <span className="absolute left-3 top-3 rounded-full border border-white/80 bg-[#42243a]/90 px-3 py-1.5 font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-white sm:left-4 sm:top-4">
+              <button
+                type="button"
+                className="couture-photo-arrow couture-photo-arrow--prev"
+                onClick={() => setViewMode(viewMode === "product" ? "worn" : "product")}
+                aria-label="Foto anterior"
+              ><span aria-hidden="true">‹</span></button>
+              <button
+                type="button"
+                className="couture-photo-arrow couture-photo-arrow--next"
+                onClick={() => setViewMode(viewMode === "product" ? "worn" : "product")}
+                aria-label="Foto siguiente"
+              ><span aria-hidden="true">›</span></button>
+              <button
+                type="button"
+                className="couture-photo-switch"
+                onClick={() => setViewMode(viewMode === "product" ? "worn" : "product")}
+              >
+                {viewMode === "product" ? "Ver puesta en lomito ›" : "‹ Ver producto"}
+              </button>
+              <span className="couture-photo-badge absolute left-3 top-3 rounded-full border border-white/80 bg-[#42243a]/90 px-3 py-1.5 font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-white sm:left-4 sm:top-4">
                 {viewMode === "product" ? "Vista del producto" : "Así se ve puesto"}
               </span>
             </div>
@@ -567,10 +591,10 @@ export default function CoutureStoreApp({
             <p className="mt-2 font-brand text-base leading-6 text-[#604a57] sm:mt-3 sm:text-xl sm:leading-7">
               {collection.description}
             </p>
-            <p className="mt-4 hidden font-brand text-base leading-7 text-[#76636e] sm:block">
+            <p className="couture-detail-text mt-4 hidden font-brand text-base leading-7 text-[#76636e] sm:block">
               {collection.detail}
             </p>
-            <details className="mt-3 rounded-xl border border-[#e1d4da] bg-[#fffafa] px-3 py-2 sm:hidden">
+            <details className="couture-detail-acc mt-3 rounded-xl border border-[#e1d4da] bg-[#fffafa] px-3 py-2 sm:hidden">
               <summary className="cursor-pointer font-interface text-xs font-bold text-[#70425a]">
                 Detalles de la pieza
               </summary>
