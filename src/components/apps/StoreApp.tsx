@@ -62,7 +62,7 @@ export default function StoreApp({
 
   return (
     <section className={`store-app flex h-auto min-h-0 flex-col bg-white sm:h-full${lockedCategory ? " store-app--world" : ""}`}>
-      <header className={`shopping-navigation${lockedCategory ? " shopping-navigation--world" : ""}`}>
+      <header className={`shopping-navigation${lockedCategory ? " shopping-navigation--world" : " shopping-navigation--compact"}`}>
         {lockedCategory ? (
           <div className="shopping-world-toolbar" aria-label="Sección elegida en Guaurriverse">
             <ShoppingButton className="shopping-world-back" onClick={onBack} aria-label="Volver a explorar los mundos">
@@ -97,7 +97,7 @@ export default function StoreApp({
                   {(["leon", "national"] as const).map(delivery => (
                     <ShoppingButton key={delivery} onClick={() => chooseMode(delivery)} aria-pressed={mode === delivery}>
                       <SystemIcon name={delivery === "leon" ? "pin" : "box"} />
-                      {delivery === "leon" ? "León, Gto." : "Todo México"}
+                      <span className="shopping-location-full">{delivery === "leon" ? "León, Gto." : "Todo México"}</span>
                     </ShoppingButton>
                   ))}
                 </div>
@@ -107,14 +107,17 @@ export default function StoreApp({
             <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
               {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
                 <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
-                  <strong>{label}</strong><span className="shopping-catalog-description">{detail}</span>
+                  <strong>{label}</strong><span className="shopping-catalog-description"><span className="shopping-catalog-sep" aria-hidden="true"> · </span>{detail}</span>
                 </ShoppingButton>
               ))}
             </div>
           </>
         )}
         <details className="store-delivery-details">
-          <summary>{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · elige fecha y horario antes de pagar"} · Ver detalles de entrega</summary>
+          <summary>
+            <span className="store-delivery-long">{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · elige fecha y horario antes de pagar"} · Ver detalles de entrega</span>
+            <span className="store-delivery-short" aria-hidden="true">{mode === "national" ? `Envío gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "Entrega: elige fecha y horario antes de pagar"} <span className="store-delivery-info">ⓘ</span></span>
+          </summary>
           {mode === "national" ? (
             <p>Envío nacional: pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder}. Envío ${NATIONAL_SHIPPING_PROMO.standardRate}; gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold} para pedidos de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. El plazo y el total se confirman en el checkout.</p>
           ) : (

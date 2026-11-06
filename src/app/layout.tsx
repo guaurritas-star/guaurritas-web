@@ -23,6 +23,7 @@ import "./store-ficha-v2.css";
 import "./store-ficha-kits.css";
 import "./store-couture-v2.css";
 import "./store-feedback-movil.css";
+import "./store-nav-compact.css";
 
 const mansalva = Mansalva({
   weight: "400",
