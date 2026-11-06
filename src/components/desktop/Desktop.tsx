@@ -672,12 +672,27 @@ function PromotionTicker() {
     </>
   );
 
+  const freeShippingShort = NATIONAL_SHIPPING_PROMO.freeShippingThreshold.toLocaleString("es-MX", { maximumFractionDigits: 0 });
+
   return (
     <div className="promotion-ticker" role="region" aria-label="Promociones de Guaurritas">
       <div className="promotion-ticker-track">
         <span className="promotion-ticker-group">{message}</span>
         <span className="promotion-ticker-group" aria-hidden="true">{message}</span>
       </div>
+      {/* Móvil: promoción fija y legible, con detalle al tocar. */}
+      <details className="promotion-ticker-mobile">
+        <summary>
+          <span aria-hidden="true">🚚</span>
+          <span className="promotion-ticker-tag">ENVÍO GRATIS</span>
+          <span>nacional desde ${freeShippingShort}</span>
+          <span className="promotion-ticker-more">ver más</span>
+        </summary>
+        <p>
+          <strong>Envío gratis a todo México</strong>
+          En pedidos nacionales desde ${freeShippingThreshold} MXN en productos, de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. Pedido mínimo nacional ${NATIONAL_SHIPPING_PROMO.minimumOrder}; envío ${NATIONAL_SHIPPING_PROMO.standardRate} en pedidos menores. En León eliges fecha y horario de entrega.
+        </p>
+      </details>
     </div>
   );
 }

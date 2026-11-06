@@ -935,6 +935,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
           />
         </span>
         {cart.count > 0 && <b className="taskbar-cart-badge">{cart.count}</b>}
+        <span className="taskbar-dock-label" aria-hidden="true">Carrito</span>
       </button>
     </div>
   );

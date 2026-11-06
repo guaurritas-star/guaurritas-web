@@ -139,6 +139,7 @@ export default function OsSoundControl() {
           </>
         )}
       </svg>
+      <span className="taskbar-dock-label" aria-hidden="true">Sonido: {enabled ? "sí" : "no"}</span>
     </button>
   );
 }
