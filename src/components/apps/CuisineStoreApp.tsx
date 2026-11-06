@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { addCartItem, cartFulfillmentConflict, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { withBasePath } from "@/lib/base-path";
+import { NATIONAL_PRODUCT_NAMES } from "@/lib/national-catalog";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
 import {
   getCuisineCookiePrice,
@@ -92,13 +93,18 @@ const categories: { id: CategoryId; label: string }[] = [
   { id: "birthday", label: "Cumpleaños" },
 ];
 
+// Envío nacional: solo productos que pueden viajar por paquetería.
+function isNationalProduct(product: { name: string }) {
+  return (NATIONAL_PRODUCT_NAMES as readonly string[]).includes(product.name);
+}
+
 const petcakeSizes = ["Chico", "Mediano", "Grande", "Jumbo"] as const;
 const petcakeMeasurements = ["Diámetro aprox. 7.5 cm", "Diámetro aprox. 10 cm", "Diámetro aprox. 13 cm", "Medida por confirmar"] as const;
 // Fotos de referencia por tamaño (Jumbo usa la de Grande hasta tener foto propia).
 const petcakeSizeImages = [
   "/cuisine/products/petcakes-sizes-v2/chico.webp",
   "/cuisine/products/petcakes-sizes-v2/mediano.webp",
-  "/cuisine/products/petcakes-sizes-v2/plus-grande.webp",
+  "/cuisine/products/petcakes-transparent.png",
   "/cuisine/products/petcakes-sizes-v2/plus-grande.webp",
 ] as const;
 const petcakeFinishNotes = { "betún": "A base de papa", fondant: "Leche deslactosada y probióticos" } as const;
@@ -1002,10 +1008,12 @@ export default function CuisineStoreApp({
 
     return products.filter((product) => {
       const matchesFulfillment =
-        ![
-          KIT_GUAURRICOOKIES_PRODUCT_KEY,
-          DESCUBRE_GUAURRITAS_PRODUCT_KEY,
-        ].includes(product.id) || fulfillmentMode === "national";
+        fulfillmentMode === "national"
+          ? isNationalProduct(product)
+          : ![
+              KIT_GUAURRICOOKIES_PRODUCT_KEY,
+              DESCUBRE_GUAURRITAS_PRODUCT_KEY,
+            ].includes(product.id);
       const matchesCategory =
         category === "all" || product.category === category;
       const matchesSearch =
@@ -3237,7 +3245,7 @@ export default function CuisineStoreApp({
             )}
           </label>
           <div className="retail-category-filters cuisine-catalog-filters" role="group" aria-label="Filtrar productos por categoría">
-            {categories.map((item) => (
+            {categories.filter((item) => fulfillmentMode !== "national" || item.id === "all" || products.some((product) => product.category === item.id && isNationalProduct(product))).map((item) => (
               <button
                 key={item.id}
                 type="button"
