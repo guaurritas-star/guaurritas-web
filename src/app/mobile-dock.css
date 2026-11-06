@@ -1,0 +1,96 @@
+/* Móvil (lanzador): barra rosa como dock de 4 botones con nombre y
+   promoción fija. Desktop y apps abiertas en móvil no cambian. */
+
+.taskbar-dock-label,
+.promotion-ticker-mobile { display: none; }
+
+@media (max-width: 639px) {
+  /* Promoción fija con detalle al tocar */
+  main:not(.mobile-app-open) > .promotion-ticker { overflow: visible; }
+  main:not(.mobile-app-open) > .promotion-ticker .promotion-ticker-track { display: none; }
+  main:not(.mobile-app-open) > .promotion-ticker .promotion-ticker-mobile { display: block; position: relative; width: 100%; }
+  .promotion-ticker-mobile summary {
+    display: flex; align-items: center; justify-content: center; gap: 8px; height: 34px;
+    color: #263650; font-size: 14px; list-style: none; cursor: pointer;
+  }
+  .promotion-ticker-mobile summary::-webkit-details-marker { display: none; }
+  .promotion-ticker-mobile .promotion-ticker-tag { font-size: 11px; padding: 2px 6px; }
+  .promotion-ticker-more { color: #425b8c; font-size: 13px; text-decoration: underline dotted; text-underline-offset: 3px; }
+  .promotion-ticker-mobile[open] .promotion-ticker-more { font-size: 0; }
+  .promotion-ticker-mobile[open] .promotion-ticker-more::after { content: "cerrar"; font-size: 13px; }
+  .promotion-ticker-mobile p {
+    position: absolute; right: 10px; bottom: calc(100% + 8px); left: 10px; z-index: 60; margin: 0;
+    padding: 12px 14px; border: 1px solid #c2cdd3; border-radius: 12px; background: #fff;
+    box-shadow: 0 10px 24px rgba(38, 54, 80, 0.2); color: #263650; font-size: 14px; line-height: 1.45;
+  }
+  .promotion-ticker-mobile p strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+  /* Dock */
+  main:not(.mobile-app-open) > .desktop-taskbar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    height: 64px;
+    padding: 5px 8px;
+  }
+  main:not(.mobile-app-open) > .desktop-launcher { height: calc(100dvh - 148px); }
+  main:not(.mobile-app-open) > .desktop-taskbar > .desktop-taskbar-app { display: none; }
+  main:not(.mobile-app-open) > .desktop-taskbar > .desktop-taskbar-clock { display: contents; }
+  main:not(.mobile-app-open) > .desktop-taskbar .desktop-taskbar-divider,
+  main:not(.mobile-app-open) > .desktop-taskbar time { display: none !important; }
+
+  /* Botones del dock: ícono arriba, nombre abajo, mismo tamaño */
+  main:not(.mobile-app-open) > .desktop-taskbar :is(.desktop-taskbar-start, .shopping-mobile-store, .taskbar-cart-tray, [data-os-sound-toggle]) {
+    position: relative;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 54px;
+    min-height: 48px;
+    margin: 0;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: none;
+    color: #fff;
+    font: 600 12px/1.15 Inter, "Segoe UI", Arial, sans-serif;
+    text-shadow: 0 1px 1px rgba(111, 63, 91, 0.45);
+  }
+  main:not(.mobile-app-open) > .desktop-taskbar .desktop-taskbar-start {
+    background: #f2f2f2;
+    color: #263650;
+    text-shadow: none;
+    box-shadow: inset 1px 1px #fff, inset -1px -1px #c7aebc;
+  }
+  main:not(.mobile-app-open) > .desktop-taskbar .desktop-taskbar-start > span { flex-direction: column; gap: 2px !important; }
+  main:not(.mobile-app-open) > .desktop-taskbar .desktop-taskbar-mascot { width: 30px; height: 30px; flex-basis: 30px; }
+  main:not(.mobile-app-open) > .desktop-taskbar .shopping-mobile-store { flex: none; }
+  main:not(.mobile-app-open) > .desktop-taskbar .shopping-mobile-store .system-icon { width: 30px !important; height: 30px !important; }
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-cart-tray-image { width: 32px; height: 32px; }
+  main:not(.mobile-app-open) > .desktop-taskbar [data-os-sound-toggle] svg { width: 28px; height: 28px; color: #fff; }
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-dock-label { display: block; white-space: nowrap; }
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-cart-badge {
+    position: absolute; top: 0; right: calc(50% - 26px);
+    min-width: 20px; height: 20px; padding: 0 5px; border: 2px solid #fff; border-radius: 999px;
+    background: #425b8c; color: #fff; font-size: 11px; line-height: 16px;
+  }
+  main:not(.mobile-app-open) > .desktop-taskbar :is(.shopping-mobile-store, .taskbar-cart-tray, [data-os-sound-toggle]):active { background: rgba(255, 255, 255, 0.25); }
+
+  /* El panel del carrito abre por encima del dock */
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-cart-panel { bottom: 72px; }
+}
+
+@media (max-width: 639px) {
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-cart-shell { display: contents; }
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-cart-tray { filter: none; transform: none; }
+  main:not(.mobile-app-open) > .desktop-taskbar .taskbar-cart-tray-image { position: relative; inset: auto; display: block; flex: none; }
+  /* Sin franja entre la promoción y el dock */
+  main:not(.mobile-app-open) > .desktop-launcher { height: calc(100dvh - 148px); }
+  main:not(.mobile-app-open) > .promotion-ticker { height: 34px; min-height: 34px; }
+}
