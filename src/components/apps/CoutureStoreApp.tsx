@@ -245,6 +245,8 @@ export default function CoutureStoreApp({
   const [collectionId, setCollectionId] = useState<CollectionId>("amulette");
   const [colorId, setColorId] = useState("ciel");
   const [sizeId, setSizeId] = useState<SizeId>("mediana");
+  // La talla empieza sin elegir: evita compras con una talla que nadie revisó.
+  const [sizeChosen, setSizeChosen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("product");
   const [fitHelperOpen, setFitHelperOpen] = useState(false);
   const [neckInput, setNeckInput] = useState("");
@@ -360,6 +362,23 @@ export default function CoutureStoreApp({
     [],
   );
 
+  // Alto visible real de la ventana Tienda: la foto fija en desktop se ajusta a él.
+  useEffect(() => {
+    const view = catalogRef.current;
+    if (!view || typeof ResizeObserver === "undefined") return;
+    let scroller: HTMLElement | null = view.parentElement;
+    while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) {
+      scroller = scroller.parentElement;
+    }
+    if (!scroller) return;
+    const target = scroller;
+    const update = () => view.style.setProperty("--ficha-viewport-h", `${target.clientHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
   const collection = collections.find((item) => item.id === collectionId)!;
   const color = collection.colors.find((item) => item.id === colorId) ?? collection.colors[0];
   const size = sizes.find((item) => item.id === sizeId)!;
@@ -385,6 +404,7 @@ export default function CoutureStoreApp({
   };
 
   const addToCart = () => {
+    if (!sizeChosen) return;
     const conflict = cartFulfillmentConflict(fulfillmentMode);
     if (conflict) { setNotice(conflict); return; }
     addCartItem({
@@ -401,7 +421,7 @@ export default function CoutureStoreApp({
   };
 
   return (
-    <section ref={catalogRef} className="boutique-retail boutique-couture -m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
+    <section ref={catalogRef} className="boutique-retail boutique-couture couture-ficha-v2 -m-4 min-h-[32rem] bg-[#fffdfd] text-[#2d2030] sm:-m-6">
       {!embeddedInStore && <div className="retail-cart-toolbar sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[#d8c8d0] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
         <button
           type="button"
@@ -432,8 +452,8 @@ export default function CoutureStoreApp({
 
       <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-7 sm:py-7 lg:px-9">
         <div>
-          <p className="font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]">
-            1. Elige su estilo
+          <p className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]" data-n="1" data-done="true">
+            Elige su estilo
           </p>
           <div className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
             {collections.map((item) => {
@@ -483,7 +503,7 @@ export default function CoutureStoreApp({
         </div>
 
         <div className="mt-6 grid gap-5 sm:mt-8 sm:gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
-          <div className="lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
+          <div className="couture-gallery lg:sticky lg:top-24 lg:z-10 lg:w-full lg:max-w-[min(28rem,calc(100dvh-13rem))] lg:justify-self-center lg:self-start">
             <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border border-[#d3c3cb] bg-white shadow-[0_12px_35px_rgba(79,45,64,0.08)] sm:rounded-[1.75rem]">
               <BandanaImage
                 key={galleryImage}
@@ -500,7 +520,7 @@ export default function CoutureStoreApp({
             </div>
 
             <div
-              className="mt-3 grid grid-cols-2 gap-2 lg:hidden"
+              className="couture-views mt-3 grid grid-cols-2 gap-2"
               aria-label="Vistas del producto"
             >
               {(["product", "worn"] as const).map((mode) => {
@@ -526,48 +546,14 @@ export default function CoutureStoreApp({
                         className="object-contain"
                       />
                     </span>
-                    <span className="font-interface text-xs font-bold uppercase tracking-[0.06em]">
-                      {mode === "product" ? "Producto" : "Puesta en lomito"}
+                    <span className="couture-view-label font-interface text-xs font-bold">
+                      {mode === "product" ? "Producto" : <>Ver puesta en lomito<small>Así se ve en un perro real</small></>}
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            <fieldset className="mt-4 lg:hidden">
-              <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
-                2. Color: <span className="text-[#a05d7d]">{color.name}</span>
-              </legend>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {collection.colors.map((item) => {
-                  const active = item.id === color.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        setColorId(item.id);
-                        setViewMode("product");
-                        setNotice("");
-                      }}
-                      aria-pressed={active}
-                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-xs font-bold transition ${
-                        active
-                          ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
-                          : "border-[#d8c9d0] bg-white text-[#71606a] hover:border-[#a77d91]"
-                      }`}
-                    >
-                      <span
-                        className="h-5 w-5 rounded-full border border-black/15 shadow-inner"
-                        style={{ background: item.swatch }}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
 
           </div>
 
@@ -591,46 +577,9 @@ export default function CoutureStoreApp({
               <p className="mt-2 font-brand text-sm leading-6 text-[#76636e]">{collection.detail}</p>
             </details>
 
-            <div className="mt-7 hidden lg:block">
-              <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
-                Vista del producto
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-2" aria-label="Vistas del producto">
-                {(["product", "worn"] as const).map((mode) => {
-                  const active = mode === viewMode;
-                  return (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => setViewMode(mode)}
-                      aria-pressed={active}
-                      className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition ${
-                        active
-                          ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
-                          : "border-[#ddcfd6] bg-white text-[#76636e] hover:border-[#a77d91]"
-                      }`}
-                    >
-                      <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
-                        <BandanaImage
-                          src={withBasePath(mode === "product" ? color.productImage : color.wornImage)}
-                          alt=""
-                          fill
-                          sizes="56px"
-                          className="object-contain"
-                        />
-                      </span>
-                      <span className="font-interface text-xs font-bold uppercase tracking-[0.06em]">
-                        {mode === "product" ? "Producto" : "Puesta en lomito"}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <fieldset className="mt-7 hidden lg:block">
-              <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
-                2. Color: <span className="text-[#a05d7d]">{color.name}</span>
+            <fieldset className="couture-step couture-color-step mt-7">
+              <legend className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]" data-n="2" data-done="true">
+                Color: <span className="text-[#a05d7d]">{color.name}</span>
               </legend>
               <div className="mt-3 flex flex-wrap gap-2">
                 {collection.colors.map((item) => {
@@ -645,7 +594,10 @@ export default function CoutureStoreApp({
                         setNotice("");
                       }}
                       aria-pressed={active}
-                      className={`flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-xs font-bold transition ${
+                      aria-label={item.name}
+                      title={item.name}
+                      data-light={item.id === "ivoire" ? "true" : undefined}
+                      className={`couture-swatch flex min-h-11 items-center gap-2 rounded-full border px-3 py-2 font-interface text-xs font-bold transition ${
                         active
                           ? "border-[#70425a] bg-[#f6eaf0] text-[#3a2030] shadow-[2px_2px_0_#70425a]"
                           : "border-[#d8c9d0] bg-white text-[#71606a] hover:border-[#a77d91]"
@@ -656,17 +608,17 @@ export default function CoutureStoreApp({
                         style={{ background: item.swatch }}
                         aria-hidden="true"
                       />
-                      {item.name}
+                      <span className="couture-swatch-name">{item.name}</span>
                     </button>
                   );
                 })}
               </div>
             </fieldset>
 
-            <fieldset className="mt-5 sm:mt-8">
+            <fieldset className="couture-step couture-size-step mt-5 sm:mt-8" data-step-current={!sizeChosen ? "true" : undefined}>
               <div className="flex flex-wrap items-end justify-between gap-2">
-                <legend className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]">
-                  3. Talla
+                <legend className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#614456]" data-n="3" data-done={sizeChosen ? "true" : undefined}>
+                  Talla
                 </legend>
                 <button
                   type="button"
@@ -708,7 +660,7 @@ export default function CoutureStoreApp({
                   {neckInput && suggestedSize ? (
                     <button
                       type="button"
-                      onClick={() => setSizeId(suggestedSize.id)}
+                      onClick={() => { setSizeId(suggestedSize.id); setSizeChosen(true); setNotice(""); }}
                       className="mt-3 w-full rounded-xl border border-[#70425a] bg-white px-3 py-2 text-left font-interface text-[10px] font-bold text-[#4a2c3e] transition hover:bg-[#f4e6ed]"
                     >
                       Te recomendamos {suggestedSize.name} ({suggestedSize.neck}) · Elegir esta talla →
@@ -723,13 +675,14 @@ export default function CoutureStoreApp({
 
               <div className="mt-3 grid grid-cols-2 gap-2">
                 {sizes.map((item) => {
-                  const active = item.id === sizeId;
+                  const active = sizeChosen && item.id === sizeId;
                   return (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => {
                         setSizeId(item.id);
+                        setSizeChosen(true);
                         setNotice("");
                       }}
                       aria-pressed={active}
@@ -766,27 +719,33 @@ export default function CoutureStoreApp({
               </div>
             </details>
 
-            <div className="sticky bottom-0 z-30 -mx-4 mt-5 border-t border-[#e0d3d9] bg-white/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-12px_30px_rgba(64,35,52,0.08)] backdrop-blur sm:static sm:mx-0 sm:mt-7 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-5 sm:shadow-none">
-              <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="couture-buy sticky bottom-0 z-30 -mx-4 mt-5 border-t border-[#e0d3d9] bg-white/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-12px_30px_rgba(64,35,52,0.08)] backdrop-blur sm:static sm:mx-0 sm:mt-7 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-5 sm:shadow-none">
+              <div className="couture-buy-summary flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="font-interface text-[11px] font-bold uppercase tracking-[0.08em] text-[#8a7380]">
-                    {color.name} · Talla {size.name}
+                    {color.name} · {sizeChosen ? `Talla ${size.name}` : "Talla pendiente"}
                     {` · ${fulfillmentMode === "leon" ? "León" : "Envío nacional"}`}
                   </p>
-                  <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]"><ProductPrice price={price} original={(fulfillmentMode === "national" ? collection.nationalPrices : collection.prices)[sizeId]} /></p>
+                  <p className="mt-1 font-title text-3xl font-semibold text-[#3a2030]">{sizeChosen ? <ProductPrice price={price} original={(fulfillmentMode === "national" ? collection.nationalPrices : collection.prices)[sizeId]} /> : `Desde ${money(minimumPrice)}`}</p>
                   {halloweenIsActive() && <p className="halloween-product-note">Halloween · 10 % de descuento aplicado · hasta el 31 de octubre</p>}
                 </div>
-                <p className="font-interface text-[11px] uppercase tracking-[0.08em] text-[#907d87]">
-                  {minimumPrice === price ? "Precio inicial" : `Desde ${money(minimumPrice)}`}
-                </p>
+                {sizeChosen && (
+                  <p className="font-interface text-[11px] uppercase tracking-[0.08em] text-[#907d87]">
+                    {minimumPrice === price ? "Precio inicial" : `Desde ${money(minimumPrice)}`}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
                 onClick={addToCart}
-                className="boutique-purchase mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0"
+                disabled={!sizeChosen}
+                className="boutique-purchase disabled:cursor-not-allowed disabled:border-[#b9a9b1] disabled:bg-[#b9a9b1] disabled:shadow-none mt-4 min-h-12 w-full rounded-xl border-2 border-[#3a2030] bg-[#3a2030] px-5 py-3 font-interface text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[4px_4px_0_#b98a9f] transition hover:-translate-y-0.5 hover:bg-[#5a3448] active:translate-y-0"
               >
-                Agregar al carrito · {money(price)}
+                {sizeChosen ? `Agregar al carrito · ${money(price)}` : "Elige su talla"}
               </button>
+              {!sizeChosen && (
+                <p className="couture-pending-note" aria-live="polite">Elige la talla de tu lomito para continuar.</p>
+              )}
               {notice && (
                 <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} onContinue={() => { setNotice(""); catalogRef.current?.scrollIntoView({ block: "start" }); }} />
               )}

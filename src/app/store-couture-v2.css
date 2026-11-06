@@ -1,0 +1,145 @@
+/* Couture · ficha v2. Mismo lenguaje que las fichas de Cuisine con los tonos
+   malva de Couture. Solo presentación: colecciones, precios y carrito intactos. */
+
+.couture-ficha-v2 .couture-step-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3a2030;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.couture-ficha-v2 .couture-step-title::before {
+  content: attr(data-n);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #70425a;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.couture-ficha-v2 .couture-step-title[data-done="true"]::before { content: "✓"; background: #5f9a7a; }
+
+/* Pasos como tarjetas */
+.couture-ficha-v2 .couture-step {
+  padding: 14px 16px 16px;
+  border: 1px solid #ddcfd6;
+  border-radius: 12px;
+  background: #fff;
+}
+.couture-ficha-v2 .couture-step > legend,
+.couture-ficha-v2 .couture-step > div:first-child > legend { float: left; padding: 0; }
+.couture-ficha-v2 .couture-step > legend + * { clear: both; }
+.couture-ficha-v2 .couture-step > div:first-child { width: 100%; align-items: center; }
+.couture-ficha-v2 .couture-step > div:first-child + * { clear: both; }
+.couture-ficha-v2 .couture-step[data-step-current="true"] {
+  border-color: #a66f89;
+  box-shadow: 0 0 0 3px #f3e3ea;
+}
+.couture-ficha-v2 .couture-step[data-step-current="true"] .couture-step-title::after {
+  content: "Pendiente";
+  margin-left: 8px;
+  color: #a66f89;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Colores como círculos (el nombre sigue en el título, title y aria-label) */
+.couture-ficha-v2 .couture-color-step > div { gap: 10px; }
+.couture-ficha-v2 .couture-swatch {
+  min-height: 0;
+  padding: 3px;
+  border: 0 !important;
+  border-radius: 50%;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.couture-ficha-v2 .couture-swatch > span:first-child {
+  width: 34px;
+  height: 34px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #cdbdc5;
+}
+.couture-ficha-v2 .couture-swatch[data-light="true"] > span:first-child { box-shadow: 0 0 0 1px #9f8c96; }
+.couture-ficha-v2 .couture-swatch[aria-pressed="true"] > span:first-child { box-shadow: 0 0 0 2px #70425a; }
+.couture-ficha-v2 .couture-swatch:focus-visible { outline: 2px solid #70425a; outline-offset: 2px; }
+.couture-ficha-v2 .couture-swatch-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Tallas compactas */
+.couture-ficha-v2 .couture-size-step > .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.couture-ficha-v2 .couture-size-step > .grid > button {
+  min-height: 0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.couture-ficha-v2 .couture-size-step > .grid > button[aria-pressed="true"] {
+  border: 2px solid #70425a;
+  background: #f6eaf0;
+}
+.couture-ficha-v2 .couture-size-step > .grid > button { padding: 8px 12px; }
+.couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(2) { font-size: 12px; }
+.couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(3) { font-size: 12px; line-height: 1.3; }
+
+/* Vistas: "Ver puesta en lomito" destacado */
+.couture-ficha-v2 .couture-views > button { border-radius: 10px; box-shadow: none; }
+.couture-ficha-v2 .couture-views > button[aria-pressed="false"]:last-child { border-color: #a66f89; color: #70425a; }
+.couture-ficha-v2 .couture-view-label { display: flex; flex-direction: column; line-height: 1.25; text-transform: none; letter-spacing: 0; }
+.couture-ficha-v2 .couture-view-label small { color: #76636e; font-size: 11px; font-weight: 400; }
+@media (min-width: 1024px) {
+  .couture-ficha-v2 .couture-views { grid-template-columns: auto auto; justify-content: center; }
+}
+
+/* Foto fija en desktop ajustada al alto visible de la ventana */
+@media (min-width: 1024px) {
+  .couture-ficha-v2 .couture-gallery {
+    max-width: min(28rem, calc(var(--ficha-viewport-h, 100dvh) - 200px));
+  }
+}
+
+/* Aviso de lo que falta junto a la compra */
+.couture-ficha-v2 .couture-pending-note {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  border: 1px solid #ecd6e0;
+  border-radius: 6px;
+  background: #fbf3f6;
+  color: #a66f89;
+  font-size: 13px;
+}
+
+@media (max-width: 639px) {
+  /* Barra de compra compacta: precio + botón en una fila */
+  .couture-ficha-v2 .boutique-purchase { margin-top: 0; }
+  .couture-ficha-v2 .couture-buy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 12px;
+    padding-top: 10px;
+  }
+  .couture-ficha-v2 .couture-buy-summary { min-width: 0; display: block; }
+  .couture-ficha-v2 .couture-buy-summary p:first-child { font-size: 11px; }
+  .couture-ficha-v2 .couture-buy-summary p.font-title { margin-top: 0; font-size: 22px; }
+  .couture-ficha-v2 .couture-buy-summary > div + p { display: none; }
+  .couture-ficha-v2 .couture-buy > .boutique-purchase { width: auto; min-width: 0; padding-inline: 14px; letter-spacing: 0.04em; }
+  .couture-ficha-v2 .couture-buy > .couture-pending-note,
+  .couture-ficha-v2 .couture-buy > :not(div):not(button) { grid-column: 1 / -1; }
+  .couture-ficha-v2 .couture-pending-note { margin: 0; font-size: 12px; }
+  /* Tallas más compactas */
+  .couture-ficha-v2 .couture-size-step > .grid > button { padding: 8px 10px; }
+  .couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(2) { font-size: 12px; }
+  .couture-ficha-v2 .couture-size-step > .grid > button > span:nth-child(3) { font-size: 12px; line-height: 1.3; }
+}
