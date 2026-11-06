@@ -2651,7 +2651,9 @@ export default function CuisineStoreApp({
                                   min={0}
                                   max={bulkQuantityIsValid ? bulkTargetGrams : 10000}
                                   step={100}
-                                  value={grams}
+                                  value={grams === 0 ? "" : grams}
+                                  placeholder="0"
+                                  onFocus={(event) => event.currentTarget.select()}
                                   onChange={(event) =>
                                     changeBulkFlavorInput(
                                       flavor,
@@ -3141,7 +3143,7 @@ export default function CuisineStoreApp({
             </div>
 
             {notice && (
-              <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} onContinue={() => { setNotice(""); setSelectedProduct(null); }} />
+              <AddToCartFeedback blocked={notice.startsWith("Tu carrito ya contiene")} message={notice} image={withBasePath(currentProductImage)} onContinue={() => { setNotice(""); setSelectedProduct(null); }} />
             )}
           </div>
         </div>

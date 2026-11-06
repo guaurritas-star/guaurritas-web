@@ -1,0 +1,117 @@
+/* Aviso "Agregado a tu carrito" (Cuisine y Couture) y ajustes móviles.
+   Solo presentación. */
+
+.add-to-cart-feedback { display: grid; gap: 10px; }
+.add-to-cart-feedback-summary { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.add-to-cart-feedback-thumb {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #fff;
+  object-fit: contain;
+}
+.add-to-cart-feedback-text { display: flex; flex-direction: column; min-width: 0; margin: 0; line-height: 1.3; }
+.add-to-cart-feedback-text strong { font-size: 14px; }
+.add-to-cart-feedback-text span { font-size: 13px; overflow-wrap: anywhere; }
+.add-to-cart-feedback-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.boutique-retail .add-to-cart-feedback-actions button {
+  min-height: 46px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.boutique-retail .add-to-cart-feedback-continue { border: 1px solid #446454; background: #fff; color: #2f5241; }
+.boutique-retail .add-to-cart-feedback-open { border: 1px solid #425b8c; background: #425b8c; color: #fff; }
+/* Dentro de la barra de compra ocupa todo el ancho */
+.product-purchase-summary > .add-to-cart-feedback,
+.couture-buy > .add-to-cart-feedback { grid-column: 1 / -1; width: 100%; margin-top: 4px; }
+
+/* iPhone: campos de 16 px para que no haga zoom al abrir el teclado */
+@media (max-width: 639px) {
+  .boutique-retail input:not([type="checkbox"]):not([type="radio"]),
+  .boutique-retail textarea,
+  .boutique-retail select { font-size: 16px !important; }
+}
+
+/* ---------- Couture móvil ---------- */
+@media (max-width: 1023px) {
+  /* Estilos como chips en una fila deslizable */
+  .couture-ficha-v2 .couture-styles-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin: 8px -16px 0;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .couture-ficha-v2 .couture-styles-row::-webkit-scrollbar { display: none; }
+  .couture-ficha-v2 .couture-style-card {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    max-width: none;
+    padding: 4px 12px 4px 4px;
+    border-radius: 999px;
+    box-shadow: none;
+    scroll-snap-align: start;
+  }
+  .couture-ficha-v2 .couture-style-card[aria-pressed="true"] { border-width: 2px; box-shadow: none; }
+  .couture-ficha-v2 .couture-style-thumb {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50%;
+    background: #f4f4f4;
+  }
+  .couture-ficha-v2 .couture-style-copy { margin-top: 0; }
+  .couture-ficha-v2 .couture-style-name { font-size: 14px; white-space: nowrap; }
+  .couture-ficha-v2 .couture-style-prefix,
+  .couture-ficha-v2 .couture-style-check { display: none !important; }
+  .couture-ficha-v2 .couture-styles.has-same-price .couture-style-price { display: none; }
+  .couture-ficha-v2 .couture-styles-note {
+    display: block;
+    margin-top: 6px;
+    color: #425b8c;
+    font-size: 12px;
+  }
+
+  /* Foto con selector compacto encima */
+  .couture-ficha-v2 .couture-detail-grid { margin-top: 12px; gap: 12px; }
+  .couture-ficha-v2 .couture-gallery { position: relative; }
+  .couture-ficha-v2 .couture-photo { aspect-ratio: 4 / 3; }
+  .couture-ficha-v2 .couture-photo-badge { display: none; }
+  .couture-ficha-v2 .couture-views {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 2;
+    display: flex;
+    gap: 6px;
+    margin: 0;
+  }
+  .couture-ficha-v2 .couture-views > button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 40px;
+    padding: 3px 12px 3px 3px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: none;
+  }
+  .couture-ficha-v2 .couture-views > button > span:first-child { width: 32px !important; height: 32px !important; border-radius: 50%; }
+  .couture-ficha-v2 .couture-view-label { font-size: 13px; white-space: nowrap; }
+  .couture-ficha-v2 .couture-view-label small { display: none; }
+  .couture-ficha-v2 .couture-views > button:last-child .couture-view-label { font-size: 0; }
+  .couture-ficha-v2 .couture-views > button:last-child .couture-view-label::after { content: "Ver puesta"; font-size: 13px; }
+
+  /* Espacio final para que el botón flotante de WhatsApp no tape contenido */
+  .couture-ficha-v2 .couture-buy { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .couture-ficha-v2 .couture-detail-grid > div:last-child { padding-bottom: 8px; }
+}

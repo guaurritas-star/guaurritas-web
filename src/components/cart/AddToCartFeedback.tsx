@@ -4,10 +4,12 @@ import { useEffect, useRef } from "react";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { announceCartAddition } from "@/lib/os-notification-events";
 
-export default function AddToCartFeedback({ message, onContinue, blocked = false }: {
+export default function AddToCartFeedback({ message, onContinue, blocked = false, image }: {
   message: string;
   blocked?: boolean;
   onContinue: () => void;
+  /** Miniatura opcional del producto agregado (solo visual). */
+  image?: string;
 }) {
   const lastAnnounced = useRef<string | null>(null);
 
@@ -20,12 +22,32 @@ export default function AddToCartFeedback({ message, onContinue, blocked = false
     announceCartAddition(message);
   }, [blocked, message]);
 
+  const added = !blocked && /se agregó al carrito/i.test(message);
+  const detail = added
+    ? message.replace(/\s*se agregó al carrito\.?\s*$/i, "").trim()
+    : message;
+
   return (
-    <div className={`mt-4 rounded-lg border p-4 font-interface text-xs ${blocked ? "border-[#d8c0c8] bg-[#fff4f4] text-[#8a4545]" : "border-[#89a79a] bg-[#edf6f0] text-[#446454]"}`}>
-      <p role={blocked ? "alert" : "status"} className="font-semibold">{blocked ? "" : "✓ "}{message}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button type="button" onClick={onContinue} className="min-h-11 rounded-md border border-[#446454] bg-white px-4 font-bold">Seguir comprando</button>
-        <button type="button" onClick={() => requestSystemCartOpen()} className="min-h-11 rounded-md bg-[#425b8c] px-4 font-bold text-white">Ver carrito</button>
+    <div className={`add-to-cart-feedback mt-4 rounded-lg border p-3 font-interface text-xs ${blocked ? "border-[#d8c0c8] bg-[#fff4f4] text-[#8a4545]" : "border-[#89a79a] bg-[#edf6f0] text-[#446454]"}`}>
+      <div className="add-to-cart-feedback-summary">
+        {added && image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={image} alt="" className="add-to-cart-feedback-thumb" />
+        )}
+        <p role={blocked ? "alert" : "status"} className="add-to-cart-feedback-text">
+          {added ? (
+            <>
+              <strong>✓ Agregado a tu carrito</strong>
+              <span>{detail}</span>
+            </>
+          ) : (
+            <span>{message}</span>
+          )}
+        </p>
+      </div>
+      <div className="add-to-cart-feedback-actions">
+        <button type="button" onClick={onContinue} className="add-to-cart-feedback-continue">Seguir comprando</button>
+        <button type="button" onClick={() => requestSystemCartOpen()} className="add-to-cart-feedback-open">Ver carrito <span aria-hidden="true">→</span></button>
       </div>
     </div>
   );
