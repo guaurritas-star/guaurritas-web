@@ -1,0 +1,119 @@
+/* Tienda independiente: barra superior compacta (ubicación, catálogo y
+   carrito en una sola fila en escritorio; dos filas delgadas en móvil).
+   Solo presentación: misma lógica y mismos controles accesibles. */
+
+.shopping-navigation--compact .store-delivery-short { display: none; }
+
+@media (min-width: 640px) {
+  .store-window-dialog .shopping-navigation--compact,
+  .shopping-navigation--compact {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+  }
+  .shopping-navigation--compact .shopping-location legend {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .shopping-navigation--compact .shopping-location { order: 1; flex: none; }
+  .shopping-navigation--compact .store-delivery-details { order: 2; flex: 0 1 auto; min-width: 0; position: relative; }
+  .shopping-navigation--compact .shopping-catalog-tabs { order: 3; flex: none; margin-left: auto; }
+  .shopping-navigation--compact .shopping-store-cart { order: 4; flex: none; }
+
+  /* Controles segmentados de una línea */
+  .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) { display: inline-flex; gap: 0; }
+  .store-window-dialog .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button,
+  .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button {
+    flex-direction: row;
+    min-height: 38px;
+    min-width: 0;
+    padding: 6px 12px;
+    border-radius: 0;
+    white-space: nowrap;
+  }
+  .store-window-dialog .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button:first-child { border-radius: 8px 0 0 8px; }
+  .store-window-dialog .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button:last-child { border-left: 0; border-radius: 0 8px 8px 0; }
+  .shopping-navigation--compact .shopping-location .system-icon { width: 18px; height: 18px; }
+  .shopping-navigation--compact .shopping-catalog-tabs strong { font-size: 15px; }
+  .shopping-navigation--compact .shopping-catalog-description { font-size: 14px; }
+  .store-window-dialog .shopping-navigation--compact .shopping-catalog-tabs > button[aria-pressed="true"] {
+    background: linear-gradient(#5b74a6, #425b8c); color: #fff; border-color: #425b8c;
+  }
+  .store-window-dialog .shopping-navigation--compact .shopping-store-cart { min-height: 38px; padding: 6px 12px; }
+
+  /* Aviso de entrega corto; el detalle se abre como globo */
+  .shopping-navigation--compact .store-delivery-long { display: none; }
+  .shopping-navigation--compact .store-delivery-short { display: inline; }
+  .shopping-navigation--compact .store-delivery-details summary {
+    font-size: 13px; text-decoration: underline dotted; text-underline-offset: 3px; white-space: nowrap; list-style: none;
+  }
+  .shopping-navigation--compact .store-delivery-details summary::-webkit-details-marker { display: none; }
+  .shopping-navigation--compact .store-delivery-details p {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 60; width: min(420px, 70vw); margin: 0;
+    padding: 12px 14px; border: 1px solid #b0bfd3; border-radius: 8px; background: #fff;
+    box-shadow: 0 8px 24px rgba(38, 54, 80, 0.16); font-size: 14px; line-height: 1.5;
+  }
+}
+@media (min-width: 640px) and (max-width: 1100px) {
+  .shopping-navigation--compact .shopping-catalog-sep,
+  .shopping-navigation--compact .shopping-catalog-description { display: none; }
+  .shopping-navigation--compact .shopping-store-cart-label { display: none; }
+}
+@media (min-width: 1101px) {
+  .shopping-navigation--compact .shopping-catalog-tabs > button { gap: 0; }
+}
+
+/* Móvil: dos filas delgadas + aviso de una línea */
+@media (max-width: 639px) {
+  .store-window-dialog .shopping-navigation--compact,
+  .shopping-navigation--compact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  .shopping-navigation--compact .shopping-location legend {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .shopping-navigation--compact .shopping-location { grid-column: 1; grid-row: 1; }
+  .shopping-navigation--compact .shopping-store-cart { grid-column: 2; grid-row: 1; }
+  .shopping-navigation--compact .shopping-catalog-tabs { grid-column: 1 / -1; grid-row: 2; display: flex; gap: 0; }
+  .shopping-navigation--compact .store-delivery-details { grid-column: 1 / -1; grid-row: 3; }
+  .shopping-navigation--compact .shopping-location > div { gap: 0; max-width: none; }
+  .store-window-dialog .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button {
+    flex: 1; flex-direction: row; justify-content: center; min-height: 44px; padding: 6px 8px;
+    border-radius: 0; white-space: nowrap; font-size: 16px;
+  }
+  .store-window-dialog .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button:first-child { border-radius: 8px 0 0 8px; }
+  .store-window-dialog .shopping-navigation--compact :is(.shopping-location > div, .shopping-catalog-tabs) > button:last-child { border-left: 0; border-radius: 0 8px 8px 0; }
+  .shopping-navigation--compact .shopping-catalog-description { display: none; }
+  .store-window-dialog .shopping-navigation--compact .shopping-catalog-tabs > button[aria-pressed="true"] {
+    background: linear-gradient(#5b74a6, #425b8c); color: #fff; border-color: #425b8c;
+  }
+  .store-window-dialog .shopping-navigation--compact .shopping-store-cart { min-height: 44px; }
+  .shopping-navigation--compact .store-delivery-long { display: none; }
+  .shopping-navigation--compact .store-delivery-short { display: inline; }
+  .shopping-navigation--compact .store-delivery-details summary {
+    font-size: 13px; text-decoration: underline dotted; text-underline-offset: 3px;
+  }
+  .shopping-navigation--compact .store-delivery-details p { font-size: 14px; }
+}
+
+/* Ajustes finos de la barra y del encabezado del catálogo */
+.shopping-navigation--compact .shopping-catalog-tabs strong + .shopping-catalog-description { margin-left: 4px; }
+@media (min-width: 640px) {
+  .shopping-navigation--compact .store-delivery-details { overflow: visible; }
+  .shopping-navigation--compact .store-delivery-details summary { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .shopping-navigation--compact .shopping-catalog-tabs { margin-left: auto; }
+}
+@media (min-width: 640px) and (max-width: 1600px) {
+  .shopping-navigation--compact .shopping-catalog-sep,
+  .shopping-navigation--compact .shopping-catalog-description { display: none; }
+}
+/* Catálogo: sin subtítulo ni línea, para que las tarjetas suban */
+.store-app .cuisine-catalog-ux .cuisine-catalog-intro { border-bottom: 0; padding-bottom: 4px; }
+.store-app .cuisine-catalog-ux .cuisine-catalog-lead { display: none; }
+@media (max-width: 639px) {
+  .store-app .cuisine-catalog-ux .cuisine-catalog-intro h2 { font-size: 20px; }
+}
