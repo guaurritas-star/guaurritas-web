@@ -94,6 +94,14 @@ const categories: { id: CategoryId; label: string }[] = [
 
 const petcakeSizes = ["Chico", "Mediano", "Grande", "Jumbo"] as const;
 const petcakeMeasurements = ["Diámetro aprox. 7.5 cm", "Diámetro aprox. 10 cm", "Diámetro aprox. 13 cm", "Medida por confirmar"] as const;
+// Fotos de referencia por tamaño (Jumbo usa la de Grande hasta tener foto propia).
+const petcakeSizeImages = [
+  "/cuisine/products/petcakes-sizes-v2/chico.webp",
+  "/cuisine/products/petcakes-sizes-v2/mediano.webp",
+  "/cuisine/products/petcakes-sizes-v2/plus-grande.webp",
+  "/cuisine/products/petcakes-sizes-v2/plus-grande.webp",
+] as const;
+const petcakeFinishNotes = { "betún": "A base de papa", fondant: "Leche deslactosada y probióticos" } as const;
 
 const gorritoPetSizes: {
   size: GorritoPetSize;
@@ -1653,8 +1661,12 @@ export default function CuisineStoreApp({
       <nav className="petcake-mobile-navigation" aria-label="Pasos de Petcake">
         <button type="button" onClick={() => movePetcakeStep(after - 1)} disabled={after === 0}>← Anterior</button>
         <button type="button" onClick={() => movePetcakeStep(after + 1)} disabled={!petcakeStepComplete[after]}>
-          {after === petcakeReviewStep - 1 ? "Revisar pedido →" : "Siguiente →"}
+          {after === petcakeReviewStep - 1 ? "Revisar pedido →" : <>Siguiente<span className="petcake-next-name" aria-hidden="true">: {petcakeStepNames[after + 1]}</span> →</>}
         </button>
+        <span className="petcake-nav-summary" aria-hidden="true">
+          <span>{petcakeSizes[petcakeSize]}{petcakeFinish ? ` · ${petcakeFinish}` : ""}{petType ? ` · ${petType}` : ""}{petProtein ? ` · ${petProtein}` : ""}</span>
+          <strong>{petcakeFinish === null ? "Elige acabado" : money(currentDisplayPrice)}</strong>
+        </span>
       </nav>
     );
     const petcakeSkipOptionalDetails = () => (
@@ -1665,7 +1677,7 @@ export default function CuisineStoreApp({
     const petcakeOptionsReady = isPetcake && canAdd && petcakeMobileStep < petcakeReviewStep;
 
     return (
-      <section ref={productViewRef} className={`boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6 ${isPetcake ? "cuisine-petcake-steps" : "cuisine-ficha-v2"}${fichaCompact ? " is-ficha-compact" : ""}`}>
+      <section ref={productViewRef} className={`boutique-retail boutique-product cuisine-detail-ux -m-4 min-h-[32rem] bg-white sm:-m-6 ${isPetcake ? "cuisine-petcake-steps petcake-v2" : "cuisine-ficha-v2"}${fichaCompact ? " is-ficha-compact" : ""}`}>
         <div className="retail-cart-toolbar cuisine-mobile-sticky-header sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#b9c8d8] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <button
             type="button"
@@ -1797,12 +1809,27 @@ export default function CuisineStoreApp({
               </section>
             )}
             {isPetcake && <p className="petcake-mobile-step-heading" aria-live="polite">Paso {petcakeMobileStep + 1} de {petcakeStepNames.length} · {petcakeStepNames[petcakeMobileStep]}</p>}
+            {isPetcake && (
+              <div className="petcake-progress-v2" aria-hidden="true">
+                <span className="petcake-progress-segments">
+                  {petcakeStepNames.map((name, index) => (
+                    <i key={name} data-state={index < petcakeMobileStep ? "done" : index === petcakeMobileStep ? "current" : undefined} />
+                  ))}
+                </span>
+                <span className="petcake-progress-chips">
+                  <span>✓ {petcakeSizes[petcakeSize]}</span>
+                  {petcakeFinish && <span>✓ {petcakeFinish}</span>}
+                  {petType && <span>✓ {petType}</span>}
+                  {petProtein && <span>✓ {petProtein}</span>}
+                </span>
+              </div>
+            )}
             {isEdibleProduct && !isSticks && <p className="product-safety-note">Premio complementario; no sustituye su alimento diario. Si tiene alergias, intolerancias o una dieta veterinaria, consúltanos antes de pedir.</p>}
             {halloweenRate(selectedProduct.id) > 0 && <p className="halloween-product-note">Halloween · 15 % de descuento aplicado · hasta el 31 de octubre</p>}
 
             {isPetcake ? (
-              <div className="mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-petcake-config data-active={petcakeMobileStep < 4 ? "true" : undefined}>
-                <div className="flex items-start justify-between gap-4">
+              <div className="petcake-config-v2 mt-7 rounded-2xl border border-[#b9c8d8] bg-[#f6fafb] p-4 sm:p-5" data-petcake-config data-active={petcakeMobileStep < 4 ? "true" : undefined}>
+                <div className="petcake-config-head flex items-start justify-between gap-4">
                   <div>
                     <p className="font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                       Configura su Petcake
@@ -1816,11 +1843,11 @@ export default function CuisineStoreApp({
                   </span>
                 </div>
 
-                <fieldset className="mt-5" data-petcake-step="0" data-step-active={petcakeMobileStep === 0 ? "true" : undefined} tabIndex={petcakeMobileStep === 0 ? -1 : undefined}>
-                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-                    1. Tamaño
+                <fieldset className="ficha-step petcake-size-step mt-5" data-step-done="true" data-petcake-step="0" data-step-active={petcakeMobileStep === 0 ? "true" : undefined} tabIndex={petcakeMobileStep === 0 ? -1 : undefined}>
+                  <legend className="ficha-step-title font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                    <span className="legacy-step-num">1. </span>Tamaño
                   </legend>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div className="petcake-size-grid mt-2 grid grid-cols-2 gap-2">
                     {petcakeSizes.map((size, index) => (
                       <button
                         key={size}
@@ -1833,6 +1860,10 @@ export default function CuisineStoreApp({
                             : "border-[#c7d1dc] bg-white text-[#657287] hover:border-[#7c9cab]"
                         }`}
                       >
+                        <span className="petcake-size-thumb" aria-hidden="true">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={withBasePath(petcakeSizeImages[index])} alt="" />
+                        </span>
                         <span className="block">{size}</span>
                         <span className="petcake-measurement">{petcakeMeasurements[index]}</span>
                         <span className="mt-1 block text-[9px] font-normal text-[#718093]">
@@ -1843,9 +1874,9 @@ export default function CuisineStoreApp({
                   </div>
                 </fieldset>
 
-                <fieldset className="mt-5" data-petcake-step="1" data-step-active={petcakeMobileStep === 1 ? "true" : undefined} tabIndex={petcakeMobileStep === 1 ? -1 : undefined}>
-                  <legend className="font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
-                    2. Acabado
+                <fieldset className="ficha-step petcake-finish-step mt-5" data-step-done={petcakeFinish !== null ? "true" : undefined} data-step-current={petcakeFinish === null ? "true" : undefined} data-petcake-step="1" data-step-active={petcakeMobileStep === 1 ? "true" : undefined} tabIndex={petcakeMobileStep === 1 ? -1 : undefined}>
+                  <legend className="ficha-step-title font-interface text-[10px] font-bold uppercase tracking-[0.12em] text-[#53627a]">
+                    <span className="legacy-step-num">2. </span>Acabado
                   </legend>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {(["betún", "fondant"] as const).map((finish, index) => (
@@ -1860,7 +1891,7 @@ export default function CuisineStoreApp({
                             : "border-[#d2c4c8] bg-white text-[#657287] hover:border-[#a66271]"
                         }`}
                       >
-                        <span className="font-semibold capitalize">{finish}</span>
+                        <span className="font-semibold capitalize">{finish}<small className="petcake-finish-note">{petcakeFinishNotes[finish]}</small></span>
                         <strong>{money(selectedProduct.options[petcakeSize * 2 + index].price)}</strong>
                       </button>
                     ))}
@@ -1879,6 +1910,7 @@ export default function CuisineStoreApp({
                   onPetProteinChange={setPetProtein}
                   firstStep={3}
                   mobileStep={petcakeMobileStep}
+                  currentStep={petcakeFinish !== null && petType === null ? "pet" : petcakeFinish !== null && petProtein === null ? "protein" : null}
                 />
                 {petcakeStepNavigation(petcakeMobileStep)}
               </div>
@@ -2873,7 +2905,7 @@ export default function CuisineStoreApp({
             </details>
 
             {selectedProduct.customizable && (
-              <div className="customize-step ficha-step mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5" data-step-done={customize !== null ? "true" : undefined} data-step-current={currentFichaStep === "customize" ? "true" : undefined} data-petcake-personalization={isPetcake ? "true" : undefined} data-active={isPetcake && petcakeMobileStep >= 4 && petcakeMobileStep < petcakeReviewStep ? "true" : undefined}>
+              <div className="customize-step ficha-step mt-7 rounded-2xl border border-[#d2a5ad] bg-[#fcf2f4] p-4 sm:p-5" data-step-done={customize !== null ? "true" : undefined} data-step-current={currentFichaStep === "customize" || (isPetcake && petProtein !== null && customize === null) ? "true" : undefined} data-petcake-personalization={isPetcake ? "true" : undefined} data-active={isPetcake && petcakeMobileStep >= 4 && petcakeMobileStep < petcakeReviewStep ? "true" : undefined}>
                 <div data-petcake-step={isPetcake ? 4 : undefined} data-step-active={isPetcake && petcakeMobileStep === 4 ? "true" : undefined} tabIndex={isPetcake && petcakeMobileStep === 4 ? -1 : undefined}>
                 <p className="ficha-step-title font-interface text-xs font-bold uppercase tracking-[0.1em] text-[#263650]">
                   {usesDecorationPersonalization
