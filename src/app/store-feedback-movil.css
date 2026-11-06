@@ -115,3 +115,27 @@
   .couture-ficha-v2 .couture-buy { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   .couture-ficha-v2 .couture-detail-grid > div:last-child { padding-bottom: 8px; }
 }
+
+/* Couture móvil: "Producto / Ver puesta" en una franja propia al pie del
+   marco de la foto, para que no tapen la bandana. */
+@media (max-width: 1023px) {
+  .couture-ficha-v2 .couture-photo { aspect-ratio: 4 / 3.55; }
+  .couture-ficha-v2 .couture-photo img { height: calc(100% - 58px) !important; }
+  .couture-ficha-v2 .couture-photo::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 58px;
+    border-top: 1px solid #eee4e8;
+    background: #faf6f8;
+    pointer-events: none;
+  }
+  .couture-ficha-v2 .couture-views {
+    right: 0;
+    bottom: 8px;
+    left: 0;
+    justify-content: center;
+  }
+}
