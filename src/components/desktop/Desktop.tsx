@@ -683,7 +683,7 @@ function PromotionTicker() {
       {/* Móvil: promoción fija y legible, con detalle al tocar. */}
       <details className="promotion-ticker-mobile">
         <summary>
-          <span aria-hidden="true">🚚</span>
+          <SystemIcon name="truck" className="promotion-ticker-truck" />
           <span className="promotion-ticker-tag">ENVÍO GRATIS</span>
           <span>nacional desde ${freeShippingShort}</span>
           <span className="promotion-ticker-more">ver más</span>

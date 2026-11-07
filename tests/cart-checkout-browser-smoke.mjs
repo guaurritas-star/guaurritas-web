@@ -59,8 +59,10 @@ const isFocusedAfterPaint = locator => locator.evaluate(el => new Promise(resolv
 const prefs = async panel => {
   await panel.locator('[data-leon-delivery-date]').fill('2030-12-02');
   await panel.locator('[data-leon-preferred-time]').selectOption('13:00');
-  await panel.getByRole('checkbox').check();
 };
+// Checkout en pasos: Entrega → Pago.
+const toPayment = panel => panel.getByRole('button', { name: /Continuar al pago/ }).click();
+const toDelivery = panel => panel.getByRole('button', { name: /Editar entrega/ }).first().click();
 try {
   for (const width of [390, 1366]) for (const embed of [false, true]) {
     await scenario(width, embed, 'leon', [fixture()], async ({ panel, page }) => {
@@ -73,7 +75,7 @@ try {
       await expectText(panel.locator('details'), /Chico · Pollo · Betún/);
       await expectText(panel.locator('details'), /Personalización: Luna/);
       assert.ok(await panel.locator('.taskbar-checkout-guidance').evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'checkout guidance wraps without clipped text');
-      await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
+      await toPayment(panel);
       assert.equal(await isFocusedAfterPaint(panel.locator('[data-leon-delivery-date]')), true);
       // Native date controls may have internal tab stops; verify keyboard escape
       // after persistence below instead of assuming a browser-specific tab order.
@@ -81,6 +83,8 @@ try {
       await expectText(panel.locator('#leon-time-error'), /horario/);
       assert.equal(await panel.getByRole('button', { name: 'Continuar con transferencia' }).count(), 0);
       await prefs(panel);
+      await toPayment(panel);
+      await panel.getByRole('checkbox').check();
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
       await expectText(panel.getByRole('region', { name: 'Revisa antes de pagar' }), /Por confirmar por WhatsApp/);
       await panel.getByRole('button', { name: 'Continuar con transferencia' }).click();
@@ -91,20 +95,24 @@ try {
         assert.deepEqual(spei.items[0].catalogReference, reference);
         assert.equal(JSON.parse(spei.buyerNote.split('GUAURRITAS_PREFS:')[1]).m, 'pending_whatsapp');
       } else await expectText(panel, /Abre esta tienda desde guaurritas.com para usar transferencia SPEI/);
+      await toDelivery(panel);
       await panel.getByRole('combobox', { name: 'Forma de entrega en León' }).selectOption('pickup_point');
-      await panel.getByRole('button', { name: /Tarjeta \/ pago en línea/ }).click();
+      await toPayment(panel);
       assert.equal(await isFocusedAfterPaint(panel.getByRole('combobox', { name: 'Punto medio preferido' })), true);
       await panel.getByRole('combobox', { name: 'Punto medio preferido' }).selectOption('Parque Cárcamos');
+      await toPayment(panel);
       await panel.getByRole('button', { name: /Tarjeta \/ pago en línea/ }).click();
       const review = panel.getByRole('region', { name: 'Revisa antes de pagar' });
       await expectText(review, /Parque Cárcamos/);
       await expectText(review, /2030-12-02 · 13:00/);
       await expectText(review, /\$425.00/);
+      await toDelivery(panel);
       await panel.getByRole('combobox', { name: 'Forma de entrega en León' }).selectOption('home_delivery');
       assert.equal(await review.count(), 0, 'delivery edits reset chosen payment');
-      await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
+      await toPayment(panel);
       await expectText(panel.locator('#leon-address-error'), /dirección/);
       await panel.getByRole('textbox', { name: 'Dirección para cotizar Uber' }).fill('Calle Prueba 123, León');
+      await toPayment(panel);
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
       await expectText(review, /\$400.00/);
       await expectText(review, /Uber.*costo se cotiza aparte/);
@@ -130,6 +138,7 @@ try {
       } else {
         await expectText(panel, /Abre esta tienda desde guaurritas.com/);
       }
+      await toDelivery(panel);
       await panel.getByRole('button', { name: /Editar cantidades o quitar productos/ }).click();
       await panel.getByRole('button', { name: 'Continuar pedido', exact: true }).click();
       assert.equal(await panel.locator('[data-leon-delivery-date]').inputValue(), '2030-12-02');
