@@ -26,6 +26,7 @@ import "./store-feedback-movil.css";
 import "./store-nav-compact.css";
 import "./store-petcake-v2.css";
 import "./mobile-dock.css";
+import "./checkout-steps.css";
 
 const mansalva = Mansalva({
   weight: "400",

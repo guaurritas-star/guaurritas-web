@@ -1,0 +1,154 @@
+/* Carrito y checkout de León en pasos (Carrito → Entrega → Pago).
+   Solo presentación: misma lógica de validación, precios, SPEI y Wix. */
+
+/* ---------- Barra de avance ---------- */
+.taskbar-cart-panel .checkout-progress,
+.taskbar-cart-panel .taskbar-checkout-view .checkout-progress[aria-label="Progreso del pedido"] {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 8px 2px 2px;
+  font: 500 12px/1.3 Inter, "Segoe UI", Arial, sans-serif;
+  color: #8a97a8;
+  text-align: center;
+}
+.taskbar-cart-panel > .taskbar-cart-scroll-body > .checkout-progress { margin: 0; padding: 10px 12px 6px; background: #fff; border-bottom: 1px solid #e3e8ee; }
+.checkout-progress i { display: block; height: 5px; margin-bottom: 4px; border-radius: 3px; background: #e1e6ee; }
+.checkout-progress [data-state="done"] i { background: #5f9a7a; }
+.checkout-progress [data-state="current"] { color: #425b8c; font-weight: 700; }
+.checkout-progress [data-state="current"] i { background: #a66d88; }
+
+.checkout-step-heading { display: block; margin: 0 0 8px; color: #263650; font: 700 15px/1.3 Inter, "Segoe UI", Arial, sans-serif; letter-spacing: 0; text-transform: none; }
+
+/* ---------- Carrito ---------- */
+.cart-leon-summary .cart-leon-location { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; color: #70425a; font-size: 14px; font-weight: 600; }
+.cart-leon-summary .cart-payment-explanation { font-size: 14px; }
+.cart-leon-cta { display: grid; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #ead7de; }
+.cart-leon-total { display: flex; justify-content: space-between; align-items: baseline; margin: 0; color: #5b6b80; font-size: 14px; }
+.cart-leon-total strong { color: #263650; font-size: 24px; }
+.taskbar-cart-panel .taskbar-cart-footer .cart-leon-continue { width: 100%; min-height: 52px; font-size: 17px !important; }
+.cart-continue-row.is-leon > strong { display: none; }
+.cart-continue-row.is-leon { justify-content: center; border-top: 0; padding-top: 0; }
+.taskbar-cart-panel .taskbar-cart-footer .cart-continue-row.is-leon .cart-continue-shopping {
+  min-height: 40px; padding: 4px 8px; border: 0 !important; background: transparent !important;
+  box-shadow: none !important; color: #425b8c; text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ---------- Checkout ---------- */
+.checkout-step-view .taskbar-checkout-guidance { margin: 0 0 10px; font-size: 14px; }
+.checkout-step-view .cart-order-review > summary { font-size: 14px; }
+.checkout-delivery-recap {
+  display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 0 0 12px; padding: 10px 12px; border: 1px solid #ecd6e0 !important; border-radius: 10px;
+  background: #fbf3f6 !important; box-shadow: none !important; color: #70425a; font-size: 14px; text-align: left;
+}
+.checkout-delivery-recap u { flex: none; color: #425b8c; }
+.checkout-pay-option {
+  display: flex; width: 100%; min-height: 72px; align-items: center; gap: 12px; padding: 12px 14px;
+  border: 1px solid #c2cdd3 !important; border-radius: 12px; background: #fff !important; box-shadow: none !important;
+  color: #263650; text-align: left;
+}
+.checkout-pay-option[aria-pressed="true"] { border: 2px solid #425b8c !important; background: #eef1f6 !important; }
+.checkout-pay-option strong { display: block; font-size: 15px; }
+.checkout-pay-option small { display: block; margin-top: 2px; color: #5b6b80; font-size: 13px; line-height: 1.35; }
+.checkout-pay-option > b { margin-left: auto; color: #425b8c; font-size: 18px; white-space: nowrap; }
+.checkout-pay-dot { flex: none; width: 22px; height: 22px; border: 2px solid #9fb0c4; border-radius: 50%; }
+.checkout-pay-option[aria-pressed="true"] .checkout-pay-dot { border: 7px solid #425b8c; }
+.checkout-pay-tag { margin-left: 6px; padding: 1px 6px; border-radius: 4px; background: #e3f1e7; color: #456a4e; font-size: 10px; font-style: normal; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; vertical-align: 2px; }
+.checkout-leon-confirm { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 10px 12px; border: 1px solid #c2cdd3; border-radius: 10px; background: #fff; color: #263650; font-size: 14px; cursor: pointer; }
+.checkout-leon-confirm input { flex: none; width: 20px; height: 20px; margin-top: 1px; accent-color: #425b8c; }
+.checkout-leon-confirm small { display: block; color: #5b6b80; font-size: 12px; }
+.checkout-pay-note { display: flex; gap: 8px; margin: 12px 0 0; color: #5b6b80; font-size: 13px; line-height: 1.4; }
+.checkout-primary-button {
+  display: block; width: 100%; min-height: 52px; margin-top: 12px; padding: 12px; border: 1px solid #33497a !important;
+  border-radius: 10px; background: linear-gradient(#5b74a6, #425b8c) !important; color: #fff !important;
+  font: 700 16px/1.2 Inter, "Segoe UI", Arial, sans-serif; box-shadow: 0 2px 0 #263f9a !important;
+}
+.checkout-primary-button:disabled { cursor: wait; opacity: .6; }
+.checkout-secondary-link {
+  display: block; width: 100%; margin-top: 8px; padding: 6px; border: 0 !important; background: transparent !important;
+  box-shadow: none !important; color: #425b8c; font-size: 14px; text-decoration: underline; text-underline-offset: 3px;
+}
+.checkout-status { font-size: 13px; }
+
+/* Resumen: en móvil es la barra fija inferior con total + botón */
+.checkout-summary h3, .checkout-summary dl { display: none; }
+.checkout-summary {
+  position: sticky; bottom: 0; z-index: 6; margin: 14px -12px -12px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid #d7dfe6; background: rgba(255,255,255,.98); box-shadow: 0 -6px 14px rgba(38,54,80,.07);
+}
+.checkout-summary-total { display: flex; justify-content: space-between; align-items: baseline; margin: 0; color: #5b6b80; font-size: 13px; }
+.checkout-summary-total strong { color: #263650; font-size: 22px; }
+.checkout-summary .checkout-primary-button { margin-top: 10px; }
+.checkout-step-view[data-leon-step="payment"] .checkout-summary .checkout-secondary-link { margin-top: 4px; }
+
+/* Día en botones */
+.leon-day-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.taskbar-cart-panel .leon-day-chips button {
+  display: flex; flex-direction: column; align-items: center; min-height: 56px; padding: 6px 4px;
+  border: 1px solid #c2cdd3; border-radius: 10px; background: #fff; color: #263650; box-shadow: none;
+}
+.taskbar-cart-panel .leon-day-chips button strong { font-size: 15px; }
+.taskbar-cart-panel .leon-day-chips button small { color: #5b6b80; font-size: 12px; }
+.taskbar-cart-panel .leon-day-chips button[aria-pressed="true"] { border: 2px solid #425b8c; background: #eef1f6; }
+.leon-delivery-form .leon-date-other > span:first-child,
+.leon-delivery-form .leon-time-heading { font-size: 12px; }
+.leon-delivery-form .leon-time-heading { display: block; font: 700 15px/1.3 Inter, "Segoe UI", Arial, sans-serif; }
+.leon-whatsapp-note { font-size: 13px; }
+
+/* ---------- Móvil: hoja a pantalla completa, sin la barra rosa encima ---------- */
+@media (max-width: 639px) {
+  html.guaurritas-system-cart-open .desktop-taskbar,
+  html.guaurritas-system-cart-open .promotion-ticker { visibility: hidden !important; }
+  html.guaurritas-system-cart-open .taskbar-cart-panel {
+    visibility: visible !important;
+    top: 56px !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+    max-height: none !important; height: auto !important;
+    border-radius: 14px 14px 0 0;
+    /* La hoja entra solo con opacidad: un desplazamiento la sacaría del alto visible. */
+    animation: checkout-sheet-in 200ms ease-out both !important;
+  }
+  .taskbar-cart-panel .taskbar-checkout-view,
+  .taskbar-cart-panel .taskbar-cart-footer { overflow-x: clip !important; }
+  .taskbar-cart-panel .cart-leon-cta {
+    position: sticky; bottom: 0; z-index: 4; margin: 12px -12px -12px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid #d7dfe6; background: #fff; box-shadow: 0 -6px 14px rgba(38,54,80,.07);
+  }
+  .taskbar-cart-panel .leon-day-chips { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+}
+
+/* ---------- Desktop: ventana con resumen a la derecha ---------- */
+@media (min-width: 1024px) {
+  .taskbar-cart-panel.taskbar-cart-panel--checkout {
+    right: 50% !important; transform: translateX(50%);
+    width: min(980px, calc(100vw - 96px)) !important;
+    max-height: calc(100dvh - 140px) !important;
+  }
+  .checkout-step-view { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr); gap: 12px 20px; align-items: start; }
+  .checkout-step-view > .checkout-progress { grid-column: 1 / -1; }
+  .checkout-summary {
+    position: sticky; top: 64px; bottom: auto; margin: 0; padding: 16px; border: 1px solid #c2cdd3; border-radius: 12px;
+    background: #fff; box-shadow: none;
+  }
+  .checkout-summary h3 { display: block; margin: 0 0 8px; font-size: 15px; color: #263650; }
+  .checkout-summary dl { display: grid; gap: 6px; margin: 0 0 10px; font-size: 13px; }
+  .checkout-summary dl > div { display: flex; justify-content: space-between; gap: 8px; color: #42516a; }
+  .checkout-summary dd { margin: 0; text-align: right; color: #263650; }
+  .checkout-summary-total { padding-top: 10px; border-top: 1px solid #e3e8ee; font-size: 14px; }
+}
+
+/* ---------- Al agregar en desktop: solo Carrito.exe ---------- */
+@media (min-width: 640px) {
+  .add-to-cart-feedback[data-added="true"] { display: none; }
+}
+
+/* ---------- Promoción móvil: camión 3D ---------- */
+.promotion-ticker-mobile .promotion-ticker-truck { width: 24px !important; height: 24px !important; vertical-align: middle; }
+
+@keyframes checkout-sheet-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* En Pago el botón real (tarjeta o transferencia) vive en el contenido: el
+   resumen no se fija encima de él. */
+.checkout-step-view[data-leon-step="payment"] .checkout-summary { position: static; box-shadow: none; }
+.checkout-pay-tag { display: inline-block; white-space: nowrap; }

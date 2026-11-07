@@ -21,6 +21,28 @@ function prettyTime(value: string) {
   }).format(date);
 }
 
+// Próximos días hábiles disponibles (misma regla que minimumLeonDeliveryDate).
+function nextDeliveryDays(firstKey: string, count = 4) {
+  const keys: string[] = [];
+  const cursor = new Date(`${firstKey}T12:00:00-06:00`);
+  while (keys.length < count) {
+    const day = cursor.getUTCDay();
+    if (day !== 0 && day !== 6) {
+      keys.push(cursor.toISOString().slice(0, 10));
+    }
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return keys;
+}
+
+function dayLabel(key: string) {
+  const date = new Date(`${key}T12:00:00-06:00`);
+  const weekday = new Intl.DateTimeFormat("es-MX", { weekday: "short", timeZone: "America/Mexico_City" }).format(date).replace(".", "");
+  const day = new Intl.DateTimeFormat("es-MX", { day: "numeric", timeZone: "America/Mexico_City" }).format(date);
+  const month = new Intl.DateTimeFormat("es-MX", { month: "short", timeZone: "America/Mexico_City" }).format(date).replace(".", "");
+  return { weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1), day, month };
+}
+
 export default function LeonOrderPreferencesForm({
   value,
   onChange,
@@ -31,31 +53,38 @@ export default function LeonOrderPreferencesForm({
   errors?: LeonCheckoutErrors;
 }) {
   const minDate = useMemo(() => minimumLeonDeliveryDate(), []);
+  const quickDays = useMemo(() => nextDeliveryDays(minDate), [minDate]);
 
   const update = (patch: Partial<LeonOrderPreferences>) => {
     onChange(patch);
   };
 
   return (
-    <section className="min-w-0 overflow-hidden rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#eef1ff] font-interface text-[10px] font-bold text-[#425BBC]">
-          1
-        </span>
-        <div className="min-w-0">
-          <h3 className="font-interface text-[11px] font-bold text-[#27364f]">
-            Fecha y horario
-          </h3>
-          <p className="mt-0.5 whitespace-normal break-words text-[9px] leading-4 text-[#77849a]">
-            Elige tu fecha y un horario preferido para continuar.
-          </p>
+    <section className="leon-delivery-form min-w-0 overflow-hidden rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
+      <div className="mt-1 grid min-w-0 gap-3">
+        <div className="leon-day-picker">
+          <h3 className="checkout-step-heading">¿Qué día?</h3>
+          <div className="leon-day-chips" role="group" aria-label="Próximos días disponibles">
+            {quickDays.map((key) => {
+              const label = dayLabel(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={value.deliveryDate === key}
+                  aria-label={`${label.weekday} ${label.day} de ${label.month}`}
+                  onClick={() => update({ deliveryDate: key })}
+                >
+                  <strong>{label.weekday} {label.day}</strong>
+                  <small>{label.month}</small>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
-
-      <div className="mt-4 grid min-w-0 gap-3">
-        <label className="block min-w-0 max-w-full overflow-hidden">
+        <label className="leon-date-other block min-w-0 max-w-full overflow-hidden">
           <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
-            Fecha de entrega
+            Fecha de entrega · otra fecha
           </span>
           <input
             data-leon-delivery-date
@@ -72,13 +101,13 @@ export default function LeonOrderPreferencesForm({
           />
           {errors?.date && <small id="leon-date-error" className="checkout-field-error">{errors.date}</small>}
           <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
-            Mínimo 1 día hábil de anticipación. Hoy no está disponible.
+            Mínimo 1 día hábil de anticipación.
           </small>
         </label>
 
         <label className="block min-w-0 max-w-full overflow-hidden">
-          <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
-            Horario preferido
+          <span className="checkout-step-heading leon-time-heading">
+            ¿A qué hora? · horario preferido
           </span>
           <select
             data-leon-preferred-time
@@ -106,7 +135,7 @@ export default function LeonOrderPreferencesForm({
       </div>
 
       <div className="mt-4 grid gap-3">
-        <label className="block"><span>¿Cómo prefieres recibirlo?</span>
+        <label className="block"><span className="checkout-step-heading">¿Cómo lo recibes?</span>
           <select aria-label="Forma de entrega en León" value={value.deliveryMethod || "pending_whatsapp"} onChange={event => update({ deliveryMethod: event.target.value as LeonOrderPreferences["deliveryMethod"], deliveryPoint: "", deliveryAddress: "" })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
             <option value="pending_whatsapp">Lo coordinaré por WhatsApp</option>
             <option value="pickup_point">Punto medio</option>
@@ -124,17 +153,13 @@ export default function LeonOrderPreferencesForm({
           {errors?.address && <small id="leon-address-error" className="checkout-field-error">{errors.address}</small>}
           <small className="mt-2 block">El costo de Uber no está incluido en los productos; te lo confirmamos por WhatsApp.</small>
         </label>}
-        <p>Esta es tu preferencia de entrega. El horario y el punto se confirman por WhatsApp.</p>
       </div>
 
       <div className="mt-3 flex min-w-0 max-w-full items-start gap-2 overflow-hidden rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">
         <span className="mt-0.5 shrink-0 text-[12px]"><SystemIcon name="chat" /></span>
         <div className="min-w-0 max-w-full flex-1 overflow-hidden">
-          <p className="whitespace-normal break-words font-interface text-[8px] font-bold leading-4 text-[#6f5720] [overflow-wrap:anywhere]">
-            Horario por confirmar
-          </p>
-          <p className="mt-0.5 whitespace-normal break-words text-[8px] leading-4 text-[#806c3e] [overflow-wrap:anywhere]">
-            Al recibir tu comprobante o pago en línea, te confirmamos por WhatsApp el horario solicitado.
+          <p className="leon-whatsapp-note whitespace-normal break-words leading-4 text-[#806c3e] [overflow-wrap:anywhere]">
+            Te confirmamos fecha, horario y punto por WhatsApp al recibir tu pago. Uber se cotiza aparte.
           </p>
         </div>
       </div>

@@ -28,7 +28,7 @@ export default function AddToCartFeedback({ message, onContinue, blocked = false
     : message;
 
   return (
-    <div className={`add-to-cart-feedback mt-4 rounded-lg border p-3 font-interface text-xs ${blocked ? "border-[#d8c0c8] bg-[#fff4f4] text-[#8a4545]" : "border-[#89a79a] bg-[#edf6f0] text-[#446454]"}`}>
+    <div data-added={added ? "true" : undefined} className={`add-to-cart-feedback mt-4 rounded-lg border p-3 font-interface text-xs ${blocked ? "border-[#d8c0c8] bg-[#fff4f4] text-[#8a4545]" : "border-[#89a79a] bg-[#edf6f0] text-[#446454]"}`}>
       <div className="add-to-cart-feedback-summary">
         {added && image && (
           // eslint-disable-next-line @next/next/no-img-element
