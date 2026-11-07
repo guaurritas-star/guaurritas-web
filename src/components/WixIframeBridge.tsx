@@ -19,6 +19,12 @@ function getDesktopDocumentHeight() {
 }
 
 function getMobileContentHeight() {
+  // Con el carrito abierto, el iframe mide exactamente la hoja del carrito.
+  const cartPanel = document.querySelector("html.guaurritas-system-cart-open #taskbar-cart-panel");
+  if (cartPanel instanceof HTMLElement) {
+    return Math.max(1, Math.ceil(cartPanel.getBoundingClientRect().top + cartPanel.scrollHeight));
+  }
+
   const main = document.querySelector("main");
 
   if (!(main instanceof HTMLElement)) {
@@ -50,6 +56,7 @@ export default function WixIframeBridge() {
     if (window.self === window.top) return;
     const externalHeader = new URLSearchParams(window.location.search).get("externalHeader") === "1";
     document.documentElement.classList.toggle("guaurritas-external-header", externalHeader);
+    document.documentElement.classList.add("guaurritas-in-wix");
 
     // Guardamos el viewport inicial únicamente para las apps que se abren a
     // pantalla completa. La pantalla principal del launcher se deja crecer de
