@@ -103,9 +103,9 @@
   html.guaurritas-system-cart-open .promotion-ticker { visibility: hidden !important; }
   html.guaurritas-system-cart-open .taskbar-cart-panel {
     visibility: visible !important;
-    top: 56px !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+    top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
     max-height: none !important; height: auto !important;
-    border-radius: 14px 14px 0 0;
+    border-radius: 0;
     /* La hoja entra solo con opacidad: un desplazamiento la sacaría del alto visible. */
     animation: checkout-sheet-in 200ms ease-out both !important;
   }
@@ -152,3 +152,14 @@
    resumen no se fija encima de él. */
 .checkout-step-view[data-leon-step="payment"] .checkout-summary { position: static; box-shadow: none; }
 .checkout-pay-tag { display: inline-block; white-space: nowrap; }
+
+/* Dentro de Wix el iframe crece con el contenido: una hoja fija de arriba a
+   abajo mediría todo el alto de la tienda y dejaría un bloque gris vacío. Ahí
+   el carrito ocupa solo su alto y la tienda se oculta mientras está abierto. */
+@media (max-width: 639px) {
+  html.guaurritas-in-wix.guaurritas-system-cart-open main > :not(.desktop-taskbar) { display: none !important; }
+  html.guaurritas-in-wix.guaurritas-system-cart-open .taskbar-cart-panel {
+    bottom: auto !important; height: auto !important; max-height: none !important;
+    overflow: visible !important; min-height: 0 !important;
+  }
+}

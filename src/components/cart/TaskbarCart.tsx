@@ -221,7 +221,17 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
 
   const scrollPanelTop = () => {
     requestAnimationFrame(() => {
-      panelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      const panel = panelRef.current;
+      panel?.scrollTo({ top: 0, behavior: "smooth" });
+      // En Wix móvil desplaza la página real; el panel no tiene scroll propio.
+      if (panel && window.self !== window.top) {
+        window.parent.postMessage({
+          source: "guaurritas-web",
+          type: "guaurritas:cart-navigation",
+          action: "reveal",
+          top: panel.getBoundingClientRect().top,
+        }, "*");
+      }
     });
   };
 
