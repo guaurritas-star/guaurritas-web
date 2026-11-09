@@ -1,25 +1,16 @@
 "use client";
 
 import SystemIcon from "@/components/ui/SystemIcon";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { LeonCheckoutErrors } from "@/lib/checkout-ux";
 import {
   LEON_TIME_OPTIONS,
   LEON_PICKUP_POINTS,
+  LEON_PICKUP_POINT_TIME,
+  formatLeonTime,
   minimumLeonDeliveryDate,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
-
-function prettyTime(value: string) {
-  if (!value) return "Selecciona un horario";
-  const [hour, minute] = value.split(":").map(Number);
-  const date = new Date();
-  date.setHours(hour, minute, 0, 0);
-  return new Intl.DateTimeFormat("es-MX", {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-}
 
 // Próximos días hábiles disponibles (misma regla que minimumLeonDeliveryDate).
 function nextDeliveryDays(firstKey: string, count = 4) {
@@ -55,8 +46,21 @@ export default function LeonOrderPreferencesForm({
   const minDate = useMemo(() => minimumLeonDeliveryDate(), []);
   const quickDays = useMemo(() => nextDeliveryDays(minDate), [minDate]);
 
+  const [showOtherDate, setShowOtherDate] = useState(
+    () => Boolean(value.deliveryDate) && !quickDays.includes(value.deliveryDate),
+  );
+  const isPickupPoint = value.deliveryMethod === "pickup_point";
+
   const update = (patch: Partial<LeonOrderPreferences>) => {
     onChange(patch);
+  };
+
+  const chooseMethod = (method: LeonOrderPreferences["deliveryMethod"]) => {
+    const patch: Partial<LeonOrderPreferences> = { deliveryMethod: method, deliveryPoint: "", deliveryAddress: "" };
+    // Punto medio: ventana fija de 6:00 a 9:30 p. m.; al salir se vuelve a elegir hora.
+    if (method === "pickup_point") patch.preferredTime = LEON_PICKUP_POINT_TIME;
+    else if (value.preferredTime === LEON_PICKUP_POINT_TIME) patch.preferredTime = "";
+    update(patch);
   };
 
   return (
@@ -82,7 +86,12 @@ export default function LeonOrderPreferencesForm({
             })}
           </div>
         </div>
-        <label className="leon-date-other block min-w-0 max-w-full overflow-hidden">
+        {!showOtherDate && !errors?.date && (
+          <button type="button" className="leon-other-date-toggle" onClick={() => setShowOtherDate(true)}>
+            Otra fecha
+          </button>
+        )}
+        <label className="leon-date-other block min-w-0 max-w-full overflow-hidden" hidden={!showOtherDate && !errors?.date}>
           <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
             Fecha de entrega · otra fecha
           </span>
@@ -105,38 +114,11 @@ export default function LeonOrderPreferencesForm({
           </small>
         </label>
 
-        <label className="block min-w-0 max-w-full overflow-hidden">
-          <span className="checkout-step-heading leon-time-heading">
-            ¿A qué hora? · horario preferido
-          </span>
-          <select
-            data-leon-preferred-time
-            aria-invalid={Boolean(errors?.time)}
-            aria-describedby={errors?.time ? "leon-time-error" : undefined}
-            value={value.preferredTime}
-            onInput={(event) =>
-              update({ preferredTime: (event.currentTarget as HTMLSelectElement).value })
-            }
-            onChange={(event) => update({ preferredTime: event.currentTarget.value })}
-            className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
-          >
-            <option value="">Selecciona un horario</option>
-            {LEON_TIME_OPTIONS.map((time) => (
-              <option key={time} value={time}>
-                {prettyTime(time)}
-              </option>
-            ))}
-          </select>
-          {errors?.time && <small id="leon-time-error" className="checkout-field-error">{errors.time}</small>}
-          <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
-            Es una preferencia; todavía no queda reservado.
-          </small>
-        </label>
       </div>
 
       <div className="mt-4 grid gap-3">
         <label className="block"><span className="checkout-step-heading">¿Cómo lo recibes?</span>
-          <select aria-label="Forma de entrega en León" value={value.deliveryMethod || "pending_whatsapp"} onChange={event => update({ deliveryMethod: event.target.value as LeonOrderPreferences["deliveryMethod"], deliveryPoint: "", deliveryAddress: "" })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
+          <select aria-label="Forma de entrega en León" value={value.deliveryMethod || "pending_whatsapp"} onChange={event => chooseMethod(event.target.value as LeonOrderPreferences["deliveryMethod"])} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
             <option value="pending_whatsapp">Lo coordinaré por WhatsApp</option>
             <option value="pickup_point">Punto medio</option>
             <option value="home_delivery">A domicilio por Uber · costo adicional</option>
@@ -153,6 +135,41 @@ export default function LeonOrderPreferencesForm({
           {errors?.address && <small id="leon-address-error" className="checkout-field-error">{errors.address}</small>}
           <small className="mt-2 block">El costo de Uber no está incluido en los productos; te lo confirmamos por WhatsApp.</small>
         </label>}
+
+        {isPickupPoint ? (
+          <div className="leon-fixed-time">
+            <span className="checkout-step-heading leon-time-heading">¿A qué hora?</span>
+            <p><strong>{formatLeonTime(LEON_PICKUP_POINT_TIME)}</strong> · horario de entregas en punto medio</p>
+          </div>
+        ) : (
+        <label className="block min-w-0 max-w-full overflow-hidden">
+          <span className="checkout-step-heading leon-time-heading">
+            ¿A qué hora?
+          </span>
+          <select
+            data-leon-preferred-time
+            aria-invalid={Boolean(errors?.time)}
+            aria-describedby={errors?.time ? "leon-time-error" : undefined}
+            value={value.preferredTime}
+            onInput={(event) =>
+              update({ preferredTime: (event.currentTarget as HTMLSelectElement).value })
+            }
+            onChange={(event) => update({ preferredTime: event.currentTarget.value })}
+            className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
+          >
+            <option value="">Selecciona un horario</option>
+            {LEON_TIME_OPTIONS.map((time) => (
+              <option key={time} value={time}>
+                {formatLeonTime(time)}
+              </option>
+            ))}
+          </select>
+          {errors?.time && <small id="leon-time-error" className="checkout-field-error">{errors.time}</small>}
+          <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
+            Es una preferencia; todavía no queda reservado.
+          </small>
+        </label>
+        )}
       </div>
 
       <div className="mt-3 flex min-w-0 max-w-full items-start gap-2 overflow-hidden rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">

@@ -24,3 +24,11 @@ test('checkout and SPEI buyer notes retain the selected delivery preference and 
  assert.equal(JSON.parse(home.split('GUAURRITAS_PREFS:')[1]).a,'Dirección de prueba');
  assert.ok(home.length<=1000);assert.match(home,/Uber se cotiza aparte/);
 });
+test('León dates and times read naturally; punto medio uses the 6:00–9:30 p. m. window',()=>{
+ const norm=s=>s.replace(/\s/g,' ');
+ assert.equal(api.formatLeonDate('2026-11-10'),'Mar 10 nov');
+ assert.match(norm(api.formatLeonTime('13:00')),/^1:00 p\. ?m\.$/);
+ assert.equal(api.LEON_PICKUP_POINT_TIME,'18:00-21:30');
+ assert.match(norm(api.formatLeonTime(api.LEON_PICKUP_POINT_TIME)),/^6:00 – 9:30 p\. ?m\.$/);
+ assert.equal(api.isLeonOrderPreferencesComplete({...base,deliveryMethod:'pickup_point',deliveryPoint:'Plaza Mayor',preferredTime:api.LEON_PICKUP_POINT_TIME}),true);
+});

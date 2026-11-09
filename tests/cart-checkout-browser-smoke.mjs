@@ -57,6 +57,8 @@ const expectText = async (locator, pattern) => assert.match(await locator.innerT
 const isFocusedAfterPaint = locator => locator.evaluate(el => new Promise(resolve =>
   requestAnimationFrame(() => requestAnimationFrame(() => resolve(document.activeElement === el)))));
 const prefs = async panel => {
+  const otherDate = panel.getByRole('button', { name: 'Otra fecha', exact: true });
+  if (await otherDate.count()) await otherDate.click();
   await panel.locator('[data-leon-delivery-date]').fill('2030-12-02');
   await panel.locator('[data-leon-preferred-time]').selectOption('13:00');
 };
@@ -71,6 +73,8 @@ try {
       await expectText(panel.locator('.taskbar-cart-quantity'), /3/);
       await panel.getByRole('button', { name: 'Quitar una unidad de Pedido de prueba' }).click();
       await panel.getByRole('button', { name: 'Continuar pedido', exact: true }).click();
+      await expectText(panel.locator('details > summary'), /2 productos/);
+      await panel.locator('details > summary').click();
       await expectText(panel.locator('details'), /2 × Pedido de prueba/);
       await expectText(panel.locator('details'), /Chico · Pollo · Betún/);
       await expectText(panel.locator('details'), /Personalización: Luna/);
@@ -84,7 +88,8 @@ try {
       assert.equal(await panel.getByRole('button', { name: 'Continuar con transferencia' }).count(), 0);
       await prefs(panel);
       await toPayment(panel);
-      await panel.getByRole('checkbox').check();
+      assert.equal(await panel.getByRole('checkbox').count(), 0, 'León ya se eligió en la tienda');
+      await expectText(panel.locator('.checkout-delivery-recap'), /Lun 2 dic · 1:00\sp\.\s?m\./);
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
       await expectText(panel.getByRole('region', { name: 'Revisa antes de pagar' }), /Por confirmar por WhatsApp/);
       await panel.getByRole('button', { name: 'Continuar con transferencia' }).click();
@@ -104,13 +109,14 @@ try {
       await panel.getByRole('button', { name: /Tarjeta \/ pago en línea/ }).click();
       const review = panel.getByRole('region', { name: 'Revisa antes de pagar' });
       await expectText(review, /Parque Cárcamos/);
-      await expectText(review, /2030-12-02 · 13:00/);
+      await expectText(review, /Lun 2 dic · 6:00 – 9:30\sp\.\s?m\./);
       await expectText(review, /\$425.00/);
       await toDelivery(panel);
       await panel.getByRole('combobox', { name: 'Forma de entrega en León' }).selectOption('home_delivery');
       assert.equal(await review.count(), 0, 'delivery edits reset chosen payment');
       await toPayment(panel);
       await expectText(panel.locator('#leon-address-error'), /dirección/);
+      await panel.locator('[data-leon-preferred-time]').selectOption('13:00');
       await panel.getByRole('textbox', { name: 'Dirección para cotizar Uber' }).fill('Calle Prueba 123, León');
       await toPayment(panel);
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
@@ -139,6 +145,7 @@ try {
         await expectText(panel, /Abre esta tienda desde guaurritas.com/);
       }
       await toDelivery(panel);
+      await panel.locator('details.cart-order-review > summary').click();
       await panel.getByRole('button', { name: /Editar cantidades o quitar productos/ }).click();
       await panel.getByRole('button', { name: 'Continuar pedido', exact: true }).click();
       assert.equal(await panel.locator('[data-leon-delivery-date]').inputValue(), '2030-12-02');
@@ -146,6 +153,7 @@ try {
       const bounds = await panel.evaluate(el => ({ width: el.clientWidth, scroll: el.scrollWidth, left: el.getBoundingClientRect().left, right: el.getBoundingClientRect().right, viewport: innerWidth }));
       assert.ok(bounds.scroll <= bounds.width + 1 && bounds.left >= -1 && bounds.right <= bounds.viewport + 1, JSON.stringify(bounds));
       if (width < 640) assert.ok(await panel.locator('[data-leon-delivery-date]').evaluate(el => el.getBoundingClientRect().height >= 48));
+      await panel.locator('details.cart-order-review > summary').click();
       await panel.getByRole('button', { name: /Editar cantidades o quitar productos/ }).click();
       await page.reload();
       const reopened = embed ? page.frameLocator('#os') : page;

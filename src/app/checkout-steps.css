@@ -163,3 +163,15 @@
     overflow: visible !important; min-height: 0 !important;
   }
 }
+
+/* Pulido: entrega más corta, fecha legible y sin casilla de León. */
+.checkout-delivery-recap > span { display: grid; gap: 2px; text-align: left; }
+.checkout-delivery-recap strong { font-weight: 700; color: #263650; }
+.checkout-delivery-recap small { color: #5b6b80; font-size: 12px; }
+.checkout-step-view .cart-order-review > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cart-order-review-toggle { color: #425b8c; font-size: 13px; text-decoration: underline; }
+.cart-order-review[open] .cart-order-review-toggle { visibility: hidden; }
+.leon-other-date-toggle { justify-self: start; min-height: 0 !important; padding: 2px 0 !important; border: 0 !important; box-shadow: none !important; background: none !important; color: #425b8c; font-size: 14px; text-decoration: underline; cursor: pointer; }
+.leon-date-other[hidden] { display: none !important; }
+.leon-fixed-time p { margin: 6px 0 0; padding: 10px 12px; border: 1px solid #cbd5e8; border-radius: 8px; background: #fbfcff; color: #263650; font-size: 14px; }
+.checkout-leon-info { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; color: #5b6b80; font-size: 13px; }
