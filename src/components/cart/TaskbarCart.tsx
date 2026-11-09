@@ -25,10 +25,23 @@ import {
 import {
   EMPTY_LEON_ORDER_PREFERENCES,
   deliveryMethodLabel,
+  formatLeonDate,
+  formatLeonTime,
   isLeonOrderPreferencesComplete,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
 import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
+
+// Segunda línea del resumen de entrega en el paso Pago.
+function leonDeliveryRecap(preferences: LeonOrderPreferences) {
+  if (preferences.deliveryMethod === "pickup_point") {
+    return `Punto medio${preferences.deliveryPoint ? ` · ${preferences.deliveryPoint}` : ""} · lo confirmamos por WhatsApp`;
+  }
+  if (preferences.deliveryMethod === "home_delivery" || preferences.deliveryMethod === "uber_eats") {
+    return "A domicilio por Uber · costo adicional que te confirmamos por WhatsApp";
+  }
+  return "Entrega en León · coordinamos el punto por WhatsApp";
+}
 import LeonOrderPreferencesForm from "@/components/cart/LeonOrderPreferences";
 import { OPEN_SYSTEM_CART_EVENT } from "@/lib/cart-events";
 
@@ -66,7 +79,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [leonPaymentMethod, setLeonPaymentMethod] =
     useState<LeonPaymentMethod | null>(null);
-  const [leonFulfillmentConfirmed, setLeonFulfillmentConfirmed] = useState(false);
   const [showLeonErrors, setShowLeonErrors] = useState(false);
   const [leonOrderPreferences, setLeonOrderPreferences] =
     useState<LeonOrderPreferences>({ ...EMPTY_LEON_ORDER_PREFERENCES });
@@ -82,7 +94,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     setView("cart");
     setLeonStep("delivery");
     setCheckoutStatus("");
-    setLeonFulfillmentConfirmed(false);
   }, []);
 
   if (view === "leon-checkout" && !cart.items.some((item) => item.fulfillment === "leon")) {
@@ -335,16 +346,6 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     const focusInvalidControl = () => requestAnimationFrame(() => {
       panelRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
     });
-    if (!leonFulfillmentConfirmed) {
-      setLeonPaymentMethod(null);
-      setResolvedPaymentPreferences(null);
-      setCheckoutStatus(
-        "Confirma que este pedido se entregará o recogerá en León, Gto. Para otra ciudad usa Envío nacional.",
-      );
-      focusInvalidControl();
-      return;
-    }
-
     const resolved = readLeonPreferencesFromControls();
 
     if (!isLeonOrderPreferencesComplete(resolved)) {
@@ -749,8 +750,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 <>
                   <p className="taskbar-checkout-guidance">Revisa tus productos, elige la entrega y después la forma de pago.</p>
 
-                  <details className="cart-order-review" open>
-                    <summary>Tu pedido · {itemUnits(leonItems)} {itemUnits(leonItems) === 1 ? "producto" : "productos"}</summary>
+                  <details className="cart-order-review">
+                    <summary>{itemUnits(leonItems)} {itemUnits(leonItems) === 1 ? "producto" : "productos"} · {money(leonTransferTotal)} <span className="cart-order-review-toggle">Ver</span></summary>
                     <ul>
                       {leonItems.map(item => <li key={item.id}>
                         <strong>{item.quantity} × {item.name}</strong>
@@ -771,8 +772,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 <>
                   <button type="button" className="checkout-delivery-recap" onClick={backToLeonDelivery}>
                     <span>
-                      <SystemIcon name="pin" /> {deliveryMethodLabel(leonOrderPreferences.deliveryMethod)}
-                      {" · "}{leonOrderPreferences.deliveryDate} · {leonOrderPreferences.preferredTime}
+                      <strong><SystemIcon name="pin" /> {formatLeonDate(leonOrderPreferences.deliveryDate)} · {formatLeonTime(leonOrderPreferences.preferredTime)}</strong>
+                      <small>{leonDeliveryRecap(leonOrderPreferences)}</small>
                     </span>
                     <u>Editar entrega</u>
                   </button>
@@ -809,25 +810,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       </button>
                     </div>
 
-                    <label className="checkout-leon-confirm">
-                      <input
-                        type="checkbox"
-                        aria-invalid={showLeonErrors && !leonFulfillmentConfirmed}
-                        aria-describedby={showLeonErrors && !leonFulfillmentConfirmed ? "leon-location-error" : undefined}
-                        checked={leonFulfillmentConfirmed}
-                        onChange={(event) => {
-                          setLeonFulfillmentConfirmed(event.target.checked);
-                          setLeonPaymentMethod(null);
-                          setResolvedPaymentPreferences(null);
-                          setCheckoutStatus("");
-                        }}
-                      />
-                      <span>
-                        Confirmo que lo recibo o recojo en <strong>León, Gto.</strong>
-                        <small>¿Otra ciudad? Usa Envío nacional.</small>
-                      </span>
-                    </label>
-                    {showLeonErrors && !leonFulfillmentConfirmed && <p id="leon-location-error" className="checkout-field-error">Confirma que recibirás el pedido en León, Gto.</p>}
+                    <p className="checkout-leon-info"><SystemIcon name="pin" /> Entrega en León, Gto. · ¿Otra ciudad? Usa Envío nacional.</p>
 
                     <p className="checkout-pay-note">
                       <SystemIcon name="chat" /> Elegir la forma de pago todavía no realiza el cobro. Pago completo; fecha y horario se confirman por WhatsApp.
@@ -840,7 +823,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                           <div><dt>Entrega solicitada</dt><dd>{deliveryMethodLabel(resolvedPaymentPreferences.deliveryMethod)}</dd></div>
                           {resolvedPaymentPreferences.deliveryMethod === "pickup_point" && <div><dt>Punto medio</dt><dd>{resolvedPaymentPreferences.deliveryPoint}</dd></div>}
                           {["home_delivery", "uber_eats"].includes(resolvedPaymentPreferences.deliveryMethod) && <div><dt>Dirección</dt><dd>{resolvedPaymentPreferences.deliveryAddress}</dd></div>}
-                          <div><dt>Fecha y horario solicitados</dt><dd>{resolvedPaymentPreferences.deliveryDate} · {resolvedPaymentPreferences.preferredTime}</dd></div>
+                          <div><dt>Fecha y horario solicitados</dt><dd>{formatLeonDate(resolvedPaymentPreferences.deliveryDate)} · {formatLeonTime(resolvedPaymentPreferences.preferredTime)}</dd></div>
                           <div><dt>Productos · {leonPaymentMethod === "online" ? "tarjeta con procesamiento" : "SPEI"}</dt><dd>{money(leonPaymentMethod === "online" ? leonOnlineTotal : leonTransferTotal)}</dd></div>
                         </dl>
                         <p>Disponibilidad pendiente de confirmar por WhatsApp. Si eliges Uber, su costo se cotiza aparte.</p>
@@ -893,7 +876,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                 <dl>
                   <div><dt>Productos</dt><dd>{itemUnits(leonItems)}</dd></div>
                   <div><dt>Entrega</dt><dd>León, Gto.</dd></div>
-                  <div><dt>Día y hora</dt><dd>{leonOrderPreferences.deliveryDate && leonOrderPreferences.preferredTime ? `${leonOrderPreferences.deliveryDate} · ${leonOrderPreferences.preferredTime}` : "Por elegir"}</dd></div>
+                  <div><dt>Día y hora</dt><dd>{leonOrderPreferences.deliveryDate && leonOrderPreferences.preferredTime ? `${formatLeonDate(leonOrderPreferences.deliveryDate)} · ${formatLeonTime(leonOrderPreferences.preferredTime)}` : "Por elegir"}</dd></div>
                 </dl>
                 <p className="checkout-summary-total">
                   <span>{leonStep === "payment" && leonPaymentMethod === "online" ? "Total con tarjeta" : "Total con SPEI"}</span>

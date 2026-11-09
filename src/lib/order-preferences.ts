@@ -38,6 +38,40 @@ export const LEON_TIME_OPTIONS = [
   "20:00",
 ] as const;
 
+/** Las entregas en punto medio son por la tarde-noche, en esta ventana fija. */
+export const LEON_PICKUP_POINT_TIME = "18:00-21:30";
+
+function formatClock(value: string) {
+  const [hour, minute] = value.split(":").map(Number);
+  if (!Number.isFinite(hour)) return value;
+  const date = new Date(Date.UTC(2000, 0, 1, hour, minute || 0));
+  return new Intl.DateTimeFormat("es-MX", { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(date);
+}
+
+/** "13:00" → "1:00 p.m." · "18:00-21:30" → "6:00 – 9:30 p.m." */
+export function formatLeonTime(value: string) {
+  const normalized = String(value || "").trim();
+  if (!normalized) return "";
+  const [start, end] = normalized.split("-");
+  if (!end) return formatClock(start);
+  const from = formatClock(start);
+  const to = formatClock(end);
+  const suffix = /\s*(a|p)\.?\s*m\.?$/i;
+  const sameHalf = from.match(suffix)?.[0] && from.match(suffix)?.[0] === to.match(suffix)?.[0];
+  return `${sameHalf ? from.replace(suffix, "") : from} – ${to}`;
+}
+
+/** "2026-11-10" → "Mar 10 nov" */
+export function formatLeonDate(dateKey: string) {
+  const normalized = String(dateKey || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) return normalized;
+  const date = new Date(`${normalized}T12:00:00-06:00`);
+  const part = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("es-MX", { ...options, timeZone: "America/Mexico_City" }).format(date).replace(".", "");
+  const weekday = part({ weekday: "short" });
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${part({ day: "numeric" })} ${part({ month: "short" })}`;
+}
+
 export const EMPTY_LEON_ORDER_PREFERENCES: LeonOrderPreferences = {
   deliveryDate: "",
   preferredTime: "",
