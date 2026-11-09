@@ -28,6 +28,7 @@ import {
   formatLeonDate,
   formatLeonTime,
   isLeonOrderPreferencesComplete,
+  leonDeliveryWindow,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
 import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
@@ -35,12 +36,12 @@ import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
 // Segunda línea del resumen de entrega en el paso Pago.
 function leonDeliveryRecap(preferences: LeonOrderPreferences) {
   if (preferences.deliveryMethod === "pickup_point") {
-    return `Punto medio${preferences.deliveryPoint ? ` · ${preferences.deliveryPoint}` : ""} · lo confirmamos por WhatsApp`;
+    return `Punto medio${preferences.deliveryPoint ? ` · ${preferences.deliveryPoint}` : ""}`;
   }
   if (preferences.deliveryMethod === "home_delivery" || preferences.deliveryMethod === "uber_eats") {
-    return "A domicilio por Uber · costo adicional que te confirmamos por WhatsApp";
+    return "A domicilio por Uber · costo del viaje aparte";
   }
-  return "Entrega en León · coordinamos el punto por WhatsApp";
+  return "Lo platicamos por WhatsApp";
 }
 import LeonOrderPreferencesForm from "@/components/cart/LeonOrderPreferences";
 import { OPEN_SYSTEM_CART_EVENT } from "@/lib/cart-events";
@@ -329,14 +330,14 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const readLeonPreferencesFromControls = () => {
     const dateControl =
       panelRef.current?.querySelector<HTMLInputElement>("[data-leon-delivery-date]");
-    const timeControl =
-      panelRef.current?.querySelector<HTMLSelectElement>("[data-leon-preferred-time]");
 
     const next: LeonOrderPreferences = {
       ...leonOrderPreferences,
       deliveryDate: String(dateControl?.value || leonOrderPreferences.deliveryDate || "").trim(),
-      preferredTime: String(timeControl?.value || leonOrderPreferences.preferredTime || "").trim(),
+      preferredTime: "",
     };
+    // El horario lo define el día elegido (entre semana o fin de semana).
+    next.preferredTime = leonDeliveryWindow(next.deliveryDate);
 
     return next;
   };
@@ -528,7 +529,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <div><dt>Transferencia SPEI</dt><dd>{money(leonTransferTotal)}</dd></div>
                       <div><dt>Tarjeta · incluye procesamiento</dt><dd>{money(leonOnlineTotal)}</dd></div>
                     </dl>
-                    <p className="cart-payment-explanation">En el siguiente paso eliges fecha, horario y entrega.</p>
+                    <p className="cart-payment-explanation">En el siguiente paso eliges el día y cómo lo recibes.</p>
                     <div className="cart-leon-cta">
                       <p className="cart-leon-total"><span>Total con SPEI</span><strong>{money(leonTransferTotal)}</strong></p>
                       <ShoppingButton
@@ -813,7 +814,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     <p className="checkout-leon-info"><SystemIcon name="pin" /> Entrega en León, Gto. · ¿Otra ciudad? Usa Envío nacional.</p>
 
                     <p className="checkout-pay-note">
-                      <SystemIcon name="chat" /> Elegir la forma de pago todavía no realiza el cobro. Pago completo; fecha y horario se confirman por WhatsApp.
+                      <SystemIcon name="chat" /> Elegir la forma de pago todavía no realiza el cobro.
                     </p>
 
                     {leonPaymentMethod && resolvedPaymentPreferences && (

@@ -38,8 +38,19 @@ export const LEON_TIME_OPTIONS = [
   "20:00",
 ] as const;
 
-/** Las entregas en punto medio son por la tarde-noche, en esta ventana fija. */
-export const LEON_PICKUP_POINT_TIME = "18:00-21:30";
+/** Horario de entrega en León (todas las formas de entrega). */
+export const LEON_WEEKDAY_WINDOW = "18:00-21:30";
+export const LEON_WEEKEND_WINDOW = "13:00-20:00";
+/** @deprecated Usa leonDeliveryWindow(fecha). */
+export const LEON_PICKUP_POINT_TIME = LEON_WEEKDAY_WINDOW;
+
+/** Lunes a viernes 6:00–9:30 p. m.; sábado y domingo 1:00–8:00 p. m. */
+export function leonDeliveryWindow(dateKey: string) {
+  const normalized = String(dateKey || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) return "";
+  const day = new Date(`${normalized}T12:00:00-06:00`).getUTCDay();
+  return day === 0 || day === 6 ? LEON_WEEKEND_WINDOW : LEON_WEEKDAY_WINDOW;
+}
 
 function formatClock(value: string) {
   const [hour, minute] = value.split(":").map(Number);
@@ -107,10 +118,8 @@ export function minimumLeonDeliveryDate(now = new Date()) {
   const today = dateFromKey(mexicoDateKey(now));
   const candidate = new Date(today.getTime());
 
-  do {
-    candidate.setUTCDate(candidate.getUTCDate() + 1);
-  } while (candidate.getUTCDay() === 0 || candidate.getUTCDay() === 6);
-
+  // Un día de anticipación; también se entrega sábado y domingo.
+  candidate.setUTCDate(candidate.getUTCDate() + 1);
   return keyFromDate(candidate);
 }
 

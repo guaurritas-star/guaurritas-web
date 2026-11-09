@@ -32,3 +32,12 @@ test('León dates and times read naturally; punto medio uses the 6:00–9:30 p. 
  assert.match(norm(api.formatLeonTime(api.LEON_PICKUP_POINT_TIME)),/^6:00 – 9:30 p\. ?m\.$/);
  assert.equal(api.isLeonOrderPreferencesComplete({...base,deliveryMethod:'pickup_point',deliveryPoint:'Plaza Mayor',preferredTime:api.LEON_PICKUP_POINT_TIME}),true);
 });
+test('León delivers every day with one day of notice; the window depends on the day',()=>{
+ assert.equal(api.minimumLeonDeliveryDate(new Date('2026-11-13T18:00:00Z')),'2026-11-14');
+ assert.equal(api.isLeonDeliveryDateAllowed('2026-11-14',new Date('2026-11-13T18:00:00Z')),true);
+ assert.equal(api.isLeonDeliveryDateAllowed('2026-11-13',new Date('2026-11-13T18:00:00Z')),false);
+ assert.equal(api.leonDeliveryWindow('2026-11-13'),'18:00-21:30');
+ assert.equal(api.leonDeliveryWindow('2026-11-14'),'13:00-20:00');
+ assert.equal(api.leonDeliveryWindow('2026-11-15'),'13:00-20:00');
+ assert.match(api.formatLeonTime('13:00-20:00').replace(/\s/g,' '),/^1:00 – 8:00 p\. ?m\.$/);
+});
