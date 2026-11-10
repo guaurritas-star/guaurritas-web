@@ -1,5 +1,6 @@
 "use client";
 
+import { buildSearchPlan, matchesSearch as matchesSearchPlan, SEARCH_SUGGESTIONS } from "@/lib/store-search";
 import { halloweenRate, halloweenPrice } from "@/lib/seasonal-promotions";
 import ProductPrice from "@/components/ui/ProductPrice";
 import SystemIcon from "@/components/ui/SystemIcon";
@@ -510,13 +511,13 @@ const products: CuisineProduct[] = [
         label: "Chico · betún",
         price: 150,
         image: "/cuisine/products/petcakes-sizes-v2/chico.webp",
-        imageAlt: "Petcake chico personalizado para michi",
+        imageAlt: "Petcake chico personalizado de ejemplo",
       },
       {
         label: "Chico · fondant",
         price: 250,
         image: "/cuisine/products/petcakes-sizes-v2/chico.webp",
-        imageAlt: "Petcake chico personalizado para michi",
+        imageAlt: "Petcake chico personalizado de ejemplo",
       },
       {
         label: "Mediano · betún",
@@ -1003,8 +1004,8 @@ export default function CuisineStoreApp({
     return () => window.cancelAnimationFrame(frame);
   }, [selectedProduct]);
 
+  const searchPlan = useMemo(() => buildSearchPlan(query), [query]);
   const visibleProducts = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase("es");
 
     return products.filter((product) => {
       const matchesFulfillment =
@@ -1016,16 +1017,15 @@ export default function CuisineStoreApp({
             ].includes(product.id);
       const matchesCategory =
         category === "all" || product.category === category;
-      const matchesSearch =
-        !normalizedQuery ||
-        `${product.name} ${product.eyebrow} ${product.description}`
-          .concat(` ${product.detail}`)
-          .toLocaleLowerCase("es")
-          .includes(normalizedQuery);
+      // Sin acentos y con sinónimos: "gato" encuentra michi, "pastel" encuentra Petcakes.
+      const matchesSearch = matchesSearchPlan(
+        searchPlan,
+        `${product.name} ${product.eyebrow} ${product.description} ${product.detail}`,
+      );
 
       return matchesFulfillment && matchesCategory && matchesSearch;
     });
-  }, [category, query, fulfillmentMode]);
+  }, [category, searchPlan, fulfillmentMode]);
 
   const openProduct = (product: CuisineProduct) => {
     setSelectedProduct(product);
@@ -3235,7 +3235,7 @@ export default function CuisineStoreApp({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar productos..."
+              placeholder="Buscar: michi, cumpleaños, premios…"
               aria-label="Buscar en el menú"
             />
             {query.length > 0 && (
@@ -3258,7 +3258,12 @@ export default function CuisineStoreApp({
           </div>
         </div>
         <div className="cuisine-catalog-results" role="status" aria-live="polite">
-          <span>{visibleProducts.length} {visibleProducts.length === 1 ? "producto" : "productos"}</span>
+          <span>
+            {visibleProducts.length} {visibleProducts.length === 1 ? "producto" : "productos"}
+            {query.trim() && visibleProducts.length > 0 && searchPlan.synonymLabels.length > 0 && (
+              <span className="cuisine-search-hint"> · incluye {searchPlan.synonymLabels.join(" y ")}</span>
+            )}
+          </span>
           {(query || category !== "all") && (
             <button
               type="button"
@@ -3269,6 +3274,7 @@ export default function CuisineStoreApp({
             </button>
           )}
         </div>
+
 
         <div className="boutique-product-grid cuisine-catalog-grid mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((product) => (
@@ -3341,8 +3347,17 @@ export default function CuisineStoreApp({
               No encontramos ese producto
             </p>
             <p className="mt-2 font-interface text-xs text-[#718093]">
-              Prueba otra búsqueda o vuelve a ver todo el menú.
+              {query.trim() ? `No hay resultados para “${query.trim()}”. Prueba con:` : "Prueba otra búsqueda o vuelve a ver todo el menú."}
             </p>
+            {query.trim() && (
+              <div className="cuisine-search-suggestions">
+                {SEARCH_SUGGESTIONS.map((word) => (
+                  <button key={word} type="button" onClick={() => { setQuery(word); setCategory("all"); }}>
+                    {word}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

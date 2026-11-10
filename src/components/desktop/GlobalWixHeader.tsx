@@ -150,6 +150,24 @@ function WixMemberAccess({
     };
   }, [menuOpen, onMenuChange]);
 
+  // Wix no avisa si el cliente cierra la ventana de acceso sin entrar: al
+  // volver a tocar la página (o a los 6 s) el botón deja de decir "Abriendo…".
+  useEffect(() => {
+    if (!authBusy) return;
+    const release = () => setAuthBusy(false);
+    const timer = window.setTimeout(release, 6000);
+    const armTimer = window.setTimeout(() => {
+      document.addEventListener("pointerdown", release, { once: true });
+      window.addEventListener("focus", release, { once: true });
+    }, 400);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(armTimer);
+      document.removeEventListener("pointerdown", release);
+      window.removeEventListener("focus", release);
+    };
+  }, [authBusy]);
+
   const requestAuth = (type: string) => {
     if (authBusy) return;
     setAuthBusy(true);

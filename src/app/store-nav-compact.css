@@ -117,3 +117,20 @@
 @media (max-width: 639px) {
   .store-app .cuisine-catalog-ux .cuisine-catalog-intro h2 { font-size: 20px; }
 }
+
+/* Buscador: pista de sinónimos y sugerencias cuando no hay resultados. */
+.cuisine-search-hint { color: #637aa6; font-weight: 400; }
+.cuisine-search-suggestions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+.cuisine-search-suggestions button { min-height: 38px !important; padding: 0 14px !important; border: 1px solid #c2cdd3 !important; border-radius: 999px !important; background: #fff !important; box-shadow: none !important; color: #425b8c !important; font-size: 14px !important; font-weight: 700; cursor: pointer; }
+.cuisine-search-suggestions button:hover { border-color: #425b8c !important; }
+.cuisine-catalog-search input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+
+/* Aviso al cambiar a envío nacional (en línea, bajo el selector de zona). */
+.store-zone-notice { width: 100%; max-width: 520px; margin: 10px 0 2px; padding: 16px; border: 1px solid #c9cfdc; border-radius: 16px; background: #fff; color: #263650; box-shadow: 0 6px 18px rgba(38, 54, 80, 0.12); }
+.store-zone-notice h2 { margin: 0 0 10px; font-family: var(--font-cinzel), serif; font-size: 18px; font-weight: 700; }
+.store-zone-notice ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.4; color: #3b4a62; }
+.store-zone-notice li { display: flex; gap: 8px; align-items: flex-start; }
+.store-zone-notice-actions { display: grid; gap: 6px; margin-top: 14px; }
+.shopping-navigation .store-zone-notice .store-zone-primary { min-height: 46px !important; padding: 0 18px !important; border: 0 !important; border-radius: 8px !important; background: #425b8c !important; box-shadow: none !important; color: #fff !important; font-size: 15px !important; font-weight: 700; cursor: pointer; }
+.shopping-navigation .store-zone-notice .store-zone-secondary { min-height: 40px !important; border: 0 !important; background: none !important; box-shadow: none !important; color: #425b8c !important; font-size: 14px !important; text-decoration: underline; cursor: pointer; }
+@media (min-width: 640px) { .store-zone-notice-actions { grid-template-columns: auto auto; justify-content: start; gap: 12px; } }

@@ -5,7 +5,7 @@ import { ShoppingButton } from "@/components/ui/ShoppingControls";
 import { useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import SystemIcon from "@/components/ui/SystemIcon";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CuisineStoreApp from "@/components/apps/CuisineStoreApp";
 import NationalCuisineStoreApp from "@/components/apps/NationalCuisineStoreApp";
 import CoutureStoreApp from "@/components/apps/CoutureStoreApp";
@@ -44,7 +44,14 @@ export default function StoreApp({
     setFulfillmentMode(mode);
   }, [mode]);
 
-  const chooseMode = (next: FulfillmentMode) => {
+  const [nationalNoticeOpen, setNationalNoticeOpen] = useState(false);
+  const nationalNoticeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (nationalNoticeOpen) nationalNoticeRef.current?.focus();
+  }, [nationalNoticeOpen]);
+
+  const applyMode = (next: FulfillmentMode) => {
     setFulfillmentMode(next);
     setMode(next);
     onFulfillmentChange?.(next);
@@ -52,6 +59,17 @@ export default function StoreApp({
     const url = new URL(window.location.href);
     url.searchParams.set("fulfillment", next);
     window.history.replaceState(window.history.state, "", url);
+  };
+
+  // De León a Todo México cambian productos y precios: se avisa antes.
+  const chooseMode = (next: FulfillmentMode) => {
+    if (next === mode) return;
+    if (next === "national") {
+      setNationalNoticeOpen(true);
+      return;
+    }
+    setNationalNoticeOpen(false);
+    applyMode(next);
   };
 
   const cartButton = (
@@ -104,6 +122,24 @@ export default function StoreApp({
               </fieldset>
               {cartButton}
             </div>
+            {nationalNoticeOpen && (
+              <section className="store-zone-notice" role="alertdialog" aria-labelledby="store-zone-notice-title" onKeyDown={event => { if (event.key === "Escape") setNationalNoticeOpen(false); }}>
+                <h2 id="store-zone-notice-title">¿Cambiar a envío nacional?</h2>
+                <ul>
+                  <li><SystemIcon name="paw" /> No incluye repostería fresca: Petcakes, cupcakes ni antojería.</li>
+                  <li><SystemIcon name="box" /> Los precios cambian respecto a León.</li>
+                  <li><SystemIcon name="truck" /> Pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}.</li>
+                </ul>
+                <div className="store-zone-notice-actions">
+                  <button ref={nationalNoticeRef} type="button" className="store-zone-primary" onClick={() => { setNationalNoticeOpen(false); applyMode("national"); }}>
+                    Ver catálogo nacional
+                  </button>
+                  <button type="button" className="store-zone-secondary" onClick={() => setNationalNoticeOpen(false)}>
+                    Seguir en León
+                  </button>
+                </div>
+              </section>
+            )}
             <div role="group" aria-label="Catálogo de la tienda" className="shopping-catalog-tabs">
               {([["cuisine", "Cuisine", "Premios y repostería"], ["couture", "Couture", "Bandanas y accesorios"]] as const).map(([id, label, detail]) => (
                 <ShoppingButton key={id} aria-pressed={category === id} onClick={() => setCategory(id)}>
