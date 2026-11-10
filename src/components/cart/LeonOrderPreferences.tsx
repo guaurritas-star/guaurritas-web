@@ -7,7 +7,7 @@ import {
   LEON_PICKUP_POINTS,
   formatLeonDate,
   formatLeonTime,
-  leonDeliveryWindow,
+  leonTimeSlots,
   minimumLeonDeliveryDate,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
@@ -63,10 +63,12 @@ export default function LeonOrderPreferencesForm({
     () => Boolean(value.deliveryDate) && !quickDays.includes(value.deliveryDate),
   );
   const method = value.deliveryMethod || "pending_whatsapp";
-  const slot = leonDeliveryWindow(value.deliveryDate);
+  const slots = leonTimeSlots(value.deliveryDate);
 
   // El horario se deriva del día: no hay que elegir hora.
-  const chooseDate = (deliveryDate: string) => onChange({ deliveryDate, preferredTime: leonDeliveryWindow(deliveryDate) });
+  // Al cambiar de día se conserva la hora solo si existe ese día.
+  const chooseDate = (deliveryDate: string) =>
+    onChange({ deliveryDate, preferredTime: leonTimeSlots(deliveryDate).includes(value.preferredTime) ? value.preferredTime : "" });
   const chooseMethod = (next: LeonOrderPreferences["deliveryMethod"]) =>
     onChange({ deliveryMethod: next, deliveryPoint: "", deliveryAddress: "" });
 
@@ -78,7 +80,8 @@ export default function LeonOrderPreferencesForm({
           <div className="leon-day-chips" role="group" aria-label="Próximos días disponibles">
             {quickDays.map((key) => {
               const label = dayLabel(key);
-              const dayWindow = leonDeliveryWindow(key);
+              const daySlots = leonTimeSlots(key);
+              const dayWindow = `${daySlots[0]}-${daySlots[daySlots.length - 1]}`;
               return (
                 <button
                   key={key}
@@ -119,10 +122,30 @@ export default function LeonOrderPreferencesForm({
             Mínimo 1 día de anticipación.
           </small>
         </label>
-        {slot && (
-          <p className="leon-window" data-leon-window>
-            <SystemIcon name="pin" /> {formatLeonDate(value.deliveryDate)} · <strong>{formatLeonTime(slot)}</strong>
-          </p>
+        {slots.length > 0 && (
+          <div className="leon-time-picker">
+            <h3 className="checkout-step-heading">¿A qué hora? <small>{formatLeonDate(value.deliveryDate)} · p.m.</small></h3>
+            <div
+              className="leon-time-chips"
+              role="group"
+              aria-label="Horas disponibles"
+              data-invalid={errors?.time ? "true" : undefined}
+              aria-describedby={errors?.time ? "leon-time-error" : undefined}
+            >
+              {slots.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  aria-pressed={value.preferredTime === time}
+                  aria-label={formatLeonTime(time)}
+                  onClick={() => onChange({ preferredTime: time })}
+                >
+                  {formatLeonTime(time).replace(/\s*p\.\s*m\.$/i, "")}
+                </button>
+              ))}
+            </div>
+            {errors?.time && <small id="leon-time-error" className="checkout-field-error">{errors.time}</small>}
+          </div>
         )}
       </div>
 

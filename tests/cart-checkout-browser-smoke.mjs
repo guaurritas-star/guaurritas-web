@@ -60,6 +60,7 @@ const prefs = async panel => {
   const otherDate = panel.getByRole('button', { name: 'Otra fecha', exact: true });
   if (await otherDate.count()) await otherDate.click();
   await panel.locator('[data-leon-delivery-date]').fill('2030-12-02');
+  await panel.getByRole('group', { name: 'Horas disponibles' }).getByRole('button', { name: /^7:00/ }).click();
 };
 // Checkout en pasos: Entrega → Pago.
 const toPayment = panel => panel.getByRole('button', { name: /Continuar al pago/ }).click();
@@ -87,7 +88,7 @@ try {
       await prefs(panel);
       await toPayment(panel);
       assert.equal(await panel.getByRole('checkbox').count(), 0, 'León ya se eligió en la tienda');
-      await expectText(panel.locator('.checkout-delivery-recap'), /Lun 2 dic · 6:00 – 9:30\sp\.\s?m\./);
+      await expectText(panel.locator('.checkout-delivery-recap'), /Lun 2 dic · 7:00\sp\.\s?m\./);
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
       await expectText(panel.getByRole('region', { name: 'Revisa antes de pagar' }), /Por confirmar por WhatsApp/);
       await panel.getByRole('button', { name: 'Continuar con transferencia' }).click();
@@ -107,7 +108,7 @@ try {
       await panel.getByRole('button', { name: /Tarjeta \/ pago en línea/ }).click();
       const review = panel.getByRole('region', { name: 'Revisa antes de pagar' });
       await expectText(review, /Parque Cárcamos/);
-      await expectText(review, /Lun 2 dic · 6:00 – 9:30\sp\.\s?m\./);
+      await expectText(review, /Lun 2 dic · 7:00\sp\.\s?m\./);
       await expectText(review, /\$425.00/);
       await toDelivery(panel);
       await panel.getByRole('group', { name: 'Forma de entrega en León' }).getByRole('button', { name: /^A domicilio por Uber/ }).click();
@@ -135,7 +136,7 @@ try {
         assert.equal(messages[0].items[0].catalogOverrideFields.price, '212.50');
         const marker = JSON.parse(messages[0].buyerNote.split('GUAURRITAS_PREFS:')[1]);
         assert.equal(marker.m, 'home_delivery'); assert.equal(marker.a, 'Calle Prueba 123, León');
-        assert.equal(marker.d, '2030-12-02'); assert.equal(marker.t, '18:00-21:30');
+        assert.equal(marker.d, '2030-12-02'); assert.equal(marker.t, '19:00');
         await panel.getByText('No se abrió el pago. Puedes intentarlo otra vez sin recargar la página.', { exact: true }).waitFor({ timeout: 12000 });
         assert.equal(await pay.isEnabled(), true, 'timeout unlocks retry without losing cart');
       } else {

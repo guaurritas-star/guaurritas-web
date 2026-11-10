@@ -28,7 +28,7 @@ import {
   formatLeonDate,
   formatLeonTime,
   isLeonOrderPreferencesComplete,
-  leonDeliveryWindow,
+  leonTimeSlots,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
 import SpeiPaymentFlow from "@/components/cart/SpeiPaymentFlow";
@@ -266,7 +266,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
       setShowLeonErrors(true);
       setCheckoutStatus("Revisa los campos señalados para continuar. Tu carrito se conserva.");
       requestAnimationFrame(() => {
-        panelRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        panelRef.current?.querySelector<HTMLElement>('[aria-invalid="true"], [data-invalid="true"] button')?.focus();
       });
       return;
     }
@@ -337,7 +337,10 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
       preferredTime: "",
     };
     // El horario lo define el día elegido (entre semana o fin de semana).
-    next.preferredTime = leonDeliveryWindow(next.deliveryDate);
+    // La hora elegida solo vale si existe para ese día (entre semana o fin de semana).
+    next.preferredTime = leonTimeSlots(next.deliveryDate).includes(leonOrderPreferences.preferredTime)
+      ? leonOrderPreferences.preferredTime
+      : "";
 
     return next;
   };
@@ -345,7 +348,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const chooseLeonPayment = (method: LeonPaymentMethod) => {
     setShowLeonErrors(true);
     const focusInvalidControl = () => requestAnimationFrame(() => {
-      panelRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      panelRef.current?.querySelector<HTMLElement>('[aria-invalid="true"], [data-invalid="true"] button')?.focus();
     });
     const resolved = readLeonPreferencesFromControls();
 

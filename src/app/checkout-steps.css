@@ -215,3 +215,10 @@
 .taskbar-cart-panel input[data-leon-delivery-date]::-webkit-date-and-time-value { margin: 0; text-align: left; line-height: 46px; }
 .taskbar-cart-panel input[data-leon-delivery-date]::-webkit-datetime-edit { padding: 0; line-height: 46px; }
 .taskbar-cart-panel .leon-date-other { overflow: visible !important; }
+
+/* Horas cada 30 minutos. */
+.leon-time-picker .checkout-step-heading small { margin-left: 6px; color: #5b6b80; font-size: 13px; font-weight: 400; }
+.leon-time-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.taskbar-cart-panel .leon-time-chips button { min-height: 44px !important; padding: 0 !important; border: 1px solid #c2cdd3 !important; border-radius: 10px !important; background: #fff !important; box-shadow: none !important; color: #263650; font-size: 15px; font-weight: 700; }
+.taskbar-cart-panel .leon-time-chips button[aria-pressed="true"] { border: 2px solid #425b8c !important; background: #eef1f6 !important; }
+.leon-time-chips[data-invalid="true"] button { border-color: #b4535f !important; }

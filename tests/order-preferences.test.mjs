@@ -41,3 +41,9 @@ test('León delivers every day with one day of notice; the window depends on the
  assert.equal(api.leonDeliveryWindow('2026-11-15'),'13:00-20:00');
  assert.match(api.formatLeonTime('13:00-20:00').replace(/\s/g,' '),/^1:00 – 8:00 p\. ?m\.$/);
 });
+test('León times come every 30 minutes: weekdays 6:00–9:00 p. m., weekends 1:00–7:30 p. m.',()=>{
+ assert.equal(api.leonTimeSlots('2026-11-13').join(),'18:00,18:30,19:00,19:30,20:00,20:30,21:00');
+ const weekend=api.leonTimeSlots('2026-11-14');
+ assert.equal(weekend[0],'13:00'); assert.equal(weekend.at(-1),'19:30'); assert.equal(weekend.length,14);
+ assert.equal(api.leonTimeSlots('').length,0);
+});
