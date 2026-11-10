@@ -222,3 +222,30 @@
 .taskbar-cart-panel .leon-time-chips button { min-height: 44px !important; padding: 0 !important; border: 1px solid #c2cdd3 !important; border-radius: 10px !important; background: #fff !important; box-shadow: none !important; color: #263650; font-size: 15px; font-weight: 700; }
 .taskbar-cart-panel .leon-time-chips button[aria-pressed="true"] { border: 2px solid #425b8c !important; background: #eef1f6 !important; }
 .leon-time-chips[data-invalid="true"] button { border-color: #b4535f !important; }
+
+/* Tipografía del carrito: letra del sistema (San Francisco en iPhone) para
+   leer de un vistazo; Cinzel para títulos, nombres de producto y precios. */
+#taskbar-cart-panel,
+#taskbar-cart-panel * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+#taskbar-cart-panel .taskbar-cart-titlebar,
+#taskbar-cart-panel .taskbar-cart-titlebar *,
+#taskbar-cart-panel .taskbar-cart-item-copy > strong,
+#taskbar-cart-panel .taskbar-cart-price,
+#taskbar-cart-panel .taskbar-cart-price *,
+#taskbar-cart-panel .shopping-payment-totals dd,
+#taskbar-cart-panel .cart-leon-total strong,
+#taskbar-cart-panel .checkout-summary-total strong,
+#taskbar-cart-panel .checkout-pay-option > b,
+#taskbar-cart-panel .cart-leon-location,
+#taskbar-cart-panel .checkout-step-heading,
+#taskbar-cart-panel h2,
+#taskbar-cart-panel h3 {
+  font-family: var(--font-cinzel), "Cinzel", Georgia, serif !important;
+}
+#taskbar-cart-panel .checkout-step-heading small { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
+#taskbar-cart-panel small,
+#taskbar-cart-panel .cart-payment-explanation,
+#taskbar-cart-panel .checkout-pay-note,
+#taskbar-cart-panel .leon-whatsapp-note { font-size: 13px !important; line-height: 1.4 !important; letter-spacing: 0 !important; }
