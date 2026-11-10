@@ -4,23 +4,20 @@ import SystemIcon from "@/components/ui/SystemIcon";
 import { useMemo, useState } from "react";
 import type { LeonCheckoutErrors } from "@/lib/checkout-ux";
 import {
-  LEON_TIME_OPTIONS,
   LEON_PICKUP_POINTS,
-  LEON_PICKUP_POINT_TIME,
+  formatLeonDate,
   formatLeonTime,
+  leonDeliveryWindow,
   minimumLeonDeliveryDate,
   type LeonOrderPreferences,
 } from "@/lib/order-preferences";
 
-// Próximos días hábiles disponibles (misma regla que minimumLeonDeliveryDate).
-function nextDeliveryDays(firstKey: string, count = 4) {
+// Próximos días disponibles: desde el mínimo (1 día de anticipación), todos los días.
+function nextDeliveryDays(firstKey: string, count = 6) {
   const keys: string[] = [];
   const cursor = new Date(`${firstKey}T12:00:00-06:00`);
   while (keys.length < count) {
-    const day = cursor.getUTCDay();
-    if (day !== 0 && day !== 6) {
-      keys.push(cursor.toISOString().slice(0, 10));
-    }
+    keys.push(cursor.toISOString().slice(0, 10));
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   return keys;
@@ -28,11 +25,28 @@ function nextDeliveryDays(firstKey: string, count = 4) {
 
 function dayLabel(key: string) {
   const date = new Date(`${key}T12:00:00-06:00`);
-  const weekday = new Intl.DateTimeFormat("es-MX", { weekday: "short", timeZone: "America/Mexico_City" }).format(date).replace(".", "");
-  const day = new Intl.DateTimeFormat("es-MX", { day: "numeric", timeZone: "America/Mexico_City" }).format(date);
-  const month = new Intl.DateTimeFormat("es-MX", { month: "short", timeZone: "America/Mexico_City" }).format(date).replace(".", "");
-  return { weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1), day, month };
+  const part = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("es-MX", { ...options, timeZone: "America/Mexico_City" }).format(date).replace(".", "");
+  const weekday = part({ weekday: "short" });
+  return { weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1), day: part({ day: "numeric" }), month: part({ month: "short" }) };
 }
+
+// Etiqueta corta para el botón del día: "6–9:30 pm" / "1–8 pm".
+function shortWindow(slot: string) {
+  const [start, end] = slot.split("-");
+  const clock = (value: string) => {
+    const [hour, minute] = value.split(":").map(Number);
+    const h12 = hour % 12 || 12;
+    return minute ? `${h12}:${String(minute).padStart(2, "0")}` : `${h12}`;
+  };
+  return `${clock(start)}–${clock(end)} ${Number(end.split(":")[0]) >= 12 ? "pm" : "am"}`;
+}
+
+const DELIVERY_OPTIONS: { value: LeonOrderPreferences["deliveryMethod"]; title: string; detail: string; tag: string }[] = [
+  { value: "pickup_point", title: "Punto medio", detail: "Plaza Mayor, HEB, parques…", tag: "Sin costo" },
+  { value: "home_delivery", title: "A domicilio por Uber", detail: "Te cotizamos el viaje", tag: "+ Uber" },
+  { value: "pending_whatsapp", title: "Lo platicamos por WhatsApp", detail: "Si aún no sabes", tag: "" },
+];
 
 export default function LeonOrderPreferencesForm({
   value,
@@ -45,23 +59,16 @@ export default function LeonOrderPreferencesForm({
 }) {
   const minDate = useMemo(() => minimumLeonDeliveryDate(), []);
   const quickDays = useMemo(() => nextDeliveryDays(minDate), [minDate]);
-
   const [showOtherDate, setShowOtherDate] = useState(
     () => Boolean(value.deliveryDate) && !quickDays.includes(value.deliveryDate),
   );
-  const isPickupPoint = value.deliveryMethod === "pickup_point";
+  const method = value.deliveryMethod || "pending_whatsapp";
+  const slot = leonDeliveryWindow(value.deliveryDate);
 
-  const update = (patch: Partial<LeonOrderPreferences>) => {
-    onChange(patch);
-  };
-
-  const chooseMethod = (method: LeonOrderPreferences["deliveryMethod"]) => {
-    const patch: Partial<LeonOrderPreferences> = { deliveryMethod: method, deliveryPoint: "", deliveryAddress: "" };
-    // Punto medio: ventana fija de 6:00 a 9:30 p. m.; al salir se vuelve a elegir hora.
-    if (method === "pickup_point") patch.preferredTime = LEON_PICKUP_POINT_TIME;
-    else if (value.preferredTime === LEON_PICKUP_POINT_TIME) patch.preferredTime = "";
-    update(patch);
-  };
+  // El horario se deriva del día: no hay que elegir hora.
+  const chooseDate = (deliveryDate: string) => onChange({ deliveryDate, preferredTime: leonDeliveryWindow(deliveryDate) });
+  const chooseMethod = (next: LeonOrderPreferences["deliveryMethod"]) =>
+    onChange({ deliveryMethod: next, deliveryPoint: "", deliveryAddress: "" });
 
   return (
     <section className="leon-delivery-form min-w-0 overflow-hidden rounded-xl border border-[#cbd5e8] bg-white p-3.5 text-left shadow-[0_2px_0_rgba(66,91,188,0.06)]">
@@ -71,16 +78,17 @@ export default function LeonOrderPreferencesForm({
           <div className="leon-day-chips" role="group" aria-label="Próximos días disponibles">
             {quickDays.map((key) => {
               const label = dayLabel(key);
+              const dayWindow = leonDeliveryWindow(key);
               return (
                 <button
                   key={key}
                   type="button"
                   aria-pressed={value.deliveryDate === key}
-                  aria-label={`${label.weekday} ${label.day} de ${label.month}`}
-                  onClick={() => update({ deliveryDate: key })}
+                  aria-label={`${label.weekday} ${label.day} de ${label.month}, ${formatLeonTime(dayWindow)}`}
+                  onClick={() => chooseDate(key)}
                 >
                   <strong>{label.weekday} {label.day}</strong>
-                  <small>{label.month}</small>
+                  <small>{shortWindow(dayWindow)}</small>
                 </button>
               );
             })}
@@ -102,81 +110,56 @@ export default function LeonOrderPreferencesForm({
             type="date"
             min={minDate}
             value={value.deliveryDate}
-            onInput={(event) =>
-              update({ deliveryDate: (event.currentTarget as HTMLInputElement).value })
-            }
-            onChange={(event) => update({ deliveryDate: event.currentTarget.value })}
+            onInput={(event) => chooseDate((event.currentTarget as HTMLInputElement).value)}
+            onChange={(event) => chooseDate(event.currentTarget.value)}
             className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
           />
           {errors?.date && <small id="leon-date-error" className="checkout-field-error">{errors.date}</small>}
           <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
-            Mínimo 1 día hábil de anticipación.
+            Mínimo 1 día de anticipación.
           </small>
         </label>
-
+        {slot && (
+          <p className="leon-window" data-leon-window>
+            <SystemIcon name="pin" /> {formatLeonDate(value.deliveryDate)} · <strong>{formatLeonTime(slot)}</strong>
+          </p>
+        )}
       </div>
 
-      <div className="mt-4 grid gap-3">
-        <label className="block"><span className="checkout-step-heading">¿Cómo lo recibes?</span>
-          <select aria-label="Forma de entrega en León" value={value.deliveryMethod || "pending_whatsapp"} onChange={event => chooseMethod(event.target.value as LeonOrderPreferences["deliveryMethod"])} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
-            <option value="pending_whatsapp">Lo coordinaré por WhatsApp</option>
-            <option value="pickup_point">Punto medio</option>
-            <option value="home_delivery">A domicilio por Uber · costo adicional</option>
-          </select>
-        </label>
-        {value.deliveryMethod === "pickup_point" && <label className="block"><span>Punto medio preferido</span>
-          <select aria-label="Punto medio preferido" aria-invalid={Boolean(errors?.point)} aria-describedby={errors?.point ? "leon-point-error" : undefined} value={value.deliveryPoint} onChange={event => update({ deliveryPoint: event.target.value })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
+      <div className="mt-4 grid gap-2">
+        <h3 className="checkout-step-heading">¿Cómo lo recibes?</h3>
+        <div className="leon-method-options" role="group" aria-label="Forma de entrega en León">
+          {DELIVERY_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className="leon-method-option"
+              aria-pressed={method === option.value}
+              onClick={() => chooseMethod(option.value)}
+            >
+              <span><strong>{option.title}</strong><small>{option.detail}</small></span>
+              {option.tag && <em>{option.tag}</em>}
+            </button>
+          ))}
+        </div>
+        {method === "pickup_point" && <label className="block"><span>Punto medio preferido</span>
+          <select aria-label="Punto medio preferido" aria-invalid={Boolean(errors?.point)} aria-describedby={errors?.point ? "leon-point-error" : undefined} value={value.deliveryPoint} onChange={event => onChange({ deliveryPoint: event.target.value })} className="mt-2 block min-h-12 w-full border border-[#637aa6] bg-white px-3">
             <option value="">Selecciona un punto</option>{LEON_PICKUP_POINTS.map(point => <option key={point} value={point}>{point}</option>)}
           </select>
           {errors?.point && <small id="leon-point-error" className="checkout-field-error">{errors.point}</small>}
         </label>}
-        {["home_delivery", "uber_eats"].includes(value.deliveryMethod) && <label className="block"><span>Dirección para cotizar Uber</span>
-          <textarea aria-label="Dirección para cotizar Uber" aria-invalid={Boolean(errors?.address)} aria-describedby={errors?.address ? "leon-address-error" : undefined} maxLength={240} value={value.deliveryAddress} onChange={event => update({ deliveryAddress: event.target.value })} className="mt-2 block min-h-24 w-full border border-[#637aa6] bg-white p-3" />
+        {["home_delivery", "uber_eats"].includes(method) && <label className="block"><span>Dirección para cotizar Uber</span>
+          <textarea aria-label="Dirección para cotizar Uber" aria-invalid={Boolean(errors?.address)} aria-describedby={errors?.address ? "leon-address-error" : undefined} maxLength={240} value={value.deliveryAddress} onChange={event => onChange({ deliveryAddress: event.target.value })} className="mt-2 block min-h-24 w-full border border-[#637aa6] bg-white p-3" />
           {errors?.address && <small id="leon-address-error" className="checkout-field-error">{errors.address}</small>}
-          <small className="mt-2 block">El costo de Uber no está incluido en los productos; te lo confirmamos por WhatsApp.</small>
+          <small className="mt-2 block">El costo de Uber no está incluido en los productos.</small>
         </label>}
-
-        {isPickupPoint ? (
-          <div className="leon-fixed-time">
-            <span className="checkout-step-heading leon-time-heading">¿A qué hora?</span>
-            <p><strong>{formatLeonTime(LEON_PICKUP_POINT_TIME)}</strong> · horario de entregas en punto medio</p>
-          </div>
-        ) : (
-        <label className="block min-w-0 max-w-full overflow-hidden">
-          <span className="checkout-step-heading leon-time-heading">
-            ¿A qué hora?
-          </span>
-          <select
-            data-leon-preferred-time
-            aria-invalid={Boolean(errors?.time)}
-            aria-describedby={errors?.time ? "leon-time-error" : undefined}
-            value={value.preferredTime}
-            onInput={(event) =>
-              update({ preferredTime: (event.currentTarget as HTMLSelectElement).value })
-            }
-            onChange={(event) => update({ preferredTime: event.currentTarget.value })}
-            className="mt-1.5 block h-11 min-w-0 w-full max-w-full rounded-lg border border-[#cbd5e8] bg-[#fbfcff] px-3 text-[11px] text-[#263650] outline-none transition focus:border-[#425BBC] focus:ring-2 focus:ring-[#425BBC]/10"
-          >
-            <option value="">Selecciona un horario</option>
-            {LEON_TIME_OPTIONS.map((time) => (
-              <option key={time} value={time}>
-                {formatLeonTime(time)}
-              </option>
-            ))}
-          </select>
-          {errors?.time && <small id="leon-time-error" className="checkout-field-error">{errors.time}</small>}
-          <small className="mt-1 block whitespace-normal break-words text-[8px] leading-4 text-[#8a95a8]">
-            Es una preferencia; todavía no queda reservado.
-          </small>
-        </label>
-        )}
       </div>
 
       <div className="mt-3 flex min-w-0 max-w-full items-start gap-2 overflow-hidden rounded-lg border border-[#ecd8a6] bg-[#fff9e9] px-3 py-2.5">
         <span className="mt-0.5 shrink-0 text-[12px]"><SystemIcon name="chat" /></span>
         <div className="min-w-0 max-w-full flex-1 overflow-hidden">
           <p className="leon-whatsapp-note whitespace-normal break-words leading-4 text-[#806c3e] [overflow-wrap:anywhere]">
-            Te confirmamos fecha, horario y punto por WhatsApp al recibir tu pago. Uber se cotiza aparte.
+            Al recibir tu pago te confirmamos todo por WhatsApp.
           </p>
         </div>
       </div>

@@ -84,7 +84,7 @@
 .checkout-step-view[data-leon-step="payment"] .checkout-summary .checkout-secondary-link { margin-top: 4px; }
 
 /* Día en botones */
-.leon-day-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.leon-day-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .taskbar-cart-panel .leon-day-chips button {
   display: flex; flex-direction: column; align-items: center; min-height: 56px; padding: 6px 4px;
   border: 1px solid #c2cdd3; border-radius: 10px; background: #fff; color: #263650; box-shadow: none;
@@ -115,7 +115,7 @@
     position: sticky; bottom: 0; z-index: 4; margin: 12px -12px -12px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
     border-top: 1px solid #d7dfe6; background: #fff; box-shadow: 0 -6px 14px rgba(38,54,80,.07);
   }
-  .taskbar-cart-panel .leon-day-chips { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .taskbar-cart-panel .leon-day-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 }
 
 /* ---------- Desktop: ventana con resumen a la derecha ---------- */
@@ -158,9 +158,23 @@
    el carrito ocupa solo su alto y la tienda se oculta mientras está abierto. */
 @media (max-width: 639px) {
   html.guaurritas-in-wix.guaurritas-system-cart-open main > :not(.desktop-taskbar) { display: none !important; }
+  /* El carrito pasa al flujo normal de la página: así el navegador puede
+     desplazar la página de Wix hasta un campo (foco, errores, botones). */
+  html.guaurritas-in-wix.guaurritas-system-cart-open main.desktop-wallpaper { height: auto !important; min-height: 0 !important; overflow: visible !important; }
+  html.guaurritas-in-wix.guaurritas-system-cart-open .desktop-taskbar,
+  html.guaurritas-in-wix.guaurritas-system-cart-open .desktop-taskbar-clock,
+  html.guaurritas-in-wix.guaurritas-system-cart-open .taskbar-cart-shell {
+    position: static !important; display: block !important; inset: auto !important;
+    height: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+    border: 0 !important; background: none !important; box-shadow: none !important; transform: none !important;
+  }
+  html.guaurritas-in-wix.guaurritas-system-cart-open .desktop-taskbar > :not(.desktop-taskbar-clock),
+  html.guaurritas-in-wix.guaurritas-system-cart-open .desktop-taskbar-clock > :not(.taskbar-cart-shell),
+  html.guaurritas-in-wix.guaurritas-system-cart-open .taskbar-cart-shell > :not(.taskbar-cart-panel) { display: none !important; }
   html.guaurritas-in-wix.guaurritas-system-cart-open .taskbar-cart-panel {
-    bottom: auto !important; height: auto !important; max-height: none !important;
-    overflow: visible !important; min-height: 0 !important;
+    position: relative !important; inset: auto !important; width: 100% !important;
+    bottom: auto !important; height: auto !important; min-height: 0 !important;
+    max-height: none !important; overflow: visible !important;
   }
 }
 
@@ -175,3 +189,15 @@
 .leon-date-other[hidden] { display: none !important; }
 .leon-fixed-time p { margin: 6px 0 0; padding: 10px 12px; border: 1px solid #cbd5e8; border-radius: 8px; background: #fbfcff; color: #263650; font-size: 14px; }
 .checkout-leon-info { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; color: #5b6b80; font-size: 13px; }
+
+/* Horario por día y formas de entrega visibles. */
+.leon-day-chips button:nth-child(n) small { white-space: nowrap; }
+.leon-window { display: flex; align-items: center; gap: 6px; margin: 0; padding: 10px 12px; border-radius: 8px; background: #eef1f6; color: #263650; font-size: 14px; }
+.leon-method-options { display: grid; gap: 8px; }
+.taskbar-cart-panel .leon-method-option { display: flex !important; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 56px; padding: 10px 12px !important; border: 1px solid #c2cdd3 !important; border-radius: 10px !important; background: #fff !important; box-shadow: none !important; color: #263650; text-align: left; cursor: pointer; }
+.taskbar-cart-panel .leon-method-option[aria-pressed="true"] { border: 2px solid #425b8c !important; background: #eef1f6 !important; }
+.leon-method-option strong { display: block; font-size: 15px; }
+.leon-method-option small { display: block; color: #5b6b80; font-size: 12px; }
+.leon-method-option em { flex: none; color: #425b8c; font-size: 13px; font-style: normal; font-weight: 700; }
+/* Al enfocar o desplazar a un control, que no quede detrás del resumen fijo. */
+@media (max-width: 639px) { .taskbar-cart-panel--checkout, .taskbar-cart-panel { scroll-padding-bottom: 170px; } }

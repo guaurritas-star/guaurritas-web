@@ -12,7 +12,7 @@ const server = createServer(async (req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
   if (pathname === '/wix-test-host/') {
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end('<meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}iframe{width:100%;height:100dvh;border:0}</style><iframe id="os" src="/guaurritas-web/?app=tienda"></iframe><script>window.handoffs=[];addEventListener("message",e=>{if(e.source===document.querySelector("iframe").contentWindow&&e.data?.source==="guaurritas-web")handoffs.push(e.data)})</script>');
+    res.end('<meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}iframe{width:100%;height:100dvh;border:0}</style><iframe id="os" src="/guaurritas-web/?app=tienda"></iframe><script>window.handoffs=[];addEventListener("message",e=>{if(e.source===document.querySelector("iframe").contentWindow&&e.data?.source==="guaurritas-web"){handoffs.push(e.data);if(e.data.type==="guaurritas:height"&&e.data.height>0)document.querySelector("iframe").style.height=e.data.height+"px"}})</script>');
     return;
   }
   const file = resolve(root, '.' + pathname, pathname.endsWith('/') ? 'index.html' : '');
@@ -60,7 +60,6 @@ const prefs = async panel => {
   const otherDate = panel.getByRole('button', { name: 'Otra fecha', exact: true });
   if (await otherDate.count()) await otherDate.click();
   await panel.locator('[data-leon-delivery-date]').fill('2030-12-02');
-  await panel.locator('[data-leon-preferred-time]').selectOption('13:00');
 };
 // Checkout en pasos: Entrega → Pago.
 const toPayment = panel => panel.getByRole('button', { name: /Continuar al pago/ }).click();
@@ -84,12 +83,11 @@ try {
       // Native date controls may have internal tab stops; verify keyboard escape
       // after persistence below instead of assuming a browser-specific tab order.
       await expectText(panel.locator('#leon-date-error'), /Elige una fecha/);
-      await expectText(panel.locator('#leon-time-error'), /horario/);
       assert.equal(await panel.getByRole('button', { name: 'Continuar con transferencia' }).count(), 0);
       await prefs(panel);
       await toPayment(panel);
       assert.equal(await panel.getByRole('checkbox').count(), 0, 'León ya se eligió en la tienda');
-      await expectText(panel.locator('.checkout-delivery-recap'), /Lun 2 dic · 1:00\sp\.\s?m\./);
+      await expectText(panel.locator('.checkout-delivery-recap'), /Lun 2 dic · 6:00 – 9:30\sp\.\s?m\./);
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
       await expectText(panel.getByRole('region', { name: 'Revisa antes de pagar' }), /Por confirmar por WhatsApp/);
       await panel.getByRole('button', { name: 'Continuar con transferencia' }).click();
@@ -101,7 +99,7 @@ try {
         assert.equal(JSON.parse(spei.buyerNote.split('GUAURRITAS_PREFS:')[1]).m, 'pending_whatsapp');
       } else await expectText(panel, /Abre esta tienda desde guaurritas.com para usar transferencia SPEI/);
       await toDelivery(panel);
-      await panel.getByRole('combobox', { name: 'Forma de entrega en León' }).selectOption('pickup_point');
+      await panel.getByRole('group', { name: 'Forma de entrega en León' }).getByRole('button', { name: /^Punto medio/ }).click();
       await toPayment(panel);
       assert.equal(await isFocusedAfterPaint(panel.getByRole('combobox', { name: 'Punto medio preferido' })), true);
       await panel.getByRole('combobox', { name: 'Punto medio preferido' }).selectOption('Parque Cárcamos');
@@ -112,11 +110,10 @@ try {
       await expectText(review, /Lun 2 dic · 6:00 – 9:30\sp\.\s?m\./);
       await expectText(review, /\$425.00/);
       await toDelivery(panel);
-      await panel.getByRole('combobox', { name: 'Forma de entrega en León' }).selectOption('home_delivery');
+      await panel.getByRole('group', { name: 'Forma de entrega en León' }).getByRole('button', { name: /^A domicilio por Uber/ }).click();
       assert.equal(await review.count(), 0, 'delivery edits reset chosen payment');
       await toPayment(panel);
       await expectText(panel.locator('#leon-address-error'), /dirección/);
-      await panel.locator('[data-leon-preferred-time]').selectOption('13:00');
       await panel.getByRole('textbox', { name: 'Dirección para cotizar Uber' }).fill('Calle Prueba 123, León');
       await toPayment(panel);
       await panel.getByRole('button', { name: /Transferencia SPEI/ }).click();
@@ -138,7 +135,7 @@ try {
         assert.equal(messages[0].items[0].catalogOverrideFields.price, '212.50');
         const marker = JSON.parse(messages[0].buyerNote.split('GUAURRITAS_PREFS:')[1]);
         assert.equal(marker.m, 'home_delivery'); assert.equal(marker.a, 'Calle Prueba 123, León');
-        assert.equal(marker.d, '2030-12-02'); assert.equal(marker.t, '13:00');
+        assert.equal(marker.d, '2030-12-02'); assert.equal(marker.t, '18:00-21:30');
         await panel.getByText('No se abrió el pago. Puedes intentarlo otra vez sin recargar la página.', { exact: true }).waitFor({ timeout: 12000 });
         assert.equal(await pay.isEnabled(), true, 'timeout unlocks retry without losing cart');
       } else {

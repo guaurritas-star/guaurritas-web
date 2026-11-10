@@ -22,7 +22,7 @@ function getMobileContentHeight() {
   // Con el carrito abierto, el iframe mide exactamente la hoja del carrito.
   const cartPanel = document.querySelector("html.guaurritas-system-cart-open #taskbar-cart-panel");
   if (cartPanel instanceof HTMLElement) {
-    return Math.max(1, Math.ceil(cartPanel.getBoundingClientRect().top + cartPanel.scrollHeight));
+    return Math.max(1, Math.ceil(cartPanel.getBoundingClientRect().top + cartPanel.scrollHeight + (cartPanel.offsetHeight - cartPanel.clientHeight)));
   }
 
   const main = document.querySelector("main");
