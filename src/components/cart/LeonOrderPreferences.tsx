@@ -101,7 +101,7 @@ export default function LeonOrderPreferencesForm({
         )}
         <label className="leon-date-other block min-w-0 max-w-full overflow-hidden" hidden={!showOtherDate && !errors?.date}>
           <span className="font-interface text-[8px] font-bold uppercase tracking-[0.08em] text-[#657187]">
-            Fecha de entrega · otra fecha
+            Otra fecha
           </span>
           <input
             data-leon-delivery-date

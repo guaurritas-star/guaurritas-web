@@ -201,3 +201,17 @@
 .leon-method-option em { flex: none; color: #425b8c; font-size: 13px; font-style: normal; font-weight: 700; }
 /* Al enfocar o desplazar a un control, que no quede detrás del resumen fijo. */
 @media (max-width: 639px) { .taskbar-cart-panel--checkout, .taskbar-cart-panel { scroll-padding-bottom: 170px; } }
+
+/* iPhone: el input de fecha nativo ignora el ancho y alinea el texto arriba;
+   se normaliza para que se vea como los demás campos. */
+.taskbar-cart-panel .leon-date-other > span:first-child { font-family: var(--font-interface, inherit); font-size: 13px !important; letter-spacing: 0 !important; text-transform: none !important; color: #425b8c !important; }
+.taskbar-cart-panel input[data-leon-delivery-date] {
+  -webkit-appearance: none; appearance: none; box-sizing: border-box;
+  display: block; width: 100% !important; min-width: 0 !important; max-width: 100% !important;
+  height: 48px !important; min-height: 48px; margin-top: 6px; padding: 0 12px !important;
+  border: 1px solid #c2cdd3 !important; border-radius: 8px !important; background: #fff !important;
+  color: #263650; font-size: 16px !important; line-height: 46px; text-align: left;
+}
+.taskbar-cart-panel input[data-leon-delivery-date]::-webkit-date-and-time-value { margin: 0; text-align: left; line-height: 46px; }
+.taskbar-cart-panel input[data-leon-delivery-date]::-webkit-datetime-edit { padding: 0; line-height: 46px; }
+.taskbar-cart-panel .leon-date-other { overflow: visible !important; }
