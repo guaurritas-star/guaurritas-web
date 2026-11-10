@@ -211,6 +211,12 @@
           contain: none !important;
         }
 
+        /* Carrito abierto en móvil: el embed mide lo que mide el carrito,
+           sin franja en blanco hasta completar la pantalla. */
+        :host(.is-cart-open) {
+          min-height: 0 !important;
+        }
+
         @media (min-width: 640px) {
           :host {
             width: var(--guaurritas-desktop-width, 100%) !important;
@@ -694,7 +700,8 @@
 
           if (
             !window.matchMedia("(max-width: 639px)").matches ||
-            !this._mobileCuisineActive
+            !this._mobileCuisineActive ||
+            this._cartOpen
           ) {
             mobileCuisineSticky.classList.remove("is-visible");
             mobileCuisineSticky.setAttribute("aria-hidden", "true");
@@ -1214,25 +1221,34 @@
           if (message.action === "return") {
             const saved = cuisineReturnPosition;
             cuisineReturnPosition = null;
+            this._cartOpen = false;
+            this.classList.remove("is-cart-open");
+            window.clearTimeout(this._cartRevealTimer);
+            syncMobileCuisineSticky();
 
             if (saved) {
-              if (saved.root) {
-                window.scrollTo({
-                  top: saved.top,
-                  left: saved.left,
-                  behavior: "auto",
-                });
-              } else {
-                saved.element.scrollTo({
-                  top: saved.top,
-                  left: saved.left,
-                  behavior: "auto",
-                });
-              }
+              // Se repite cuando la tienda vuelve a crecer para no quedar
+              // recortado por el alto temporal del carrito.
+              const restore = () => (saved.root ? window : saved.element).scrollTo({
+                top: saved.top,
+                left: saved.left,
+                behavior: "auto",
+              });
+              restore();
+              this._cartRevealTimer = window.setTimeout(() => {
+                restore();
+                this._cartRevealTimer = window.setTimeout(restore, 350);
+              }, 120);
             }
             return;
           }
           if (message.action !== "reveal" || !Number.isFinite(message.top)) return;
+
+          // El carrito trae su propia barra (título y ×): la barra fija de
+          // Tienda se oculta para no taparlo.
+          this._cartOpen = true;
+          this.classList.add("is-cart-open");
+          syncMobileCuisineSticky();
 
           // Scroll the real Wix scroll container, never the Custom Element.
           // The cart sends its top INSIDE the iframe; here we translate that
@@ -1274,24 +1290,25 @@
             };
           }
 
-          const inset = Math.max(
-            68,
-            mobileCuisineSticky.getBoundingClientRect().height + 10,
-          );
+          const inset = this._cartOpen
+            ? 0
+            : Math.max(68, mobileCuisineSticky.getBoundingClientRect().height + 10);
           const iframeTop = iframe.getBoundingClientRect().top;
-          const prefersReducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-          ).matches;
 
           if (isRootScroller) {
             const target =
               currentTop + iframeTop + message.top - inset;
 
-            window.scrollTo({
-              top: Math.max(0, target),
-              left: currentLeft,
-              behavior: prefersReducedMotion ? "auto" : "smooth",
-            });
+            // Salto directo y se repite cuando el iframe termina de encogerse:
+            // en iPhone un desplazamiento suave se cancela al cambiar el alto
+            // de la página y dejaba al cliente en el footer.
+            const jump = () => window.scrollTo({ top: Math.max(0, target), left: currentLeft, behavior: "auto" });
+            jump();
+            window.clearTimeout(this._cartRevealTimer);
+            this._cartRevealTimer = window.setTimeout(() => {
+              jump();
+              this._cartRevealTimer = window.setTimeout(jump, 350);
+            }, 120);
           } else {
             const scrollerTop = scroller.getBoundingClientRect().top;
             const target =
@@ -1301,11 +1318,13 @@
               scrollerTop -
               inset;
 
-            scroller.scrollTo({
-              top: Math.max(0, target),
-              left: currentLeft,
-              behavior: prefersReducedMotion ? "auto" : "smooth",
-            });
+            const jump = () => scroller.scrollTo({ top: Math.max(0, target), left: currentLeft, behavior: "auto" });
+            jump();
+            window.clearTimeout(this._cartRevealTimer);
+            this._cartRevealTimer = window.setTimeout(() => {
+              jump();
+              this._cartRevealTimer = window.setTimeout(jump, 350);
+            }, 120);
           }
           return;
         }
