@@ -44,6 +44,21 @@ export const LEON_WEEKEND_WINDOW = "13:00-20:00";
 /** @deprecated Usa leonDeliveryWindow(fecha). */
 export const LEON_PICKUP_POINT_TIME = LEON_WEEKDAY_WINDOW;
 
+function halfHourSlots(start: number, end: number) {
+  const slots: string[] = [];
+  for (let minutes = start * 60; minutes <= end * 60; minutes += 30) {
+    slots.push(`${String(Math.floor(minutes / 60)).padStart(2, "0")}:${minutes % 60 ? "30" : "00"}`);
+  }
+  return slots;
+}
+
+/** Horas que el cliente puede elegir: L–V 18:00–21:00, S–D 13:00–19:30, cada 30 min. */
+export function leonTimeSlots(dateKey: string) {
+  const deliveryWindow = leonDeliveryWindow(dateKey);
+  if (!deliveryWindow) return [];
+  return deliveryWindow === LEON_WEEKEND_WINDOW ? halfHourSlots(13, 19.5) : halfHourSlots(18, 21);
+}
+
 /** Lunes a viernes 6:00–9:30 p. m.; sábado y domingo 1:00–8:00 p. m. */
 export function leonDeliveryWindow(dateKey: string) {
   const normalized = String(dateKey || "").trim();
