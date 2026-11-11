@@ -516,7 +516,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             <>
               {leonItems.length > 0 && !mixedCart && (
                 <div className="checkout-progress" aria-hidden="true">
-                  <span data-state="current"><i />Carrito</span><span><i />Entrega</span><span><i />Pago</span>
+                  <span data-state="current"><i />1 · Carrito</span><span><i />2 · Entrega</span><span><i />3 · Pago</span>
                 </div>
               )}
               {mixedCart && <p role="alert" className="m-3 rounded-lg border border-[#d8c0c8] bg-[#fff4f4] p-3 font-interface text-xs text-[#8a4545]">{mixedCartMessage}</p>}
@@ -530,7 +530,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     </p>
                     <dl className="shopping-payment-totals" aria-label="Total según forma de pago">
                       <div><dt>Transferencia SPEI</dt><dd>{money(leonTransferTotal)}</dd></div>
-                      <div><dt>Tarjeta · incluye procesamiento</dt><dd>{money(leonOnlineTotal)}</dd></div>
+                      <div><dt>Tarjeta · +{money(leonOnlineTotal - leonTransferTotal)} de procesamiento</dt><dd>{money(leonOnlineTotal)}</dd></div>
                     </dl>
                     <p className="cart-payment-explanation">En el siguiente paso eliges el día y cómo lo recibes.</p>
                     <div className="cart-leon-cta">
@@ -745,8 +745,8 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
             <div className={`taskbar-checkout-view checkout-step-view min-w-0 p-3 sm:p-4`} data-leon-step={leonStep}>
               <div className="taskbar-checkout-steps checkout-progress" aria-label="Progreso del pedido">
                 <span data-state="done"><i />✓ Carrito</span>
-                <span data-state={leonStep === "delivery" ? "current" : "done"}><i />1 · Entrega</span>
-                <span data-state={leonStep === "payment" ? "current" : undefined}><i />2 · Pago</span>
+                <span data-state={leonStep === "delivery" ? "current" : "done"}><i />2 · Entrega</span>
+                <span data-state={leonStep === "payment" ? "current" : undefined}><i />3 · Pago</span>
               </div>
 
               <div className="checkout-step-main">
@@ -808,7 +808,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         <span className="checkout-pay-dot" aria-hidden="true" />
                         <span className="min-w-0">
                           <strong>Tarjeta / pago en línea</strong>
-                          <small>Incluye procesamiento · pago seguro con Wix</small>
+                          <small>+{money(leonOnlineTotal - leonTransferTotal)} de procesamiento · pago seguro con Wix</small>
                         </span>
                         <b>{money(leonOnlineTotal)}</b>
                       </button>

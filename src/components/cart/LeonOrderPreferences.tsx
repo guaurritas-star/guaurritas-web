@@ -31,7 +31,7 @@ function dayLabel(key: string) {
   return { weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1), day: part({ day: "numeric" }), month: part({ month: "short" }) };
 }
 
-// Etiqueta corta para el botón del día: "6–9:30 pm" / "1–8 pm".
+// Etiqueta corta para el botón del día: "6–9 pm" / "1–7:30 pm".
 function shortWindow(slot: string) {
   const [start, end] = slot.split("-");
   const clock = (value: string) => {
@@ -124,7 +124,7 @@ export default function LeonOrderPreferencesForm({
         </label>
         {slots.length > 0 && (
           <div className="leon-time-picker">
-            <h3 className="checkout-step-heading">¿A qué hora? <small>{formatLeonDate(value.deliveryDate)} · p.m.</small></h3>
+            <h3 className="checkout-step-heading">¿A qué hora? <small>{formatLeonDate(value.deliveryDate)} · {value.preferredTime ? formatLeonTime(value.preferredTime) : "elige una hora (p.m.)"}</small></h3>
             <div
               className="leon-time-chips"
               role="group"

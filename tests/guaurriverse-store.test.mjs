@@ -60,8 +60,8 @@ test("mundo Cuisine/Couture utiliza el mismo chrome y scroll que Tienda.exe", ()
 
 test("checkout muestra orientación sin cambiar la lógica de pago", () => {
   assert.match(checkout, /taskbar-checkout-steps/);
-  assert.match(checkout, /1 · Entrega/);
-  assert.match(checkout, /2 · Pago/);
+  assert.match(checkout, /2 · Entrega/);
+  assert.match(checkout, /3 · Pago/);
   assert.match(checkout, /Revisa tus productos, elige la entrega y después la forma de pago/);
   assert.match(css, /\.taskbar-checkout-view \.taskbar-checkout-steps\[aria-label="Progreso del pedido"\]/);
   assert.match(checkout, /requestWixCheckout\(items, preferences\)/);

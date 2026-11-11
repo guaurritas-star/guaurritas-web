@@ -6,7 +6,8 @@ import SystemIcon from "@/components/ui/SystemIcon";
 import { requestSystemCartOpen } from "@/lib/cart-events";
 import { OS_CART_NOTIFICATION_EVENT } from "@/lib/os-notification-events";
 
-const DISMISS_AFTER_MS = 4200;
+// Tiempo suficiente para ver el aviso y tocar "Ver carrito".
+const DISMISS_AFTER_MS = 7000;
 const COPYING_MS = 950;
 
 /** Native Store mini-window. Visual confirmation only; never mutates the cart. */
