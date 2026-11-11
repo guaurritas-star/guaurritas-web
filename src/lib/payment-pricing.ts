@@ -46,10 +46,24 @@ export function buildProtectedUnitPrices(items: CartItem[]) {
     unitPrices.set(`${item.fulfillment}:${item.id}`, roundMoney(protectedUnit));
   });
 
-  const allocatedTotal = items.reduce((sum, item) => {
+  // Los centavos que sobran por redondear cada partida hacia arriba se
+  // descuentan de una partida de 1 unidad, para que el total con tarjeta sea
+  // exactamente el total protegido (ej. $300.00 y no $300.01).
+  const sumUnits = () => items.reduce((sum, item) => {
     const unit = unitPrices.get(`${item.fulfillment}:${item.id}`) ?? item.unitPrice;
     return sum + unit * item.quantity;
   }, 0);
+  const excess = roundMoney(sumUnits() - protectedTotal);
+  const balancing = items
+    .filter((item) => item.quantity === 1)
+    .sort((a, b) => b.unitPrice - a.unitPrice)[0];
+  if (excess > 0 && balancing) {
+    const key = `${balancing.fulfillment}:${balancing.id}`;
+    const adjusted = roundMoney((unitPrices.get(key) ?? balancing.unitPrice) - excess);
+    if (adjusted >= balancing.unitPrice) unitPrices.set(key, adjusted);
+  }
+
+  const allocatedTotal = sumUnits();
 
   return {
     baseTotal: roundMoney(baseTotal),

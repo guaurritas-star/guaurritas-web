@@ -535,6 +535,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                     <p className="cart-payment-explanation">En el siguiente paso eliges el día y cómo lo recibes.</p>
                     <div className="cart-leon-cta">
                       <p className="cart-leon-total"><span>Total con SPEI</span><strong>{money(leonTransferTotal)}</strong></p>
+                      <p className="cart-leon-card-total">Con tarjeta: {money(leonOnlineTotal)}</p>
                       <ShoppingButton
                         type="button"
                         onClick={goToLeonCheckout}
@@ -820,6 +821,11 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                       <SystemIcon name="chat" /> Elegir la forma de pago todavía no realiza el cobro.
                     </p>
 
+                    {!leonPaymentMethod && (
+                      <p className="checkout-pay-pending" role="note">
+                        <span aria-hidden="true">↑</span> Elige SPEI o tarjeta para continuar.
+                      </p>
+                    )}
                     {leonPaymentMethod && resolvedPaymentPreferences && (
                       <section className="cart-order-review" aria-label="Revisa antes de pagar">
                         <h3>Revisa antes de pagar</h3>

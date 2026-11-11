@@ -41,7 +41,7 @@ test("notificar solo compras añadidas, no errores ni mayoreo pendiente", () => 
   assert.match(feedback, /blocked \|\| !\/se agregó al carrito\/i\.test\(message\)/);
   assert.match(feedback, /announceCartAddition\(message\)/);
   assert.match(toast, /OS_CART_NOTIFICATION_EVENT/);
-  assert.match(toast, /DISMISS_AFTER_MS = 7000/);
+  assert.match(toast, /DISMISS_AFTER_MS = 9000/);
   assert.match(toast, /requestSystemCartOpen\(\)/);
 });
 

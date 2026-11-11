@@ -30,7 +30,7 @@ test("aviso usa ventana y botón auténticos de Tienda sin adornos añadidos", (
   assert.doesNotMatch(toast, /mascot|LISTO PARA CONSENTIR/);
   assert.match(toast, /requestSystemCartOpen\(\)/);
   assert.match(toast, /onClick=\{dismiss\}/);
-  assert.match(toast, /DISMISS_AFTER_MS = 7000/);
+  assert.match(toast, /DISMISS_AFTER_MS = 9000/);
   assert.match(toast, /replace\(\/\\s\*se agregó al carrito/);
 });
 

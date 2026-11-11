@@ -7,7 +7,7 @@ import { requestSystemCartOpen } from "@/lib/cart-events";
 import { OS_CART_NOTIFICATION_EVENT } from "@/lib/os-notification-events";
 
 // Tiempo suficiente para ver el aviso y tocar "Ver carrito".
-const DISMISS_AFTER_MS = 7000;
+const DISMISS_AFTER_MS = 9000;
 const COPYING_MS = 950;
 
 /** Native Store mini-window. Visual confirmation only; never mutates the cart. */
@@ -45,11 +45,19 @@ export default function OsCartNotification() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setMessage(null);
   };
+  // Mientras el cursor o el foco están en el aviso no se cierra solo.
+  const pause = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+  const resume = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setMessage(null), 3000);
+  };
 
   const productSummary = message.replace(/\s*se agregó al carrito\.?$/i, "").replace(/[.\s]+$/, "").trim();
 
   return (
-    <ShoppingWindow className="os-cart-notification shopping-window" role="status" aria-label="Producto añadido al carrito">
+    <ShoppingWindow className="os-cart-notification shopping-window" role="status" aria-label="Producto añadido al carrito" onMouseEnter={pause} onMouseLeave={resume} onFocus={pause} onBlur={resume}>
       <ShoppingWindowHeader className="os-cart-notification-titlebar shopping-window-header retro-window-titlebar">
         <p className="os-cart-notification-caption retro-window-caption">
           <span className="os-cart-notification-caption-icon" aria-hidden="true"><SystemIcon name="cart" /></span>
