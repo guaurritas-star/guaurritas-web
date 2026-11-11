@@ -306,8 +306,8 @@ try {
       const steps = root.getByLabel("Progreso del pedido");
       await steps.waitFor({ state: "visible" });
       assert.ok(await steps.isVisible(), "delivery/payment progress visible on mobile");
-      assert.match(await steps.innerText(), /1 · Entrega/);
-      assert.match(await steps.innerText(), /2 · Pago/);
+      assert.match(await steps.innerText(), /2 · Entrega/);
+      assert.match(await steps.innerText(), /3 · Pago/);
       await root.getByText("Revisa tus productos, elige la entrega y después la forma de pago.").waitFor();
       const checkout = root.locator(".taskbar-cart-panel--checkout");
       const rect = await checkout.boundingBox();

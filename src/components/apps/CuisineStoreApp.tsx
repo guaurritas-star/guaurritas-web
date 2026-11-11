@@ -736,6 +736,24 @@ function priceFrom(product: CuisineProduct, fulfillmentMode: FulfillmentMode) {
   return <ProductPrice price={lowest} original={Math.min(...regular)} from={prices.some(price => price !== lowest)} />;
 }
 
+// Si una foto externa (Wix) no carga, la tarjeta muestra una foto local en vez de quedar en blanco.
+const CATALOG_IMAGE_FALLBACK = "/cuisine/products/guaurricookies-vitrolero.webp";
+function CatalogCardImage({ src, alt }: { src: string; alt: string }) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const current = failedSrc === src ? CATALOG_IMAGE_FALLBACK : src;
+  return (
+    <Image
+      src={withBasePath(current)}
+      alt={alt}
+      fill
+      unoptimized
+      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
+      className="object-contain p-5 transition duration-500 group-hover:scale-105"
+      onError={() => { if (current !== CATALOG_IMAGE_FALLBACK) setFailedSrc(src); }}
+    />
+  );
+}
+
 export default function CuisineStoreApp({
   onBack,
   fulfillmentMode = "leon",
@@ -3293,14 +3311,7 @@ export default function CuisineStoreApp({
                   className="cuisine-catalog-image-shell absolute inset-0"
                   style={{ "--cuisine-image-zoom": product.imageScale ?? 1 } as CSSProperties}
                 >
-                  <Image
-                    src={withBasePath(product.image)}
-                    alt={product.imageAlt}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 23vw"
-                    className="object-contain p-5 transition duration-500 group-hover:scale-105"
-                  />
+                  <CatalogCardImage src={product.image} alt={product.imageAlt} />
                 </span>
               </span>
               <span className="cuisine-catalog-card-body block p-4 sm:flex sm:flex-1 sm:flex-col">

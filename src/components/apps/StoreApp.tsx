@@ -151,13 +151,13 @@ export default function StoreApp({
         )}
         <details className="store-delivery-details">
           <summary>
-            <span className="store-delivery-long">{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · entregas L–V 6:00–9:30 p.m. · S–D 1:00–8:00 p.m."} · Ver detalles de entrega</span>
-            <span className="store-delivery-short" aria-hidden="true">{mode === "national" ? `Envío gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "Entregas L–V 6–9:30 pm · S–D 1–8 pm"} <span className="store-delivery-info">ⓘ</span></span>
+            <span className="store-delivery-long">{mode === "national" ? `Pedido mínimo $${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío $${NATIONAL_SHIPPING_PROMO.standardRate} · gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "León · entregas L–V 6:00–9:00 p.m. · S–D 1:00–7:30 p.m."} · Ver detalles de entrega</span>
+            <span className="store-delivery-short" aria-hidden="true">{mode === "national" ? `Envío gratis desde $${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}` : "Entregas L–V 6–9 pm · S–D 1–7:30 pm"} <span className="store-delivery-info">ⓘ</span></span>
           </summary>
           {mode === "national" ? (
             <p>Envío nacional: pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder}. Envío ${NATIONAL_SHIPPING_PROMO.standardRate}; gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold} para pedidos de hasta {NATIONAL_SHIPPING_PROMO.maxWeightKg} kg. El plazo y el total se confirman en el checkout.</p>
           ) : (
-            <p>En León entregamos de lunes a viernes de 6:00 a 9:30 p.m. y sábado y domingo de 1:00 a 8:00 p.m., con 1 día de anticipación. Eliges el día antes de pagar; el punto se confirma por WhatsApp y Uber tiene costo adicional. El total con SPEI y tarjeta se muestra en el carrito.</p>
+            <p>En León eliges día y hora: de lunes a viernes de 6:00 a 9:00 p.m. y sábado y domingo de 1:00 a 7:30 p.m., cada media hora y con 1 día de anticipación; el punto se confirma por WhatsApp y Uber tiene costo adicional. El total con SPEI y tarjeta se muestra en el carrito.</p>
           )}
         </details>
       </header>
