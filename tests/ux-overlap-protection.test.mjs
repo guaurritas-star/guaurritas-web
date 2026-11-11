@@ -18,7 +18,7 @@ test("el aviso permite hacer clic en botones de producto debajo, pero conserva c
   assert.match(css, /:is\(\.os-cart-notification-close, \.os-cart-notification-open\)\s*\{\s*pointer-events:\s*auto !important/);
   assert.match(toast, /requestSystemCartOpen\(\)/);
   assert.match(toast, /onClick=\{dismiss\}/);
-  assert.match(toast, /DISMISS_AFTER_MS = 7000/);
+  assert.match(toast, /DISMISS_AFTER_MS = 9000/);
 });
 
 test("un único scroll táctil del carrito y cabecera accesible en móvil", () => {

@@ -129,6 +129,9 @@ export default function StoreApp({
                   <li><SystemIcon name="paw" /> No incluye repostería fresca: Petcakes, cupcakes ni antojería.</li>
                   <li><SystemIcon name="box" /> Los precios cambian respecto a León.</li>
                   <li><SystemIcon name="truck" /> Pedido mínimo ${NATIONAL_SHIPPING_PROMO.minimumOrder} · envío gratis desde ${NATIONAL_SHIPPING_PROMO.freeShippingThreshold}.</li>
+                  {cart.items.some(item => item.fulfillment === "leon") && (
+                    <li><SystemIcon name="cart" /> Ya tienes productos de León en el carrito: termina ese pedido antes de agregar productos nacionales.</li>
+                  )}
                 </ul>
                 <div className="store-zone-notice-actions">
                   <button ref={nationalNoticeRef} type="button" className="store-zone-primary" onClick={() => { setNationalNoticeOpen(false); applyMode("national"); }}>

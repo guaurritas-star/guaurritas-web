@@ -61,3 +61,14 @@ test('Wix handoff retains quantities, variants, custom fields and protected onli
   assert.equal(mod.exports.requestWixCheckout([{ ...item, wix: { supported: false } }]).ok, false);
   assert.equal(messages.length, 2);
 });
+test('card total has no stray cents when a single-unit line can absorb the rounding', () => {
+  const pricing = load('src/lib/payment-pricing.ts');
+  const mk = (id, unitPrice, quantity = 1) => ({ id, fulfillment: 'leon', unitPrice, quantity, name: id });
+  for (const items of [[mk('a', 85), mk('b', 85), mk('c', 113)], [mk('a', 150), mk('b', 160)], [mk('a', 85), mk('b', 119), mk('c', 40)], [mk('a', 85, 2), mk('b', 79)]]) {
+    const result = pricing.buildProtectedUnitPrices(items);
+    const charged = items.reduce((sum, item) => sum + result.unitPrices.get(`leon:${item.id}`) * item.quantity, 0);
+    assert.equal(Math.round(charged * 100) / 100, result.protectedTotal);
+    assert.equal(result.protectedTotal % 5, 0, `total ${result.protectedTotal} should stay on the $5 step`);
+    for (const item of items) assert.ok(result.unitPrices.get(`leon:${item.id}`) >= item.unitPrice);
+  }
+});
