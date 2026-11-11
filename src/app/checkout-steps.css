@@ -275,3 +275,7 @@
 .cart-leon-card-total { margin: -4px 0 8px; color: #5b6b80; font-size: 13px; text-align: right; }
 /* Horas: más columnas en pantallas amplias para ver "¿Cómo lo recibes?" antes. */
 @media (min-width: 1024px) { .taskbar-cart-panel .leon-time-chips { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+/* Área de toque de 44 px en cantidad y quitar (el glifo sigue pequeño). */
+.taskbar-cart-panel .taskbar-cart-quantity button { min-width: 44px !important; min-height: 44px !important; }
+.taskbar-cart-panel .taskbar-cart-remove { min-width: 44px !important; min-height: 44px !important; }
+.taskbar-cart-panel .taskbar-cart-item { grid-template-columns: 48px minmax(0, 1fr) auto auto 44px !important; }
