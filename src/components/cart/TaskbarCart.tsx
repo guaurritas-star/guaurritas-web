@@ -234,7 +234,10 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const scrollPanelTop = () => {
     requestAnimationFrame(() => {
       const panel = panelRef.current;
-      panel?.scrollTo({ top: 0, behavior: "smooth" });
+      // En computadora lo que se desplaza es el cuerpo interno del panel:
+      // se suben ambos para que cada paso abra arriba, con los pasos visibles.
+      panel?.scrollTo({ top: 0 });
+      panel?.querySelectorAll<HTMLElement>(".taskbar-cart-scroll-body, .taskbar-checkout-view").forEach((el) => el.scrollTo({ top: 0 }));
       // En Wix móvil desplaza la página real; el panel no tiene scroll propio.
       if (panel && window.self !== window.top) {
         window.parent.postMessage({
@@ -365,6 +368,10 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
     setResolvedPaymentPreferences(resolved);
     setLeonPaymentMethod(method);
     setCheckoutStatus("");
+    // Al elegir método, el botón para pagar queda a la vista sin desplazar.
+    window.setTimeout(() => {
+      panelRef.current?.querySelector<HTMLElement>("[data-checkout-pay-end]")?.scrollIntoView({ block: "nearest" });
+    }, 80);
   };
 
   const updateLeonPreferences = (patch: Partial<LeonOrderPreferences>) => {
@@ -867,6 +874,7 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                         />
                       </div>
                     )}
+                    <span data-checkout-pay-end aria-hidden="true" className="block h-px" />
                   </section>
                 </>
               )}
