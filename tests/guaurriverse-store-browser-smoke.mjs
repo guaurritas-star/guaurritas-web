@@ -69,7 +69,8 @@ try {
       assert.equal(await page.getByRole("group", { name: "Catálogo de la tienda" }).count(), 1);
 
       await page.goto(base + "/guaurritas-web/?app=mundos", { waitUntil: "domcontentloaded", timeout: 45000 });
-      await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).click({ timeout: 20000 });
+      const enterWorld = () => page.getByRole("button", { name: "Entrar a Guaurritas " + categoryName(world) });
+      await enterWorld().click({ timeout: 20000 });
       const worldNav = page.locator(".store-app--world .shopping-navigation");
       await worldNav.waitFor({ state: "visible", timeout: 25000 });
       const selected = await navMetrics(page);
@@ -81,21 +82,29 @@ try {
       assert.equal(await page.getByText(categoryName(world), { exact: true }).count() > 0, true, "chosen world visible");
       const cart = page.getByRole("button", { name: /Abrir carrito con/ });
       await cart.waitFor({ state: "visible" });
-      assert.equal(await page.getByRole("group", { name: "Ubicación de compra" }).count(), 0, "world header must not ask for delivery again");
-      assert.equal(await page.locator(".shopping-world-mode").getAttribute("aria-label"), "Zona de entrega elegida en Guaurriverse: León, Guanajuato");
-      const back = page.getByRole("button", { name: "Volver a explorar los mundos" });
+      // Auditoría UX 2026-11: un solo encabezado; dentro del mundo la zona se ve y se puede cambiar.
+      const storeZone = page.getByRole("group", { name: "Ubicación de compra" });
+      assert.equal(await storeZone.count(), 1, "world header shows the same delivery picker as Tienda.exe");
+      assert.equal(await storeZone.getByRole("button", { name: "León, Gto." }).getAttribute("aria-pressed"), "true");
+      await storeZone.getByRole("button", { name: "Todo México" }).click();
+      await page.getByRole("alertdialog", { name: "¿Cambiar a envío nacional?" }).waitFor({ state: "visible" });
+      await page.getByRole("button", { name: "Seguir en León" }).click();
+      assert.equal(await storeZone.getByRole("button", { name: "León, Gto." }).getAttribute("aria-pressed"), "true", "keeping León leaves the zone unchanged");
+      assert.equal(await page.locator(".store-delivery-short").count(), 1);
+      const longSummary = await page.locator(".store-delivery-long").boundingBox();
+      assert.ok(!longSummary || longSummary.width <= 1, "delivery summary is not duplicated (long text is screen-reader only)");
+      const back = page.getByRole("button", { name: "Volver a los mundos del Guaurriverse" });
       await back.click();
-      await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).waitFor({ state: "visible" });
-      const nationalWorldChoice = page.getByRole("button", { name: "Nacional", exact: true });
+      await enterWorld().waitFor({ state: "visible" });
+      const nationalWorldChoice = page.getByRole("button", { name: "Todo México", exact: true });
       await nationalWorldChoice.click();
       assert.equal(await nationalWorldChoice.getAttribute("aria-pressed"), "true", "delivery can be changed at the Guaurriverse entrance");
-      await page.getByRole("button", { name: "Explorar Guaurritas " + categoryName(world) }).click();
-      await page.locator(".shopping-world-mode").waitFor({ state: "visible" });
-      assert.equal(await page.locator(".shopping-world-mode").getAttribute("aria-label"), "Zona de entrega elegida en Guaurriverse: Todo México");
-      assert.equal(await page.getByRole("group", { name: "Ubicación de compra" }).count(), 0, "no repeated delivery picker after changing destination");
-      const toolbar = page.locator(".shopping-world-toolbar");
-      const toolbarBox = await toolbar.boundingBox();
-      assert.ok(toolbarBox && toolbarBox.x >= -1 && toolbarBox.x + toolbarBox.width <= width + 2, "world header fits viewport");
+      await enterWorld().click();
+      await worldNav.waitFor({ state: "visible" });
+      assert.equal(await page.getByRole("group", { name: "Ubicación de compra" }).getByRole("button", { name: "Todo México" }).getAttribute("aria-pressed"), "true", "the world keeps the zone chosen at the entrance");
+      const context = page.locator(".shopping-world-context");
+      const contextBox = await context.boundingBox();
+      assert.ok(contextBox && contextBox.x >= -1 && contextBox.x + contextBox.width <= width + 2, "world context row fits viewport");
       assert.deepEqual(unexpectedPageErrors(errors), [], "page errors: " + errors.join("; "));
       console.log("PASS world/store shared design", engine, width, world);
     } catch (e) {
