@@ -12,6 +12,7 @@ import AddToCartFeedback from "@/components/cart/AddToCartFeedback";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { addCartItem, cartFulfillmentConflict, useCart } from "@/lib/cart-store";
 import { requestSystemCartOpen } from "@/lib/cart-events";
+import { announceCartAddition } from "@/lib/os-notification-events";
 import { withBasePath } from "@/lib/base-path";
 import { NATIONAL_PRODUCT_NAMES } from "@/lib/national-catalog";
 import type { FulfillmentMode } from "@/lib/fulfillment-store";
@@ -195,6 +196,26 @@ function formatBulkWeight(grams: number) {
 
 const recipeProductIds = new Set(["petcakes", "cupcakes", "cake-pops", "dognuts"]);
 const nonFoodProductIds = new Set(["gorrito", "velitas", "pancarta"]);
+// Products whose detail view asks for a choice even with a single presentation.
+const configuredProductIds = new Set([
+  "petcakes",
+  "guaurricookies",
+  KIT_GUAURRICOOKIES_PRODUCT_KEY,
+  DESCUBRE_GUAURRITAS_PRODUCT_KEY,
+  "chilaquidogs",
+  "gorrito",
+  "velitas",
+]);
+
+/** A card can add straight to the cart only when its detail view has nothing to choose. */
+function canQuickAdd(product: CuisineProduct) {
+  return (
+    product.options.length === 1 &&
+    !product.customizable &&
+    !recipeProductIds.has(product.id) &&
+    !configuredProductIds.has(product.id)
+  );
+}
 
 const MAX_INSPIRATION_PHOTOS = 5;
 const MAX_INSPIRATION_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -815,6 +836,11 @@ export default function CuisineStoreApp({
   const [personalizationIdea, setPersonalizationIdea] = useState("");
   const [birthdayCandleNumber, setBirthdayCandleNumber] = useState("");
   const [notice, setNotice] = useState("");
+  const [quickAddStatus, setQuickAddStatus] = useState<{
+    productId: string;
+    message: string;
+    blocked: boolean;
+  } | null>(null);
   const [cartOpening, setCartOpening] = useState(false);
   const productViewRef = useRef<HTMLElement | null>(null);
   const [bulkCustomOpen, setBulkCustomOpen] = useState(false);
@@ -1491,6 +1517,29 @@ export default function CuisineStoreApp({
       fulfillment: fulfillmentMode,
     });
     setNotice(`${selectedProduct.name}${inspirationSuffix} se agregó al carrito.`);
+  };
+
+  // Same cart line the detail view's generic path builds for a product with a
+  // single presentation and no choices, so both entries merge into one line.
+  const quickAddToCart = (product: CuisineProduct) => {
+    const conflict = cartFulfillmentConflict(fulfillmentMode);
+    if (conflict) {
+      setQuickAddStatus({ productId: product.id, message: conflict, blocked: true });
+      return;
+    }
+    const option = product.options[0];
+    addCartItem({
+      id: `cuisine:${product.id}:0::::0:`,
+      name: product.name,
+      detail: option.label,
+      personalization: "",
+      unitPrice: getCuisineOptionPrice(product.id, 0, option.price, fulfillmentMode),
+      image: option.image ?? product.image,
+      fulfillment: fulfillmentMode,
+    });
+    const message = `${product.name} se agregó al carrito.`;
+    setQuickAddStatus({ productId: product.id, message, blocked: false });
+    announceCartAddition(message);
   };
 
   const cuisineCartTrigger = <RetailCartButton count={cartCount} busy={cartOpening} onClick={openCuisineCart} />;
@@ -3295,12 +3344,15 @@ export default function CuisineStoreApp({
 
 
         <div className="boutique-product-grid cuisine-catalog-grid mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visibleProducts.map((product) => (
+          {visibleProducts.map((product) => {
+            const quickAdd = canQuickAdd(product);
+            const quickStatus = quickAddStatus?.productId === product.id ? quickAddStatus : null;
+            return (
+            <div key={product.id} className="cuisine-catalog-card-shell">
             <button
-              key={product.id}
               type="button"
               onClick={() => openProduct(product)}
-              aria-label={`Ver opciones de ${product.name}`}
+              aria-label={quickAdd ? `Ver detalles de ${product.name}` : `Ver opciones de ${product.name}`}
               className="boutique-product-card cuisine-catalog-card group overflow-hidden rounded-[1.4rem] border border-[#c2cdd3] bg-white text-left shadow-[0_8px_18px_rgba(38,54,80,0.08)] transition duration-300 hover:-translate-y-1.5 hover:border-[#6f99a5] hover:shadow-[0_15px_28px_rgba(38,54,80,0.14)] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#5e96a5] sm:flex sm:h-full sm:flex-col"
             >
               <span
@@ -3339,7 +3391,7 @@ export default function CuisineStoreApp({
                   {product.description}
                 </span>
                 <span className="cuisine-catalog-card-cta mt-4 flex items-center justify-between border-t border-[#d7dfe3] pt-3 font-interface text-[9px] font-bold uppercase tracking-[0.12em] text-[#425b8c] sm:mt-auto">
-                  Ver opciones
+                  {quickAdd ? "Ver detalles" : "Ver opciones"}
                   <span
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e4f0f2] text-base transition group-hover:bg-[#5e96a5] group-hover:text-white"
                     aria-hidden="true"
@@ -3349,7 +3401,32 @@ export default function CuisineStoreApp({
                 </span>
               </span>
             </button>
-          ))}
+            {quickAdd && (
+              <button
+                type="button"
+                onClick={() => quickAddToCart(product)}
+                aria-label={`Agregar ${product.name} al carrito`}
+                className="boutique-purchase cuisine-catalog-quick-add"
+              >
+                {quickStatus && !quickStatus.blocked ? "✓ Agregado · sumar otro" : "Agregar al carrito"}
+              </button>
+            )}
+            {quickStatus && (
+              <p
+                role={quickStatus.blocked ? "alert" : "status"}
+                className={`cuisine-catalog-quick-add-status${quickStatus.blocked ? " is-blocked" : ""}`}
+              >
+                {quickStatus.message}
+                {!quickStatus.blocked && (
+                  <button type="button" onClick={() => requestSystemCartOpen()}>
+                    Ver carrito
+                  </button>
+                )}
+              </p>
+            )}
+            </div>
+            );
+          })}
         </div>
 
         {visibleProducts.length === 0 && (
