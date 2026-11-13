@@ -90,7 +90,7 @@ function BandanaImage({
 
 const amuletteColors: BandanaColor[] = [
   { id: "crepuscule", name: "Crépuscule", swatch: "#3b3455", productImage: "/couture/bandanas/amulette-crepuscule.png", wornImage: "/couture/bandanas/amulette-crepuscule-perro.png" },
-  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/amulette-foret.png", wornImage: "/couture/bandanas/amulette-foret-perro.png" },
+  { id: "foret", name: "Forêt", swatch: "#355c45", productImage: "/couture/bandanas/amulette-foret.png", wornImage: "/couture/bandanas/amulette-foret-perro.png" },
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/amulette-ciel.png", wornImage: "/couture/bandanas/amulette-ciel-perro.png" },
   { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/amulette-framboise.jpg", wornImage: "/couture/bandanas/amulette-framboise-perro.png" },
   { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/amulette-ivoire.png", wornImage: "/couture/bandanas/amulette-ivoire-perro.png" },
@@ -102,7 +102,7 @@ const amuletteColors: BandanaColor[] = [
 
 const abeilleColors: BandanaColor[] = [
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/abeille-ciel.png", wornImage: "/couture/bandanas/abeille-ciel-perro.png" },
-  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/abeille-foret.png", wornImage: "/couture/bandanas/abeille-foret-perro.png" },
+  { id: "foret", name: "Forêt", swatch: "#355c45", productImage: "/couture/bandanas/abeille-foret.png", wornImage: "/couture/bandanas/abeille-foret-perro.png" },
   { id: "tangerine", name: "Tangerine", swatch: "#dd7843", productImage: "/couture/bandanas/abeille-tangerine.jpg", wornImage: "/couture/bandanas/abeille-tangerine-perro.png" },
   { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/abeille-lilas.png", wornImage: "/couture/bandanas/abeille-lilas-perro.png" },
   { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/abeille-ivoire.png", wornImage: "/couture/bandanas/abeille-ivoire-perro.png" },
@@ -113,7 +113,7 @@ const abeilleColors: BandanaColor[] = [
 
 const coeurSacreColors: BandanaColor[] = [
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/coeur-sacre-ciel.png", wornImage: "/couture/bandanas/coeur-sacre-ciel-perro.png" },
-  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/coeur-sacre-foret.png", wornImage: "/couture/bandanas/coeur-sacre-foret-perro.png" },
+  { id: "foret", name: "Forêt", swatch: "#355c45", productImage: "/couture/bandanas/coeur-sacre-foret.png", wornImage: "/couture/bandanas/coeur-sacre-foret-perro.png" },
   { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/coeur-sacre-framboise.jpg", wornImage: "/couture/bandanas/coeur-sacre-framboise-perro.png" },
   { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/coeur-sacre-ivoire.png", wornImage: "/couture/bandanas/coeur-sacre-ivoire-perro.png" },
   { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/coeur-sacre-lilas.png", wornImage: "/couture/bandanas/coeur-sacre-lilas-perro.png" },
@@ -124,7 +124,7 @@ const coeurSacreColors: BandanaColor[] = [
 
 const oracleColors: BandanaColor[] = [
   { id: "ciel", name: "Ciel", swatch: "#a9cdf5", productImage: "/couture/bandanas/oracle-ciel.png", wornImage: "/couture/bandanas/oracle-ciel-perro.png" },
-  { id: "foret", name: "Fôret", swatch: "#355c45", productImage: "/couture/bandanas/oracle-foret.png", wornImage: "/couture/bandanas/oracle-foret-perro.png" },
+  { id: "foret", name: "Forêt", swatch: "#355c45", productImage: "/couture/bandanas/oracle-foret.png", wornImage: "/couture/bandanas/oracle-foret-perro.png" },
   { id: "framboise", name: "Framboise", swatch: "#bd496f", productImage: "/couture/bandanas/oracle-framboise.png", wornImage: "/couture/bandanas/oracle-framboise-perro.png" },
   { id: "ivoire", name: "Ivoire", swatch: "#eee4d2", productImage: "/couture/bandanas/oracle-ivoire.png", wornImage: "/couture/bandanas/oracle-ivoire-perro.png" },
   { id: "lilas", name: "Lilas", swatch: "#bba3d5", productImage: "/couture/bandanas/oracle-lilas.png", wornImage: "/couture/bandanas/oracle-lilas-perro.png" },
@@ -243,6 +243,9 @@ export default function CoutureStoreApp({
 }) {
   const catalogRef = useRef<HTMLElement>(null);
   const [collectionId, setCollectionId] = useState<CollectionId>("amulette");
+  // El paso 1 solo se marca como hecho cuando la persona elige un estilo
+  // (Amulette viene preseleccionado para mostrar una pieza desde el inicio).
+  const [styleChosen, setStyleChosen] = useState(false);
   const [colorId, setColorId] = useState("ciel");
   const [sizeId, setSizeId] = useState<SizeId>("mediana");
   // La talla empieza sin elegir: evita compras con una talla que nadie revisó.
@@ -399,6 +402,7 @@ export default function CoutureStoreApp({
   const allStylesSamePrice = styleMinimums.every((value) => value === styleMinimums[0]);
 
   const selectCollection = (next: BandanaCollection) => {
+    setStyleChosen(true);
     setCollectionId(next.id);
     setColorId(next.colors[0].id);
     setViewMode("product");
@@ -454,7 +458,7 @@ export default function CoutureStoreApp({
 
       <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-7 sm:py-7 lg:px-9">
         <div className={`couture-styles${allStylesSamePrice ? " has-same-price" : ""}`}>
-          <p className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]" data-n="1" data-done="true">
+          <p className="couture-step-title font-interface text-xs font-bold uppercase tracking-[0.16em] text-[#8a6577]" data-n="1" data-done={styleChosen ? "true" : undefined}>
             Elige su estilo
           </p>
           <div className="couture-styles-row -mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">

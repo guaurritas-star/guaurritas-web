@@ -37,7 +37,7 @@ const StoreApp = dynamic(() => import("@/components/apps/StoreApp"), {
 
 const apps = [
   { id: "tienda", name: "Tienda", icon: "cart" as const, description: "Compra premios, repostería y accesorios" },
-  { id: "mundos", name: "Explora mundo", icon: "world" as const, description: "Descubre el universo Guaurritas" },
+  { id: "mundos", name: "Guaurriverse", icon: "world" as const, description: "Explora los mundos Cuisine y Couture" },
   { id: "mascota", name: "Mi mascota", icon: "pet" as const, description: "Crea el perfil de tu compañero" },
   { id: "paint", name: "Paint", icon: "paint" as const, description: "Dibuja y personaliza ideas" },
   { id: "notas", name: "Guaurrinotas", icon: "notes" as const, description: "Guarda recuerdos y momentos especiales" },
@@ -865,6 +865,11 @@ export default function Desktop() {
         selectedApp?.id === "bienvenida" ? "mobile-welcome-open" : selectedApp ? "mobile-app-open" : ""
       }`}
     >
+      {/* Encabezado de página para lectores de pantalla y buscadores cuando la
+          bienvenida (que trae su propio h1) está cerrada. */}
+      {selectedApp?.id !== "bienvenida" && (
+        <h1 className="sr-only">Guaurritas: premios, repostería y accesorios para perros y gatos</h1>
+      )}
       <GuaurritasHeader
         onOpenShop={openStore}
         onOpenRobbie={() => openApp("robbie")}

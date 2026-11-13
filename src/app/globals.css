@@ -887,7 +887,19 @@ body:has(.global-wix-header-shell) {
 
   .desktop-os-member-login-label::after {
     content: attr(data-mobile-label);
-    font-size: 8px;
+    font-size: 11px;
+  }
+
+  /* Área táctil de 44 px sin cambiar el alto visual de la barra (46 px). */
+  .desktop-os-member,
+  .desktop-os-menu-toggle {
+    position: relative;
+  }
+  .desktop-os-member::before,
+  .desktop-os-menu-toggle::before {
+    content: "";
+    position: absolute;
+    inset: -7px -3px;
   }
 
   .desktop-os-member--profile {
@@ -2064,8 +2076,10 @@ html.guaurritas-system-cart-open .desktop-taskbar {
 
 /* Cart notification inherits the real Tienda.exe window primitives.
    Its visual proportions are scaled down; never style the full Store globally. */
-.shopping-window.os-cart-notification { display: none !important; }
-@media (min-width: 640px) {
+/* Auditoría UX 2026-11: antes se ocultaba en móvil y la única señal al
+   agregar era el contador. Ahora es la misma ventana en todas las pantallas;
+   en móvil se acomoda como hoja inferior (reglas al final del bloque). */
+@media screen {
   .shopping-window.os-cart-notification {
     position: fixed;
     right: 28px;
@@ -2203,12 +2217,35 @@ html.guaurritas-system-cart-open .desktop-taskbar {
     justify-content: flex-end;
     padding: 4px 18px 19px;
   }
+  .os-cart-notification-actions { gap: 8px; }
+  .os-cart-notification-actions .os-cart-notification-continue,
   .os-cart-notification-actions .os-cart-notification-open {
     min-height: 44px;
     padding: 8px 15px;
     white-space: nowrap;
     font-size: 15px;
   }
+}
+@media (max-width: 639px) {
+  .shopping-window.os-cart-notification {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    width: 100%;
+    max-height: min(320px, 70dvh);
+    border-width: 2px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  .shopping-window-header.os-cart-notification-titlebar { min-height: 48px; height: 48px; }
+  .shopping-window.os-cart-notification .os-cart-notification-caption.retro-window-caption { font-size: 16px !important; }
+  .shopping-window-header .os-cart-notification-close.shopping-window-control {
+    width: 44px; height: 44px; min-width: 44px !important; min-height: 44px !important; flex-basis: 44px;
+  }
+  .os-cart-notification-body { padding: 14px 16px 10px; }
+  .os-cart-notification-actions { gap: 8px; padding: 4px 16px 16px; }
+  .os-cart-notification-actions > button { flex: 1; min-height: 48px; }
 }
 @media (min-width: 640px) and (max-height: 520px) {
   .shopping-window.os-cart-notification {

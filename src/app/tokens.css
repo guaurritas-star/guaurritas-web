@@ -1,0 +1,51 @@
+/*
+ * Tokens de diseño de Guaurritas (paso 1 de la consolidación progresiva).
+ *
+ * Solo define variables: no cambia nada visible por sí mismo. Los valores son
+ * los que ya usa el sitio, más dos tintas con contraste AA (--gu-teal-ink y
+ * --gu-ink-muted). Regla: cada selector que se edite a partir de ahora usa
+ * estas variables en lugar de un color o medida sueltos.
+ */
+:root {
+  /* Color */
+  --gu-navy: #263650;          /* texto principal, bordes de ventana */
+  --gu-blue: #425b8c;          /* acción principal, barras de título */
+  --gu-blue-soft: #637aa6;     /* bordes de controles */
+  --gu-rose: #a66d88;          /* controles de ventana, progreso */
+  --gu-peach: #d9a689;         /* foco, acentos del carrito */
+  --gu-peach-soft: #f0d3c2;    /* fondo del botón de carrito */
+  --gu-blush: #f4e9ed;         /* selección suave, superficies Couture */
+  --gu-surface: #f2f2f2;       /* fondo de ventanas */
+  --gu-teal-ink: #3f6670;      /* etiquetas de categoría · 6.28:1 sobre blanco */
+  --gu-ink-muted: #42516a;     /* texto secundario · 8.03:1 sobre blanco */
+  --gu-success: #1f5737;       /* confirmaciones */
+  --gu-danger: #8a4545;        /* bloqueos y errores */
+
+  /* Tipografía (las familias las carga next/font en layout.tsx) */
+  --gu-font-display: var(--font-cinzel), serif;      /* títulos y ventanas */
+  --gu-font-brand: var(--font-mansalva), cursive;    /* acentos, precios, etiquetas ≥ 15 px */
+  --gu-text-min: 13px;                               /* mínimo para texto funcional */
+
+  /* Espacio, radios y objetivos táctiles */
+  --gu-space-1: 4px;
+  --gu-space-2: 8px;
+  --gu-space-3: 12px;
+  --gu-space-4: 16px;
+  --gu-space-5: 24px;
+  --gu-space-6: 32px;
+  --gu-radius-control: 6px;
+  --gu-radius-card: 10px;
+  --gu-radius-sheet: 16px;
+  --gu-target: 48px;
+  --gu-target-min: 44px;
+
+  /* Capas (hoy hay valores sueltos hasta 9999; migrar al tocar cada regla) */
+  --gu-z-sticky: 20;
+  --gu-z-window: 40;
+  --gu-z-sheet: 60;
+  --gu-z-notification: 80;
+  --gu-z-modal: 90;
+
+  /* Breakpoints de referencia (las media queries no aceptan variables):
+     640px = móvil / escritorio · 1024px = escritorio amplio. */
+}

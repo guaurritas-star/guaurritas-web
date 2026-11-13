@@ -136,3 +136,24 @@
     border-bottom-color: #d2c5cd;
   }
 }
+
+/* Regresos con texto (auditoría UX 2026-11): la flecha vuelve un nivel y dice a dónde;
+   la × de la ventana es la única que cierra. */
+.boutique-product > .retail-cart-toolbar > .retail-system-back,
+.store-app .boutique-product > .retail-cart-toolbar > .retail-system-back {
+  width: auto;
+  gap: 6px;
+  padding: 0 12px 0 10px;
+}
+.retail-system-back-label { font: 600 15px/1 var(--font-mansalva), cursive; }
+.cuisine-ficha-v2.is-ficha-compact .retail-system-back-label { display: none; }
+.taskbar-cart-titlebar .taskbar-cart-titlebar-back,
+.taskbar-cart-panel .taskbar-cart-titlebar .taskbar-cart-titlebar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-width: 48px;
+  padding: 0 12px;
+  font: 600 15px/1 var(--font-mansalva), cursive;
+}

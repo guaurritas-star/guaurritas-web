@@ -19,8 +19,9 @@ export default function WelcomeApp({ onShop, onCommunity }: {
       <p>Premios, repostería y accesorios para perros y gatos.</p>
     </div>
     <figure className="welcome-photo">
-      <Image src={withBasePath("/cuisine/products/petcakes-sizes-v2/mediano.webp")}
-        alt="Petcake de Guaurritas decorado con calabazas y un fantasma" width={1164} height={1244}
+      {/* Imagen sin temporada: la de Halloween seguía visible en noviembre. */}
+      <Image src={withBasePath("/cuisine/products/petcakes-sizes-v2/chico.webp")}
+        alt="Petcake de cumpleaños de Guaurritas con un michi y gorro de fiesta" width={1176} height={1664}
         sizes="(max-width: 639px) 320px, 440px" priority />
     </figure>
     <div className="welcome-purchase">

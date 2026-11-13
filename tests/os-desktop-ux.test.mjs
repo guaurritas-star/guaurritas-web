@@ -45,9 +45,9 @@ test("notificar solo compras añadidas, no errores ni mayoreo pendiente", () => 
   assert.match(toast, /requestSystemCartOpen\(\)/);
 });
 
-test("toast nativo se oculta en móvil y cuando se abre el carrito", () => {
-  assert.match(css, /\.shopping-window\.os-cart-notification \{ display: none !important; \}/);
-  assert.match(css, /@media \(min-width: 640px\)[\s\S]*?\.shopping-window\.os-cart-notification \{/);
+test("toast nativo es hoja inferior en móvil y se oculta cuando se abre el carrito", () => {
+  assert.doesNotMatch(css, /\.shopping-window\.os-cart-notification \{ display: none !important; \}/);
+  assert.match(css, /@media \(max-width: 639px\) \{\n  \.shopping-window\.os-cart-notification \{[\s\S]*?bottom: 0;/);
   assert.match(css, /guaurritas-system-cart-open \.shopping-window\.os-cart-notification/);
   assert.match(feedback, /role=\{blocked \? "alert" : "status"\}/);
 });

@@ -308,7 +308,7 @@ const products: CuisineProduct[] = [
   {
     id: "happy-bag",
     name: "Happy Bag",
-    eyebrow: "Guaurricookies",
+    eyebrow: "Premios horneados",
     category: "snacks",
     description:
       "Una probadita del recetario Guaurritas: 100 g de Guaurricookies horneadas para premiar o llevar un detalle.",
@@ -1713,6 +1713,7 @@ export default function CuisineStoreApp({
             title="Volver al catálogo"
           >
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7" /></svg>
+            <span className="retail-system-back-label" aria-hidden="true">Catálogo</span>
           </button>
           <div className="ficha-mini-header" aria-hidden="true">
             <span className="ficha-mini-thumb" style={{ backgroundColor: selectedProduct.imageTone }}>
@@ -1767,7 +1768,7 @@ export default function CuisineStoreApp({
           </div>
 
           <div className="flex flex-col justify-center">
-            <p className="font-interface text-[10px] font-bold uppercase tracking-[0.2em] text-[#5e96a5]">
+            <p className="font-interface text-[10px] font-bold uppercase tracking-[0.2em] text-[#3f6670]">
               {selectedProduct.eyebrow}
             </p>
             <h2 className="mt-2 font-serif text-3xl font-semibold text-[#263650] sm:text-4xl">
@@ -1967,7 +1968,7 @@ export default function CuisineStoreApp({
                       </span>
                     </span>
                     <span className="min-w-0">
-                      <span className="block font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#5e96a5]">
+                      <span className="block font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#3f6670]">
                         Tu selección se ve así
                       </span>
                       <span className="mt-1 block font-interface text-xs font-bold leading-5 text-[#263650]">
@@ -2567,7 +2568,7 @@ export default function CuisineStoreApp({
                               <span className="block font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                                 Ingredientes
                               </span>
-                              <span className="mt-1 block font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                              <span className="mt-1 block font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#3f6670]">
                                 {currentOption.label}
                               </span>
                             </span>
@@ -2589,7 +2590,7 @@ export default function CuisineStoreApp({
                               <span className="block font-interface text-xs font-bold uppercase tracking-[0.12em] text-[#263650]">
                                 Análisis garantizado
                               </span>
-                              <span className="mt-1 block font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5e96a5]">
+                              <span className="mt-1 block font-interface text-[10px] font-semibold uppercase tracking-[0.1em] text-[#3f6670]">
                                 {currentOption.label}
                               </span>
                             </span>
@@ -2792,7 +2793,7 @@ export default function CuisineStoreApp({
                             <span>{flavor}</span>
                             <span
                               aria-hidden="true"
-                              className="text-base font-bold text-[#5e96a5]"
+                              className="text-base font-bold text-[#3f6670]"
                             >
                               <span className="group-open:hidden">+</span>
                               <span className="hidden group-open:inline">−</span>
@@ -2908,7 +2909,7 @@ export default function CuisineStoreApp({
             )}
 
             <details className="product-before-order group mt-7 rounded-2xl border border-[#c8d5dc] bg-[#f8fbfc] p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#5e96a5] marker:content-none">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-interface text-[10px] font-bold uppercase tracking-[0.14em] text-[#3f6670] marker:content-none">
                 <span>Antes de pedir</span>
                 <span
                   aria-hidden="true"
@@ -3316,7 +3317,7 @@ export default function CuisineStoreApp({
               </span>
               <span className="cuisine-catalog-card-body block p-4 sm:flex sm:flex-1 sm:flex-col">
                 <span className="cuisine-catalog-card-meta">
-                  <span className="cuisine-catalog-card-eyebrow font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#6b96a1]">
+                  <span className="cuisine-catalog-card-eyebrow font-interface text-[9px] font-bold uppercase tracking-[0.16em] text-[#3f6670]">
                     {product.eyebrow}
                   </span>
                   {(halloweenRate(product.id) > 0 || product.badge) && (

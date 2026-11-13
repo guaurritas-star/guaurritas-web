@@ -190,8 +190,9 @@ export default function RetroWindow({
               title="Volver a las aplicaciones"
               className={`${shopping ? "shopping-window-control" : "retro-window-control"} retro-window-close flex h-8 min-w-8 cursor-pointer items-center justify-center border-2 border-[#425b8c] bg-white px-2 font-mono font-bold hover:bg-[#425b8c] hover:text-white sm:h-7 sm:min-w-7 sm:px-0`}
             >
-              <span aria-hidden="true" className={variant === "welcome" ? "hidden" : "sm:hidden"}>←</span>
-              <span aria-hidden="true" className={variant === "welcome" ? "" : "hidden sm:inline"}>×</span>
+              {/* × siempre cierra la ventana; la flecha queda reservada para
+                  volver un nivel dentro de una app («← Catálogo», «← Mundos»). */}
+              <span aria-hidden="true">×</span>
             </Control>
           </div>
         </TitleBar>
