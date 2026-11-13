@@ -1,0 +1,47 @@
+/* This ancestor scopes the visual study to this route. Purchase components
+   and their state are the same ones used by the live store. */
+.preview { min-height:100dvh; background:linear-gradient(135deg,#dfe7f2,#b9cadf 58%,#ead7dd); color:#263650; }
+.label { padding:18px 24px; font:600 21px var(--font-cinzel),serif; }
+.label span { display:block; margin-top:4px; font:16px var(--font-mansalva),cursive; }
+.shortcut { display:flex; flex-direction:column; align-items:center; gap:8px; margin:24px; padding:12px; border-radius:12px; font:16px var(--font-cinzel),serif; }
+.shortcut > span:first-child { width:64px; height:64px; }
+.taskbar { position:fixed; inset:auto 0 0; display:flex; align-items:center; gap:10px; min-height:56px; padding:6px 12px; border-top:1px solid #fff; background:linear-gradient(#eddae3,#c39daf); box-shadow:0 -2px 12px #425b8c22; }
+.taskbar > button { padding:8px 20px; border:1px solid #8a677b; border-radius:7px; background:linear-gradient(#fff,#ead8e2); box-shadow:inset 0 1px #fff,0 1px 2px #425b8c22; }
+.taskbar > span { margin-left:auto; }
+.preview :global(.retro-window-overlay) { top:30px; bottom:72px; padding:0 24px 0 112px; }
+.preview :global(.retro-window-dialog.shopping-window.shopping-window) { max-width:1240px; padding:0; border:1px solid #d6e0ee; border-radius:15px; background:#f2f2f2; box-shadow:inset 0 1px 0 #fff,0 18px 48px #26365040,0 2px 5px #26365022; }
+.preview :global(.shopping-window-header.shopping-window-header) { min-height:58px; padding:8px 12px 8px 18px; gap:12px; border:0; border-bottom:1px solid #425b8c; border-radius:14px 14px 0 0; background:linear-gradient(180deg,#b8c8df 0%,#7c96bb 14%,#637aa6 50%,#425b8c 100%); box-shadow:inset 0 1px #fff9,inset 0 -1px #ffffff38; }
+.preview :global(.retro-window-caption) { display:flex; align-items:center; flex:1; min-width:0; gap:7px; font:600 17px/1.4 var(--font-cinzel),serif; text-shadow:0 1px 2px #26365080; }
+.preview :global(.retro-window-caption-icon) { width:25px; height:25px; margin:0; }
+.preview :global(.retro-window-controls) { flex:none; gap:6px; }
+.preview :global(.shopping-window-control.shopping-window-control) { display:inline-flex; align-items:center; justify-content:center; flex:none; width:38px; min-width:38px; height:36px; min-height:36px; padding:0; border:1px solid #425b8c66; border-radius:5px; background:linear-gradient(#ffffffed,#d8e2ef); color:#263650; box-shadow:inset 0 1px #fff,0 1px 2px #26365033; font:700 20px/1 monospace; }
+.preview :global(.retro-window-close.retro-window-close) { background:linear-gradient(#d5adbf,#a66d88); border-color:#80556b; color:white; }
+.preview :global(.shopping-window-control.shopping-window-control:hover) { background:linear-gradient(#f8e5ed,#dcb6c8); }
+.preview :global(.retro-window-client) { border-radius:0 0 14px 14px; }
+.preview :global(.shopping-navigation) { background:linear-gradient(#fafbfd,#e5eaf2); border-bottom:1px solid #bdc9da; padding:12px 20px; box-shadow:inset 0 1px #fff; }
+.preview :global(.shopping-navigation button) { border-radius:7px; border:1px solid #b0bfd3; background:linear-gradient(#fff,#e5eaf2); box-shadow:inset 0 1px #fff,0 1px 2px #425b8c15; }
+.preview :global(.shopping-navigation button[aria-pressed="true"]) { background:linear-gradient(#f1dde6,#dfbfce); color:#55384a; border-color:#ba8da4; box-shadow:inset 0 1px #fff9; }
+.preview :global(.shopping-navigation button:hover) { background:linear-gradient(#f7e7ee,#e2c2d2); color:#55384a; }
+.preview :global(.shopping-catalog-tabs) { gap:6px; }
+.preview :global(.shopping-catalog-tabs button:last-child) { border-left:1px solid #b0bfd3; border-radius:7px; }
+.preview :global(.shopping-navigation .shopping-store-cart) { background:linear-gradient(#f5e7dd,#d9a689); border-color:#bf9279; }
+.preview button:focus-visible { outline:3px solid #425b8c; outline-offset:3px; }
+@media (max-width:639px) {
+ .label { display:none; }
+ .preview :global(.retro-window-overlay) { inset:0 0 64px; height:auto; padding:8px 12px 0; }
+ .preview :global(.shopping-window-header.shopping-window-header) { min-height:62px; padding:6px 8px 6px 12px; }
+ .preview :global(.shopping-window-control.shopping-window-control) { width:48px; min-width:48px; height:48px; min-height:48px; }
+ .preview :global(.retro-window-minimize.retro-window-minimize) { display:none; }
+ .preview :global(.shopping-navigation) { position:static; padding:12px; }
+ .preview :global(.shopping-navigation button) { min-height:48px; }
+ .preview :global(.store-window-client) { overflow-y:auto; }
+ .taskbar { min-height:60px; padding-bottom:max(6px,env(safe-area-inset-bottom)); }
+ .taskbar > span { display:none; }
+ .taskbar > button { min-height:48px; padding:8px 12px; }
+}
+@media (max-height:560px) and (min-width:640px) { .preview :global(.retro-window-overlay) { top:8px; bottom:64px; } }
+@media (max-width:639px) {
+ .preview :global(.shopping-location button .system-icon) { display:none; }
+ .preview :global(.shopping-navigation .shopping-location button) { white-space:normal; padding:8px 6px; font-size:16px; }
+ .preview :global(.retro-window-dialog .retro-window-caption) { font:600 16px/1.4 var(--font-cinzel),serif; }
+}
