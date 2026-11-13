@@ -489,8 +489,10 @@ export function openOrderReceipt(order: ReceiptOrder) {
       window.setTimeout(() => URL.revokeObjectURL(url), 10 * 60 * 1000);
     } catch (error) {
       popup.document.open();
-      popup.document.write(`<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:24px"><h2>No pudimos generar la nota</h2><p>${String(error instanceof Error ? error.message : error)}</p></body></html>`);
+      popup.document.write(`<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:24px"><h2>No pudimos generar la nota</h2><p id="receipt-error"></p></body></html>`);
       popup.document.close();
+      const message = popup.document.getElementById("receipt-error");
+      if (message) message.textContent = String(error instanceof Error ? error.message : error);
     }
   })();
 }
