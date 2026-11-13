@@ -117,6 +117,9 @@ const worlds: World[] = [
   },
 ];
 
+const availableWorlds = worlds.filter((world) => world.available);
+const upcomingWorlds = worlds.filter((world) => !world.available);
+
 function isWorldId(value: string | null): value is WorldId {
   return worlds.some((world) => world.id === value);
 }
@@ -280,8 +283,8 @@ export default function GuaurriverseApp() {
         </header>
 
         <div className="mx-auto mt-5 flex w-full max-w-3xl flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
-          <p className="font-interface text-[9px] font-bold uppercase tracking-[0.13em] text-[#42516a] sm:text-[10px]">
-            ¿Dónde estás comprando?
+          <p className="font-interface text-[12px] font-bold uppercase tracking-[0.1em] text-[#42516a]">
+            ¿Dónde recibes tu pedido?
           </p>
           <div
             className="grid w-[min(100%,23rem)] grid-cols-2 rounded-full border border-[#8494ad] bg-transparent p-1 sm:w-auto sm:min-w-72"
@@ -293,86 +296,89 @@ export default function GuaurriverseApp() {
                 type="button"
                 onClick={() => chooseFulfillmentMode(mode)}
                 aria-pressed={fulfillmentMode === mode}
-                className={`min-h-10 rounded-full px-4 py-2 font-interface text-[9px] font-bold uppercase tracking-[0.08em] transition sm:min-h-9 ${
+                className={`min-h-11 rounded-full px-4 py-2 font-interface text-[13px] font-bold tracking-[0.02em] transition ${
                   fulfillmentMode === mode
                     ? "bg-[#263650] text-white shadow-sm"
                     : "text-[#42516a] hover:bg-white/60"
                 }`}
               >
-                {mode === "leon" ? <><SystemIcon name="pin" /> León</> : <><SystemIcon name="box" /> Nacional</>}
+                {mode === "leon" ? <><SystemIcon name="pin" /> León, Gto.</> : <><SystemIcon name="box" /> Todo México</>}
               </button>
             ))}
           </div>
-          <p className="font-brand text-[11px] text-[#718093] sm:whitespace-nowrap">
-            Puedes cambiarlo cuando quieras
+          <p className="font-brand text-[13px] text-[#42516a] sm:whitespace-nowrap">
+            Puedes cambiarlo cuando quieras dentro de la tienda
           </p>
         </div>
 
-        <div className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-5 lg:grid lg:grid-cols-12 lg:overflow-visible">
-          {worlds.map((world) => (
+        {/* Primero lo que se puede usar (Hick): los mundos con compra, grandes;
+            los próximos quedan como promesa de marca en una fila compacta. */}
+        <div className="guaurriverse-worlds-available mt-6 grid grid-cols-2 gap-3 sm:gap-4">
+          {availableWorlds.map((world) => (
             <button
-              key={world.id}
-              type="button"
-              onClick={() => openWorld(world)}
-              disabled={!world.available}
-              aria-label={
-                world.available
-                  ? `Explorar ${world.name}`
-                  : `${world.name}, próximamente`
-              }
-              style={
-                {
-                  "--world-accent": world.accent,
-                  "--world-accent-soft": world.accentSoft,
-                } as WorldCardStyle
-              }
-              className={`world-card group relative aspect-[2/3] w-[70vw] max-w-[15rem] shrink-0 snap-center overflow-hidden rounded-[1.35rem] border bg-[#263650] text-left shadow-[0_12px_24px_rgba(64,43,28,0.13)] transition-[transform,box-shadow,border-color] duration-300 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#ad9279] sm:w-[15rem] lg:h-[22rem] lg:w-full lg:max-w-none ${
-                world.available ? "world-card--available hover:-translate-y-2" : "world-card--locked cursor-not-allowed"
-              } ${
-                world.available ? "lg:col-span-3" : "lg:col-span-2"
-              }`}
-            >
-              <WorldMediaPreview world={world} />
+                key={world.id}
+                type="button"
+                onClick={() => openWorld(world)}
+                aria-label={`Entrar a ${world.name}`}
+                style={
+                  {
+                    "--world-accent": world.accent,
+                    "--world-accent-soft": world.accentSoft,
+                  } as WorldCardStyle
+                }
+                className={`world-card group relative aspect-[3/4] w-full overflow-hidden rounded-[1.35rem] border bg-[#263650] text-left shadow-[0_12px_24px_rgba(64,43,28,0.13)] transition-[transform,box-shadow,border-color] duration-300 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#ad9279] sm:aspect-auto sm:h-80 lg:h-[24rem] world-card--available hover:-translate-y-2`}
+              >
+                <WorldMediaPreview world={world} />
 
-              <span className="world-card-overlay absolute inset-0" />
-              <span className={`absolute right-3 top-3 z-20 rounded-full border border-white/50 px-2.5 py-1 font-interface text-[8px] font-bold uppercase tracking-[0.12em] shadow-sm backdrop-blur ${
-                world.available
-                  ? "bg-white/90 text-[#263650]"
-                  : "bg-[#263650]/75 text-white"
-              }`}>
-                {world.available ? "Explorar" : <><SystemIcon name="lock" /> Próximamente</>}
-              </span>
-              <span className="world-card-content absolute inset-x-0 bottom-0 z-10 block p-5">
-                <span className="world-card-tag inline-flex items-center rounded-full border px-2.5 py-1 font-sans text-[8px] font-bold uppercase tracking-[0.18em]">
-                  ✦ Guaurriverse
+                <span className="world-card-overlay absolute inset-0" />
+                <span className="absolute right-3 top-3 z-20 rounded-full border border-white/50 bg-white/90 px-3 py-1 font-interface text-[11px] font-bold uppercase tracking-[0.12em] text-[#263650] shadow-sm backdrop-blur">
+                  Entrar
+                </span>
+                <span className="world-card-content absolute inset-x-0 bottom-0 z-10 block p-3 sm:p-5">
+                  <span className="world-card-tag hidden items-center rounded-full border px-2.5 py-1 font-sans text-[10px] sm:inline-flex font-bold uppercase tracking-[0.16em]">
+                    ✦ Guaurriverse
+                  </span>
+                  <span
+                    className={`world-card-title mt-2 block max-w-full font-serif font-semibold leading-[1.25] ${
+                      world.id === "academy"
+                        ? "text-[clamp(0.95rem,1vw,1.1rem)]"
+                        : "text-[clamp(1.05rem,1.25vw,1.3rem)]"
+                    }`}
+                  >
+                    {world.name}
+                  </span>
+                  <span className="world-card-line mt-3 block h-px" />
+                  <span className="world-card-subtitle mt-3 block pr-12 text-[11px] uppercase tracking-[0.12em]">
+                    {world.description}
+                  </span>
                 </span>
                 <span
-                  className={`world-card-title mt-2 block max-w-full font-serif font-semibold leading-[1.25] ${
-                    world.id === "academy"
-                      ? "text-[clamp(0.95rem,1vw,1.1rem)]"
-                      : "text-[clamp(1.05rem,1.25vw,1.3rem)]"
-                  }`}
+                  className="world-card-cta absolute bottom-3 right-3 z-20 flex h-9 w-9 sm:bottom-5 sm:right-5 items-center justify-center rounded-full border text-xl"
+                  aria-hidden="true"
                 >
-                  {world.name}
+                  →
                 </span>
-                <span className="world-card-line mt-3 block h-px" />
-                <span className="world-card-subtitle mt-3 block pr-9 text-[9px] uppercase tracking-[0.13em]">
-                  {world.description}
-                </span>
-              </span>
-              <span
-                className="world-card-cta absolute bottom-5 right-5 z-20 flex h-9 w-9 items-center justify-center rounded-full border text-xl"
-                aria-hidden="true"
-              >
-                {world.available ? "→" : <SystemIcon name="lock" />}
-              </span>
-            </button>
+              </button>
           ))}
         </div>
 
-        <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-[#927c68] lg:hidden">
-          Desliza para explorar →
-        </p>
+        <section className="guaurriverse-worlds-upcoming mt-6" aria-labelledby="guaurriverse-upcoming-title">
+          <h3 id="guaurriverse-upcoming-title" className="font-interface text-[12px] font-bold uppercase tracking-[0.1em] text-[#42516a]">
+            Próximamente en el Guaurriverse
+          </h3>
+          <ul className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
+            {upcomingWorlds.map((world) => (
+              <li
+                key={world.id}
+                className="guaurriverse-upcoming-item flex flex-col items-center gap-1 rounded-[0.75rem] border-2 border-dashed border-[#b9a6b2] bg-[#faf6f8] px-2 py-3 text-center"
+              >
+                <span className="text-[#6a5361]" aria-hidden="true"><SystemIcon name="lock" /></span>
+                <span className="font-serif text-[13px] font-semibold leading-tight text-[#263650]">{world.name}</span>
+                <span className="font-interface text-[12px] font-semibold text-[#6a5361]">Próximamente</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </section>
   );

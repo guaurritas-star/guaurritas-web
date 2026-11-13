@@ -3,6 +3,7 @@ import { Cinzel, Mansalva } from "next/font/google";
 import CartPersistenceGuard from "@/components/cart/CartPersistenceGuard";
 import ShoppingTheme from "@/components/ui/ShoppingTheme";
 import "./globals.css";
+import "./tokens.css";
 import "./iframe-scroll-fix.css";
 import "./mobile-launch-animations.css";
 import "./paint-icon-animation.css";

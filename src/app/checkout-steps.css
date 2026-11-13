@@ -279,3 +279,20 @@
 .taskbar-cart-panel .taskbar-cart-quantity button { min-width: 44px !important; min-height: 44px !important; }
 .taskbar-cart-panel .taskbar-cart-remove { min-width: 44px !important; min-height: 44px !important; }
 .taskbar-cart-panel .taskbar-cart-item { grid-template-columns: 48px minmax(0, 1fr) auto auto 44px !important; }
+
+/* Línea del carrito en móvil (auditoría UX 2026-11): el nombre usa todo el ancho
+   y ya no se corta a mitad de palabra; controles en una segunda fila. */
+@media (max-width: 639px) {
+  .taskbar-cart-panel .taskbar-cart-item {
+    grid-template-columns: 56px minmax(0, 1fr) auto 44px !important;
+    grid-template-areas: "img copy copy copy" "img qty price remove";
+    align-items: center;
+    row-gap: 8px;
+  }
+  .taskbar-cart-panel .taskbar-cart-item-image { grid-area: img; width: 56px; height: 56px; align-self: start; }
+  .taskbar-cart-panel .taskbar-cart-item-copy { grid-area: copy; min-width: 0; }
+  .taskbar-cart-panel .taskbar-cart-quantity { grid-area: qty; justify-self: start; }
+  .taskbar-cart-panel .taskbar-cart-price { grid-area: price; justify-self: end; text-align: right; }
+  .taskbar-cart-panel .taskbar-cart-remove { grid-area: remove; }
+  #taskbar-cart-panel .taskbar-cart-item-copy > strong { overflow-wrap: break-word; word-break: normal; hyphens: manual; }
+}

@@ -39,10 +39,11 @@ test("StoreApp reutiliza la entrega elegida sin repetir el filtro dentro de mund
   assert.match(store, /const activeCategory = lockedCategory \?\? category/);
   assert.match(store, /lockedCategory \? \(/);
   assert.match(store, /Sección elegida en Guaurriverse/);
-  assert.match(store, /shopping-world-toolbar/);
-  assert.match(store, /Zona de entrega elegida en Guaurriverse/);
-  assert.match(store, /lockedCategory \? \(/);
-  assert.match(store, /Volver a explorar los mundos/);
+  // Un solo encabezado: dentro de un mundo también se ve (y se puede cambiar) la zona.
+  assert.match(store, /shopping-navigation shopping-navigation--compact\$\{lockedCategory \? " shopping-navigation--world" : ""\}/);
+  assert.match(store, /shopping-world-context/);
+  assert.match(store, /Volver a los mundos del Guaurriverse/);
+  assert.doesNotMatch(store, /shopping-world-toolbar/);
   assert.match(store, /shopping-location/);
   assert.match(store, /shopping-store-cart/);
   assert.match(store, /activeCategory === "couture"/);
@@ -54,7 +55,7 @@ test("mundo Cuisine/Couture utiliza el mismo chrome y scroll que Tienda.exe", ()
   assert.match(desktop, /fixedContent=\{selectedApp\.id === "tienda" \|\| worldStoreOpen\}/);
   assert.match(desktop, /Guaurritas Cuisine/);
   assert.match(desktop, /Guaurritas Couture/);
-  assert.match(css, /\.store-app--world \.shopping-world-toolbar/);
+  assert.match(css, /\.shopping-navigation--compact \.shopping-world-context/);
   assert.match(layout, /import "\.\/guaurriverse-store\.css";/);
 });
 

@@ -54,8 +54,10 @@ test("mini ventana hereda el sistema visual de Tienda y ayuda discreta", () => {
   assert.doesNotMatch(styles, /\.desktop-shortcut-tooltip-heading|\.os-cart-notification-mascot/);
 });
 
-test("sin interrupciones en móvil ni para usuarios con movimiento reducido", () => {
-  assert.match(styles, /\.shopping-window\.os-cart-notification \{ display: none !important; \}/);
+test("en móvil no bloquea la página y respeta movimiento reducido", () => {
+  // Hoja inferior sin capa que bloquee; se cierra sola y con su botón.
+  assert.match(styles, /@media \(max-width: 639px\) \{\n  \.shopping-window\.os-cart-notification \{/);
+  assert.doesNotMatch(styles, /os-cart-notification-backdrop/);
   assert.match(styles, /html\.guaurritas-system-cart-open \.shopping-window\.os-cart-notification/);
   assert.match(styles, /\.desktop-status-help \{ display: none; \}/);
   assert.match(styles, /prefers-reduced-motion: reduce/);

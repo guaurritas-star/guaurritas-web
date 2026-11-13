@@ -70,6 +70,15 @@ function itemUnits(items: CartItem[]) {
   return items.reduce((total, item) => total + item.quantity, 0);
 }
 
+/** Solo presentación: «300 g · 300 g de pollo con calabaza» → «300 g · Pollo con calabaza».
+ *  No cambia el detalle guardado ni lo que se envía al checkout. */
+function cartItemDetailLabel(detail: string) {
+  const repeated = detail.match(/^(\d+(?:[.,]\d+)?\s*(?:g|kg)) · \1 de (.+)$/i);
+  if (!repeated) return detail;
+  const flavor = repeated[2];
+  return `${repeated[1]} · ${flavor.charAt(0).toLocaleUpperCase("es")}${flavor.slice(1)}`;
+}
+
 export default function TaskbarCart({ onShop }: { onShop: () => void }) {
   const [open, setOpen] = useState(false);
   const revealCartRef = useRef(false);
@@ -404,9 +413,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
           </span>
           <span className="taskbar-cart-item-copy">
             <strong>{item.name}</strong>
-            <small>{item.detail}</small>
+            <small>{cartItemDetailLabel(item.detail)}</small>
             {item.personalization && <small className="cart-personalization">Personalización: {item.personalization}</small>}
-            <small>{money(item.unitPrice)} por unidad{item.fulfillment === "leon" ? " · SPEI" : ""} · {item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}</small>
+            {item.quantity > 1 && <small>{money(item.unitPrice)} c/u · {item.quantity} unidades</small>}
             <small
               className={`mt-1 font-bold ${
                 item.fulfillment === "national"
@@ -487,8 +496,9 @@ export default function TaskbarCart({ onShop }: { onShop: () => void }) {
                   type="button"
                   aria-label={leonStep === "payment" ? "Volver a entrega" : "Volver al carrito"}
                   onClick={leonStep === "payment" ? backToLeonDelivery : goBackToCart}
+                  className="taskbar-cart-titlebar-back"
                 >
-                  ‹
+                  <span aria-hidden="true">←</span> {leonStep === "payment" ? "Entrega" : "Carrito"}
                 </button>
                 <span className="flex-1 px-2 text-center">{leonStep === "payment" ? "Pago" : "Entrega"}</span>
                 <button type="button" aria-label="Cerrar carrito" onClick={closeCart}>

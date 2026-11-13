@@ -91,6 +91,9 @@ export default function OsCartNotification() {
           )}
         </div>
         <div className="os-cart-notification-actions">
+          <ShoppingButton className="os-cart-notification-continue" onClick={dismiss}>
+            Seguir comprando
+          </ShoppingButton>
           <ShoppingButton
             $tone="peach"
             className="os-cart-notification-open"

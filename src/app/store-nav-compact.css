@@ -3,6 +3,11 @@
    Solo presentación: misma lógica y mismos controles accesibles. */
 
 .shopping-navigation--compact .store-delivery-short { display: none; }
+/* El texto largo queda para lectores de pantalla (el corto es aria-hidden);
+   antes se ocultaba con display:none y el resumen quedaba sin nombre accesible. */
+.shopping-navigation--compact .store-delivery-long {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
 
 @media (min-width: 640px) {
   .store-window-dialog .shopping-navigation--compact,
@@ -43,7 +48,6 @@
   .store-window-dialog .shopping-navigation--compact .shopping-store-cart { min-height: 38px; padding: 6px 12px; }
 
   /* Aviso de entrega corto; el detalle se abre como globo */
-  .shopping-navigation--compact .store-delivery-long { display: none; }
   .shopping-navigation--compact .store-delivery-short { display: inline; }
   .shopping-navigation--compact .store-delivery-details summary {
     font-size: 13px; text-decoration: underline dotted; text-underline-offset: 3px; white-space: nowrap; list-style: none;
@@ -92,7 +96,6 @@
     background: linear-gradient(#5b74a6, #425b8c); color: #fff; border-color: #425b8c;
   }
   .store-window-dialog .shopping-navigation--compact .shopping-store-cart { min-height: 44px; }
-  .shopping-navigation--compact .store-delivery-long { display: none; }
   .shopping-navigation--compact .store-delivery-short { display: inline; }
   .shopping-navigation--compact .store-delivery-details summary {
     font-size: 13px; text-decoration: underline dotted; text-underline-offset: 3px;
